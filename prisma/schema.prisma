@@ -1,0 +1,558 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+model AdminUser {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  fullName     String
+  email        String?    @unique
+  passwordHash String
+  role         AdminRole  @default(USER)
+  isActive     Boolean    @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  albums       Album[]     @relation("UserAlbums")
+  posts        BlogPost[]  @relation("UserPosts")
+  mediaFiles   MediaFile[] @relation("UserMedia")
+
+  @@index([username])
+  @@index([role])
+}
+
+// -----------------------------------------------------------------------------
+// 1. SYSTEM SETTINGS ENGINE (Centralized Dynamic CMS Configuration)
+// -----------------------------------------------------------------------------
+model SystemSetting {
+  id                      String   @id @default("default")
+  siteName                String   @default("PlusMoments - Luxury Wedding Photography")
+  tagline                 String   @default("Lưu giữ khoảnh khắc thanh xuân và tình yêu vĩnh cửu")
+  defaultMetaTitle        String   @default("PlusMoments | Studio Chụp Ảnh Cưới Phong Cách Luxury & Cảm Xúc")
+  defaultMetaDescription  String   @default("PlusMoments Studio chuyên cung cấp dịch vụ chụp ảnh cưới Pre-Wedding, phóng sự cưới cao cấp với phong cách sang trọng, tự nhiên và đậm chất điện ảnh.")
+  defaultOgImage          String   @default("")
+  canonicalBaseUrl        String   @default("https://plusmoments.vn")
+
+  // System Maintenance Mode
+  isMaintenanceMode       Boolean  @default(false)
+  maintenanceNotice       String?  @db.Text @default("PlusMoments đang tiến hành nâng cấp hệ thống định kỳ. Chúng tôi sẽ trở lại trong ít phút.")
+
+  // Marketing & Ads Tracking
+  gtmId                           String?  @default("") // Google Tag Manager Container ID (e.g., GTM-XXXXXXX)
+  googleTagManagerId              String?  @default("") // Google Tag Manager ID (GTM-XXXXXX)
+  googleAdsId                     String?  @default("") // Google Ads Conversion Tag (e.g., AW-XXXXXXXXX)
+  googleAnalyticsId               String?  @default("") // Google Analytics 4 Measurement ID (G-XXXXXXXXXX)
+  googleAdsConversionLabel        String?  @default("") // Lead Form Submit Conversion Label (e.g., AbCdEfGhIjKlMnOp)
+  googleAdsLeadLabel              String?  @default("") // Conversion Label khi gửi form tư vấn
+  googleAdsPurchaseLabel          String?  @default("") // Conversion Label khi thanh toán cọc VietQR thành công
+  googleAdsPhoneConversionLabel   String?  @default("") // Hotline Call Click Conversion Label
+  googleAdsZaloConversionLabel    String?  @default("") // Zalo Click Conversion Label
+  googleAdsMessengerConversionLabel String? @default("") // Messenger Click Conversion Label
+  googleAdsConversionValue        Float?   @default(500000) // Default conversion value in VND (500,000đ)
+  googleAdsEnhancedConversions    Boolean  @default(true) // Enable Enhanced Conversions
+  metaPixelId                     String?  @default("") // Facebook Pixel ID (e.g., 123456789012345)
+  tiktokPixelId                   String?  @default("") // TikTok Pixel ID (e.g., CXXXXXXXXXXXXX)
+  customHeadScript                String?  @db.Text     // Raw custom scripts injected before </head>
+  customBodyScript                String?  @db.Text     // Raw custom scripts injected after <body>
+
+  // Thank You Page (Trang Đích Đo Lường Chuyển Đổi Sau Gửi Form)
+  redirectOnSubmit                Boolean  @default(true) // Tự động chuyển hướng sang trang đích cảm ơn
+  thankYouPageUrl                 String?  @default("/cam-on")
+  thankYouTitle                   String?  @default("Đặt Lịch Tư Vấn Thành Công!")
+  thankYouMessage                 String?  @db.Text @default("Cảm ơn bạn đã tin tưởng PlusMoments. Ekip tư vấn sẽ liên hệ lại trong vòng 15 phút để gửi bảng báo giá chi tiết và bảo lưu ưu đãi 2.000.000đ.")
+  thankYouVoucherCode             String?  @default("PLUSMOMENTS-2TR")
+
+  // Google Ads Promotional Landing Page (/uu-dai)
+  landingPageEnabled              Boolean  @default(true)
+  landingPageTitle                String?  @default("Ưu Đãi Mùa Cưới 2025 - Tặng Gói Make-Up & Xe Rước Dâu")
+  landingPageSubtitle             String?  @db.Text @default("Đặc quyền dành riêng cho cặp đôi đăng ký trực tuyến hôm nay: Nhận ngay Voucher 2.000.000đ trừ trực tiếp vào gói chụp Pre-Wedding Luxury.")
+  landingPageBannerImage          String?  @default("")
+  landingPageSlotsRemaining       Int?     @default(5)
+  landingPageDiscountAmount       String?  @default("2.000.000đ")
+  landingPageDeadline             String?  @default("Áp dụng cho 10 cặp đôi đầu tiên trong tuần này")
+
+  // Studio Contact Information & High-Intent Conversion
+  hotline                 String   @default("0903.768.871")
+  hotlineDisplay          String   @default("0903.768.871")
+  zaloNumber              String   @default("0903768871")
+  zaloUrl                 String?  @default("https://zalo.me/0903768871")
+  messengerUrl            String?  @default("https://m.me/plusmoments.vn")
+  promoText               String   @default("Nhận Báo Giá Ưu Đãi 2Tr")
+  email                   String   @default("contact@plusmoments.vn")
+  studioAddress           String   @default("31 Hùng Vương, Phường An Đông")
+  googleMapsUrl           String   @default("https://maps.google.com")
+  googleMapsEmbedUrl      String?  @db.Text  // Chứa URL src từ thẻ iframe hoặc link embed
+  googleMapsShareUrl      String?  @db.Text  // Link chia sẻ Google Maps dẫn đường trực tiếp
+  openingHours            String   @default("09:00 - 21:00 (Thứ 2 - Chủ Nhật)")
+
+  // Social Channels (để trống thì frontend không render icon)
+  facebookUrl             String?
+  instagramUrl            String?
+  tiktokUrl               String?
+  youtubeUrl              String?
+
+  // Google Drive Media Integration & Auto WebP Pipeline
+  driveFolderUrl          String?  @default("")
+  driveFolderId           String?  @default("")
+  googleDriveApiKey       String?  @default("")
+
+  // Google Gemini AI Assistant Integration
+  geminiApiKey            String?  @default("")
+  geminiModel             String?  @default("gemini-2.5-flash")
+  geminiTemperature       Float?   @default(0.7)
+  geminiTone              String?  @default("LUXURY_CINEMATIC")
+
+  // VietQR & Automated Payment Configuration (SePay / Casso)
+  bankBin                 String?  @default("") // Mã BIN ngân hàng (ví dụ: 970422 cho MB, 970415 cho VietinBank, v.v.)
+  bankShortName           String?  @default("") // Tên viết tắt (ví dụ: "MBBank", "VCB", "TPBank")
+  bankAccountNumber       String?  @default("") // Số tài khoản ngân hàng
+  bankAccountName         String?  @default("") // Tên chủ tài khoản (in hoa không dấu)
+  paymentWebhookKey       String?  @default("") // Secret token để bảo mật xác thực Webhook
+
+  // SMTP Email Pro Configuration (Nodemailer)
+  smtpEnabled             Boolean  @default(true)
+  smtpHost                String?  @default("mail.plusmoments.vn") // Host của Email Pro
+  smtpPort                Int?     @default(465)
+  smtpSecure              Boolean  @default(true) // true: SSL (465), false: TLS (587)
+  smtpUser                String?  // Tài khoản email gửi (ví dụ: booking@plusmoments.vn)
+  smtpPass                String?  // Mật khẩu email
+  emailFrom               String?  @default("PlusMoments Wedding Studio <booking@plusmoments.vn>")
+  adminNotifyEmail        String?  @default("director.wedding@plusmoments.vn")
+
+  // Template email phản hồi form tư vấn (Consultation Leads)
+  consultLeadEmailSubject String?  @default("[PlusMoments] Xác nhận đăng ký tư vấn & Nhận ưu đãi 2.000.000đ")
+  consultLeadEmailBody    String?  @db.Text
+
+  // Template email xác nhận đặt mua gói dịch vụ (Package Orders)
+  packageOrderEmailSubject String? @default("[PlusMoments] Xác nhận đăng ký gói dịch vụ & Hướng dẫn thanh toán")
+  packageOrderEmailBody    String? @db.Text
+
+  // Brand Identity & Dynamic Logo
+  brandName               String?  @default("PLUS MOMENTS")
+  brandSlogan             String?  @default("LUXURY WEDDING STUDIO")
+  brandBio                String?  @db.Text @default("Chúng tôi ghi lại những rung cảm tinh khôi và chân thành nhất trong tình yêu của bạn bằng ngôn ngữ ánh sáng điện ảnh.")
+  address                 String?  @default("31 Hùng Vương, Phường An Đông")
+  contactEmail            String?  @default("contact@plusmoments.vn")
+  workingHours            String?  @default("09:00 - 21:00 (Thứ 2 - Chủ Nhật)")
+  copyrightText           String?  @default("© 2026 PlusMoments Wedding Studio. All rights reserved.")
+  logoType                String   @default("TEXT") // "TEXT" hoặc "IMAGE"
+  brandNamePart1          String   @default("PLUS")
+  brandNamePart2          String   @default("MOMENTS")
+  brandSubtitle           String   @default("LUXURY WEDDING STUDIO")
+  logoLightUrl            String?  // URL ảnh logo cho nền tối (Footer / Admin Sidebar)
+  logoDarkUrl             String?  // URL ảnh logo cho nền sáng (Header)
+
+  // Dynamic Footer CMS Configuration
+  footerAboutText         String?  @db.Text @default("Chúng tôi không chỉ chụp ảnh cưới, chúng tôi ghi lại những rung cảm tinh khôi và chân thành nhất trong tình yêu của bạn bằng ngôn ngữ ánh sáng điện ảnh.")
+  footerNavCol1Title      String   @default("BỘ SƯU TẬP CƯỚI")
+  footerNavCol1Links      Json?    // Mảng: [{ label: "Ảnh Cưới Ngoại Cảnh Đà Lạt", url: "/albums?concept=Outdoor+Luxury" }]
+  footerNavCol2Title      String   @default("BẢNG GIÁ & DỊCH VỤ")
+  footerNavCol2Links      Json?    // Mảng: [{ label: "Gói Chụp Pre-Wedding Trọn Gói", url: "/pricing" }]
+  footerAddress           String?  @default("123 Đường Hoa Lan, Phường 2, Quận Phú Nhuận, TP. Hồ Chí Minh")
+  footerHotline           String?  @default("0908.123.456")
+  footerEmail             String?  @default("hello@plusmoments.vn")
+  footerWorkingHours      String?  @default("09:00 - 21:00 hàng ngày")
+  footerCopyrightText     String   @default("© 2026 PlusMoments Wedding Studio. All rights reserved.")
+  footerPolicyLinks       Json?    // Mảng: [{ label: "Chính Sách Bảo Mật", url: "/contact" }, { label: "Quy Trình & Hợp Đồng", url: "/pricing" }]
+
+  updatedAt               DateTime @updatedAt
+  createdAt               DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------------
+// 2. WEDDING ALBUMS & MEDIA GALLERY
+// -----------------------------------------------------------------------------
+model Album {
+  id              String       @id @default(cuid())
+  title           String
+  slug            String       @unique
+  subtitle        String?
+  concept         String       // "Pre-Wedding Cinematic", "Studio Editorial", "Phóng Sự Cưới", "Outdoor Luxury"
+  location        String       // "Đà Lạt", "TP. Hồ Chí Minh", "Phú Quốc", "Studio"
+  coupleNames     String       // "Hoàng Long & Khánh Linh"
+  shootingDate    DateTime?
+  description     String?      @db.Text
+  coverImage      String       // URL of main cover image
+  featured        Boolean      @default(false) // Display on homepage hero/highlights
+  orderIndex      Int          @default(0)
+  published       Boolean      @default(true)
+  views           Int          @default(0)
+
+  // Dynamic SEO Fields
+  metaTitle       String?
+  metaDescription String?
+
+  packageId       String?
+  package         ServicePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+
+  createdById     String?
+  createdBy       AdminUser?      @relation("UserAlbums", fields: [createdById], references: [id], onDelete: SetNull)
+
+  media           AlbumMedia[]
+  testimonials    Testimonial[]
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([slug])
+  @@index([concept])
+  @@index([featured])
+  @@index([packageId])
+  @@index([createdById])
+}
+
+model AlbumMedia {
+  id           String   @id @default(cuid())
+  albumId      String
+  album        Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  url          String
+  altText      String
+  caption      String?
+  width        Int      @default(1920)
+  height       Int      @default(1280)
+  blurDataUrl  String?  @db.Text
+  isCover      Boolean  @default(false)
+  orderIndex   Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([albumId])
+  @@index([orderIndex])
+}
+
+// -----------------------------------------------------------------------------
+// 3. SERVICE PRICING PACKAGES
+// -----------------------------------------------------------------------------
+model ServicePackage {
+  id            String   @id @default(cuid())
+  name          String   // "Gói Silver Classic", "Gói Gold Luxury", "Gói Diamond Royal"
+  slug          String   @unique
+  category      String   // "PRE_WEDDING", "WEDDING_DAY", "STUDIO_CONCEPT"
+  subtitle      String?
+  price         Decimal  @db.Decimal(15, 2)
+  originalPrice Decimal? @db.Decimal(15, 2)
+  unit          String   @default("trọn gói")
+  isPopular     Boolean  @default(false)
+  isFeatured    Boolean  @default(false)
+  orderIndex    Int      @default(0)
+  published     Boolean  @default(true)
+
+  coverImage      String   @default("")
+  demoImages      String?  @db.Text // JSON array of 6-8 actual product/demo photo URLs
+  highlightPoints String?  @db.Text // JSON array of 3 core summary highlights for outside card
+
+  // Package content details (stored as JSON string or text)
+  inclusions      String   @db.Text // Bullet points: Trang phục cưới, album photobook, ảnh cổng ép gỗ...
+  deliverables    String?  @db.Text // Trả toàn bộ file gốc, 35 ảnh blend màu cao cấp...
+
+  albums          Album[]
+  blogPosts       BlogPost[]
+  orders          Order[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([isPopular])
+}
+
+// -----------------------------------------------------------------------------
+// 4. HIGH-INTENT LEADS & CONSULTATION BOOKINGS
+// -----------------------------------------------------------------------------
+model LeadBooking {
+  id                String   @id @default(cuid())
+  fullName          String
+  phone             String
+  email             String?
+  customerEmail     String?
+  zalo              String?
+  weddingDate       String?  // Tentative date string (ngày dự kiến chụp / cưới)
+  packageInterested String?  // Tên gói dịch vụ quan tâm
+  expectedPackage   String?  // Alias for backward compatibility
+  estimatedBudget   String?  // Budget tier
+  notes             String?  @db.Text
+
+  // Conversion Tracking Attributes
+  sourceUrl         String?
+  utmSource         String?
+  utmMedium         String?
+  utmCampaign       String?
+  utmTerm           String?
+  utmContent        String?
+  gclid             String?  // Google Click ID for Google Ads offline & enhanced conversion match
+  conversionValue   Float?   // Estimated conversion value in VND
+
+  status            String   @default("NEW") // "NEW", "CONTACTED", "BOOKED", "CANCELLED"
+  isRead            Boolean  @default(false) // Đánh dấu đã đọc trong Admin
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// -----------------------------------------------------------------------------
+// 5. TESTIMONIALS (Customer Reviews / Love Stories)
+// -----------------------------------------------------------------------------
+model Testimonial {
+  id            String   @id @default(cuid())
+  coupleNames   String   // "Đức Anh & Mai Phương"
+  weddingDate   String?  // "Tháng 10, 2026"
+  quote         String   @db.Text // Dòng trích dẫn in đậm nổi bật
+  content       String?  @db.Text // Nội dung chia sẻ chi tiết
+  reviewContent String?  @db.Text // Backward compatibility
+  rating        Int      @default(5)
+  coverImageUrl String?  @default("")
+  avatarUrl     String?  // Ảnh đại diện dâu rể hoặc ảnh cưới
+
+  albumId       String?
+  album         Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
+
+  featured      Boolean  @default(true)
+  isFeatured    Boolean  @default(true)
+  orderIndex    Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isFeatured])
+  @@index([featured])
+  @@index([published])
+  @@index([orderIndex])
+}
+
+// -----------------------------------------------------------------------------
+// 6. BLOG & WEDDING GUIDES (Content Marketing & Long-tail SEO)
+// -----------------------------------------------------------------------------
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  summary         String    @db.Text
+  content         String    @db.Text
+  coverImage      String
+  author          String    @default("PlusMoments Editorial")
+  category        String    @default("Cẩm nang cưới")
+  readingMinutes  Int       @default(4)
+  views           Int       @default(0)
+  published       Boolean   @default(true)
+  publishedAt     DateTime  @default(now())
+
+  metaTitle       String?
+  metaDescription String?
+
+  packageId       String?
+  package         ServicePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+
+  authorId        String?
+  authorUser      AdminUser?      @relation("UserPosts", fields: [authorId], references: [id], onDelete: SetNull)
+
+  images          PostImage[]
+  galleryImages   Json?       // Fallback JSON array of [{ id, url, alt, caption, orderIndex }]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([published])
+  @@index([packageId])
+  @@index([authorId])
+}
+
+model PostImage {
+  id         String   @id @default(cuid())
+  postId     String
+  post       BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  caption    String?
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([postId])
+  @@index([orderIndex])
+}
+
+// -----------------------------------------------------------------------------
+// 7. HOME PAGE CONFIGURATION (Hero, Banner, Stats & Story)
+// -----------------------------------------------------------------------------
+model HomePageConfig {
+  id                   String   @id @default("default")
+  heroBadge            String   @default("Luxury Wedding Photography & Cinematic Art")
+  heroTitle            String   @default("Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật")
+  heroSubtitle         String   @db.Text @default("PlusMoments không đơn thuần chụp lại những tư thế, chúng tôi lưu giữ ánh nhìn say đắm, những cái ôm siết chặt và rung cảm thuần khiết nhất của hai bạn trong từng khung hình điện ảnh.")
+  heroBannerImage      String   @default("")
+  statsJson            String   @db.Text @default("[{\"label\":\"Cặp Đôi Hạnh Phúc\",\"value\":\"500+\"},{\"label\":\"Váy Cưới Cao Cấp\",\"value\":\"100%\"},{\"label\":\"Đánh Giá Tuyệt Đối\",\"value\":\"5.0 ★\"}]")
+  philosophyTitle      String   @default("Nghệ Thuật Của Những Rung Cảm")
+  philosophyText       String?  @db.Text @default("Chúng tôi không tìm kiếm sự hoàn hảo của những bức tượng sáp. Chúng tôi đi tìm giọt nước mắt hạnh phúc của người cha, ánh mắt rung rinh của chú rể và nụ cười rạng ngời của cô dâu trong khoảnh khắc thiêng liêng nhất cuộc đời.")
+  
+  // Testimonials Section Settings
+  showTestimonials     Boolean  @default(true)
+  testimonialsTitle    String   @default("Cảm Xúc Của Các Dâu Rể")
+  testimonialsSubtitle String   @db.Text @default("Hạnh phúc của bạn chính là niềm tự hào lớn nhất của ekip sáng tạo PlusMoments")
+
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------------
+// 8. STUDIO LOCATIONS (Chi Nhánh & Bản Đồ)
+// -----------------------------------------------------------------------------
+model StudioLocation {
+  id              String   @id @default(cuid())
+  name            String   // "Studio Flagship Phú Nhuận"
+  address         String   // "123 Đường Hoa Lan, Phường 2, Quận Phú Nhuận, TP. Hồ Chí Minh"
+  hotline         String   @default("0908123456")
+  hotlineDisplay  String   @default("0908.123.456")
+  email           String?  @default("contact@plusmoments.vn")
+  googleMapsUrl   String?  @default("https://maps.google.com")
+  googleMapsEmbed String?  @db.Text
+  openingHours    String   @default("09:00 - 21:00 hàng ngày")
+  isHeadquarter   Boolean  @default(false)
+  orderIndex      Int      @default(0)
+  published       Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orderIndex])
+  @@index([published])
+}
+
+
+
+// -----------------------------------------------------------------------------
+// 10. NOTIFICATION SETTINGS (Telegram Bot, Email & Webhooks)
+// -----------------------------------------------------------------------------
+model NotificationSetting {
+  id                       String   @id @default("default")
+  telegramEnabled          Boolean  @default(false)
+  telegramBotToken         String?  @default("")
+  telegramChatId           String?  @default("")
+  emailNotificationEnabled Boolean  @default(true)
+  adminReceiverEmail       String?  @default("contact@plusmoments.vn")
+  zaloWebhookUrl           String?  @default("")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// 11. MEDIA FOLDERS & ASSETS MANAGEMENT
+// -----------------------------------------------------------------------------
+model MediaFolder {
+  id        String      @id @default(cuid())
+  name      String      // Tên thư mục: "Pre-wedding Đà Lạt Trí & Hà"
+  slug      String      @unique // "pre-wedding-da-lat-tri-ha"
+  files     MediaFile[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([slug])
+}
+
+model MediaFile {
+  id            String       @id @default(cuid())
+  name          String       // Tên file ảnh
+  url           String       // Đường dẫn /uploads/...
+  size          Int          // Bytes
+  format        String       @default("WEBP")
+  width         Int?
+  height        Int?
+  folderId      String?
+  folder        MediaFolder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  // Chunk ngữ cảnh thị giác do AI phân tích và lưu cache
+  aiContextChunk Json?      // { visualDescription, mainSubject, colorMood, suggestedAlt, tags: [] }
+
+  uploadedById  String?
+  uploadedBy    AdminUser?   @relation("UserMedia", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  // Nhận diện chống trùng lặp từ Google Drive
+  driveFileId   String?      @unique // ID duy nhất của file trên Google Drive
+  md5Checksum   String?               // Hash kiểm tra toàn vẹn nội dung từ Google Drive
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([folderId])
+  @@index([url])
+  @@index([createdAt])
+  @@index([driveFileId])
+  @@index([md5Checksum])
+  @@index([uploadedById])
+}
+
+// -----------------------------------------------------------------------------
+// 12. DYNAMIC TAXONOMIES (Concepts, Categories & Classifications)
+// -----------------------------------------------------------------------------
+model AlbumConcept {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model BlogCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ServiceCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------------
+// 13. AUTOMATED ORDERS & VIETQR PAYMENT SESSIONS
+// -----------------------------------------------------------------------------
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  orderCode       String          @unique // Mã đơn dạng PM10234
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  packageId       String?
+  package         ServicePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  packageName     String
+  amount          Int             // Số tiền cần thanh toán
+  status          OrderStatus     @default(PENDING) // PENDING, PAID, CANCELLED
+  paymentMethod   String          @default("VIETQR")
+  transactionId   String?         // Mã giao dịch ngân hàng từ Webhook
+  paidAt          DateTime?
+  notes           String?         @db.Text
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([orderCode])
+  @@index([status])
+}
+
+
+
+
+

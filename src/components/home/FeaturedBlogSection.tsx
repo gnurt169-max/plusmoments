@@ -1,0 +1,138 @@
+import React from 'react';
+import Link from 'next/link';
+import { ArrowRight, Clock, Calendar } from 'lucide-react';
+import { ProtectedImage } from '@/components/common/ProtectedImage';
+
+export interface PostItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  summary?: string | null;
+  coverImage?: string | null;
+  category?: string | null;
+  readingMinutes?: number | null;
+  createdAt: Date | string;
+}
+
+export interface FeaturedBlogSectionProps {
+  posts: PostItem[];
+}
+
+export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
+  if (!posts || posts.length === 0) return null;
+
+  return (
+    <section className="py-20 lg:py-28 bg-[#FAF8F5] border-t border-[#E8E2D9]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <p className="text-xs uppercase tracking-[0.25em] text-[#8C7A6B] font-medium mb-3">
+            Cảm Hứng & Kinh Nghiệm
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-serif text-[#1C1917] tracking-tight">
+            Cẩm Nang Cưới PlusMoments
+          </h2>
+          <div className="w-12 h-px bg-[#8C7A6B] mx-auto mt-4 mb-4" />
+          <p className="text-sm text-[#78716C] leading-relaxed font-light">
+            Những chia sẻ chân thành, xu hướng nghệ thuật và kinh nghiệm chuẩn bị để bạn có một ngày trọng đại trọn vẹn và nhẹ nhàng nhất.
+          </p>
+        </div>
+
+        {/* 3-Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.slice(0, 3).map((post) => {
+            const formattedDate = new Date(post.createdAt).toLocaleDateString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+            });
+            const excerptText = post.excerpt || post.summary || '';
+
+            return (
+              <article
+                key={post.id}
+                className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-[#E8E2D9] shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                {/* Thumbnail Container */}
+                <Link
+                  href={`/cam-nang/${post.slug}`}
+                  className="relative aspect-[16/10] overflow-hidden bg-[#F5F2EB] block"
+                  title={post.title}
+                >
+                  <ProtectedImage
+                    src={post.coverImage || '/images/default-blog.jpg'}
+                    alt={post.title}
+                    wrapperClassName="w-full h-full"
+                    imageClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  {post.category && (
+                    <span className="absolute top-3 left-3 z-20 px-3 py-1 bg-white/90 backdrop-blur-md text-[11px] font-medium tracking-wider uppercase text-[#2E2824] rounded-full shadow-sm pointer-events-none">
+                      {post.category}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Content */}
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="text-xs text-[#A8A29E] mb-2.5 font-medium flex items-center gap-1.5 font-mono">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-[#8C7A6B]" />
+                      {formattedDate}
+                    </span>
+                    {post.readingMinutes ? (
+                      <>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-[#8C7A6B]" />
+                          {post.readingMinutes} phút đọc
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+
+                  <h3 className="text-lg font-serif font-medium text-[#1C1917] group-hover:text-[#8C7A6B] transition-colors duration-200 line-clamp-2 leading-snug mb-3">
+                    <Link href={`/cam-nang/${post.slug}`}>
+                      {post.title}
+                    </Link>
+                  </h3>
+
+                  {excerptText && (
+                    <p className="text-xs sm:text-sm text-[#78716C] line-clamp-2 leading-relaxed mb-6 flex-1 font-light">
+                      {excerptText}
+                    </p>
+                  )}
+
+                  <div className="pt-4 border-t border-[#F5F2EB] mt-auto">
+                    <Link
+                      href={`/cam-nang/${post.slug}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#2E2824] group-hover:text-[#8C7A6B] transition-colors"
+                    >
+                      <span>Khám phá bài viết</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Nút Xem Tất Cả */}
+        <div className="mt-14 text-center">
+          <Link
+            href="/cam-nang"
+            className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#8C7A6B] text-[#8C7A6B] hover:bg-[#8C7A6B] hover:text-white transition-all duration-300 rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-sm"
+          >
+            <span>Xem Tất Cả Cẩm Nang & Kinh Nghiệm</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default FeaturedBlogSection;
+
