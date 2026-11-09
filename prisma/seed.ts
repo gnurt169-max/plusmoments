@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED DATABASE SEED SNAPSHOT
- * Exported at: 2026-11-09T15:08:17.626Z
+ * Exported at: 2026-11-09T16:15:47.551Z
  *
  * This file contains the complete persistent snapshot of the studio's database.
  * To initialize or restore this data on a new VPS or local machine:
@@ -14,8 +14,46 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const snapshot = {
-  "exportedAt": "2026-11-09T15:08:17.626Z",
+  "exportedAt": "2026-11-09T16:15:47.551Z",
   "superAdminPasswordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
+  "adminUser": [
+    {
+      "id": "cmw6csqum00001fh3id5ewj2x",
+      "username": "trunglnm",
+      "fullName": "Lê Nguyễn Minh Trung",
+      "email": "trunglnm@plusmoments.vn",
+      "passwordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
+      "role": "SUPER_ADMIN",
+      "isActive": true,
+      "lastLoginAt": "2026-11-09T04:53:44.683Z",
+      "createdAt": "2026-11-07T12:02:18.479Z",
+      "updatedAt": "2026-11-09T16:15:12.930Z"
+    },
+    {
+      "id": "cmw6d6j2b000111xefru0nut1",
+      "username": "admin",
+      "fullName": "Quản trị PlusMoments",
+      "email": "admin@plusmoments.vn",
+      "passwordHash": "$2b$12$B8GJidmjGaDqkgJvgwKK8uF2xoC/uUkufONbObTDw/FYh8BJ5SNMC",
+      "role": "ADMIN",
+      "isActive": true,
+      "lastLoginAt": "2026-11-09T13:54:08.866Z",
+      "createdAt": "2026-11-07T12:13:01.571Z",
+      "updatedAt": "2026-11-09T16:15:12.930Z"
+    },
+    {
+      "id": "cmw6d7aiu000211xe6vz1bd7h",
+      "username": "user",
+      "fullName": "Người dùng 1",
+      "email": null,
+      "passwordHash": "$2b$12$xt9TuL8/1eTaccD.eWifMeQPZpFYFGgKnSIlGPxNUw.05hGKPxvSi",
+      "role": "USER",
+      "isActive": true,
+      "lastLoginAt": "2026-11-09T08:47:41.690Z",
+      "createdAt": "2026-11-07T12:13:37.158Z",
+      "updatedAt": "2026-11-09T16:15:12.928Z"
+    }
+  ],
   "systemSetting": [
     {
       "id": "default",
@@ -170,7 +208,7 @@ const snapshot = {
           "label": "Quy Trình & Hợp Đồng"
         }
       ],
-      "updatedAt": "2026-11-09T14:19:17.849Z",
+      "updatedAt": "2026-11-09T16:15:12.932Z",
       "createdAt": "2026-11-06T01:49:07.595Z"
     }
   ],
@@ -187,7 +225,7 @@ const snapshot = {
       "showTestimonials": true,
       "testimonialsTitle": "Cảm Xúc Của Các Dâu Rể",
       "testimonialsSubtitle": "Hạnh phúc của bạn chính là niềm tự hào lớn nhất của ekip sáng tạo PlusMoments",
-      "updatedAt": "2026-11-09T14:19:17.856Z",
+      "updatedAt": "2026-11-09T16:15:12.937Z",
       "createdAt": "2026-11-06T01:49:07.597Z"
     }
   ],
@@ -201,7 +239,7 @@ const snapshot = {
       "adminReceiverEmail": "booking@plusmoments.vn",
       "zaloWebhookUrl": "",
       "createdAt": "2026-11-04T02:50:16.604Z",
-      "updatedAt": "2026-11-09T14:19:17.857Z"
+      "updatedAt": "2026-11-09T16:15:12.938Z"
     }
   ],
   "studioLocation": [],
@@ -6819,269 +6857,387 @@ async function main() {
   console.log('--- KHỞI TẠO DỮ LIỆU GỐC TỪ SEED MOCKUP ---');
   console.log('Thời gian xuất snapshot:', snapshot.exportedAt);
 
-  // 1. System Settings
-  for (const item of ((snapshot.systemSetting || []) as any[])) {
-    const { createdAt, updatedAt, ...data } = item as any;
-    await prisma.systemSetting.upsert({
-      where: { id: item.id },
-      update: data,
-      create: data,
-    });
-  }
-  console.log(`✓ SystemSetting: ${snapshot.systemSetting.length} bản ghi`);
+  // =========================================================================
+  // BƯỚC 1: KHỞI TẠO TÀI KHOẢN ADMIN/USER ĐẦU TIÊN (ĐẢM BẢO KHÓA NGOẠI)
+  // =========================================================================
+  const defaultPasswordHash = snapshot.superAdminPasswordHash || '$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC';
+  const validAdminUserIds = new Set();
 
-  // 2. Home Page Config
-  for (const item of ((snapshot.homePageConfig || []) as any[])) {
-    const { createdAt, updatedAt, ...data } = item as any;
-    await prisma.homePageConfig.upsert({
-      where: { id: item.id },
-      update: data,
-      create: data,
-    });
+  // 1.1 Khởi tạo toàn bộ AdminUser từ snapshot
+  if (Array.isArray(snapshot.adminUser)) {
+    for (const u of snapshot.adminUser) {
+      const { createdAt, updatedAt, lastLogin, lastLoginAt, albums, posts, mediaFiles, ...userData } = u;
+      const upserted = await prisma.adminUser.upsert({
+        where: { id: u.id },
+        update: {
+          username: userData.username,
+          fullName: userData.fullName,
+          role: userData.role,
+          isActive: userData.isActive !== false,
+          email: userData.email,
+        },
+        create: {
+          id: u.id,
+          username: userData.username,
+          fullName: userData.fullName,
+          email: userData.email,
+          passwordHash: userData.passwordHash || defaultPasswordHash,
+          role: userData.role || 'ADMIN',
+          isActive: userData.isActive !== false,
+        },
+      });
+      validAdminUserIds.add(upserted.id);
+    }
   }
-  console.log(`✓ HomePageConfig: ${snapshot.homePageConfig.length} bản ghi`);
 
-  // 3. Notification Settings
+  // 1.2 Luôn đảm bảo tài khoản SuperAdmin (trunglnm) tồn tại
+  const superAdmin = await prisma.adminUser.upsert({
+    where: { username: 'trunglnm' },
+    update: {
+      fullName: 'Lê Nguyễn Minh Trung',
+      role: 'SUPER_ADMIN',
+      isActive: true,
+      email: 'trunglnm@plusmoments.vn',
+    },
+    create: {
+      id: 'cmw6csqum00001fh3id5ewj2x',
+      username: 'trunglnm',
+      fullName: 'Lê Nguyễn Minh Trung',
+      email: 'trunglnm@plusmoments.vn',
+      passwordHash: defaultPasswordHash,
+      role: 'SUPER_ADMIN',
+      isActive: true,
+    },
+  });
+  validAdminUserIds.add(superAdmin.id);
+
+  // 1.3 Luôn đảm bảo tài khoản Admin chuẩn (admin / admin@plusmoments.vn)
+  const fallbackAdmin = await prisma.adminUser.upsert({
+    where: { username: 'admin' },
+    update: {
+      fullName: 'Quản trị PlusMoments',
+      role: 'ADMIN',
+      isActive: true,
+      email: 'admin@plusmoments.vn',
+    },
+    create: {
+      id: 'cmw6d6j2b000111xefru0nut1',
+      username: 'admin',
+      fullName: 'Quản trị PlusMoments',
+      email: 'admin@plusmoments.vn',
+      passwordHash: defaultPasswordHash,
+      role: 'ADMIN',
+      isActive: true,
+    },
+  });
+  validAdminUserIds.add(fallbackAdmin.id);
+  const primaryAdminId = fallbackAdmin.id;
+  console.log('✓ AdminUser: Khởi tạo xong các tài khoản quản trị (Primary Admin ID:', primaryAdminId, ')');
+
+  // =========================================================================
+  // BƯỚC 2: CÀI ĐẶT HỆ THỐNG ĐỘC LẬP (SystemSetting, HomePageConfig, NotificationSetting)
+  // =========================================================================
+  if (Array.isArray(snapshot.systemSetting)) {
+    for (const item of snapshot.systemSetting) {
+      const { createdAt, updatedAt, ...data } = item;
+      await prisma.systemSetting.upsert({
+        where: { id: item.id },
+        update: data,
+        create: data,
+      });
+    }
+    console.log('✓ SystemSetting: ' + snapshot.systemSetting.length + ' bản ghi');
+  }
+
+  if (Array.isArray(snapshot.homePageConfig)) {
+    for (const item of snapshot.homePageConfig) {
+      const { createdAt, updatedAt, ...data } = item;
+      await prisma.homePageConfig.upsert({
+        where: { id: item.id },
+        update: data,
+        create: data,
+      });
+    }
+    console.log('✓ HomePageConfig: ' + snapshot.homePageConfig.length + ' bản ghi');
+  }
+
   if (Array.isArray(snapshot.notificationSetting)) {
-    for (const item of (snapshot.notificationSetting as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of snapshot.notificationSetting) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.notificationSetting.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
     }
-    console.log(`✓ NotificationSetting: ${snapshot.notificationSetting.length} bản ghi`);
+    console.log('✓ NotificationSetting: ' + snapshot.notificationSetting.length + ' bản ghi');
   }
 
-  // 4. Studio Locations
+  // =========================================================================
+  // BƯỚC 3: DANH MỤC TAXONOMIES & GÓI DỊCH VỤ (ServicePackage, MediaFolder)
+  // =========================================================================
   if (Array.isArray(snapshot.studioLocation)) {
-    for (const item of (snapshot.studioLocation as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of snapshot.studioLocation) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.studioLocation.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
     }
-    console.log(`✓ StudioLocation: ${snapshot.studioLocation.length} bản ghi`);
+    console.log('✓ StudioLocation: ' + snapshot.studioLocation.length + ' bản ghi');
   }
 
-  // 5. Service Packages
-  if (Array.isArray(snapshot.servicePackage)) {
-    for (const item of (snapshot.servicePackage as any[])) {
-      const { createdAt, updatedAt, albums, blogPosts, ...data } = item as any;
-      await prisma.servicePackage.upsert({
+  const validServiceCategoryIds = new Set();
+  if (Array.isArray(snapshot.serviceCategory)) {
+    for (const item of snapshot.serviceCategory) {
+      const { createdAt, ...data } = item;
+      const upserted = await prisma.serviceCategory.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
+      validServiceCategoryIds.add(upserted.id);
     }
-    console.log(`✓ ServicePackage: ${snapshot.servicePackage.length} bản ghi`);
+    console.log('✓ ServiceCategory: ' + snapshot.serviceCategory.length + ' bản ghi');
   }
 
-  // 6. Albums & Album Media
-  if (Array.isArray(snapshot.album)) {
-    for (const item of (snapshot.album as any[])) {
-      const { createdAt, updatedAt, media, package: pkgRel, ...albumData } = item as any;
-      await prisma.album.upsert({
-        where: { id: item.id },
-        update: albumData,
-        create: albumData,
-      });
-
-      if (Array.isArray(media)) {
-        for (const m of (media as any[])) {
-          const { createdAt, updatedAt, ...mdata } = m as any;
-          await prisma.albumMedia.upsert({
-            where: { id: m.id },
-            update: mdata,
-            create: mdata,
-          });
-        }
-      }
-    }
-    console.log(`✓ Album: ${snapshot.album.length} bản ghi`);
-  }
-
-  // 7. Blog Posts & Post Images
-  if (Array.isArray(snapshot.blogPost)) {
-    for (const item of (snapshot.blogPost as any[])) {
-      const { createdAt, updatedAt, images, package: pkgRel, ...blogData } = item as any;
-      await prisma.blogPost.upsert({
-        where: { id: item.id },
-        update: blogData,
-        create: blogData,
-      });
-
-      if (Array.isArray(images)) {
-        for (const img of (images as any[])) {
-          const { createdAt, ...imgData } = img as any;
-          await prisma.postImage.upsert({
-            where: { id: img.id },
-            update: imgData,
-            create: imgData,
-          });
-        }
-      }
-    }
-    console.log(`✓ BlogPost: ${snapshot.blogPost.length} bản ghi`);
-  }
-
-  // 8. Media Folders & Files
-  if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of (snapshot.mediaFolder as any[])) {
-      const { createdAt, updatedAt, files, ...folderData } = item as any;
-      await prisma.mediaFolder.upsert({
-        where: { id: item.id },
-        update: folderData,
-        create: folderData,
-      });
-
-      if (Array.isArray(files)) {
-        for (const f of (files as any[])) {
-          const { createdAt, updatedAt, ...fileData } = f as any;
-          await prisma.mediaFile.upsert({
-            where: { id: f.id },
-            update: fileData,
-            create: fileData,
-          });
-        }
-      }
-    }
-    console.log(`✓ MediaFolder: ${snapshot.mediaFolder.length} bản ghi`);
-  }
-
-  // 9. Root Media Files (folderId is null)
-  if (Array.isArray(snapshot.mediaFile)) {
-    for (const f of (snapshot.mediaFile as any[])) {
-      const { createdAt, updatedAt, ...fileData } = f as any;
-      await prisma.mediaFile.upsert({
-        where: { id: f.id },
-        update: fileData,
-        create: fileData,
-      });
-    }
-    console.log(`✓ Root MediaFiles: ${snapshot.mediaFile.length} bản ghi`);
-  }
-
-  // 10. Testimonials
-  if (Array.isArray(snapshot.testimonial)) {
-    for (const item of (snapshot.testimonial as any[])) {
-      const { createdAt, updatedAt, ...testData } = item as any;
-      await prisma.testimonial.upsert({
-        where: { id: item.id },
-        update: testData,
-        create: testData,
-      });
-    }
-    console.log(`✓ Testimonial: ${snapshot.testimonial.length} bản ghi`);
-  }
-
-  // 11. Album Concepts
   if (Array.isArray(snapshot.albumConcept)) {
-    for (const item of (snapshot.albumConcept as any[])) {
-      const { createdAt, ...data } = item as any;
+    for (const item of snapshot.albumConcept) {
+      const { createdAt, ...data } = item;
       await prisma.albumConcept.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
     }
-    console.log(`✓ AlbumConcept: ${snapshot.albumConcept.length} bản ghi`);
+    console.log('✓ AlbumConcept: ' + snapshot.albumConcept.length + ' bản ghi');
   }
 
-  // 12. Blog Categories
   if (Array.isArray(snapshot.blogCategory)) {
-    for (const item of (snapshot.blogCategory as any[])) {
-      const { createdAt, ...data } = item as any;
+    for (const item of snapshot.blogCategory) {
+      const { createdAt, ...data } = item;
       await prisma.blogCategory.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
     }
-    console.log(`✓ BlogCategory: ${snapshot.blogCategory.length} bản ghi`);
+    console.log('✓ BlogCategory: ' + snapshot.blogCategory.length + ' bản ghi');
   }
 
-  // 13. Service Categories
-  if (Array.isArray(snapshot.serviceCategory)) {
-    for (const item of (snapshot.serviceCategory as any[])) {
-      const { createdAt, ...data } = item as any;
-      await prisma.serviceCategory.upsert({
+  const validPackageIds = new Set();
+  if (Array.isArray(snapshot.servicePackage)) {
+    for (const item of snapshot.servicePackage) {
+      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item;
+      const upserted = await prisma.servicePackage.upsert({
         where: { id: item.id },
         update: data,
         create: data,
       });
+      validPackageIds.add(upserted.id);
     }
-    console.log(`✓ ServiceCategory: ${snapshot.serviceCategory.length} bản ghi`);
+    console.log('✓ ServicePackage: ' + snapshot.servicePackage.length + ' bản ghi');
   }
 
-  // 14. Lead Bookings
+  const validFolderIds = new Set();
+  if (Array.isArray(snapshot.mediaFolder)) {
+    for (const item of snapshot.mediaFolder) {
+      const { createdAt, updatedAt, files, ...folderData } = item;
+      const upserted = await prisma.mediaFolder.upsert({
+        where: { id: item.id },
+        update: folderData,
+        create: folderData,
+      });
+      validFolderIds.add(upserted.id);
+    }
+    console.log('✓ MediaFolder: ' + snapshot.mediaFolder.length + ' bản ghi');
+  }
+
+  // =========================================================================
+  // BƯỚC 4: ALBUMS & BLOG POSTS (AN TOÀN TUYỆT ĐỐI KHÓA NGOẠI)
+  // =========================================================================
+  const validAlbumIds = new Set();
+  if (Array.isArray(snapshot.album)) {
+    for (const item of snapshot.album) {
+      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item;
+      const safeCreatedById = (albumData.createdById && validAdminUserIds.has(albumData.createdById))
+        ? albumData.createdById
+        : primaryAdminId;
+      const safePackageId = (albumData.packageId && validPackageIds.has(albumData.packageId))
+        ? albumData.packageId
+        : null;
+
+      const finalAlbumData = {
+        ...albumData,
+        createdById: safeCreatedById,
+        packageId: safePackageId,
+      };
+
+      const upserted = await prisma.album.upsert({
+        where: { id: item.id },
+        update: finalAlbumData,
+        create: finalAlbumData,
+      });
+      validAlbumIds.add(upserted.id);
+
+      if (Array.isArray(media)) {
+        for (const m of media) {
+          const { createdAt, updatedAt, album: albRel, ...mdata } = m;
+          await prisma.albumMedia.upsert({
+            where: { id: m.id },
+            update: { ...mdata, albumId: upserted.id },
+            create: { ...mdata, albumId: upserted.id },
+          });
+        }
+      }
+    }
+    console.log('✓ Album: ' + snapshot.album.length + ' bản ghi');
+  }
+
+  const validPostIds = new Set();
+  if (Array.isArray(snapshot.blogPost)) {
+    for (const item of snapshot.blogPost) {
+      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item;
+      const safeAuthorId = (blogData.authorId && validAdminUserIds.has(blogData.authorId))
+        ? blogData.authorId
+        : primaryAdminId;
+      const safePackageId = (blogData.packageId && validPackageIds.has(blogData.packageId))
+        ? blogData.packageId
+        : null;
+
+      const finalBlogData = {
+        ...blogData,
+        authorId: safeAuthorId,
+        packageId: safePackageId,
+      };
+
+      const upserted = await prisma.blogPost.upsert({
+        where: { id: item.id },
+        update: finalBlogData,
+        create: finalBlogData,
+      });
+      validPostIds.add(upserted.id);
+
+      if (Array.isArray(images)) {
+        for (const img of images) {
+          const { createdAt, updatedAt, post: postRel, ...imgData } = img;
+          await prisma.postImage.upsert({
+            where: { id: img.id },
+            update: { ...imgData, postId: upserted.id },
+            create: { ...imgData, postId: upserted.id },
+          });
+        }
+      }
+    }
+    console.log('✓ BlogPost: ' + snapshot.blogPost.length + ' bản ghi');
+  }
+
+  // =========================================================================
+  // BƯỚC 5: CÁC THỰC THỂ PHỤ THUỘC TIẾP THEO (MediaFiles, Testimonials, Leads, Orders)
+  // =========================================================================
+  if (Array.isArray(snapshot.mediaFolder)) {
+    for (const item of snapshot.mediaFolder) {
+      if (Array.isArray(item.files)) {
+        for (const f of item.files) {
+          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f;
+          const safeFolderId = (fileData.folderId && validFolderIds.has(fileData.folderId))
+            ? fileData.folderId
+            : null;
+          const safeUploadedById = (fileData.uploadedById && validAdminUserIds.has(fileData.uploadedById))
+            ? fileData.uploadedById
+            : null;
+
+          await prisma.mediaFile.upsert({
+            where: { id: f.id },
+            update: { ...fileData, folderId: safeFolderId, uploadedById: safeUploadedById },
+            create: { ...fileData, folderId: safeFolderId, uploadedById: safeUploadedById },
+          });
+        }
+      }
+    }
+  }
+
+  if (Array.isArray(snapshot.mediaFile)) {
+    for (const f of snapshot.mediaFile) {
+      const { createdAt, updatedAt, ...fileData } = f;
+      const safeUploadedById = (fileData.uploadedById && validAdminUserIds.has(fileData.uploadedById))
+        ? fileData.uploadedById
+        : null;
+
+      await prisma.mediaFile.upsert({
+        where: { id: f.id },
+        update: { ...fileData, uploadedById: safeUploadedById },
+        create: { ...fileData, uploadedById: safeUploadedById },
+      });
+    }
+    console.log('✓ Root MediaFiles: ' + snapshot.mediaFile.length + ' bản ghi');
+  }
+
+  if (Array.isArray(snapshot.testimonial)) {
+    for (const item of snapshot.testimonial) {
+      const { createdAt, updatedAt, ...testData } = item;
+      const safeAlbumId = (testData.albumId && validAlbumIds.has(testData.albumId))
+        ? testData.albumId
+        : null;
+      const safePackageId = (testData.packageId && validPackageIds.has(testData.packageId))
+        ? testData.packageId
+        : null;
+
+      await prisma.testimonial.upsert({
+        where: { id: item.id },
+        update: { ...testData, albumId: safeAlbumId, packageId: safePackageId },
+        create: { ...testData, albumId: safeAlbumId, packageId: safePackageId },
+      });
+    }
+    console.log('✓ Testimonial: ' + snapshot.testimonial.length + ' bản ghi');
+  }
+
   if (Array.isArray(snapshot.leadBooking)) {
-    for (const item of (snapshot.leadBooking as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of snapshot.leadBooking) {
+      const { createdAt, updatedAt, package: pkgRel, ...data } = item;
+      const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
+        ? data.packageId
+        : null;
+
       await prisma.leadBooking.upsert({
         where: { id: item.id },
-        update: data,
+        update: { ...data, packageId: safePackageId },
         create: {
           ...data,
+          packageId: safePackageId,
           createdAt: createdAt ? new Date(createdAt) : new Date(),
           updatedAt: updatedAt ? new Date(updatedAt) : new Date(),
         },
       });
     }
-    console.log(`✓ LeadBooking: ${snapshot.leadBooking.length} bản ghi`);
+    console.log('✓ LeadBooking: ' + snapshot.leadBooking.length + ' bản ghi');
   }
 
-  // 15. Orders
   if (Array.isArray(snapshot.order)) {
-    for (const item of (snapshot.order as any[])) {
-      const { createdAt, updatedAt, paidAt, ...data } = item as any;
+    for (const item of snapshot.order) {
+      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item;
+      const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
+        ? data.packageId
+        : null;
+
       await prisma.order.upsert({
         where: { id: item.id },
         update: {
           ...data,
+          packageId: safePackageId,
           paidAt: paidAt ? new Date(paidAt) : null,
         },
         create: {
           ...data,
+          packageId: safePackageId,
           paidAt: paidAt ? new Date(paidAt) : null,
           createdAt: createdAt ? new Date(createdAt) : new Date(),
           updatedAt: updatedAt ? new Date(updatedAt) : new Date(),
         },
       });
     }
-    console.log(`✓ Order: ${snapshot.order.length} bản ghi`);
-  }
-
-  // 16. Super Admin: trunglnm
-  const existingSuperAdmin = await prisma.adminUser.findUnique({
-    where: { username: 'trunglnm' },
-  });
-
-  if (!existingSuperAdmin) {
-    await prisma.adminUser.create({
-      data: {
-        username: 'trunglnm',
-        fullName: 'Lê Nguyễn Minh Trung',
-        email: 'trunglnm@plusmoments.vn',
-        passwordHash: snapshot.superAdminPasswordHash || '$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC',
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
-    });
-    console.log('✓ Default Super Admin (trunglnm) initialized');
-  } else {
-    await prisma.adminUser.update({
-      where: { username: 'trunglnm' },
-      data: {
-        fullName: 'Lê Nguyễn Minh Trung',
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
-    });
-    console.log('✓ Existing Super Admin (trunglnm) preserved (password untouched)');
+    console.log('✓ Order: ' + snapshot.order.length + ' bản ghi');
   }
 
   console.log('--- KHỞI TẠO DỮ LIỆU TỪ SEED MOCKUP THÀNH CÔNG ---');
