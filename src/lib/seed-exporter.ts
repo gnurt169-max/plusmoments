@@ -150,8 +150,8 @@ async function main() {
 
   // 1.1 Khởi tạo toàn bộ AdminUser từ snapshot
   if (Array.isArray(snapshot.adminUser)) {
-    for (const u of snapshot.adminUser) {
-      const { createdAt, updatedAt, lastLogin, lastLoginAt, albums, posts, mediaFiles, ...userData } = u;
+    for (const u of (snapshot.adminUser as any[])) {
+      const { createdAt, updatedAt, lastLoginAt, albums, posts, mediaFiles, ...userData } = u as any;
       const upserted = await prisma.adminUser.upsert({
         where: { id: u.id },
         update: {
@@ -223,8 +223,8 @@ async function main() {
   // BƯỚC 2: CÀI ĐẶT HỆ THỐNG ĐỘC LẬP (SystemSetting, HomePageConfig, NotificationSetting)
   // =========================================================================
   if (Array.isArray(snapshot.systemSetting)) {
-    for (const item of snapshot.systemSetting) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.systemSetting as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.systemSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -235,8 +235,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.homePageConfig)) {
-    for (const item of snapshot.homePageConfig) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.homePageConfig as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.homePageConfig.upsert({
         where: { id: item.id },
         update: data,
@@ -247,8 +247,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.notificationSetting)) {
-    for (const item of snapshot.notificationSetting) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.notificationSetting as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.notificationSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -262,8 +262,8 @@ async function main() {
   // BƯỚC 3: DANH MỤC TAXONOMIES & GÓI DỊCH VỤ (ServicePackage, MediaFolder)
   // =========================================================================
   if (Array.isArray(snapshot.studioLocation)) {
-    for (const item of snapshot.studioLocation) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.studioLocation as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.studioLocation.upsert({
         where: { id: item.id },
         update: data,
@@ -275,8 +275,8 @@ async function main() {
 
   const validServiceCategoryIds = new Set();
   if (Array.isArray(snapshot.serviceCategory)) {
-    for (const item of snapshot.serviceCategory) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.serviceCategory as any[])) {
+      const { createdAt, ...data } = item as any;
       const upserted = await prisma.serviceCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -288,8 +288,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.albumConcept)) {
-    for (const item of snapshot.albumConcept) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.albumConcept as any[])) {
+      const { createdAt, ...data } = item as any;
       await prisma.albumConcept.upsert({
         where: { id: item.id },
         update: data,
@@ -300,8 +300,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.blogCategory)) {
-    for (const item of snapshot.blogCategory) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.blogCategory as any[])) {
+      const { createdAt, ...data } = item as any;
       await prisma.blogCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -313,8 +313,8 @@ async function main() {
 
   const validPackageIds = new Set();
   if (Array.isArray(snapshot.servicePackage)) {
-    for (const item of snapshot.servicePackage) {
-      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item;
+    for (const item of (snapshot.servicePackage as any[])) {
+      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item as any;
       const upserted = await prisma.servicePackage.upsert({
         where: { id: item.id },
         update: data,
@@ -327,8 +327,8 @@ async function main() {
 
   const validFolderIds = new Set();
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of snapshot.mediaFolder) {
-      const { createdAt, updatedAt, files, ...folderData } = item;
+    for (const item of (snapshot.mediaFolder as any[])) {
+      const { createdAt, updatedAt, files, ...folderData } = item as any;
       const upserted = await prisma.mediaFolder.upsert({
         where: { id: item.id },
         update: folderData,
@@ -344,8 +344,8 @@ async function main() {
   // =========================================================================
   const validAlbumIds = new Set();
   if (Array.isArray(snapshot.album)) {
-    for (const item of snapshot.album) {
-      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item;
+    for (const item of (snapshot.album as any[])) {
+      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item as any;
       const safeCreatedById = (albumData.createdById && validAdminUserIds.has(albumData.createdById))
         ? albumData.createdById
         : primaryAdminId;
@@ -367,8 +367,8 @@ async function main() {
       validAlbumIds.add(upserted.id);
 
       if (Array.isArray(media)) {
-        for (const m of media) {
-          const { createdAt, updatedAt, album: albRel, ...mdata } = m;
+        for (const m of (media as any[])) {
+          const { createdAt, updatedAt, album: albRel, ...mdata } = m as any;
           await prisma.albumMedia.upsert({
             where: { id: m.id },
             update: { ...mdata, albumId: upserted.id },
@@ -382,8 +382,8 @@ async function main() {
 
   const validPostIds = new Set();
   if (Array.isArray(snapshot.blogPost)) {
-    for (const item of snapshot.blogPost) {
-      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item;
+    for (const item of (snapshot.blogPost as any[])) {
+      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item as any;
       const safeAuthorId = (blogData.authorId && validAdminUserIds.has(blogData.authorId))
         ? blogData.authorId
         : primaryAdminId;
@@ -405,8 +405,8 @@ async function main() {
       validPostIds.add(upserted.id);
 
       if (Array.isArray(images)) {
-        for (const img of images) {
-          const { createdAt, updatedAt, post: postRel, ...imgData } = img;
+        for (const img of (images as any[])) {
+          const { createdAt, updatedAt, post: postRel, ...imgData } = img as any;
           await prisma.postImage.upsert({
             where: { id: img.id },
             update: { ...imgData, postId: upserted.id },
@@ -422,10 +422,10 @@ async function main() {
   // BƯỚC 5: CÁC THỰC THỂ PHỤ THUỘC TIẾP THEO (MediaFiles, Testimonials, Leads, Orders)
   // =========================================================================
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of snapshot.mediaFolder) {
-      if (Array.isArray(item.files)) {
-        for (const f of item.files) {
-          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f;
+    for (const item of (snapshot.mediaFolder as any[])) {
+      if (Array.isArray((item as any).files)) {
+        for (const f of ((item as any).files as any[])) {
+          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f as any;
           const safeFolderId = (fileData.folderId && validFolderIds.has(fileData.folderId))
             ? fileData.folderId
             : null;
@@ -444,8 +444,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.mediaFile)) {
-    for (const f of snapshot.mediaFile) {
-      const { createdAt, updatedAt, ...fileData } = f;
+    for (const f of (snapshot.mediaFile as any[])) {
+      const { createdAt, updatedAt, ...fileData } = f as any;
       const safeUploadedById = (fileData.uploadedById && validAdminUserIds.has(fileData.uploadedById))
         ? fileData.uploadedById
         : null;
@@ -460,8 +460,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.testimonial)) {
-    for (const item of snapshot.testimonial) {
-      const { createdAt, updatedAt, ...testData } = item;
+    for (const item of (snapshot.testimonial as any[])) {
+      const { createdAt, updatedAt, ...testData } = item as any;
       const safeAlbumId = (testData.albumId && validAlbumIds.has(testData.albumId))
         ? testData.albumId
         : null;
@@ -479,8 +479,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.leadBooking)) {
-    for (const item of snapshot.leadBooking) {
-      const { createdAt, updatedAt, package: pkgRel, ...data } = item;
+    for (const item of (snapshot.leadBooking as any[])) {
+      const { createdAt, updatedAt, package: pkgRel, ...data } = item as any;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;
@@ -500,8 +500,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.order)) {
-    for (const item of snapshot.order) {
-      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item;
+    for (const item of (snapshot.order as any[])) {
+      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item as any;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;
