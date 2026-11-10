@@ -13,6 +13,14 @@ export interface BrandLogoProps {
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
   showSubtitle?: boolean;
+  // Typography & Colors Customization
+  logoFontFamily?: string;
+  logoFontSize?: number;
+  logoFontWeight?: string;
+  logoLetterSpacing?: string;
+  logoColorLight?: string;
+  logoColorDark?: string;
+  logoAccentColor?: string;
 }
 
 function useSafeContact() {
@@ -33,6 +41,13 @@ export function BrandLogo({
   logoLightUrl: propLogoLightUrl,
   logoDarkUrl: propLogoDarkUrl,
   showSubtitle = true,
+  logoFontFamily: propLogoFontFamily,
+  logoFontSize: propLogoFontSize,
+  logoFontWeight: propLogoFontWeight,
+  logoLetterSpacing: propLogoLetterSpacing,
+  logoColorLight: propLogoColorLight,
+  logoColorDark: propLogoColorDark,
+  logoAccentColor: propLogoAccentColor,
 }: BrandLogoProps) {
   const contactCtx = useSafeContact();
 
@@ -42,6 +57,15 @@ export function BrandLogo({
   const subtitle = propBrandSubtitle ?? contactCtx?.contact?.brandSubtitle ?? 'LUXURY WEDDING STUDIO';
   const logoLightUrl = propLogoLightUrl !== undefined ? propLogoLightUrl : contactCtx?.contact?.logoLightUrl;
   const logoDarkUrl = propLogoDarkUrl !== undefined ? propLogoDarkUrl : contactCtx?.contact?.logoDarkUrl;
+
+  // Typography settings
+  const fontFamily = propLogoFontFamily || contactCtx?.contact?.logoFontFamily || 'Playfair Display';
+  const fontSize = propLogoFontSize ?? contactCtx?.contact?.logoFontSize ?? 24;
+  const fontWeight = propLogoFontWeight || contactCtx?.contact?.logoFontWeight || '600';
+  const letterSpacing = propLogoLetterSpacing || contactCtx?.contact?.logoLetterSpacing || '0.15em';
+  const colorLight = propLogoColorLight || contactCtx?.contact?.logoColorLight || '#1A1614';
+  const colorDark = propLogoColorDark || contactCtx?.contact?.logoColorDark || '#F5F2EB';
+  const accentColor = propLogoAccentColor || contactCtx?.contact?.logoAccentColor || '#C5A880';
 
   const [imageError, setImageError] = useState(false);
 
@@ -72,15 +96,34 @@ export function BrandLogo({
     }
   }
 
-  // Text typography rendering (Signature 2-Tone Luxury Design)
+  // Text typography rendering with custom font, size, weight, spacing, and colors
+  const primaryColor = variant === 'dark' ? colorLight : colorDark;
+
   return (
     <div className={`inline-block select-none ${className}`}>
-      <div className="font-serif text-2xl font-light tracking-[0.16em] uppercase leading-none flex items-baseline">
-        <span className={variant === 'dark' ? 'text-stone-900' : 'text-stone-100'}>
+      <div
+        className="uppercase leading-none flex items-baseline transition-all"
+        style={{
+          fontFamily: `'${fontFamily}', serif`,
+          fontSize: `${fontSize}px`,
+          fontWeight: fontWeight,
+          letterSpacing: letterSpacing,
+        }}
+      >
+        <span
+          className="transition-colors"
+          style={{ color: primaryColor }}
+        >
           {part1}
         </span>
         {part2 && (
-          <span className="font-semibold text-[#C5A880] ml-1.5 transition-colors">
+          <span
+            className="ml-1.5 transition-colors"
+            style={{
+              color: accentColor,
+              fontWeight: Math.min(Number(fontWeight) + 100, 800) || 600,
+            }}
+          >
             {part2}
           </span>
         )}
@@ -99,4 +142,3 @@ export function BrandLogo({
 }
 
 export default BrandLogo;
-

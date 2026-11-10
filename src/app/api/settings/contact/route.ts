@@ -24,6 +24,18 @@ export async function GET() {
       brandSubtitle: settings.brandSubtitle || 'LUXURY WEDDING STUDIO',
       logoLightUrl: settings.logoLightUrl || null,
       logoDarkUrl: settings.logoDarkUrl || null,
+      logoTextPrimary: settings.logoTextPrimary || 'PLUS MOMENTS',
+      logoTextSecondary: settings.logoTextSecondary || 'LUXURY WEDDING STUDIO',
+      logoFontFamily: settings.logoFontFamily || 'Playfair Display',
+      logoFontSize: settings.logoFontSize ?? 24,
+      logoFontWeight: settings.logoFontWeight || '600',
+      logoLetterSpacing: settings.logoLetterSpacing || '0.15em',
+      logoColorLight: settings.logoColorLight || '#1A1614',
+      logoColorDark: settings.logoColorDark || '#F5F2EB',
+      logoAccentColor: settings.logoAccentColor || '#C5A880',
+      themePrimaryColor: settings.themePrimaryColor || '#C5A880',
+      themeBgColor: settings.themeBgColor || '#FAF8F5',
+      themeTextColor: settings.themeTextColor || '#1C1917',
     };
 
     return NextResponse.json(

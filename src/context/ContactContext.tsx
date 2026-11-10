@@ -19,6 +19,18 @@ export interface ContactConfig {
   brandSubtitle?: string;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
+  logoTextPrimary?: string;
+  logoTextSecondary?: string;
+  logoFontFamily?: string;
+  logoFontSize?: number;
+  logoFontWeight?: string;
+  logoLetterSpacing?: string;
+  logoColorLight?: string;
+  logoColorDark?: string;
+  logoAccentColor?: string;
+  themePrimaryColor?: string;
+  themeBgColor?: string;
+  themeTextColor?: string;
   googleAdsPhoneConversionLabel?: string | null;
   googleAdsZaloConversionLabel?: string | null;
   googleAdsMessengerConversionLabel?: string | null;
@@ -52,6 +64,18 @@ const defaultContactConfig: ContactConfig = {
   brandSubtitle: 'LUXURY WEDDING STUDIO',
   logoLightUrl: null,
   logoDarkUrl: null,
+  logoTextPrimary: 'PLUS MOMENTS',
+  logoTextSecondary: 'LUXURY WEDDING STUDIO',
+  logoFontFamily: 'Playfair Display',
+  logoFontSize: 24,
+  logoFontWeight: '600',
+  logoLetterSpacing: '0.15em',
+  logoColorLight: '#1A1614',
+  logoColorDark: '#F5F2EB',
+  logoAccentColor: '#C5A880',
+  themePrimaryColor: '#C5A880',
+  themeBgColor: '#FAF8F5',
+  themeTextColor: '#1C1917',
 };
 
 const ContactContext = createContext<ContactContextType>({

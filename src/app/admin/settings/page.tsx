@@ -38,6 +38,9 @@ import {
   MapPin,
   Copy,
   Check,
+  Palette,
+  Type,
+  RotateCcw,
 } from 'lucide-react';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/common/BrandLogo';
@@ -45,6 +48,32 @@ import { SingleImagePicker } from '@/components/admin/ImageFieldPicker';
 import { EmailSettingsCard } from '@/components/admin/EmailSettingsCard';
 import { BankSettingsCard } from '@/components/admin/BankSettingsCard';
 import { resolveGoogleMapsUrl } from '@/lib/maps-converter';
+
+const GOOGLE_FONTS_LIST = [
+  { value: 'Playfair Display', label: 'Playfair Display (Hoàng Gia Cổ Điển - Mặc Định)' },
+  { value: 'Cormorant Garamond', label: 'Cormorant Garamond (Thanh Thoát Quý Tộc)' },
+  { value: 'Cinzel', label: 'Cinzel (La Mã Tinh Tế - Roman Inscriptional)' },
+  { value: 'Cinzel Decorative', label: 'Cinzel Decorative (Nghệ Thuật Đậm Chất Quý Phái)' },
+  { value: 'Montserrat', label: 'Montserrat (Hiện Đại & Tối Giản)' },
+  { value: 'Prata', label: 'Prata (Sang Trọng & Tinh Gọn)' },
+  { value: 'Bodoni Moda', label: 'Bodoni Moda (Vogue Editorial Thời Thượng)' },
+];
+
+const FONT_WEIGHT_LIST = [
+  { value: '300', label: '300 (Light - Mảnh Mai)' },
+  { value: '400', label: '400 (Regular - Tiêu Chuẩn)' },
+  { value: '500', label: '500 (Medium - Vừa Phải)' },
+  { value: '600', label: '600 (SemiBold - Khuyên Dùng)' },
+  { value: '700', label: '700 (Bold - Đậm Đẳng Cấp)' },
+];
+
+const LETTER_SPACING_LIST = [
+  { value: '0.05em', label: '0.05em (Gọn Gàng)' },
+  { value: '0.1em', label: '0.1em (Vừa Phải)' },
+  { value: '0.15em', label: '0.15em (Chuẩn Luxury Editorial)' },
+  { value: '0.2em', label: '0.2em (Rộng Nghệ Thuật)' },
+  { value: '0.25em', label: '0.25em (Rất Rộng Đẳng Cấp)' },
+];
 
 export interface FooterLinkItem {
   label: string;
@@ -125,6 +154,22 @@ export default function AdminSettingsPage() {
     brandSubtitle: 'LUXURY WEDDING STUDIO',
     logoLightUrl: '',
     logoDarkUrl: '',
+
+    // Typography Logo & Customizer
+    logoTextPrimary: 'PLUS MOMENTS',
+    logoTextSecondary: 'LUXURY WEDDING STUDIO',
+    logoFontFamily: 'Playfair Display',
+    logoFontSize: 24,
+    logoFontWeight: '600',
+    logoLetterSpacing: '0.15em',
+    logoColorLight: '#1A1614',
+    logoColorDark: '#F5F2EB',
+    logoAccentColor: '#C5A880',
+
+    // Theme Colors
+    themePrimaryColor: '#C5A880',
+    themeBgColor: '#FAF8F5',
+    themeTextColor: '#1C1917',
 
     // SEO Globals
     siteName: '',
@@ -273,6 +318,22 @@ export default function AdminSettingsPage() {
             brandSubtitle: s.brandSubtitle || 'LUXURY WEDDING STUDIO',
             logoLightUrl: s.logoLightUrl || '',
             logoDarkUrl: s.logoDarkUrl || '',
+
+            // Typography Logo & Customizer
+            logoTextPrimary: s.logoTextPrimary || 'PLUS MOMENTS',
+            logoTextSecondary: s.logoTextSecondary || 'LUXURY WEDDING STUDIO',
+            logoFontFamily: s.logoFontFamily || 'Playfair Display',
+            logoFontSize: s.logoFontSize ?? 24,
+            logoFontWeight: s.logoFontWeight || '600',
+            logoLetterSpacing: s.logoLetterSpacing || '0.15em',
+            logoColorLight: s.logoColorLight || '#1A1614',
+            logoColorDark: s.logoColorDark || '#F5F2EB',
+            logoAccentColor: s.logoAccentColor || '#C5A880',
+
+            // Theme Colors
+            themePrimaryColor: s.themePrimaryColor || '#C5A880',
+            themeBgColor: s.themeBgColor || '#FAF8F5',
+            themeTextColor: s.themeTextColor || '#1C1917',
 
             siteName: s.siteName || '',
             tagline: s.tagline || '',
@@ -809,7 +870,7 @@ export default function AdminSettingsPage() {
           }`}
         >
           <Sparkles className="w-3.5 h-3.5 text-luxury-400" />
-          <span>Nhận Diện & Logo</span>
+          <span>Nhận Diện & Bảng Màu</span>
         </button>
 
         <button
@@ -952,6 +1013,7 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* LEFT COLUMN: BRAND CONFIGURATION FORM (60%) */}
             <div className="lg:col-span-7 space-y-6">
+              {/* CARD 1: LOGO & TYPOGRAPHY SETTINGS */}
               <div className="bg-white rounded-2xl border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 sm:p-8 space-y-6">
                 <div className="border-b border-stone-100 pb-5">
                   <h3 className="font-serif text-lg font-medium text-stone-900 flex items-center gap-2">
@@ -959,7 +1021,7 @@ export default function AdminSettingsPage() {
                     <span>Nhận Diện Thương Hiệu & Logo Hệ Thống</span>
                   </h3>
                   <p className="text-xs text-stone-400 font-light mt-0.5 leading-relaxed">
-                    Đồng bộ 100% nhận diện thương hiệu giữa Header, Footer và Admin. Chủ studio có thể chọn giữa Logo dạng Chữ Luxury hoặc Tải lên ảnh Logo.
+                    Đồng bộ nhận diện thương hiệu giữa Header, Footer và Admin. Tùy chỉnh Logo dạng Chữ Typography chuẩn tạp chí nghệ thuật hoặc Tải ảnh Logo dạng PNG/SVG.
                   </p>
                 </div>
 
@@ -978,6 +1040,7 @@ export default function AdminSettingsPage() {
                           : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
                       }`}
                     >
+                      <Type className="w-3.5 h-3.5" />
                       <span>✍️ Dạng Chữ (Text Typography)</span>
                     </button>
                     <button
@@ -996,7 +1059,8 @@ export default function AdminSettingsPage() {
 
                 {/* WHEN TEXT TYPOGRAPHY IS SELECTED */}
                 {formData.logoType === 'TEXT' && (
-                  <div className="space-y-5 pt-2">
+                  <div className="space-y-6 pt-2">
+                    {/* BRAND TEXT INPUTS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
@@ -1010,14 +1074,17 @@ export default function AdminSettingsPage() {
                           className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-stone-50/50"
                         />
                         <p className="text-[10px] text-stone-400 mt-1">
-                          Header hiển thị chữ đen than `text-stone-900`, Footer hiển thị chữ trắng `text-stone-100`.
+                          Vế thương hiệu đầu tiên (ví dụ: PLUS, THE, LUXE...).
                         </p>
                       </div>
 
                       <div>
                         <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 flex items-center gap-1.5 uppercase">
-                          <span>Tên chính vế 2 (Điểm nhấn Vàng Gold)</span>
-                          <span className="w-2 h-2 rounded-full bg-[#C5A880]" />
+                          <span>Tên chính vế 2 (Điểm nhấn Accent)</span>
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block shadow-xs"
+                            style={{ backgroundColor: formData.logoAccentColor || '#C5A880' }}
+                          />
                         </label>
                         <input
                           type="text"
@@ -1027,7 +1094,7 @@ export default function AdminSettingsPage() {
                           className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-stone-50/50"
                         />
                         <p className="text-[10px] text-stone-400 mt-1">
-                          Hiển thị chữ in đậm ánh vàng Champagne/Đồng sang trọng (#C5A880).
+                          Vế điểm nhấn thứ hai (ví dụ: MOMENTS, STUDIO, BRIDAL...).
                         </p>
                       </div>
                     </div>
@@ -1046,6 +1113,181 @@ export default function AdminSettingsPage() {
                       <p className="text-[10px] text-stone-400 mt-1">
                         Dòng chữ nhỏ dưới logo, giãn chữ tracking rộng chuẩn tạp chí nghệ thuật.
                       </p>
+                    </div>
+
+                    {/* TYPOGRAPHY CUSTOMIZER (FONT FAMILY, FONT SIZE, FONT WEIGHT, SPACING) */}
+                    <div className="p-4 sm:p-5 rounded-2xl bg-stone-50/80 border border-stone-200/70 space-y-5">
+                      <div className="flex items-center gap-2 pb-2 border-b border-stone-200/50">
+                        <Sliders className="w-4 h-4 text-[#C5A880]" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                          Thông Số Typography & Kiểu Chữ Logo
+                        </h4>
+                      </div>
+
+                      {/* GOOGLE FONT SELECTOR */}
+                      <div>
+                        <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                          Kiểu Chữ (Google Fonts Nghệ Thuật)
+                        </label>
+                        <select
+                          value={formData.logoFontFamily || 'Playfair Display'}
+                          onChange={(e) => setFormData({ ...formData, logoFontFamily: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
+                        >
+                          {GOOGLE_FONTS_LIST.map((f) => (
+                            <option key={f.value} value={f.value}>
+                              {f.label}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-[10px] text-stone-400 mt-1">
+                          Font được nạp trực tiếp từ Google Fonts và áp dụng đồng bộ tức thì.
+                        </p>
+                      </div>
+
+                      {/* FONT SIZE SLIDER + NUMBER INPUT */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-stone-600 uppercase">
+                            Kích Thước Chữ Logo (Font Size)
+                          </label>
+                          <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white border border-stone-200 text-stone-800">
+                            {formData.logoFontSize || 24}px
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <input
+                            type="range"
+                            min="16"
+                            max="48"
+                            step="1"
+                            value={formData.logoFontSize || 24}
+                            onChange={(e) => setFormData({ ...formData, logoFontSize: Number(e.target.value) })}
+                            className="w-full accent-stone-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                          />
+                          <input
+                            type="number"
+                            min="16"
+                            max="48"
+                            value={formData.logoFontSize || 24}
+                            onChange={(e) => setFormData({ ...formData, logoFontSize: Number(e.target.value) })}
+                            className="w-16 px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs text-center font-mono focus:outline-none focus:border-stone-400 bg-white"
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                          <span>16px (Nhỏ gọn)</span>
+                          <span>24px (Chuẩn)</span>
+                          <span>48px (Lớn)</span>
+                        </div>
+                      </div>
+
+                      {/* FONT WEIGHT & LETTER SPACING IN 2 COLUMNS */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                            Độ Đậm Nhạt (Font Weight)
+                          </label>
+                          <select
+                            value={formData.logoFontWeight || '600'}
+                            onChange={(e) => setFormData({ ...formData, logoFontWeight: e.target.value })}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
+                          >
+                            {FONT_WEIGHT_LIST.map((w) => (
+                              <option key={w.value} value={w.value}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                            Khoảng Cách Chữ (Letter Spacing)
+                          </label>
+                          <select
+                            value={formData.logoLetterSpacing || '0.15em'}
+                            onChange={(e) => setFormData({ ...formData, logoLetterSpacing: e.target.value })}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
+                          >
+                            {LETTER_SPACING_LIST.map((sp) => (
+                              <option key={sp.value} value={sp.value}>
+                                {sp.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* LOGO COLORS (LIGHT, DARK, ACCENT) */}
+                      <div className="pt-2 border-t border-stone-200/50 space-y-3">
+                        <label className="text-xs font-bold tracking-wider text-stone-700 uppercase block">
+                          Bảng Màu Chữ Logo
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {/* Color 1: On Light Canvas */}
+                          <div className="p-3 bg-white rounded-xl border border-stone-200/70 space-y-2">
+                            <span className="text-[11px] font-semibold text-stone-600 block">
+                              Màu Nền Sáng (Header)
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={formData.logoColorLight || '#1A1614'}
+                                onChange={(e) => setFormData({ ...formData, logoColorLight: e.target.value })}
+                                className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
+                              />
+                              <input
+                                type="text"
+                                value={formData.logoColorLight || '#1A1614'}
+                                onChange={(e) => setFormData({ ...formData, logoColorLight: e.target.value })}
+                                className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Color 2: On Dark Canvas */}
+                          <div className="p-3 bg-white rounded-xl border border-stone-200/70 space-y-2">
+                            <span className="text-[11px] font-semibold text-stone-600 block">
+                              Màu Nền Tối (Footer)
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={formData.logoColorDark || '#F5F2EB'}
+                                onChange={(e) => setFormData({ ...formData, logoColorDark: e.target.value })}
+                                className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
+                              />
+                              <input
+                                type="text"
+                                value={formData.logoColorDark || '#F5F2EB'}
+                                onChange={(e) => setFormData({ ...formData, logoColorDark: e.target.value })}
+                                className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Color 3: Accent / Vế 2 */}
+                          <div className="p-3 bg-white rounded-xl border border-stone-200/70 space-y-2">
+                            <span className="text-[11px] font-semibold text-stone-600 block">
+                              Màu Điểm Nhấn (Accent)
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={formData.logoAccentColor || '#C5A880'}
+                                onChange={(e) => setFormData({ ...formData, logoAccentColor: e.target.value })}
+                                className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
+                              />
+                              <input
+                                type="text"
+                                value={formData.logoAccentColor || '#C5A880'}
+                                onChange={(e) => setFormData({ ...formData, logoAccentColor: e.target.value })}
+                                className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1084,11 +1326,142 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* CARD 2: SYSTEM THEME COLOR PALETTE */}
+              <div className="bg-white rounded-2xl border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 sm:p-8 space-y-6">
+                <div className="border-b border-stone-100 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-serif text-lg font-medium text-stone-900 flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-[#C5A880]" />
+                      <span>Bảng Màu Theme Hệ Thống (Theme Color Palette)</span>
+                    </h3>
+                    <p className="text-xs text-stone-400 font-light mt-0.5 leading-relaxed">
+                      Thiết lập bảng màu chủ đạo cho toàn bộ giao diện website (Màu nhấn Accent, Màu nền chính, Màu chữ).
+                    </p>
+                  </div>
+
+                  {/* PRESET ACTIONS */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          themePrimaryColor: '#C5A880',
+                          themeBgColor: '#FAF8F5',
+                          themeTextColor: '#1C1917',
+                          logoAccentColor: '#C5A880',
+                          logoColorLight: '#1A1614',
+                          logoColorDark: '#F5F2EB',
+                        })
+                      }
+                      className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                      title="Khôi phục tone Luxury Champagne & Nền Kem sáng"
+                    >
+                      <RotateCcw className="w-3 h-3 text-[#C5A880]" />
+                      <span>Mặc Định Luxury Kem</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          themePrimaryColor: '#C5A880',
+                          themeBgColor: '#0E0D0C',
+                          themeTextColor: '#EAE5D9',
+                          logoAccentColor: '#C5A880',
+                          logoColorLight: '#1A1614',
+                          logoColorDark: '#F5F2EB',
+                        })
+                      }
+                      className="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                      title="Chuyển sang phong cách Luxury Noir (Nền tối huyền bí & Vàng Gold)"
+                    >
+                      <span>✨ Noir Dark Gold</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* THEME COLOR PICKERS */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Primary / Accent Color */}
+                  <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-stone-700 uppercase block">
+                      1. Màu Chủ Đạo / Điểm Nhấn
+                    </label>
+                    <p className="text-[10px] text-stone-400">
+                      Nút bấm chính, icon sao, đường viền luxury (#C5A880 hoặc #D4AF37).
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="color"
+                        value={formData.themePrimaryColor || '#C5A880'}
+                        onChange={(e) => setFormData({ ...formData, themePrimaryColor: e.target.value })}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={formData.themePrimaryColor || '#C5A880'}
+                        onChange={(e) => setFormData({ ...formData, themePrimaryColor: e.target.value })}
+                        className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Page Background Color */}
+                  <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-stone-700 uppercase block">
+                      2. Màu Nền Toàn Trang (Page Bg)
+                    </label>
+                    <p className="text-[10px] text-stone-400">
+                      Màu nền mặc định của website (Kem sáng #FAF8F5 hoặc Tối #0E0D0C).
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="color"
+                        value={formData.themeBgColor || '#FAF8F5'}
+                        onChange={(e) => setFormData({ ...formData, themeBgColor: e.target.value })}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={formData.themeBgColor || '#FAF8F5'}
+                        onChange={(e) => setFormData({ ...formData, themeBgColor: e.target.value })}
+                        className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Main Text Color */}
+                  <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-stone-700 uppercase block">
+                      3. Màu Chữ Chính (Main Text)
+                    </label>
+                    <p className="text-[10px] text-stone-400">
+                      Tiêu đề và nội dung bài viết (#1C1917 trên nền sáng hoặc #EAE5D9 trên nền tối).
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="color"
+                        value={formData.themeTextColor || '#1C1917'}
+                        onChange={(e) => setFormData({ ...formData, themeTextColor: e.target.value })}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={formData.themeTextColor || '#1C1917'}
+                        onChange={(e) => setFormData({ ...formData, themeTextColor: e.target.value })}
+                        className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 {/* SAVE BUTTON */}
                 <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                   <span className="text-[11px] text-stone-400 font-light">
-                    * Cập nhật tức thì trên Header và Footer sau khi Lưu.
+                    * Đồng bộ tự động tới Header, Footer, Admin và Toàn Hệ Thống sau khi Lưu.
                   </span>
                   <button
                     type="submit"
@@ -1100,13 +1473,13 @@ export default function AdminSettingsPage() {
                     ) : (
                       <Save className="w-3.5 h-3.5 text-luxury-400" />
                     )}
-                    <span>Lưu Nhận Diện Logo</span>
+                    <span>Lưu Nhận Diện & Bảng Màu</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT COLUMN: DUAL LIVE PREVIEW (40%) */}
+            {/* RIGHT COLUMN: DUAL LIVE PREVIEW & THEME PALETTE PREVIEW (40%) */}
             <div className="lg:col-span-5 space-y-4">
               <div className="sticky top-24 space-y-4">
                 <div className="flex items-center gap-2 px-1">
@@ -1131,6 +1504,13 @@ export default function AdminSettingsPage() {
                       brandSubtitle={formData.brandSubtitle}
                       logoLightUrl={formData.logoLightUrl}
                       logoDarkUrl={formData.logoDarkUrl}
+                      logoFontFamily={formData.logoFontFamily}
+                      logoFontSize={Number(formData.logoFontSize) || 24}
+                      logoFontWeight={formData.logoFontWeight}
+                      logoLetterSpacing={formData.logoLetterSpacing}
+                      logoColorLight={formData.logoColorLight}
+                      logoColorDark={formData.logoColorDark}
+                      logoAccentColor={formData.logoAccentColor}
                     />
                   </div>
                 </div>
@@ -1150,7 +1530,98 @@ export default function AdminSettingsPage() {
                       brandSubtitle={formData.brandSubtitle}
                       logoLightUrl={formData.logoLightUrl}
                       logoDarkUrl={formData.logoDarkUrl}
+                      logoFontFamily={formData.logoFontFamily}
+                      logoFontSize={Number(formData.logoFontSize) || 24}
+                      logoFontWeight={formData.logoFontWeight}
+                      logoLetterSpacing={formData.logoLetterSpacing}
+                      logoColorLight={formData.logoColorLight}
+                      logoColorDark={formData.logoColorDark}
+                      logoAccentColor={formData.logoAccentColor}
                     />
+                  </div>
+                </div>
+
+                {/* PREVIEW 3: THEME COLOR PALETTE REALTIME SPECIMEN */}
+                <div className="rounded-2xl p-5 bg-white border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3">
+                  <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 border-b border-stone-100 pb-2">
+                    <span>Mô Phỏng Phối Màu Giao Diện (Theme Preview)</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">UI SPECIMEN</span>
+                  </div>
+                  <div
+                    className="p-5 rounded-xl border transition-all space-y-3 shadow-inner"
+                    style={{
+                      backgroundColor: formData.themeBgColor || '#FAF8F5',
+                      borderColor: 'rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <div>
+                      <p
+                        className="text-[10px] tracking-widest uppercase font-semibold transition-colors"
+                        style={{ color: formData.themePrimaryColor || '#C5A880' }}
+                      >
+                        PRE-WEDDING EDITORIAL
+                      </p>
+                      <h4
+                        className="font-serif text-base font-medium mt-0.5 transition-colors"
+                        style={{ color: formData.themeTextColor || '#1C1917' }}
+                      >
+                        Nghệ Thuật Ánh Sáng Tình Yêu
+                      </h4>
+                      <p
+                        className="text-[11px] font-light mt-1 opacity-80 leading-relaxed transition-colors"
+                        style={{ color: formData.themeTextColor || '#1C1917' }}
+                      >
+                        Mô phỏng hiển thị văn bản và nút bấm khi áp dụng bộ màu đã chọn.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all"
+                        style={{
+                          backgroundColor: formData.themePrimaryColor || '#C5A880',
+                          color: '#FFFFFF',
+                        }}
+                      >
+                        Đặt Lịch Ngay
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all"
+                        style={{
+                          borderColor: formData.themePrimaryColor || '#C5A880',
+                          color: formData.themePrimaryColor || '#C5A880',
+                        }}
+                      >
+                        Xem Bảng Giá
+                      </button>
+                    </div>
+
+                    {/* COLOR CHIPS SUMMARY */}
+                    <div className="pt-2 border-t border-black/5 flex items-center justify-between text-[10px] font-mono opacity-70">
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full inline-block"
+                          style={{ backgroundColor: formData.themePrimaryColor }}
+                        />
+                        {formData.themePrimaryColor}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full inline-block border border-black/20"
+                          style={{ backgroundColor: formData.themeBgColor }}
+                        />
+                        {formData.themeBgColor}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full inline-block"
+                          style={{ backgroundColor: formData.themeTextColor }}
+                        />
+                        {formData.themeTextColor}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

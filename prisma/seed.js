@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED DATABASE SEED SNAPSHOT (CommonJS)
- * Exported at: 2026-11-10T14:09:43.897Z
+ * Exported at: 2026-11-10T14:16:25.971Z
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -8,7 +8,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const snapshot = {
-  "exportedAt": "2026-11-10T14:09:43.897Z",
+  "exportedAt": "2026-11-10T14:16:25.971Z",
   "superAdminPasswordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
   "adminUser": [
     {
@@ -140,6 +140,18 @@ const snapshot = {
       "brandSubtitle": "LUXURY WEDDING STUDIO",
       "logoLightUrl": "",
       "logoDarkUrl": "",
+      "logoTextPrimary": "PLUS MOMENTS",
+      "logoTextSecondary": "LUXURY WEDDING STUDIO",
+      "logoFontFamily": "Playfair Display",
+      "logoFontSize": 24,
+      "logoFontWeight": "600",
+      "logoLetterSpacing": "0.15em",
+      "logoColorLight": "#1A1614",
+      "logoColorDark": "#F5F2EB",
+      "logoAccentColor": "#C5A880",
+      "themePrimaryColor": "#C5A880",
+      "themeBgColor": "#FAF8F5",
+      "themeTextColor": "#1C1917",
       "footerAboutText": "Chúng tôi ghi lại những rung cảm tinh khôi và chân thành nhất trong tình yêu của bạn bằng ngôn ngữ ánh sáng điện ảnh.",
       "footerNavCol1Title": "BỘ SƯU TẬP CƯỚI",
       "footerNavCol1Links": [

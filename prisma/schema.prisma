@@ -154,6 +154,22 @@ model SystemSetting {
   logoLightUrl            String?  // URL ảnh logo cho nền tối (Footer / Admin Sidebar)
   logoDarkUrl             String?  // URL ảnh logo cho nền sáng (Header)
 
+  // Typography Logo & Customizer
+  logoTextPrimary         String?  @default("PLUS MOMENTS")
+  logoTextSecondary       String?  @default("LUXURY WEDDING STUDIO")
+  logoFontFamily          String?  @default("Playfair Display")
+  logoFontSize            Int?     @default(24)
+  logoFontWeight          String?  @default("600")
+  logoLetterSpacing       String?  @default("0.15em")
+  logoColorLight          String?  @default("#1A1614") // Màu hiển thị trên nền sáng
+  logoColorDark           String?  @default("#F5F2EB") // Màu hiển thị trên nền tối
+  logoAccentColor         String?  @default("#C5A880") // Màu chữ phụ / điểm nhấn
+
+  // Màu sắc Theme Hệ Thống (Theme Colors)
+  themePrimaryColor       String?  @default("#C5A880") // Màu vàng đồng / Accent
+  themeBgColor            String?  @default("#FAF8F5") // Màu nền chính
+  themeTextColor          String?  @default("#1C1917") // Màu chữ chính
+
   // Dynamic Footer CMS Configuration
   footerAboutText         String?  @db.Text @default("Chúng tôi không chỉ chụp ảnh cưới, chúng tôi ghi lại những rung cảm tinh khôi và chân thành nhất trong tình yêu của bạn bằng ngôn ngữ ánh sáng điện ảnh.")
   footerNavCol1Title      String   @default("BỘ SƯU TẬP CƯỚI")

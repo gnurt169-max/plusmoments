@@ -87,6 +87,29 @@ export default async function RootLayout({
       className={`${fontSerif.variable} ${fontSans.variable} scroll-smooth`}
     >
       <head>
+        {/* Google Fonts Preconnect & Luxury Editorial Font Families */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Prata&display=swap"
+        />
+
+        {/* Dynamic Theme Colors & Logo Typography Variables */}
+        <style
+          id="system-theme-variables"
+          dangerouslySetInnerHTML={{
+            __html: `
+              :root {
+                --theme-primary: ${settings.themePrimaryColor || '#C5A880'};
+                --theme-bg: ${settings.themeBgColor || '#FAF8F5'};
+                --theme-text: ${settings.themeTextColor || '#1C1917'};
+                --logo-font-family: '${settings.logoFontFamily || 'Playfair Display'}', serif;
+              }
+            `,
+          }}
+        />
+
         {/* Dynamic LocalBusiness Schema for Rich Snippets */}
         <LocalBusinessJsonLd
           name={settings.siteName}
