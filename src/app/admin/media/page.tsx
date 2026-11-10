@@ -25,6 +25,7 @@ import {
   ArrowLeft,
   Edit2,
   Image as ImageIcon,
+  Download,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
@@ -132,6 +133,7 @@ export default function AdminMediaPage() {
   const [movingFiles, setMovingFiles] = useState(false);
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [downloadingBatch, setDownloadingBatch] = useState(false);
 
   // Show Toast
   const showToast = (msg: string) => {
@@ -321,6 +323,58 @@ export default function AdminMediaPage() {
       alert(err.message || 'Lỗi khi xóa tệp ảnh.');
     } finally {
       setBulkDeleting(false);
+    }
+  };
+
+  // Download single file directly
+  const handleDownloadSingle = (url: string, filename: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      const downloadUrl = `/api/admin/media/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || 'media')}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Đang tải xuống: ${filename || 'tệp media'}`);
+    } catch (err: any) {
+      showToast('Lỗi khi tải xuống tệp');
+    }
+  };
+
+  // Download batch selected files as ZIP
+  const handleDownloadBatch = async (selectedIds: string[]) => {
+    if (!selectedIds || selectedIds.length === 0) return;
+    setDownloadingBatch(true);
+    try {
+      showToast(`Đang nén ${selectedIds.length} tệp thành file ZIP...`);
+      const res = await fetch('/api/admin/media/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds, asZip: true }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Không thể tạo file nén để tải xuống.');
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      const today = new Date().toISOString().slice(0, 10);
+      link.download = `plusmoments-media-${today}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      showToast(`Đã tải xuống thành công ${selectedIds.length} tệp (.ZIP)!`);
+    } catch (err: any) {
+      showToast(err.message || 'Có lỗi khi tải xuống tệp');
+    } finally {
+      setDownloadingBatch(false);
     }
   };
 
@@ -1172,7 +1226,7 @@ export default function AdminMediaPage() {
                     <span className="text-stone-400">{new Date(item.modifiedAt).toLocaleDateString('vi-VN')}</span>
                   </div>
 
-                  {/* Action Buttons */}
+                    {/* Action Buttons */}
                   <div
                     className="flex items-center justify-between gap-1 pt-1.5"
                     onClick={(e) => e.stopPropagation()}
@@ -1180,7 +1234,7 @@ export default function AdminMediaPage() {
                     <button
                       type="button"
                       onClick={(e) => handleCopyUrl(item.url, e)}
-                      className={`flex-1 py-1.5 px-2.5 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         copiedUrl === item.url
                           ? 'bg-emerald-600 text-white'
                           : 'bg-stone-100 hover:bg-stone-200 text-charcoal-700'
@@ -1195,9 +1249,18 @@ export default function AdminMediaPage() {
                       ) : (
                         <>
                           <Copy className="w-3.5 h-3.5 text-stone-500" />
-                          <span>Copy Link</span>
+                          <span>Copy</span>
                         </>
                       )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleDownloadSingle(item.url, item.filename || item.name, e)}
+                      className="p-1.5 text-stone-500 hover:text-luxury-700 hover:bg-luxury-50 rounded-lg transition-colors cursor-pointer"
+                      title="Tải tệp này về máy"
+                    >
+                      <Download className="w-3.5 h-3.5" />
                     </button>
 
                     {(!currentUser || currentUser.role !== 'USER' || !item.uploadedById || item.uploadedById === currentUser.id) && (
@@ -1469,18 +1532,29 @@ export default function AdminMediaPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-stone-500 font-mono truncate max-w-md">
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <span className="text-xs text-stone-500 font-mono truncate max-w-sm sm:max-w-md">
                 {lightboxItem.url}
               </span>
-              <button
-                type="button"
-                onClick={() => handleCopyUrl(lightboxItem.url)}
-                className="px-4 py-2 rounded-xl bg-charcoal-900 text-white text-xs font-medium flex items-center gap-2 hover:bg-charcoal-800 cursor-pointer shadow-xs"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Sao Chép URL</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadSingle(lightboxItem.url, lightboxItem.filename || lightboxItem.name)}
+                  className="px-3.5 py-2 rounded-xl bg-luxury-600 text-white text-xs font-medium flex items-center gap-2 hover:bg-luxury-700 cursor-pointer shadow-xs transition-colors"
+                  title="Tải tệp này về máy tính"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Tải Xuống</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCopyUrl(lightboxItem.url)}
+                  className="px-3.5 py-2 rounded-xl bg-charcoal-900 text-white text-xs font-medium flex items-center gap-2 hover:bg-charcoal-800 cursor-pointer shadow-xs transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Sao Chép URL</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1501,13 +1575,33 @@ export default function AdminMediaPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              disabled={downloadingBatch}
+              onClick={() => handleDownloadBatch(selectedFileIds)}
+              className="px-3.5 py-1.5 rounded-xl bg-luxury-600 hover:bg-luxury-500 text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+              title="Nén và tải xuống toàn bộ các tệp đã chọn dưới dạng .ZIP"
+            >
+              {downloadingBatch ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Đang nén ZIP...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>📦 Tải xuống ({selectedFileIds.length} tệp .ZIP)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={() => {
                 setTargetFolderForMove(
                   currentFolder ? 'root' : folders[0]?.id || folders[0]?.slug || 'root'
                 );
                 setIsMoveModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-luxury-600 hover:bg-luxury-500 text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              className="px-3.5 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <FolderInput className="w-3.5 h-3.5" />
               <span>Di Chuyển</span>
