@@ -134,6 +134,7 @@ export default function AdminMediaPage() {
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [downloadingBatch, setDownloadingBatch] = useState(false);
+  const [downloadingFolderId, setDownloadingFolderId] = useState<string | null>(null);
 
   // Show Toast
   const showToast = (msg: string) => {
@@ -375,6 +376,38 @@ export default function AdminMediaPage() {
       showToast(err.message || 'Có lỗi khi tải xuống tệp');
     } finally {
       setDownloadingBatch(false);
+    }
+  };
+
+  // Download entire folder as ZIP
+  const handleDownloadFolder = async (folderIdOrSlug: string, folderName: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!folderIdOrSlug) return;
+    setDownloadingFolderId(folderIdOrSlug);
+    try {
+      showToast(`Đang chuẩn bị nén toàn bộ thư mục "${folderName}"...`);
+      const res = await fetch(`/api/admin/media/folder-download?folderId=${encodeURIComponent(folderIdOrSlug)}`);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Không thể tạo file nén thư mục.');
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      const safeName = (folderName || 'thu-muc-anh').trim().replace(/[\\/:*?"<>|]/g, '_');
+      link.download = `${safeName}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      showToast(`Đã tải xuống thành công thư mục "${folderName}" (.ZIP)!`);
+    } catch (err: any) {
+      showToast(err.message || 'Lỗi khi tải thư mục');
+    } finally {
+      setDownloadingFolderId(null);
     }
   };
 
@@ -923,33 +956,50 @@ export default function AdminMediaPage() {
                         <ChevronRight className="w-3 h-3" />
                       </span>
 
-                      {currentUser?.role !== 'USER' && (
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRenameTargetFolder(f);
-                              setRenameFolderName(f.name);
-                            }}
-                            className="p-1.5 text-stone-400 hover:text-luxury-700 hover:bg-luxury-50 rounded-lg transition-colors cursor-pointer"
-                            title="Đổi tên thư mục"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        {/* Nút Tải Toàn Bộ Thư Mục */}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownloadFolder(f.id || f.slug, f.name || f.slug, e)}
+                          disabled={downloadingFolderId === (f.id || f.slug)}
+                          className="p-1.5 text-stone-400 hover:text-luxury-700 hover:bg-luxury-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                          title="Tải toàn bộ ảnh trong thư mục này (.ZIP)"
+                        >
+                          {downloadingFolderId === (f.id || f.slug) ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-luxury-600" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5" />
+                          )}
+                        </button>
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteTargetFolder(f);
-                            }}
-                            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            title="Xóa toàn bộ thư mục"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
+                        {currentUser?.role !== 'USER' && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setRenameTargetFolder(f);
+                                setRenameFolderName(f.name);
+                              }}
+                              className="p-1.5 text-stone-400 hover:text-luxury-700 hover:bg-luxury-50 rounded-lg transition-colors cursor-pointer"
+                              title="Đổi tên thư mục"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteTargetFolder(f);
+                              }}
+                              className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Xóa toàn bộ thư mục"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1008,6 +1058,26 @@ export default function AdminMediaPage() {
                   </button>
                 </>
               )}
+
+              <button
+                type="button"
+                disabled={downloadingFolderId === (currentFolder.id || currentFolder.slug)}
+                onClick={(e) => handleDownloadFolder(currentFolder.id || currentFolder.slug, currentFolder.name, e)}
+                className="px-3.5 py-1.5 rounded-xl border border-luxury-300 bg-luxury-50 hover:bg-luxury-100 text-xs text-luxury-900 font-medium flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+                title="Tải toàn bộ ảnh trong thư mục này dưới dạng .ZIP"
+              >
+                {downloadingFolderId === (currentFolder.id || currentFolder.slug) ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-luxury-700" />
+                    <span>Đang Nén...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5 text-luxury-700" />
+                    <span>Tải Thư Mục (.ZIP)</span>
+                  </>
+                )}
+              </button>
 
               <button
                 type="button"

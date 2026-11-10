@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED DATABASE SEED SNAPSHOT (CommonJS)
- * Exported at: 2026-11-10T14:01:57.755Z
+ * Exported at: 2026-11-10T14:09:43.897Z
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -8,7 +8,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const snapshot = {
-  "exportedAt": "2026-11-10T14:01:57.755Z",
+  "exportedAt": "2026-11-10T14:09:43.897Z",
   "superAdminPasswordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
   "adminUser": [
     {
@@ -31,9 +31,9 @@ const snapshot = {
       "passwordHash": "$2b$12$B8GJidmjGaDqkgJvgwKK8uF2xoC/uUkufONbObTDw/FYh8BJ5SNMC",
       "role": "ADMIN",
       "isActive": true,
-      "lastLoginAt": "2026-11-09T13:54:08.866Z",
+      "lastLoginAt": "2026-11-10T14:03:06.254Z",
       "createdAt": "2026-11-07T12:13:01.571Z",
-      "updatedAt": "2026-11-09T16:20:20.447Z"
+      "updatedAt": "2026-11-10T14:03:06.254Z"
     },
     {
       "id": "cmw6d7aiu000211xe6vz1bd7h",
