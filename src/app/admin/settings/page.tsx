@@ -59,6 +59,19 @@ const GOOGLE_FONTS_LIST = [
   { value: 'Bodoni Moda', label: 'Bodoni Moda (Vogue Editorial Thời Thượng)' },
 ];
 
+function getGoogleFontUrl(fontFamily: string): string {
+  const map: Record<string, string> = {
+    'Playfair Display': 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap',
+    'Cormorant Garamond': 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap',
+    'Cinzel': 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap',
+    'Cinzel Decorative': 'https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&display=swap',
+    'Montserrat': 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    'Prata': 'https://fonts.googleapis.com/css2?family=Prata&display=swap',
+    'Bodoni Moda': 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&display=swap',
+  };
+  return map[fontFamily] || `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily).replace(/%20/g, '+')}&display=swap`;
+}
+
 const FONT_WEIGHT_LIST = [
   { value: '300', label: '300 (Light - Mảnh Mai)' },
   { value: '400', label: '400 (Regular - Tiêu Chuẩn)' },
@@ -1069,7 +1082,14 @@ export default function AdminSettingsPage() {
                         <input
                           type="text"
                           value={formData.brandNamePart1 || ''}
-                          onChange={(e) => setFormData({ ...formData, brandNamePart1: e.target.value })}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => ({
+                              ...prev,
+                              brandNamePart1: val,
+                              logoTextPrimary: `${val} ${prev.brandNamePart2 || ''}`.trim(),
+                            }));
+                          }}
                           placeholder="PLUS"
                           className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-stone-50/50"
                         />
@@ -1089,7 +1109,14 @@ export default function AdminSettingsPage() {
                         <input
                           type="text"
                           value={formData.brandNamePart2 || ''}
-                          onChange={(e) => setFormData({ ...formData, brandNamePart2: e.target.value })}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => ({
+                              ...prev,
+                              brandNamePart2: val,
+                              logoTextPrimary: `${prev.brandNamePart1 || ''} ${val}`.trim(),
+                            }));
+                          }}
                           placeholder="MOMENTS"
                           className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-stone-50/50"
                         />
@@ -1106,7 +1133,14 @@ export default function AdminSettingsPage() {
                       <input
                         type="text"
                         value={formData.brandSubtitle || ''}
-                        onChange={(e) => setFormData({ ...formData, brandSubtitle: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormData((prev) => ({
+                            ...prev,
+                            brandSubtitle: val,
+                            logoTextSecondary: val,
+                          }));
+                        }}
                         placeholder="LUXURY WEDDING STUDIO"
                         className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-stone-50/50"
                       />
@@ -1131,7 +1165,9 @@ export default function AdminSettingsPage() {
                         </label>
                         <select
                           value={formData.logoFontFamily || 'Playfair Display'}
-                          onChange={(e) => setFormData({ ...formData, logoFontFamily: e.target.value })}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, logoFontFamily: e.target.value }))
+                          }
                           className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
                         >
                           {GOOGLE_FONTS_LIST.map((f) => (
@@ -1162,7 +1198,12 @@ export default function AdminSettingsPage() {
                             max="48"
                             step="1"
                             value={formData.logoFontSize || 24}
-                            onChange={(e) => setFormData({ ...formData, logoFontSize: Number(e.target.value) })}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                logoFontSize: Number(e.target.value),
+                              }))
+                            }
                             className="w-full accent-stone-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
                           />
                           <input
@@ -1170,7 +1211,12 @@ export default function AdminSettingsPage() {
                             min="16"
                             max="48"
                             value={formData.logoFontSize || 24}
-                            onChange={(e) => setFormData({ ...formData, logoFontSize: Number(e.target.value) })}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                logoFontSize: Number(e.target.value),
+                              }))
+                            }
                             className="w-16 px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs text-center font-mono focus:outline-none focus:border-stone-400 bg-white"
                           />
                         </div>
@@ -1189,7 +1235,9 @@ export default function AdminSettingsPage() {
                           </label>
                           <select
                             value={formData.logoFontWeight || '600'}
-                            onChange={(e) => setFormData({ ...formData, logoFontWeight: e.target.value })}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, logoFontWeight: e.target.value }))
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
                           >
                             {FONT_WEIGHT_LIST.map((w) => (
@@ -1206,7 +1254,9 @@ export default function AdminSettingsPage() {
                           </label>
                           <select
                             value={formData.logoLetterSpacing || '0.15em'}
-                            onChange={(e) => setFormData({ ...formData, logoLetterSpacing: e.target.value })}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, logoLetterSpacing: e.target.value }))
+                            }
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400 bg-white"
                           >
                             {LETTER_SPACING_LIST.map((sp) => (
@@ -1233,13 +1283,17 @@ export default function AdminSettingsPage() {
                               <input
                                 type="color"
                                 value={formData.logoColorLight || '#1A1614'}
-                                onChange={(e) => setFormData({ ...formData, logoColorLight: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoColorLight: e.target.value }))
+                                }
                                 className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
                               />
                               <input
                                 type="text"
                                 value={formData.logoColorLight || '#1A1614'}
-                                onChange={(e) => setFormData({ ...formData, logoColorLight: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoColorLight: e.target.value }))
+                                }
                                 className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
                               />
                             </div>
@@ -1254,13 +1308,17 @@ export default function AdminSettingsPage() {
                               <input
                                 type="color"
                                 value={formData.logoColorDark || '#F5F2EB'}
-                                onChange={(e) => setFormData({ ...formData, logoColorDark: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoColorDark: e.target.value }))
+                                }
                                 className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
                               />
                               <input
                                 type="text"
                                 value={formData.logoColorDark || '#F5F2EB'}
-                                onChange={(e) => setFormData({ ...formData, logoColorDark: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoColorDark: e.target.value }))
+                                }
                                 className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
                               />
                             </div>
@@ -1275,13 +1333,17 @@ export default function AdminSettingsPage() {
                               <input
                                 type="color"
                                 value={formData.logoAccentColor || '#C5A880'}
-                                onChange={(e) => setFormData({ ...formData, logoAccentColor: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoAccentColor: e.target.value }))
+                                }
                                 className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
                               />
                               <input
                                 type="text"
                                 value={formData.logoAccentColor || '#C5A880'}
-                                onChange={(e) => setFormData({ ...formData, logoAccentColor: e.target.value })}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({ ...prev, logoAccentColor: e.target.value }))
+                                }
                                 className="w-full px-2 py-1 text-xs font-mono rounded border border-stone-200 uppercase"
                               />
                             </div>
@@ -1299,7 +1361,7 @@ export default function AdminSettingsPage() {
                     <SingleImagePicker
                       label="1. Logo Header (Hiển thị trên nền sáng - Dark Logo)"
                       value={formData.logoDarkUrl || ''}
-                      onChange={(url) => setFormData({ ...formData, logoDarkUrl: url })}
+                      onChange={(url) => setFormData((prev) => ({ ...prev, logoDarkUrl: url }))}
                       aspectRatio="auto"
                       modalTitle="Chọn Logo Header Nền Sáng (.PNG / .SVG)"
                       helperText="Chỉ chấp nhận định dạng .PNG tách nền hoặc vector .SVG để đảm bảo độ sắc nét cao nhất."
@@ -1314,7 +1376,7 @@ export default function AdminSettingsPage() {
                     <SingleImagePicker
                       label="2. Logo Footer & Sidebar (Hiển thị trên nền tối - Light Logo)"
                       value={formData.logoLightUrl || ''}
-                      onChange={(url) => setFormData({ ...formData, logoLightUrl: url })}
+                      onChange={(url) => setFormData((prev) => ({ ...prev, logoLightUrl: url }))}
                       aspectRatio="auto"
                       modalTitle="Chọn Logo Footer Nền Tối (.PNG / .SVG)"
                       helperText="Chỉ chấp nhận định dạng .PNG tách nền hoặc vector .SVG để đảm bảo độ sắc nét cao nhất."
@@ -1346,15 +1408,15 @@ export default function AdminSettingsPage() {
                     <button
                       type="button"
                       onClick={() =>
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           themePrimaryColor: '#C5A880',
                           themeBgColor: '#FAF8F5',
                           themeTextColor: '#1C1917',
                           logoAccentColor: '#C5A880',
                           logoColorLight: '#1A1614',
                           logoColorDark: '#F5F2EB',
-                        })
+                        }))
                       }
                       className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer"
                       title="Khôi phục tone Luxury Champagne & Nền Kem sáng"
@@ -1365,15 +1427,15 @@ export default function AdminSettingsPage() {
                     <button
                       type="button"
                       onClick={() =>
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           themePrimaryColor: '#C5A880',
                           themeBgColor: '#0E0D0C',
                           themeTextColor: '#EAE5D9',
                           logoAccentColor: '#C5A880',
                           logoColorLight: '#1A1614',
                           logoColorDark: '#F5F2EB',
-                        })
+                        }))
                       }
                       className="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer"
                       title="Chuyển sang phong cách Luxury Noir (Nền tối huyền bí & Vàng Gold)"
@@ -1397,13 +1459,17 @@ export default function AdminSettingsPage() {
                       <input
                         type="color"
                         value={formData.themePrimaryColor || '#C5A880'}
-                        onChange={(e) => setFormData({ ...formData, themePrimaryColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themePrimaryColor: e.target.value }))
+                        }
                         className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
                       />
                       <input
                         type="text"
                         value={formData.themePrimaryColor || '#C5A880'}
-                        onChange={(e) => setFormData({ ...formData, themePrimaryColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themePrimaryColor: e.target.value }))
+                        }
                         className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
                       />
                     </div>
@@ -1421,13 +1487,17 @@ export default function AdminSettingsPage() {
                       <input
                         type="color"
                         value={formData.themeBgColor || '#FAF8F5'}
-                        onChange={(e) => setFormData({ ...formData, themeBgColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themeBgColor: e.target.value }))
+                        }
                         className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
                       />
                       <input
                         type="text"
                         value={formData.themeBgColor || '#FAF8F5'}
-                        onChange={(e) => setFormData({ ...formData, themeBgColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themeBgColor: e.target.value }))
+                        }
                         className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
                       />
                     </div>
@@ -1445,13 +1515,17 @@ export default function AdminSettingsPage() {
                       <input
                         type="color"
                         value={formData.themeTextColor || '#1C1917'}
-                        onChange={(e) => setFormData({ ...formData, themeTextColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themeTextColor: e.target.value }))
+                        }
                         className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
                       />
                       <input
                         type="text"
                         value={formData.themeTextColor || '#1C1917'}
-                        onChange={(e) => setFormData({ ...formData, themeTextColor: e.target.value })}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, themeTextColor: e.target.value }))
+                        }
                         className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-stone-200 bg-white uppercase"
                       />
                     </div>
@@ -1480,152 +1554,159 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* RIGHT COLUMN: DUAL LIVE PREVIEW & THEME PALETTE PREVIEW (40%) */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="sticky top-24 space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Eye className="w-4 h-4 text-stone-500" />
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-700">
-                    Mô Phỏng Trực Tiếp (Live Realtime Preview)
-                  </h4>
+            <div className="lg:col-span-5 sticky top-6 z-10 space-y-6 self-start">
+              {/* Dynamic Google Font Loader */}
+              {formData.logoFontFamily && (
+                <link
+                  rel="stylesheet"
+                  key={formData.logoFontFamily}
+                  href={getGoogleFontUrl(formData.logoFontFamily)}
+                />
+              )}
+
+              <div className="flex items-center gap-2 px-1">
+                <Eye className="w-4 h-4 text-stone-500" />
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  Mô Phỏng Trực Tiếp (Live Realtime Preview)
+                </h4>
+              </div>
+
+              {/* PREVIEW 1: LIGHT CANVAS (HEADER NAVBAR) */}
+              <div className="rounded-2xl p-5 bg-white border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3">
+                <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 border-b border-stone-100 pb-2">
+                  <span>Nền Sáng (Thanh Header Navbar)</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">LIGHT CANVAS</span>
                 </div>
-
-                {/* PREVIEW 1: LIGHT CANVAS (HEADER NAVBAR) */}
-                <div className="rounded-2xl p-5 bg-white border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3">
-                  <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 border-b border-stone-100 pb-2">
-                    <span>Nền Sáng (Thanh Header Navbar)</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">LIGHT CANVAS</span>
-                  </div>
-                  <div className="py-6 px-4 bg-white/90 backdrop-blur-md rounded-xl border border-stone-200/60 flex items-center justify-center">
-                    <BrandLogo
-                      variant="dark"
-                      logoType={formData.logoType}
-                      brandNamePart1={formData.brandNamePart1}
-                      brandNamePart2={formData.brandNamePart2}
-                      brandSubtitle={formData.brandSubtitle}
-                      logoTextPrimary={formData.logoTextPrimary}
-                      logoTextSecondary={formData.logoTextSecondary}
-                      logoLightUrl={formData.logoLightUrl}
-                      logoDarkUrl={formData.logoDarkUrl}
-                      logoFontFamily={formData.logoFontFamily}
-                      logoFontSize={Number(formData.logoFontSize) || 24}
-                      logoFontWeight={formData.logoFontWeight}
-                      logoLetterSpacing={formData.logoLetterSpacing}
-                      logoColorLight={formData.logoColorLight}
-                      logoColorDark={formData.logoColorDark}
-                      logoAccentColor={formData.logoAccentColor}
-                    />
-                  </div>
+                <div className="py-6 px-4 bg-white/90 backdrop-blur-md rounded-xl border border-stone-200/60 flex items-center justify-center">
+                  <BrandLogo
+                    variant="dark"
+                    logoType={formData.logoType}
+                    brandNamePart1={formData.brandNamePart1}
+                    brandNamePart2={formData.brandNamePart2}
+                    brandSubtitle={formData.brandSubtitle}
+                    logoTextPrimary={formData.logoTextPrimary}
+                    logoTextSecondary={formData.logoTextSecondary}
+                    logoLightUrl={formData.logoLightUrl}
+                    logoDarkUrl={formData.logoDarkUrl}
+                    logoFontFamily={formData.logoFontFamily}
+                    logoFontSize={Number(formData.logoFontSize) || 24}
+                    logoFontWeight={formData.logoFontWeight}
+                    logoLetterSpacing={formData.logoLetterSpacing}
+                    logoColorLight={formData.logoColorLight}
+                    logoColorDark={formData.logoColorDark}
+                    logoAccentColor={formData.logoAccentColor}
+                  />
                 </div>
+              </div>
 
-                {/* PREVIEW 2: DARK CANVAS (FOOTER / DARK MODE) */}
-                <div className="rounded-2xl p-5 bg-[#1C1917] border border-stone-800 shadow-xl space-y-3">
-                  <div className="flex items-center justify-between text-[11px] font-medium text-stone-400 border-b border-stone-800 pb-2">
-                    <span>Nền Tối (Chân Trang Footer)</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-800 text-stone-300 font-mono">DARK CANVAS</span>
-                  </div>
-                  <div className="py-6 px-4 bg-charcoal-950 rounded-xl border border-stone-800 flex items-center justify-center">
-                    <BrandLogo
-                      variant="light"
-                      logoType={formData.logoType}
-                      brandNamePart1={formData.brandNamePart1}
-                      brandNamePart2={formData.brandNamePart2}
-                      brandSubtitle={formData.brandSubtitle}
-                      logoTextPrimary={formData.logoTextPrimary}
-                      logoTextSecondary={formData.logoTextSecondary}
-                      logoLightUrl={formData.logoLightUrl}
-                      logoDarkUrl={formData.logoDarkUrl}
-                      logoFontFamily={formData.logoFontFamily}
-                      logoFontSize={Number(formData.logoFontSize) || 24}
-                      logoFontWeight={formData.logoFontWeight}
-                      logoLetterSpacing={formData.logoLetterSpacing}
-                      logoColorLight={formData.logoColorLight}
-                      logoColorDark={formData.logoColorDark}
-                      logoAccentColor={formData.logoAccentColor}
-                    />
-                  </div>
+              {/* PREVIEW 2: DARK CANVAS (FOOTER / DARK MODE) */}
+              <div className="rounded-2xl p-5 bg-[#1C1917] border border-stone-800 shadow-xl space-y-3">
+                <div className="flex items-center justify-between text-[11px] font-medium text-stone-400 border-b border-stone-800 pb-2">
+                  <span>Nền Tối (Chân Trang Footer)</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-800 text-stone-300 font-mono">DARK CANVAS</span>
                 </div>
+                <div className="py-6 px-4 bg-charcoal-950 rounded-xl border border-stone-800 flex items-center justify-center">
+                  <BrandLogo
+                    variant="light"
+                    logoType={formData.logoType}
+                    brandNamePart1={formData.brandNamePart1}
+                    brandNamePart2={formData.brandNamePart2}
+                    brandSubtitle={formData.brandSubtitle}
+                    logoTextPrimary={formData.logoTextPrimary}
+                    logoTextSecondary={formData.logoTextSecondary}
+                    logoLightUrl={formData.logoLightUrl}
+                    logoDarkUrl={formData.logoDarkUrl}
+                    logoFontFamily={formData.logoFontFamily}
+                    logoFontSize={Number(formData.logoFontSize) || 24}
+                    logoFontWeight={formData.logoFontWeight}
+                    logoLetterSpacing={formData.logoLetterSpacing}
+                    logoColorLight={formData.logoColorLight}
+                    logoColorDark={formData.logoColorDark}
+                    logoAccentColor={formData.logoAccentColor}
+                  />
+                </div>
+              </div>
 
-                {/* PREVIEW 3: THEME COLOR PALETTE REALTIME SPECIMEN */}
-                <div className="rounded-2xl p-5 bg-white border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3">
-                  <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 border-b border-stone-100 pb-2">
-                    <span>Mô Phỏng Phối Màu Giao Diện (Theme Preview)</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">UI SPECIMEN</span>
+              {/* PREVIEW 3: THEME COLOR PALETTE REALTIME SPECIMEN */}
+              <div className="rounded-2xl p-5 bg-white border border-stone-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3">
+                <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 border-b border-stone-100 pb-2">
+                  <span>Mô Phỏng Phối Màu Giao Diện (Theme Preview)</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-mono">UI SPECIMEN</span>
+                </div>
+                <div
+                  className="p-5 rounded-xl border transition-all space-y-3 shadow-inner"
+                  style={{
+                    backgroundColor: formData.themeBgColor || '#FAF8F5',
+                    borderColor: 'rgba(0,0,0,0.08)',
+                  }}
+                >
+                  <div>
+                    <p
+                      className="text-[10px] tracking-widest uppercase font-semibold transition-colors"
+                      style={{ color: formData.themePrimaryColor || '#C5A880' }}
+                    >
+                      PRE-WEDDING EDITORIAL
+                    </p>
+                    <h4
+                      className="font-serif text-base font-medium mt-0.5 transition-colors"
+                      style={{ color: formData.themeTextColor || '#1C1917' }}
+                    >
+                      Nghệ Thuật Ánh Sáng Tình Yêu
+                    </h4>
+                    <p
+                      className="text-[11px] font-light mt-1 opacity-80 leading-relaxed transition-colors"
+                      style={{ color: formData.themeTextColor || '#1C1917' }}
+                    >
+                      Mô phỏng hiển thị văn bản và nút bấm khi áp dụng bộ màu đã chọn.
+                    </p>
                   </div>
-                  <div
-                    className="p-5 rounded-xl border transition-all space-y-3 shadow-inner"
-                    style={{
-                      backgroundColor: formData.themeBgColor || '#FAF8F5',
-                      borderColor: 'rgba(0,0,0,0.08)',
-                    }}
-                  >
-                    <div>
-                      <p
-                        className="text-[10px] tracking-widest uppercase font-semibold transition-colors"
-                        style={{ color: formData.themePrimaryColor || '#C5A880' }}
-                      >
-                        PRE-WEDDING EDITORIAL
-                      </p>
-                      <h4
-                        className="font-serif text-base font-medium mt-0.5 transition-colors"
-                        style={{ color: formData.themeTextColor || '#1C1917' }}
-                      >
-                        Nghệ Thuật Ánh Sáng Tình Yêu
-                      </h4>
-                      <p
-                        className="text-[11px] font-light mt-1 opacity-80 leading-relaxed transition-colors"
-                        style={{ color: formData.themeTextColor || '#1C1917' }}
-                      >
-                        Mô phỏng hiển thị văn bản và nút bấm khi áp dụng bộ màu đã chọn.
-                      </p>
-                    </div>
 
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        type="button"
-                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all"
-                        style={{
-                          backgroundColor: formData.themePrimaryColor || '#C5A880',
-                          color: '#FFFFFF',
-                        }}
-                      >
-                        Đặt Lịch Ngay
-                      </button>
-                      <button
-                        type="button"
-                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all"
-                        style={{
-                          borderColor: formData.themePrimaryColor || '#C5A880',
-                          color: formData.themePrimaryColor || '#C5A880',
-                        }}
-                      >
-                        Xem Bảng Giá
-                      </button>
-                    </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      className="px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all"
+                      style={{
+                        backgroundColor: formData.themePrimaryColor || '#C5A880',
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      Đặt Lịch Ngay
+                    </button>
+                    <button
+                      type="button"
+                      className="px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all"
+                      style={{
+                        borderColor: formData.themePrimaryColor || '#C5A880',
+                        color: formData.themePrimaryColor || '#C5A880',
+                      }}
+                    >
+                      Xem Bảng Giá
+                    </button>
+                  </div>
 
-                    {/* COLOR CHIPS SUMMARY */}
-                    <div className="pt-2 border-t border-black/5 flex items-center justify-between text-[10px] font-mono opacity-70">
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full inline-block"
-                          style={{ backgroundColor: formData.themePrimaryColor }}
-                        />
-                        {formData.themePrimaryColor}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full inline-block border border-black/20"
-                          style={{ backgroundColor: formData.themeBgColor }}
-                        />
-                        {formData.themeBgColor}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full inline-block"
-                          style={{ backgroundColor: formData.themeTextColor }}
-                        />
-                        {formData.themeTextColor}
-                      </span>
-                    </div>
+                  {/* COLOR CHIPS SUMMARY */}
+                  <div className="pt-2 border-t border-black/5 flex items-center justify-between text-[10px] font-mono opacity-70">
+                    <span className="flex items-center gap-1">
+                      <span
+                        className="w-2 h-2 rounded-full inline-block"
+                        style={{ backgroundColor: formData.themePrimaryColor }}
+                      />
+                      {formData.themePrimaryColor}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span
+                        className="w-2 h-2 rounded-full inline-block border border-black/20"
+                        style={{ backgroundColor: formData.themeBgColor }}
+                      />
+                      {formData.themeBgColor}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span
+                        className="w-2 h-2 rounded-full inline-block"
+                        style={{ backgroundColor: formData.themeTextColor }}
+                      />
+                      {formData.themeTextColor}
+                    </span>
                   </div>
                 </div>
               </div>

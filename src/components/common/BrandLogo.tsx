@@ -58,45 +58,49 @@ export function BrandLogo({
 
   const logoType = propLogoType || settings?.logoType || 'TEXT';
 
-  // Primary Text & Secondary Text (Logo Typography) with safe optional chaining & fallbacks
-  const primaryText =
-    propLogoTextPrimary ||
-    settings?.logoTextPrimary ||
-    (typeof propBrandNamePart1 === 'string' && propBrandNamePart1
-      ? `${propBrandNamePart1} ${propBrandNamePart2 || ''}`.trim()
-      : null) ||
-    (settings?.brandNamePart1
-      ? `${settings.brandNamePart1} ${settings.brandNamePart2 || ''}`.trim()
-      : null) ||
-    'PLUS MOMENTS';
-
-  const secondaryText =
-    propLogoTextSecondary ||
-    settings?.logoTextSecondary ||
-    propBrandSubtitle ||
-    settings?.brandSubtitle ||
-    'LUXURY WEDDING STUDIO';
-
   // Safe decomposition into two parts for 2-tone luxury typography
   let part1 = 'PLUS';
   let part2 = 'MOMENTS';
 
-  if (typeof propBrandNamePart1 === 'string' && propBrandNamePart1.trim()) {
-    part1 = propBrandNamePart1.trim();
-    part2 = typeof propBrandNamePart2 === 'string' ? propBrandNamePart2.trim() : '';
-  } else if (typeof primaryText === 'string' && primaryText.trim()) {
-    const trimmed = primaryText.trim();
-    const parts = trimmed.split(/\s+/);
-    if (parts.length > 1) {
-      part1 = parts[0] || 'PLUS';
-      part2 = parts.slice(1).join(' ');
-    } else {
-      part1 = trimmed || 'PLUS';
-      part2 = '';
+  const hasExplicitPart1 = typeof propBrandNamePart1 === 'string';
+  const hasExplicitPart2 = typeof propBrandNamePart2 === 'string';
+
+  if (hasExplicitPart1 || hasExplicitPart2) {
+    part1 = propBrandNamePart1 !== undefined ? propBrandNamePart1 : 'PLUS';
+    part2 = propBrandNamePart2 !== undefined ? propBrandNamePart2 : '';
+    if (!part1.trim() && !part2.trim()) {
+      part1 = 'PLUS';
+    }
+  } else {
+    const primaryText =
+      propLogoTextPrimary ??
+      settings?.logoTextPrimary ??
+      (settings?.brandNamePart1
+        ? `${settings.brandNamePart1} ${settings.brandNamePart2 || ''}`.trim()
+        : null) ??
+      'PLUS MOMENTS';
+
+    if (typeof primaryText === 'string' && primaryText.trim()) {
+      const trimmed = primaryText.trim();
+      const parts = trimmed.split(/\s+/);
+      if (parts.length > 1) {
+        part1 = parts[0] || 'PLUS';
+        part2 = parts.slice(1).join(' ');
+      } else {
+        part1 = trimmed || 'PLUS';
+        part2 = '';
+      }
     }
   }
 
-  const subtitle = typeof secondaryText === 'string' ? secondaryText.trim() : 'LUXURY WEDDING STUDIO';
+  const secondaryText =
+    (typeof propBrandSubtitle === 'string' ? propBrandSubtitle : null) ??
+    propLogoTextSecondary ??
+    settings?.logoTextSecondary ??
+    settings?.brandSubtitle ??
+    'LUXURY WEDDING STUDIO';
+
+  const subtitle = typeof secondaryText === 'string' ? secondaryText : 'LUXURY WEDDING STUDIO';
 
   const logoLightUrl = propLogoLightUrl !== undefined ? propLogoLightUrl : settings?.logoLightUrl;
   const logoDarkUrl = propLogoDarkUrl !== undefined ? propLogoDarkUrl : settings?.logoDarkUrl;
