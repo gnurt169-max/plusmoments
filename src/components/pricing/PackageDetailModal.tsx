@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import {
   Sparkles,
   Check,
-  ShieldCheck,
-  Clock,
   Maximize2,
   ChevronLeft,
   ChevronRight,
@@ -85,20 +83,62 @@ export function PackageDetailModal({
 
   const currentActiveImage = demoImagesList[activeImageIndex] || demoImagesList[0] || '';
 
-  // Parse inclusions list
+  // Parse inclusions list combining highlights and full inclusions
   const fullInclusions: string[] = useMemo(() => {
-    if (!packageData?.inclusions) return [];
-    try {
-      const parsed = JSON.parse(packageData.inclusions);
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      // Fallback: split by newlines
+    if (!packageData) return [];
+
+    if (packageData.fullFeatures && Array.isArray(packageData.fullFeatures) && packageData.fullFeatures.length > 0) {
+      return packageData.fullFeatures;
     }
-    return packageData.inclusions
-      .split('\n')
-      .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
-      .filter(Boolean);
-  }, [packageData?.inclusions]);
+
+    const items: string[] = [];
+
+    const extractArray = (val: any): string[] => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val.filter((s) => typeof s === 'string' && s.trim());
+      if (typeof val === 'string' && val.trim()) {
+        try {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((s) => typeof s === 'string' && s.trim());
+          }
+        } catch {
+          return val
+            .split('\n')
+            .map((s: string) => s.replace(/^[•\-\*]\s*/, '').trim())
+            .filter(Boolean);
+        }
+      }
+      return [];
+    };
+
+    // 1. Outside highlights (shortFeatures / highlightPoints)
+    const cardHighlights = extractArray(packageData.shortFeatures || packageData.highlightPoints);
+    for (const h of cardHighlights) {
+      if (!items.includes(h)) items.push(h);
+    }
+
+    // 2. Full inclusions (inclusions / features)
+    const incs = extractArray(packageData.inclusions || packageData.features);
+    for (const inc of incs) {
+      if (!items.includes(inc)) items.push(inc);
+    }
+
+    if (items.length === 0) {
+      return [
+        '01 máy chụp truyền thống & 01 máy quay phóng sự chuyên nghiệp suốt tiệc',
+        'Trang phục cưới cao cấp không giới hạn khu vực chụp (Váy Haute Couture & Vest Ý)',
+        'Makeup nghệ thuật & làm tóc chuyên nghiệp theo từng bối cảnh tiệc cưới',
+        'Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc điện ảnh',
+        '01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu',
+        '02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)',
+        '01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc',
+        'Toàn bộ File ảnh gốc và File đã chỉnh sửa màu nghệ thuật bàn giao qua Google Drive',
+      ];
+    }
+
+    return items;
+  }, [packageData]);
 
   // Keyboard navigation & ESC close for Fullscreen Lightbox
   useEffect(() => {
@@ -233,17 +273,6 @@ export function PackageDetailModal({
               </div>
             )}
 
-            {/* Trust Guarantees */}
-            <div className="grid grid-cols-2 gap-3 pt-2 text-[11px] text-charcoal-600">
-              <div className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-stone-200">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Cam kết 100% không phát sinh chi phí</span>
-              </div>
-              <div className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-stone-200">
-                <Clock className="w-4 h-4 text-luxury-600 shrink-0" />
-                <span>Bàn giao file gốc trong 24h</span>
-              </div>
-            </div>
           </div>
 
           {/* CỘT PHẢI: QUYỀN LỢI & FORM ĐẶT MUA / THANH TOÁN VIETQR */}
@@ -272,29 +301,28 @@ export function PackageDetailModal({
 
             {/* Inclusions List */}
             <div className="space-y-3">
-              <h4 className="text-xs uppercase tracking-wider font-semibold text-charcoal-900 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
-                <span>Quyền Lợi Chi Tiết & Thành Phẩm Bàn Giao:</span>
-              </h4>
-              <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                {fullInclusions.map((item, idx) => (
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
+                <span>QUYỀN LỢI CHI TIẾT & THÀNH PHẨM BÀN GIAO:</span>
+              </div>
+              <ul className="space-y-2 text-sm text-[#4A4036] max-h-56 overflow-y-auto pr-1">
+                {(packageData.fullFeatures || packageData.features || fullInclusions || []).map((item, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 text-xs text-charcoal-700 font-light leading-relaxed"
+                    className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"
                   >
-                    <Check className="w-3.5 h-3.5 text-luxury-600 shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
+              {(packageData.deliveryProcess || packageData.deliverables) && (
+                <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
+                  <strong className="text-[#4A4036]">Quy trình bàn giao:</strong>{' '}
+                  {packageData.deliveryProcess || packageData.deliverables}
+                </div>
+              )}
             </div>
-
-            {/* Deliverables */}
-            {packageData.deliverables && (
-              <div className="p-3 bg-champagne-light/60 rounded-xl border border-champagne-dark/20 text-xs text-charcoal-600 font-light leading-relaxed">
-                <strong>Quy trình bàn giao:</strong> {packageData.deliverables}
-              </div>
-            )}
 
             {/* FORM ĐẶT GÓI & THANH TOÁN VIETQR */}
             <div className="pt-2 border-t border-stone-200">

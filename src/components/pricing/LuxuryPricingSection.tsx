@@ -38,6 +38,10 @@ export interface PricingPackageData {
   deliverables?: string | null;
   isPopular: boolean;
   isFeatured: boolean;
+  shortFeatures?: string[];
+  fullFeatures?: string[];
+  features?: string[];
+  deliveryProcess?: string | null;
 }
 
 interface LuxuryPricingSectionProps {
@@ -175,11 +179,6 @@ export function LuxuryPricingSection({
 
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950 via-charcoal-950/20 to-transparent" />
-
-                  {/* Category Tag on Image */}
-                  <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-charcoal-900/80 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest text-champagne-light font-medium border border-white/10">
-                    {categoryLabel}
-                  </div>
 
                   {/* Name & Pricing Placed over Image Base */}
                   <div className="absolute bottom-5 left-5 right-5 z-10 text-white space-y-1">

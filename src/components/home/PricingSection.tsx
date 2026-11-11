@@ -109,12 +109,6 @@ export function PricingSection({
             }
 
             const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
-            const categoryLabel =
-              pkg.category === 'PRE_WEDDING'
-                ? 'Pre-Wedding Ngoại Cảnh'
-                : pkg.category === 'STUDIO_CONCEPT'
-                ? 'Studio Concept'
-                : 'Phóng Sự Cưới';
 
             return (
               <div
@@ -142,13 +136,8 @@ export function PricingSection({
                     </div>
                   )}
 
-                  {/* Gradient shadow overlay for badge readability */}
+                  {/* Gradient shadow overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
-
-                  {/* Category Badge (Top Left) */}
-                  <div className="absolute top-3.5 left-3.5 z-10 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest text-white font-medium border border-white/20">
-                    {categoryLabel}
-                  </div>
 
                   {/* Popular/Featured Badge (Top Right) */}
                   {(pkg.isPopular || pkg.isFeatured) && (
@@ -188,22 +177,17 @@ export function PricingSection({
                     )}
                   </div>
 
-                  {/* 4-5 Core Bullet Points */}
-                  <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-charcoal-500 font-semibold flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                      <span>Đặc quyền trọn gói:</span>
-                    </p>
-                    <ul className="space-y-2.5">
-                      {highlights.slice(0, 4).map((item, idx) => (
-                        <li
-                          key={idx}
-                          className="flex items-start gap-2 text-xs sm:text-sm text-charcoal-700 font-light leading-relaxed"
-                        >
-                          <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
-                            <Check className="w-2.5 h-2.5" />
-                          </span>
-                          <span className="line-clamp-2">{item}</span>
+                  {/* Chỉ render tối đa 3 đặc quyền nổi bật nhất ngoài trang chủ */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                      <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
+                      <span>ĐẶC QUYỀN TRỌN GÓI:</span>
+                    </div>
+                    <ul className="space-y-1.5 text-sm text-[#4A4036]">
+                      {(pkg.shortFeatures || pkg.features || highlights || []).slice(0, 3).map((feat, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                          <span className="line-clamp-2">{feat}</span>
                         </li>
                       ))}
                     </ul>
