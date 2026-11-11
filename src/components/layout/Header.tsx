@@ -52,7 +52,7 @@ export function Header(props: HeaderProps) {
 
   const navLinks = [
     { name: 'Trang Chủ', href: '/', num: '01' },
-    { name: 'Bộ Sưu Tập', href: '/albums', num: '02' },
+    { name: 'Bộ Sưu Tập', href: '/bo-suu-tap', num: '02' },
     { name: 'Bảng Giá Dịch Vụ', href: '/pricing', num: '03' },
     { name: 'Cẩm Nang Cưới', href: '/blog', num: '04' },
     { name: 'Liên Hệ & Studio', href: '/contact', num: '05' },

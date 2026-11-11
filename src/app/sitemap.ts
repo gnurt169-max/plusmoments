@@ -21,12 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/albums`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/bang-gia`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -74,20 +68,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    const albumRoutes: MetadataRoute.Sitemap = albums.flatMap((album) => [
-      {
-        url: `${baseUrl}/bo-suu-tap/${album.slug}`,
-        lastModified: album.updatedAt,
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/albums/${album.slug}`,
-        lastModified: album.updatedAt,
-        changeFrequency: 'weekly',
-        priority: 0.85,
-      },
-    ]);
+    const albumRoutes: MetadataRoute.Sitemap = albums.map((album) => ({
+      url: `${baseUrl}/bo-suu-tap/${album.slug}`,
+      lastModified: album.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    }));
 
     // 3. Dynamic Blog Articles from Database
     const blogPosts = await prisma.blogPost.findMany({

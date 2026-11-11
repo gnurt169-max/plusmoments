@@ -128,11 +128,11 @@ export async function getSystemSettings() {
         'Chúng tôi không chỉ chụp ảnh cưới, chúng tôi ghi lại những rung cảm tinh khôi và chân thành nhất trong tình yêu của bạn bằng ngôn ngữ ánh sáng điện ảnh.',
       footerNavCol1Title: 'BỘ SƯU TẬP CƯỚI',
       footerNavCol1Links: [
-        { label: 'Ảnh Cưới Ngoại Cảnh Đà Lạt', url: '/albums?concept=Outdoor+Luxury' },
-        { label: 'Concept Studio Phong Cách Hàn Quốc', url: '/albums?concept=Studio+Editorial' },
-        { label: 'Pre-Wedding Biển Hoàng Hôn Phú Quốc', url: '/albums?concept=Pre-Wedding+Cinematic' },
-        { label: 'Phóng Sự Cưới Trọn Gói Ngày Cưới', url: '/albums?concept=Phóng+Sự+Cưới' },
-        { label: 'Xem tất cả bộ sưu tập →', url: '/albums' },
+        { label: 'Ảnh Cưới Ngoại Cảnh Đà Lạt', url: '/bo-suu-tap?concept=Outdoor+Luxury' },
+        { label: 'Concept Studio Phong Cách Hàn Quốc', url: '/bo-suu-tap?concept=Studio+Editorial' },
+        { label: 'Pre-Wedding Biển Hoàng Hôn Phú Quốc', url: '/bo-suu-tap?concept=Pre-Wedding+Cinematic' },
+        { label: 'Phóng Sự Cưới Trọn Gói Ngày Cưới', url: '/bo-suu-tap?concept=Phóng+Sự+Cưới' },
+        { label: 'Xem tất cả bộ sưu tập →', url: '/bo-suu-tap' },
       ],
       footerNavCol2Title: 'BẢNG GIÁ & DỊCH VỤ',
       footerNavCol2Links: [

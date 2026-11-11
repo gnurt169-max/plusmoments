@@ -31,10 +31,14 @@ export default async function HomePage() {
     getSystemSettings(),
     prisma.homePageConfig.findUnique({ where: { id: 'default' } }).catch(() => null),
     prisma.album.findMany({
-      where: { published: true, featured: true },
+      where: { published: true },
       include: { media: { take: 1, orderBy: { orderIndex: 'asc' } }, package: true },
-      orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
-      take: 6,
+      orderBy: [
+        { featured: 'desc' }, // Ưu tiên Album nổi bật (featured: true) lên đầu
+        { orderIndex: 'asc' },
+        { createdAt: 'desc' },
+      ],
+      take: 3, // GIỚI HẠN CHÍNH XÁC 3 ALBUM TỐI ƯU CORE WEB VITALS
     }).catch(() => []),
     prisma.servicePackage.findMany({
       where: { published: true },
@@ -80,16 +84,8 @@ export default async function HomePage() {
     createdAt: post.createdAt,
   }));
 
-  // 1. Fallback for Albums: If no album marked as featured, show latest published albums
-  let albums = featuredAlbumsRaw;
-  if (albums.length === 0) {
-    albums = await prisma.album.findMany({
-      where: { published: true },
-      include: { media: { take: 1, orderBy: { orderIndex: 'asc' } }, package: true },
-      orderBy: { createdAt: 'desc' },
-      take: 6,
-    }).catch(() => []);
-  }
+  // 1. Featured Albums (Top 3)
+  const albums = featuredAlbumsRaw;
 
   // 2. Packages list
   const packages = allPackagesRaw;
@@ -250,24 +246,24 @@ export default async function HomePage() {
             Đang cập nhật các bộ sưu tập mới...
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {albums.map((album, idx) => (
               <FloatingCard
                 key={album.id}
-                delay={idx * 0.4}
+                delay={idx * 0.2}
                 reverse={idx % 2 === 1}
-                className="group"
+                className="group h-full"
               >
                 <Link
-                  href={`/albums/${album.slug}`}
-                  className="block bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
+                  href={`/bo-suu-tap/${album.slug}`}
+                  className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                 >
                   <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
                     <Image
                       src={album.coverImage}
                       alt={album.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
@@ -278,7 +274,7 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 px-2 pb-2">
+                  <div className="space-y-1.5 px-2 pb-2 mt-auto">
                     <div className="flex items-center justify-between text-xs text-luxury-600">
                       <span className="font-medium tracking-wide">{album.coupleNames}</span>
                       <span className="text-charcoal-400 text-[11px]">Chi tiết →</span>
@@ -296,13 +292,14 @@ export default async function HomePage() {
           </div>
         )}
 
-        <div className="text-center mt-12">
+        {/* Nút Xem Tất Cả Bộ Sưu Tập */}
+        <div className="mt-12 text-center">
           <Link
-            href="/albums"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-charcoal-800 text-charcoal-900 hover:bg-charcoal-900 hover:text-white transition-all text-xs uppercase tracking-widest font-medium"
+            href="/bo-suu-tap"
+            className="inline-flex items-center gap-3 px-8 py-3.5 border border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880] hover:text-[#0E0D0C] rounded-full text-sm font-medium tracking-widest uppercase transition-all duration-300 shadow-sm hover:shadow-lg group cursor-pointer"
           >
-            <span>Xem Tất Cả {totalAlbumsCount > 0 ? `${totalAlbumsCount}+` : ''} Bộ Sưu Tập</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Xem Tất Cả Bộ Sưu Tập {totalAlbumsCount > 0 ? `(${totalAlbumsCount})` : ''}</span>
+            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>

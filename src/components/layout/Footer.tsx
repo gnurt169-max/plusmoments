@@ -317,7 +317,7 @@ export async function Footer(props: FooterProps) {
               {albums.map((album) => (
                 <li key={album.id}>
                   <Link
-                    href={`/albums/${album.slug}`}
+                    href={`/bo-suu-tap/${album.slug}`}
                     className="hover:text-luxury-400 transition-colors line-clamp-1"
                   >
                     {album.title}

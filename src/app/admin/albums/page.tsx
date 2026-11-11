@@ -639,7 +639,7 @@ export default function AdminAlbumsPage() {
                         return (
                           <div className="flex items-center justify-end gap-2">
                             <a
-                              href={`/albums/${album.slug}`}
+                              href={`/bo-suu-tap/${album.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors"

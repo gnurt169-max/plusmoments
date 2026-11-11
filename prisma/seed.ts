@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED DATABASE SEED SNAPSHOT
- * Exported at: 2026-11-10T14:16:25.971Z
+ * Exported at: 2026-11-11T01:54:44.857Z
  *
  * This file contains the complete persistent snapshot of the studio's database.
  * To initialize or restore this data on a new VPS or local machine:
@@ -14,7 +14,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const snapshot = {
-  "exportedAt": "2026-11-10T14:16:25.971Z",
+  "exportedAt": "2026-11-11T01:54:44.857Z",
   "superAdminPasswordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
   "adminUser": [
     {
