@@ -238,6 +238,15 @@ export async function Footer(props: FooterProps) {
                 brandSubtitle={props.brandSlogan || settings?.brandSlogan || settings?.brandSubtitle}
                 logoLightUrl={settings?.logoLightUrl}
                 logoType={settings?.logoType}
+                logoTextPrimary={settings?.logoTextPrimary}
+                logoTextSecondary={settings?.logoTextSecondary}
+                logoFontFamily={settings?.logoFontFamily}
+                logoFontSize={settings?.logoFontSize}
+                logoFontWeight={settings?.logoFontWeight}
+                logoLetterSpacing={settings?.logoLetterSpacing}
+                logoColorLight={settings?.logoColorLight}
+                logoColorDark={settings?.logoColorDark}
+                logoAccentColor={settings?.logoAccentColor}
               />
             </Link>
             {aboutText && (

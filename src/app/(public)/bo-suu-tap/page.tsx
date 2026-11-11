@@ -172,7 +172,11 @@ export default async function BoSuuTapPage({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {albums.map((album, idx) => {
-            const coverImg = album.coverImage && album.coverImage.trim() ? album.coverImage : '';
+            const coverImg =
+              (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
+              (album as any)?.photos?.[0]?.url ||
+              album?.media?.[0]?.url ||
+              '/placeholder.jpg';
 
             return (
               <FloatingCard
@@ -186,19 +190,13 @@ export default async function BoSuuTapPage({
                   className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                 >
                   <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
-                    {coverImg ? (
-                      <Image
-                        src={coverImg}
-                        alt={album.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-300">
-                        No Image
-                      </div>
-                    )}
+                    <Image
+                      src={coverImg}
+                      alt={album.title || 'PlusMoments Album'}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
                     <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
                       {album.concept}
                     </div>
@@ -248,3 +246,4 @@ export default async function BoSuuTapPage({
     </div>
   );
 }
+

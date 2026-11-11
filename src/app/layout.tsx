@@ -101,10 +101,13 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               :root {
-                --theme-primary: ${settings.themePrimaryColor || '#C5A880'};
-                --theme-bg: ${settings.themeBgColor || '#FAF8F5'};
-                --theme-text: ${settings.themeTextColor || '#1C1917'};
-                --logo-font-family: '${settings.logoFontFamily || 'Playfair Display'}', serif;
+                --theme-primary: ${settings?.themePrimaryColor || '#C5A880'};
+                --theme-bg: ${settings?.themeBgColor || '#0E0D0C'};
+                --theme-text: ${settings?.themeTextColor || '#EAE5D9'};
+                --color-primary: ${settings?.themePrimaryColor || '#C5A880'};
+                --color-bg: ${settings?.themeBgColor || '#0E0D0C'};
+                --color-text: ${settings?.themeTextColor || '#EAE5D9'};
+                --logo-font-family: '${settings?.logoFontFamily || 'Playfair Display'}', serif;
               }
             `,
           }}
@@ -112,14 +115,14 @@ export default async function RootLayout({
 
         {/* Dynamic LocalBusiness Schema for Rich Snippets */}
         <LocalBusinessJsonLd
-          name={settings.siteName}
-          description={settings.defaultMetaDescription}
-          url={settings.canonicalBaseUrl}
-          logo={`${settings.canonicalBaseUrl}/logo.png`}
-          image={settings.defaultOgImage}
-          telephone={settings.hotline}
-          email={settings.email}
-          address={settings.studioAddress}
+          name={settings?.siteName || 'PlusMoments Wedding Studio'}
+          description={settings?.defaultMetaDescription || ''}
+          url={settings?.canonicalBaseUrl || 'https://plusmoments.vn'}
+          logo={`${settings?.canonicalBaseUrl || 'https://plusmoments.vn'}/logo.png`}
+          image={settings?.defaultOgImage || ''}
+          telephone={settings?.hotline || ''}
+          email={settings?.email || ''}
+          address={settings?.studioAddress || ''}
         />
 
         {/* Global Google Ads Tag (gtag.js) */}

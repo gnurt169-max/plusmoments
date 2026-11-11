@@ -218,3 +218,4 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
     </div>
   );
 }
+

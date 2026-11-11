@@ -1502,6 +1502,8 @@ export default function AdminSettingsPage() {
                       brandNamePart1={formData.brandNamePart1}
                       brandNamePart2={formData.brandNamePart2}
                       brandSubtitle={formData.brandSubtitle}
+                      logoTextPrimary={formData.logoTextPrimary}
+                      logoTextSecondary={formData.logoTextSecondary}
                       logoLightUrl={formData.logoLightUrl}
                       logoDarkUrl={formData.logoDarkUrl}
                       logoFontFamily={formData.logoFontFamily}
@@ -1528,6 +1530,8 @@ export default function AdminSettingsPage() {
                       brandNamePart1={formData.brandNamePart1}
                       brandNamePart2={formData.brandNamePart2}
                       brandSubtitle={formData.brandSubtitle}
+                      logoTextPrimary={formData.logoTextPrimary}
+                      logoTextSecondary={formData.logoTextSecondary}
                       logoLightUrl={formData.logoLightUrl}
                       logoDarkUrl={formData.logoDarkUrl}
                       logoFontFamily={formData.logoFontFamily}

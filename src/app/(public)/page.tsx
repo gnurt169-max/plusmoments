@@ -241,56 +241,75 @@ export default async function HomePage() {
           </p>
         </div>
 
-        {albums.length === 0 ? (
-          <div className="text-center py-12 text-xs text-charcoal-400">
-            Đang cập nhật các bộ sưu tập mới...
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {albums.map((album, idx) => (
-              <FloatingCard
-                key={album.id}
-                delay={idx * 0.2}
-                reverse={idx % 2 === 1}
-                className="group h-full"
-              >
-                <Link
-                  href={`/bo-suu-tap/${album.slug}`}
-                  className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
-                >
-                  <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
-                    <Image
-                      src={album.coverImage}
-                      alt={album.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
-                      {album.concept}
-                    </div>
-                    <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[11px] font-mono text-charcoal-800">
-                      {album.location}
-                    </div>
-                  </div>
+        {(() => {
+          const displayedAlbums = albums && Array.isArray(albums) ? albums.slice(0, 3) : [];
+          if (displayedAlbums.length === 0) {
+            return (
+              <div className="text-center py-12 text-xs text-charcoal-400">
+                Đang cập nhật các bộ sưu tập mới...
+              </div>
+            );
+          }
 
-                  <div className="space-y-1.5 px-2 pb-2 mt-auto">
-                    <div className="flex items-center justify-between text-xs text-luxury-600">
-                      <span className="font-medium tracking-wide">{album.coupleNames}</span>
-                      <span className="text-charcoal-400 text-[11px]">Chi tiết →</span>
-                    </div>
-                    <h3 className="font-serif text-lg text-charcoal-900 font-light group-hover:text-luxury-600 transition-colors line-clamp-1">
-                      {album.title}
-                    </h3>
-                    <p className="text-xs text-charcoal-500 line-clamp-2 font-light">
-                      {album.subtitle || album.description}
-                    </p>
-                  </div>
-                </Link>
-              </FloatingCard>
-            ))}
-          </div>
-        )}
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+              {displayedAlbums.map((album, idx) => {
+                const coverImageSrc =
+                  (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
+                  (album as any)?.photos?.[0]?.url ||
+                  album?.media?.[0]?.url ||
+                  '/placeholder.jpg';
+
+                return (
+                  <FloatingCard
+                    key={album?.id || idx}
+                    delay={idx * 0.2}
+                    reverse={idx % 2 === 1}
+                    className="group h-full"
+                  >
+                    <Link
+                      href={`/bo-suu-tap/${album?.slug || ''}`}
+                      className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
+                    >
+                      <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
+                        <Image
+                          src={coverImageSrc}
+                          alt={album?.title || 'PlusMoments Wedding Album'}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                        {album?.concept && (
+                          <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
+                            {album.concept}
+                          </div>
+                        )}
+                        {album?.location && (
+                          <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[11px] font-mono text-charcoal-800">
+                            {album.location}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5 px-2 pb-2 mt-auto">
+                        <div className="flex items-center justify-between text-xs text-luxury-600">
+                          <span className="font-medium tracking-wide">{album?.coupleNames || ''}</span>
+                          <span className="text-charcoal-400 text-[11px]">Chi tiết →</span>
+                        </div>
+                        <h3 className="font-serif text-lg text-charcoal-900 font-light group-hover:text-luxury-600 transition-colors line-clamp-1">
+                          {album?.title || ''}
+                        </h3>
+                        <p className="text-xs text-charcoal-500 line-clamp-2 font-light">
+                          {album?.subtitle || album?.description || ''}
+                        </p>
+                      </div>
+                    </Link>
+                  </FloatingCard>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* Nút Xem Tất Cả Bộ Sưu Tập */}
         <div className="mt-12 text-center">
