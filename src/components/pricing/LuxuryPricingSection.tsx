@@ -50,6 +50,7 @@ interface LuxuryPricingSectionProps {
   subtitle?: string;
   badge?: string;
   darkTheme?: boolean;
+  isSummary?: boolean;
 }
 
 export function LuxuryPricingSection({
@@ -58,6 +59,7 @@ export function LuxuryPricingSection({
   subtitle = 'Cam kết không phát sinh chi phí. Toàn bộ gói chụp đã bao gồm trang phục cưới thiết kế, makeup nghệ thuật và xe đưa đón.',
   badge = 'Minh Bạch & Tối Ưu',
   darkTheme = false,
+  isSummary = true,
 }: LuxuryPricingSectionProps) {
   // Modal Detail State
   const [selectedPackage, setSelectedPackage] = useState<PricingPackageData | null>(null);
@@ -201,32 +203,40 @@ export function LuxuryPricingSection({
 
                 {/* 2. Core Highlights (Tóm tắt rút gọn 3 quyền lợi với icon tinh tế) */}
                 <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-charcoal-400 font-semibold">
-                      Đặc quyền cốt lõi:
-                    </p>
-                    <ul className="space-y-2.5">
-                      {highlights.slice(0, 3).map((item, idx) => {
-                        const Icon =
-                          idx === 0
-                            ? BookOpen
-                            : idx === 1
-                            ? Camera
-                            : Sparkles;
-                        return (
-                          <li
-                            key={idx}
-                            className="flex items-start gap-2.5 text-xs text-charcoal-700 font-light leading-relaxed"
-                          >
-                            <span className="w-5 h-5 rounded-full bg-champagne/60 text-luxury-700 flex items-center justify-center shrink-0 mt-0.5">
-                              <Icon className="w-3 h-3" />
-                            </span>
-                            <span className="line-clamp-2">{item}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
+                  {/* 2. Core Highlights */}
+                  {(() => {
+                    const displayFeatures = isSummary
+                      ? (pkg.features || highlights || []).slice(0, 3)
+                      : (pkg.features || highlights || []);
+                    return (
+                      <div className="space-y-3">
+                        <p className="text-[11px] uppercase tracking-wider text-charcoal-400 font-semibold">
+                          Đặc quyền trọn gói:
+                        </p>
+                        <ul className={`space-y-2.5 ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
+                          {displayFeatures.map((item, idx) => {
+                            const Icon =
+                              idx % 3 === 0
+                                ? BookOpen
+                                : idx % 3 === 1
+                                ? Camera
+                                : Sparkles;
+                            return (
+                              <li
+                                key={idx}
+                                className="flex items-start gap-2.5 text-xs text-charcoal-700 font-light leading-relaxed"
+                              >
+                                <span className="w-5 h-5 rounded-full bg-champagne/60 text-luxury-700 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Icon className="w-3 h-3" />
+                                </span>
+                                <span className={isSummary ? "line-clamp-2" : ""}>{item}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    );
+                  })()}
 
                   {/* 3. Dual CTA Actions */}
                   <div className="pt-4 border-t border-stone-100 space-y-2.5">

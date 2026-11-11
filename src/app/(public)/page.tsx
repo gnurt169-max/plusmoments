@@ -345,6 +345,7 @@ export default async function HomePage() {
             subtitle="Cam kết không phát sinh chi phí. Toàn bộ gói chụp đã bao gồm trang phục cưới thiết kế, makeup nghệ thuật và xe đưa đón nội thành."
             badge="Minh Bạch & Tối Ưu"
             darkTheme={true}
+            isSummary={true}
           />
 
           <div className="text-center mt-12 text-xs text-stone-400">

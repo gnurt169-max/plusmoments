@@ -22,6 +22,7 @@ export interface PricingSectionProps {
   subtitle?: string;
   badge?: string;
   darkTheme?: boolean;
+  isSummary?: boolean;
 }
 
 export function PricingSection({
@@ -31,6 +32,7 @@ export function PricingSection({
   subtitle = 'Cam kết không phát sinh chi phí. Toàn bộ gói chụp đã bao gồm trang phục cưới thiết kế, makeup nghệ thuật và xe đưa đón nội thành.',
   badge = 'Minh Bạch & Tối Ưu',
   darkTheme = false,
+  isSummary = true,
 }: PricingSectionProps) {
   const [selectedPackage, setSelectedPackage] = useState<PricingPackageData | null>(null);
 
@@ -177,21 +179,28 @@ export function PricingSection({
                     )}
                   </div>
 
-                  {/* Chỉ render tối đa 3 đặc quyền nổi bật nhất ngoài trang chủ */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
-                      <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
-                      <span>ĐẶC QUYỀN TRỌN GÓI:</span>
-                    </div>
-                    <ul className="space-y-1.5 text-sm text-[#4A4036]">
-                      {(pkg.shortFeatures || pkg.features || highlights || []).slice(0, 3).map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
-                          <span className="line-clamp-2">{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {/* Đặc quyền gói (isSummary=true: 3 dòng tóm tắt; isSummary=false: toàn bộ) */}
+                  {(() => {
+                    const displayFeatures = isSummary
+                      ? (pkg.features || highlights || []).slice(0, 3)
+                      : (pkg.features || highlights || []);
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                          <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
+                          <span>ĐẶC QUYỀN TRỌN GÓI:</span>
+                        </div>
+                        <ul className={`space-y-1.5 text-sm text-[#4A4036] ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
+                          {displayFeatures.map((feat: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                              <span className={isSummary ? "line-clamp-2" : ""}>{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
 
                   {/* 3. CARD FOOTER BUTTON */}
                   <div className="pt-4 border-t border-[#E8E2D9]/80">

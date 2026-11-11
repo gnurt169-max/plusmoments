@@ -98,7 +98,7 @@ export default async function PricingPage() {
 
       {/* Luxury Wedding Pricing Cards with Detail Modal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AllPackagesCatalog packages={packages} />
+        <AllPackagesCatalog packages={packages} isSummary={false} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">

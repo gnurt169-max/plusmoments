@@ -17,11 +17,15 @@ import { formatVND } from '@/lib/utils';
 import { PackageDetailModal } from './PackageDetailModal';
 import type { PricingPackageData } from './LuxuryPricingSection';
 
-interface AllPackagesCatalogProps {
+export interface AllPackagesCatalogProps {
   packages: PricingPackageData[];
+  isSummary?: boolean;
 }
 
-export function AllPackagesCatalog({ packages }: AllPackagesCatalogProps) {
+export function AllPackagesCatalog({
+  packages,
+  isSummary = false,
+}: AllPackagesCatalogProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedPackage, setSelectedPackage] = useState<PricingPackageData | null>(null);
 
@@ -176,21 +180,28 @@ export function AllPackagesCatalog({ packages }: AllPackagesCatalogProps) {
                     )}
                   </div>
 
-                  {/* Chỉ render tối đa 3 đặc quyền nổi bật nhất ngoài trang chủ */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
-                      <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
-                      <span>ĐẶC QUYỀN TRỌN GÓI:</span>
-                    </div>
-                    <ul className="space-y-1.5 text-sm text-[#4A4036]">
-                      {(pkg.shortFeatures || pkg.features || highlights || []).slice(0, 3).map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
-                          <span className="line-clamp-2">{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {/* Danh sách đặc quyền (isSummary=false: toàn bộ; isSummary=true: 3 dòng) */}
+                  {(() => {
+                    const displayFeatures = isSummary
+                      ? (pkg.features || highlights || []).slice(0, 3)
+                      : (pkg.features || highlights || []);
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                          <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
+                          <span>ĐẶC QUYỀN TRỌN GÓI:</span>
+                        </div>
+                        <ul className={`space-y-1.5 text-sm text-[#4A4036] ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
+                          {displayFeatures.map((feat: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                              <span className={isSummary ? "line-clamp-2" : ""}>{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
 
                   {/* 3. CARD FOOTER BUTTON */}
                   <div className="pt-4 border-t border-[#E8E2D9]/80">

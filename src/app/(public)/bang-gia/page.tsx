@@ -99,7 +99,7 @@ export default async function BangGiaPage() {
 
       {/* FULL CATALOG WITH CATEGORY FILTER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AllPackagesCatalog packages={packages} />
+        <AllPackagesCatalog packages={packages} isSummary={false} />
       </div>
 
       {/* FAQ SECTION */}
