@@ -125,7 +125,7 @@ export function AllPackagesCatalog({
                 }`}
               >
                 {/* 1. COVER IMAGE */}
-                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-200">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#1E1C1A]">
                   {coverImg ? (
                     <Image
                       src={coverImg}
@@ -135,7 +135,7 @@ export function AllPackagesCatalog({
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-stone-200 text-stone-400">
+                    <div className="w-full h-full flex items-center justify-center bg-[#1E1C1A] text-stone-400">
                       <Sparkles className="w-8 h-8 text-amber-500/40" />
                     </div>
                   )}

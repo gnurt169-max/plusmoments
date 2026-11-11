@@ -150,13 +150,17 @@ export default async function HomePage() {
       <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-stone-950 pt-16">
         {/* LỚP 1: ẢNH NỀN TRÀN MÀN HÌNH (BACKGROUND IMAGE) */}
         {heroBanner && heroBanner.trim() ? (
-          <ProtectedImage
-            src={heroBanner}
-            alt="PlusMoments Cinematic Wedding"
-            priority
-            wrapperClassName="absolute inset-0 z-0 pointer-events-none"
-            imageClassName="w-full h-full object-cover object-center scale-100 transition-transform duration-1000 ease-out"
-          />
+          <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden bg-stone-950">
+            <Image
+              src={heroBanner.trim()}
+              alt="Studio ảnh cưới cao cấp PlusMoments"
+              fill
+              priority
+              quality={85}
+              sizes="(max-width: 768px) 100vw, 100vw"
+              className="object-cover object-center scale-100 transition-transform duration-1000 ease-out select-none pointer-events-none"
+            />
+          </div>
         ) : (
           <div className="absolute inset-0 bg-[#141210]" />
         )}
@@ -279,7 +283,7 @@ export default async function HomePage() {
                       href={`/bo-suu-tap/${album?.slug || ''}`}
                       className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                     >
-                      <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
+                      <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
                         <Image
                           src={coverImageSrc}
                           alt={album?.title || 'PlusMoments Wedding Album'}

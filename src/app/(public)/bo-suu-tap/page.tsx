@@ -189,7 +189,7 @@ export default async function BoSuuTapPage({
                   href={`/bo-suu-tap/${album.slug}`}
                   className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                 >
-                  <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-champagne-light">
+                  <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
                     <Image
                       src={coverImg}
                       alt={album.title || 'PlusMoments Album'}

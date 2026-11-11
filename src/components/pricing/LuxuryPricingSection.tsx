@@ -164,7 +164,7 @@ export function LuxuryPricingSection({
                 )}
 
                 {/* 1. Card Header Image (Aspect 4:5 with Smooth Zoom) */}
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne-light">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#1E1C1A]">
                   {coverImg ? (
                     <Image
                       src={coverImg}
