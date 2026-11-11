@@ -7,6 +7,7 @@ import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { HelpCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
+import { extractPackageFeatures } from '@/lib/package-features';
 
 export const metadata: Metadata = {
   title: 'Bảng Giá Dịch Vụ Cưới Trọn Gói 2026 | PlusMoments Studio',
@@ -27,23 +28,30 @@ export default async function BangGiaPage() {
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
-  const packages: PricingPackageData[] = packagesRaw.map((pkg) => ({
-    id: pkg.id,
-    name: pkg.name,
-    slug: pkg.slug,
-    category: pkg.category,
-    subtitle: pkg.subtitle,
-    price: Number(pkg.price),
-    originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
-    unit: pkg.unit,
-    coverImage: pkg.coverImage,
-    demoImages: pkg.demoImages,
-    highlightPoints: pkg.highlightPoints,
-    inclusions: pkg.inclusions,
-    deliverables: pkg.deliverables,
-    isPopular: pkg.isPopular,
-    isFeatured: pkg.isFeatured,
-  }));
+  const packages: PricingPackageData[] = packagesRaw.map((pkg) => {
+    const fullFeatures = extractPackageFeatures(pkg);
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      slug: pkg.slug,
+      category: pkg.category,
+      subtitle: pkg.subtitle,
+      price: Number(pkg.price),
+      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
+      unit: pkg.unit,
+      coverImage: pkg.coverImage,
+      demoImages: pkg.demoImages,
+      highlightPoints: pkg.highlightPoints,
+      inclusions: pkg.inclusions,
+      deliverables: pkg.deliverables,
+      isPopular: pkg.isPopular,
+      isFeatured: pkg.isFeatured,
+      features: fullFeatures,
+      fullFeatures: fullFeatures,
+      shortFeatures: fullFeatures.slice(0, 3),
+      deliveryProcess: pkg.deliverables,
+    };
+  });
 
   const faqs = [
     {

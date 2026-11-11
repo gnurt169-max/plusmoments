@@ -266,8 +266,50 @@ const snapshot = {
       "coverImage": "/uploads/folders/tai-nguyen-9/-0041-hung-nhung-1793939098750-p9m8.webp",
       "demoImages": "[\"/uploads/folders/tai-nguyen-9/-0060-hung-nhung-1793939390513-x6zc.webp\",\"/uploads/folders/tai-nguyen-9/-0059-hung-nhung-1793939373839-bwql.webp\",\"/uploads/folders/tai-nguyen-9/-0058-hung-nhung-1793939355472-t89j.webp\",\"/uploads/folders/tai-nguyen-9/-0057-hung-nhung-1793939340809-q33j.webp\",\"/uploads/folders/tai-nguyen-9/-0056-hung-nhung-1793939330139-oiis.webp\",\"/uploads/folders/tai-nguyen-9/-0055-hung-nhung-1793939316160-vafr.webp\",\"/uploads/folders/tai-nguyen-9/-0054-hung-nhung-1793939298580-j64n.webp\",\"/uploads/folders/tai-nguyen-9/-0053-hung-nhung-1793939282465-nl2m.webp\",\"/uploads/folders/tai-nguyen-9/-0052-hung-nhung-1793939266577-bbwk.webp\",\"/uploads/folders/tai-nguyen-9/-0051-hung-nhung-1793939253108-yf2b.webp\",\"/uploads/folders/tai-nguyen-9/-0050-hung-nhung-1793939236157-md0v.webp\",\"/uploads/folders/tai-nguyen-9/-0049-hung-nhung-1793939218471-cwar.webp\",\"/uploads/folders/tai-nguyen-9/-0048-hung-nhung-1793939203906-dvj0.webp\",\"/uploads/folders/tai-nguyen-9/-0047-hung-nhung-1793939189089-mcir.webp\",\"/uploads/folders/tai-nguyen-9/-0046-hung-nhung-1793939172864-sdqq.webp\",\"/uploads/folders/tai-nguyen-9/-0045-hung-nhung-1793939159153-sz67.webp\",\"/uploads/folders/tai-nguyen-9/-0044-hung-nhung-1793939144440-47bm.webp\",\"/uploads/folders/tai-nguyen-9/-0043-hung-nhung-1793939130381-2wg3.webp\",\"/uploads/folders/tai-nguyen-9/-0042-hung-nhung-1793939114036-k7ca.webp\",\"/uploads/folders/tai-nguyen-9/-0041-hung-nhung-1793939098750-p9m8.webp\",\"/uploads/folders/tai-nguyen-9/-0040-hung-nhung-1793939079191-z1b0.webp\",\"/uploads/folders/tai-nguyen-9/-0039-hung-nhung-1793939066089-hq73.webp\",\"/uploads/folders/tai-nguyen-9/-0038-hung-nhung-1793939048515-lwhj.webp\",\"/uploads/folders/tai-nguyen-9/-0037-hung-nhung-1793939030624-w4rz.webp\",\"/uploads/folders/tai-nguyen-9/-0036-hung-nhung-1793939011706-3zt8.webp\",\"/uploads/folders/tai-nguyen-9/-0035-hung-nhung-1793938998549-48oh.webp\",\"/uploads/folders/tai-nguyen-9/-0034-hung-nhung-1793938980433-r3vr.webp\",\"/uploads/folders/tai-nguyen-9/-0033-hung-nhung-1793938965826-pqd5.webp\",\"/uploads/folders/tai-nguyen-9/-0032-hung-nhung-1793938950403-h8mw.webp\",\"/uploads/folders/tai-nguyen-9/-0031-hung-nhung-1793938933342-kio2.webp\",\"/uploads/folders/tai-nguyen-9/-0030-hung-nhung-1793938919962-q4p4.webp\",\"/uploads/folders/tai-nguyen-9/-0029-hung-nhung-1793938906042-doqy.webp\",\"/uploads/folders/tai-nguyen-9/-0028-hung-nhung-1793938890320-vali.webp\",\"/uploads/folders/tai-nguyen-9/-0027-hung-nhung-1793938876811-c8d4.webp\",\"/uploads/folders/tai-nguyen-9/-0026-hung-nhung-1793938862086-wb8g.webp\",\"/uploads/folders/tai-nguyen-9/-0025-hung-nhung-1793938848887-ncn5.webp\",\"/uploads/folders/tai-nguyen-9/-0024-hung-nhung-1793938835822-hfgq.webp\",\"/uploads/folders/tai-nguyen-9/-0023-hung-nhung-1793938818569-xi87.webp\",\"/uploads/folders/tai-nguyen-9/-0022-hung-nhung-1793938806313-ci2f.webp\",\"/uploads/folders/tai-nguyen-9/-0021-hung-nhung-1793938791244-f1xe.webp\",\"/uploads/folders/tai-nguyen-9/-0020-hung-nhung-1793938777702-a7g3.webp\",\"/uploads/folders/tai-nguyen-9/-0019-hung-nhung-1793938766658-j5h2.webp\",\"/uploads/folders/tai-nguyen-9/-0018-hung-nhung-1793938752779-fwjp.webp\",\"/uploads/folders/tai-nguyen-9/-0017-hung-nhung-1793938738911-j950.webp\",\"/uploads/folders/tai-nguyen-9/-0016-hung-nhung-1793938722533-ffnm.webp\",\"/uploads/folders/tai-nguyen-9/-0015-hung-nhung-1793938710026-5p8b.webp\",\"/uploads/folders/tai-nguyen-9/-0014-hung-nhung-1793938694302-epll.webp\",\"/uploads/folders/tai-nguyen-9/-0013-hung-nhung-1793938680524-6w3j.webp\",\"/uploads/folders/tai-nguyen-9/-0012-hung-nhung-1793938665008-zuij.webp\",\"/uploads/folders/tai-nguyen-9/-0011-hung-nhung-1793938648360-74kz.webp\",\"/uploads/folders/tai-nguyen-9/-0010-hung-nhung-1793938635833-bt46.webp\",\"/uploads/folders/tai-nguyen-9/-0009-hung-nhung-1793938621807-kojh.webp\",\"/uploads/folders/tai-nguyen-9/-0008-hung-nhung-1793938603088-8p79.webp\",\"/uploads/folders/tai-nguyen-9/-0007-hung-nhung-1793938585718-afdu.webp\",\"/uploads/folders/tai-nguyen-9/-0006-hung-nhung-1793938567344-5bci.webp\",\"/uploads/folders/tai-nguyen-9/-0005-hung-nhung-1793938552120-bejp.webp\",\"/uploads/folders/tai-nguyen-9/-0004-hung-nhung-1793938532707-iuue.webp\",\"/uploads/folders/tai-nguyen-9/-0003-hung-nhung-1793938515835-9ou7.webp\",\"/uploads/folders/tai-nguyen-9/-0002-hung-nhung-1793938499585-waxn.webp\",\"/uploads/folders/tai-nguyen-9/-0001-hung-nhung-1793938486426-bq0n.webp\"]",
       "highlightPoints": "[\"Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc và câu chuyện tình yêu riêng biệt.\",\"Trải nghiệm dòng váy cưới Haute Couture kiệt tác cùng đội ngũ nghệ sĩ trang điểm và nhiếp ảnh gia riêng biệt.\",\"Chất ảnh Cinematic nghệ thuật lưu giữ thanh xuân, chế tác in ấn theo tiêu chuẩn triển lãm bảo tàng.\"]",
-      "inclusions": "[]",
+      "inclusions": "[\"Chụp không giới hạn số lượng file suốt buổi chụp\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc điện ảnh\",\"02 Váy cưới cao cấp & 02 Vest Ý thiết kế riêng cho dâu rể\",\"Chuyên viên trang điểm nghệ thuật & làm tóc thay đổi theo từng trang phục\",\"01 Hoa cầm tay tươi cao cấp & hoa cài áo chú rể theo concept\",\"01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu (30x30 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)\",\"01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc\"]",
       "deliverables": "01 Album Photobook Fine Art cao cấp (30x30 cm, 30 trang) bọc da thủ công nhập khẩu; 02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng; 01 Video Slide Highlight Cinematic 4K; Toàn bộ File ảnh gốc và File đã chỉnh sửa màu nghệ thuật độ phân giải cao.",
+      "createdAt": "2026-11-08T05:35:03.442Z",
+      "updatedAt": "2026-11-09T16:20:20.460Z"
+    },
+    {
+      "id": "cmwbt69fr000012i64zv8xwnb",
+      "name": "Gói Deluxe - Nâng Cao",
+      "slug": "deluxe",
+      "category": "PRE_WEDDING",
+      "subtitle": "Trải nghiệm đỉnh cao với 2 bối cảnh kết hợp và trang phục Luxury thiết kế.",
+      "price": "16900000",
+      "originalPrice": "19900000",
+      "unit": "trọn gói",
+      "isPopular": true,
+      "isFeatured": false,
+      "orderIndex": 2,
+      "published": true,
+      "coverImage": "/uploads/folders/tai-nguyen-1/hd_09203-1793935442285-ofgk.webp",
+      "demoImages": "[\"/uploads/folders/tai-nguyen-1/hd_09203-1793935442285-ofgk.webp\"]",
+      "highlightPoints": "[\"02 Concept độc bản (Studio + Ngoại cảnh) & Xe đưa đón nội thành\",\"02 Váy cưới Luxury cao cấp & 02 Vest Ý thiết kế\",\"01 Album Photobook 30x30cm & 02 Ảnh cổng Pha lê 60x90cm\"]",
+      "inclusions": "[\"Chụp không giới hạn số lượng file suốt ngày chụp (6-8 giờ)\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế 02 concept độc bản (01 Studio + 01 Ngoại cảnh nội thành)\",\"02 Váy cưới cao cấp dòng Luxury & 02 Vest Ý thiết kế riêng cho dâu rể\",\"Chuyên viên trang điểm nghệ thuật & làm tóc đổi phong cách theo từng bối cảnh\",\"01 Hoa cầm tay tươi cao cấp & hoa cài áo chú rể theo concept\",\"01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu (30x30 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)\",\"01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc\",\"Xe 16 chỗ đưa đón ekip và dâu rể các điểm chụp nội thành\"]",
+      "deliverables": "01 Album Photobook Fine Art 30x30cm; 02 Ảnh cổng Pha lê 60x90cm; Toàn bộ File gốc và 45 ảnh retouch chuyên sâu.",
+      "createdAt": "2026-11-08T05:35:03.442Z",
+      "updatedAt": "2026-11-09T16:20:20.460Z"
+    },
+    {
+      "id": "cmwbt69ft000112i6ev187rk0",
+      "name": "Gói Luxury - Hoàng Gia",
+      "slug": "luxury-royal",
+      "category": "PRE_WEDDING",
+      "subtitle": "Tác phẩm điện ảnh cưới kiệt tác dành riêng cho những chuyện tình đẳng cấp.",
+      "price": "26900000",
+      "originalPrice": "32000000",
+      "unit": "trọn gói",
+      "isPopular": false,
+      "isFeatured": true,
+      "orderIndex": 3,
+      "published": true,
+      "coverImage": "/uploads/folders/tai-nguyen-2/hd_05419-1793935525781-qg81.webp",
+      "demoImages": "[\"/uploads/folders/tai-nguyen-2/hd_05419-1793935525781-qg81.webp\"]",
+      "highlightPoints": "[\"Ekip riêng biệt với Nhiếp ảnh gia & Nghệ sĩ makeup hàng đầu\",\"03 Váy cưới Haute Couture kiệt tác & 02 Vest Ý cao cấp\",\"01 Album Photobook 35x35cm, 02 Ảnh cổng 70x105cm & Video 4K\"]",
+      "inclusions": "[\"Chụp không giới hạn file với ekip riêng biệt (Nhiếp ảnh gia hàng đầu)\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế concept độc bản Couture cá nhân hóa 100% câu chuyện tình yêu\",\"03 Váy cưới Haute Couture kiệt tác & 02 Vest Ý cao cấp\",\"Nghệ sĩ trang điểm và làm tóc riêng biệt đi cùng dâu rể suốt hành trình\",\"02 Hoa tươi cầm tay thiết kế nghệ thuật cao cấp\",\"01 Album Photobook Fine Art mở phẳng 40 trang bọc da thủ công nhập khẩu (35x35 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (70x105 cm)\",\"01 Video Clip Cinematic Pre-Wedding 4K biên tập nghệ thuật chuyên nghiệp\",\"Xe Limousine đưa đón dâu rể & toàn bộ vé vào cổng các điểm quay chụp\"]",
+      "deliverables": "01 Album Photobook Fine Art 35x35cm; 02 Ảnh cổng 70x105cm; 01 Video Clip 4K; Toàn bộ File gốc và 60 ảnh retouch đỉnh cao.",
       "createdAt": "2026-11-08T05:35:03.442Z",
       "updatedAt": "2026-11-09T16:20:20.460Z"
     }
@@ -6871,8 +6913,8 @@ async function main() {
 
   // 1.1 Khởi tạo toàn bộ AdminUser từ snapshot
   if (Array.isArray(snapshot.adminUser)) {
-    for (const u of (snapshot.adminUser as any[])) {
-      const { createdAt, updatedAt, lastLoginAt, albums, posts, mediaFiles, ...userData } = u as any;
+    for (const u of (snapshot.adminUser)) {
+      const { createdAt, updatedAt, lastLoginAt, albums, posts, mediaFiles, ...userData } = u;
       const upserted = await prisma.adminUser.upsert({
         where: { id: u.id },
         update: {
@@ -6944,8 +6986,8 @@ async function main() {
   // BƯỚC 2: CÀI ĐẶT HỆ THỐNG ĐỘC LẬP (SystemSetting, HomePageConfig, NotificationSetting)
   // =========================================================================
   if (Array.isArray(snapshot.systemSetting)) {
-    for (const item of (snapshot.systemSetting as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of (snapshot.systemSetting)) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.systemSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -6956,8 +6998,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.homePageConfig)) {
-    for (const item of (snapshot.homePageConfig as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of (snapshot.homePageConfig)) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.homePageConfig.upsert({
         where: { id: item.id },
         update: data,
@@ -6968,8 +7010,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.notificationSetting)) {
-    for (const item of (snapshot.notificationSetting as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of (snapshot.notificationSetting)) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.notificationSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -6983,8 +7025,8 @@ async function main() {
   // BƯỚC 3: DANH MỤC TAXONOMIES & GÓI DỊCH VỤ (ServicePackage, MediaFolder)
   // =========================================================================
   if (Array.isArray(snapshot.studioLocation)) {
-    for (const item of (snapshot.studioLocation as any[])) {
-      const { createdAt, updatedAt, ...data } = item as any;
+    for (const item of (snapshot.studioLocation)) {
+      const { createdAt, updatedAt, ...data } = item;
       await prisma.studioLocation.upsert({
         where: { id: item.id },
         update: data,
@@ -6996,8 +7038,8 @@ async function main() {
 
   const validServiceCategoryIds = new Set();
   if (Array.isArray(snapshot.serviceCategory)) {
-    for (const item of (snapshot.serviceCategory as any[])) {
-      const { createdAt, ...data } = item as any;
+    for (const item of (snapshot.serviceCategory)) {
+      const { createdAt, ...data } = item;
       const upserted = await prisma.serviceCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -7009,8 +7051,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.albumConcept)) {
-    for (const item of (snapshot.albumConcept as any[])) {
-      const { createdAt, ...data } = item as any;
+    for (const item of (snapshot.albumConcept)) {
+      const { createdAt, ...data } = item;
       await prisma.albumConcept.upsert({
         where: { id: item.id },
         update: data,
@@ -7021,8 +7063,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.blogCategory)) {
-    for (const item of (snapshot.blogCategory as any[])) {
-      const { createdAt, ...data } = item as any;
+    for (const item of (snapshot.blogCategory)) {
+      const { createdAt, ...data } = item;
       await prisma.blogCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -7034,8 +7076,8 @@ async function main() {
 
   const validPackageIds = new Set();
   if (Array.isArray(snapshot.servicePackage)) {
-    for (const item of (snapshot.servicePackage as any[])) {
-      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item as any;
+    for (const item of (snapshot.servicePackage)) {
+      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item;
       const upserted = await prisma.servicePackage.upsert({
         where: { id: item.id },
         update: data,
@@ -7048,8 +7090,8 @@ async function main() {
 
   const validFolderIds = new Set();
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of (snapshot.mediaFolder as any[])) {
-      const { createdAt, updatedAt, files, ...folderData } = item as any;
+    for (const item of (snapshot.mediaFolder)) {
+      const { createdAt, updatedAt, files, ...folderData } = item;
       const upserted = await prisma.mediaFolder.upsert({
         where: { id: item.id },
         update: folderData,
@@ -7065,8 +7107,8 @@ async function main() {
   // =========================================================================
   const validAlbumIds = new Set();
   if (Array.isArray(snapshot.album)) {
-    for (const item of (snapshot.album as any[])) {
-      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item as any;
+    for (const item of (snapshot.album)) {
+      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item;
       const safeCreatedById = (albumData.createdById && validAdminUserIds.has(albumData.createdById))
         ? albumData.createdById
         : primaryAdminId;
@@ -7088,8 +7130,8 @@ async function main() {
       validAlbumIds.add(upserted.id);
 
       if (Array.isArray(media)) {
-        for (const m of (media as any[])) {
-          const { createdAt, updatedAt, album: albRel, ...mdata } = m as any;
+        for (const m of (media)) {
+          const { createdAt, updatedAt, album: albRel, ...mdata } = m;
           await prisma.albumMedia.upsert({
             where: { id: m.id },
             update: { ...mdata, albumId: upserted.id },
@@ -7103,8 +7145,8 @@ async function main() {
 
   const validPostIds = new Set();
   if (Array.isArray(snapshot.blogPost)) {
-    for (const item of (snapshot.blogPost as any[])) {
-      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item as any;
+    for (const item of (snapshot.blogPost)) {
+      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item;
       const safeAuthorId = (blogData.authorId && validAdminUserIds.has(blogData.authorId))
         ? blogData.authorId
         : primaryAdminId;
@@ -7126,8 +7168,8 @@ async function main() {
       validPostIds.add(upserted.id);
 
       if (Array.isArray(images)) {
-        for (const img of (images as any[])) {
-          const { createdAt, updatedAt, post: postRel, ...imgData } = img as any;
+        for (const img of (images)) {
+          const { createdAt, updatedAt, post: postRel, ...imgData } = img;
           await prisma.postImage.upsert({
             where: { id: img.id },
             update: { ...imgData, postId: upserted.id },
@@ -7143,10 +7185,10 @@ async function main() {
   // BƯỚC 5: CÁC THỰC THỂ PHỤ THUỘC TIẾP THEO (MediaFiles, Testimonials, Leads, Orders)
   // =========================================================================
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of (snapshot.mediaFolder as any[])) {
-      if (Array.isArray((item as any).files)) {
-        for (const f of ((item as any).files as any[])) {
-          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f as any;
+    for (const item of (snapshot.mediaFolder)) {
+      if (Array.isArray((item).files)) {
+        for (const f of ((item).files)) {
+          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f;
           const safeFolderId = (fileData.folderId && validFolderIds.has(fileData.folderId))
             ? fileData.folderId
             : null;
@@ -7165,8 +7207,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.mediaFile)) {
-    for (const f of (snapshot.mediaFile as any[])) {
-      const { createdAt, updatedAt, ...fileData } = f as any;
+    for (const f of (snapshot.mediaFile)) {
+      const { createdAt, updatedAt, ...fileData } = f;
       const safeUploadedById = (fileData.uploadedById && validAdminUserIds.has(fileData.uploadedById))
         ? fileData.uploadedById
         : null;
@@ -7181,8 +7223,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.testimonial)) {
-    for (const item of (snapshot.testimonial as any[])) {
-      const { createdAt, updatedAt, ...testData } = item as any;
+    for (const item of (snapshot.testimonial)) {
+      const { createdAt, updatedAt, ...testData } = item;
       const safeAlbumId = (testData.albumId && validAlbumIds.has(testData.albumId))
         ? testData.albumId
         : null;
@@ -7200,8 +7242,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.leadBooking)) {
-    for (const item of (snapshot.leadBooking as any[])) {
-      const { createdAt, updatedAt, package: pkgRel, ...data } = item as any;
+    for (const item of (snapshot.leadBooking)) {
+      const { createdAt, updatedAt, package: pkgRel, ...data } = item;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;
@@ -7221,8 +7263,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.order)) {
-    for (const item of (snapshot.order as any[])) {
-      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item as any;
+    for (const item of (snapshot.order)) {
+      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;

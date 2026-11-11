@@ -6,6 +6,7 @@ import { PricingPackagesJsonLd, FaqJsonLd } from '@/components/seo/JsonLdSchema'
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
+import { extractPackageFeatures } from '@/lib/package-features';
 import { HelpCircle, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -26,23 +27,30 @@ export default async function PricingPage() {
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
   // Format packages data for LuxuryPricingSection
-  const packages: PricingPackageData[] = packagesRaw.map((pkg) => ({
-    id: pkg.id,
-    name: pkg.name,
-    slug: pkg.slug,
-    category: pkg.category,
-    subtitle: pkg.subtitle,
-    price: Number(pkg.price),
-    originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
-    unit: pkg.unit,
-    coverImage: pkg.coverImage,
-    demoImages: pkg.demoImages,
-    highlightPoints: pkg.highlightPoints,
-    inclusions: pkg.inclusions,
-    deliverables: pkg.deliverables,
-    isPopular: pkg.isPopular,
-    isFeatured: pkg.isFeatured,
-  }));
+  const packages: PricingPackageData[] = packagesRaw.map((pkg) => {
+    const fullFeatures = extractPackageFeatures(pkg);
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      slug: pkg.slug,
+      category: pkg.category,
+      subtitle: pkg.subtitle,
+      price: Number(pkg.price),
+      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
+      unit: pkg.unit,
+      coverImage: pkg.coverImage,
+      demoImages: pkg.demoImages,
+      highlightPoints: pkg.highlightPoints,
+      inclusions: pkg.inclusions,
+      deliverables: pkg.deliverables,
+      isPopular: pkg.isPopular,
+      isFeatured: pkg.isFeatured,
+      features: fullFeatures,
+      fullFeatures: fullFeatures,
+      shortFeatures: fullFeatures.slice(0, 3),
+      deliveryProcess: pkg.deliverables,
+    };
+  });
 
   const faqs = [
     {

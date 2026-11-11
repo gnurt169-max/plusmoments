@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
+import { extractPackageFeatures } from '@/lib/package-features';
 import type { PricingPackageData } from './LuxuryPricingSection';
 
 export interface PackageDetailModalProps {
@@ -83,61 +84,10 @@ export function PackageDetailModal({
 
   const currentActiveImage = demoImagesList[activeImageIndex] || demoImagesList[0] || '';
 
-  // Parse inclusions list combining highlights and full inclusions
-  const fullInclusions: string[] = useMemo(() => {
+  // Full features list guaranteed to contain 100% full comprehensive features (never sliced)
+  const fullFeaturesList: string[] = useMemo(() => {
     if (!packageData) return [];
-
-    if (packageData.fullFeatures && Array.isArray(packageData.fullFeatures) && packageData.fullFeatures.length > 0) {
-      return packageData.fullFeatures;
-    }
-
-    const items: string[] = [];
-
-    const extractArray = (val: any): string[] => {
-      if (!val) return [];
-      if (Array.isArray(val)) return val.filter((s) => typeof s === 'string' && s.trim());
-      if (typeof val === 'string' && val.trim()) {
-        try {
-          const parsed = JSON.parse(val);
-          if (Array.isArray(parsed)) {
-            return parsed.filter((s) => typeof s === 'string' && s.trim());
-          }
-        } catch {
-          return val
-            .split('\n')
-            .map((s: string) => s.replace(/^[•\-\*]\s*/, '').trim())
-            .filter(Boolean);
-        }
-      }
-      return [];
-    };
-
-    // 1. Outside highlights (shortFeatures / highlightPoints)
-    const cardHighlights = extractArray(packageData.shortFeatures || packageData.highlightPoints);
-    for (const h of cardHighlights) {
-      if (!items.includes(h)) items.push(h);
-    }
-
-    // 2. Full inclusions (inclusions / features)
-    const incs = extractArray(packageData.inclusions || packageData.features);
-    for (const inc of incs) {
-      if (!items.includes(inc)) items.push(inc);
-    }
-
-    if (items.length === 0) {
-      return [
-        '01 máy chụp truyền thống & 01 máy quay phóng sự chuyên nghiệp suốt tiệc',
-        'Trang phục cưới cao cấp không giới hạn khu vực chụp (Váy Haute Couture & Vest Ý)',
-        'Makeup nghệ thuật & làm tóc chuyên nghiệp theo từng bối cảnh tiệc cưới',
-        'Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc điện ảnh',
-        '01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu',
-        '02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)',
-        '01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc',
-        'Toàn bộ File ảnh gốc và File đã chỉnh sửa màu nghệ thuật bàn giao qua Google Drive',
-      ];
-    }
-
-    return items;
+    return extractPackageFeatures(packageData);
   }, [packageData]);
 
   // Keyboard navigation & ESC close for Fullscreen Lightbox
@@ -305,8 +255,8 @@ export function PackageDetailModal({
                 <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
                 <span>QUYỀN LỢI CHI TIẾT & THÀNH PHẨM BÀN GIAO:</span>
               </div>
-              <ul className="space-y-2 text-sm text-[#4A4036] max-h-56 overflow-y-auto pr-1">
-                {(packageData.fullFeatures || packageData.features || fullInclusions || []).map((item, idx) => (
+              <ul className="space-y-2 text-sm text-[#4A4036] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {(packageData.features || fullFeaturesList || []).map((item: string, idx: number) => (
                   <li
                     key={idx}
                     className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"

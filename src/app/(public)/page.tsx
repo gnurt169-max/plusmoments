@@ -8,6 +8,7 @@ import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { PricingSection } from '@/components/home/PricingSection';
 import { FeaturedBlogSection } from '@/components/home/FeaturedBlogSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
+import { extractPackageFeatures } from '@/lib/package-features';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import {
   Sparkles,
@@ -116,23 +117,30 @@ export default async function HomePage() {
     (homeConfig as any)?.heroBannerUrl ||
     '';
 
-  const formattedPackages: PricingPackageData[] = packages.map((pkg) => ({
-    id: pkg.id,
-    name: pkg.name,
-    slug: pkg.slug,
-    category: pkg.category,
-    subtitle: pkg.subtitle,
-    price: Number(pkg.price),
-    originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
-    unit: pkg.unit,
-    coverImage: pkg.coverImage,
-    demoImages: pkg.demoImages,
-    highlightPoints: pkg.highlightPoints,
-    inclusions: pkg.inclusions,
-    deliverables: pkg.deliverables,
-    isPopular: pkg.isPopular,
-    isFeatured: pkg.isFeatured,
-  }));
+  const formattedPackages: PricingPackageData[] = packages.map((pkg) => {
+    const fullFeatures = extractPackageFeatures(pkg);
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      slug: pkg.slug,
+      category: pkg.category,
+      subtitle: pkg.subtitle,
+      price: Number(pkg.price),
+      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
+      unit: pkg.unit,
+      coverImage: pkg.coverImage,
+      demoImages: pkg.demoImages,
+      highlightPoints: pkg.highlightPoints,
+      inclusions: pkg.inclusions,
+      deliverables: pkg.deliverables,
+      isPopular: pkg.isPopular,
+      isFeatured: pkg.isFeatured,
+      features: fullFeatures,
+      fullFeatures: fullFeatures,
+      shortFeatures: fullFeatures.slice(0, 3),
+      deliveryProcess: pkg.deliverables,
+    };
+  });
 
   return (
     <div className="space-y-24 sm:space-y-32 pb-24 overflow-hidden">
