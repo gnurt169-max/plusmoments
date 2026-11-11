@@ -3,7 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getSystemSettings } from '@/lib/settings';
 import { formatDate } from '@/lib/utils';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { Clock, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -13,13 +15,25 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await prisma.blogPost.findMany({
-    where: { published: true },
-    orderBy: { publishedAt: 'desc' },
-  });
+  const [posts, settings] = await Promise.all([
+    prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { publishedAt: 'desc' },
+    }),
+    getSystemSettings(),
+  ]);
+
+  const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      {/* Schema.org BreadcrumbList */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Trang chủ', item: baseUrl },
+          { name: 'Cẩm Nang Cưới', item: `${baseUrl}/blog` },
+        ]}
+      />
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <p className="text-xs uppercase tracking-[0.25em] text-luxury-600 font-semibold">
           Kinh Nghiệm & Cảm Hứng

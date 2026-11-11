@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { formatDate } from '@/lib/utils';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { ArrowLeft, Clock, Calendar, User, Sparkles, Images } from 'lucide-react';
@@ -263,6 +264,13 @@ export default async function BlogPostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Trang chủ', item: baseUrl },
+          { name: 'Cẩm Nang Cưới', item: `${baseUrl}/blog` },
+          { name: post.title, item: postUrl },
+        ]}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">

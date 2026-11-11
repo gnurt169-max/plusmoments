@@ -3,7 +3,7 @@ import Script from 'next/script';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
-import { LocalBusinessJsonLd } from '@/components/seo/JsonLdSchema';
+import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
 
 const fontSerif = Playfair_Display({
   subsets: ['latin', 'vietnamese'],
@@ -113,16 +113,19 @@ export default async function RootLayout({
           }}
         />
 
-        {/* Dynamic LocalBusiness Schema for Rich Snippets */}
-        <LocalBusinessJsonLd
-          name={settings?.siteName || 'PlusMoments Wedding Studio'}
-          description={settings?.defaultMetaDescription || ''}
+        {/* Dynamic BridalShop, Organization & WebSite Schemas for Rich Snippets */}
+        <RootWebsiteJsonLd
+          name={settings?.siteName || 'PlusMoments - Luxury Wedding Studio'}
+          description={settings?.defaultMetaDescription || 'PlusMoments Studio chuyên cung cấp dịch vụ chụp ảnh cưới Pre-Wedding, phóng sự cưới cao cấp với phong cách sang trọng, tự nhiên và đậm chất điện ảnh.'}
           url={settings?.canonicalBaseUrl || 'https://plusmoments.vn'}
           logo={`${settings?.canonicalBaseUrl || 'https://plusmoments.vn'}/logo.png`}
-          image={settings?.defaultOgImage || ''}
-          telephone={settings?.hotline || ''}
-          email={settings?.email || ''}
-          address={settings?.studioAddress || ''}
+          image={settings?.defaultOgImage || `${settings?.canonicalBaseUrl || 'https://plusmoments.vn'}/og-image.jpg`}
+          telephone={settings?.hotline || '0981577993'}
+          email={settings?.email || 'contact@plusmoments.vn'}
+          address={settings?.studioAddress || '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh'}
+          priceRange="6.000.000đ - 25.000.000đ"
+          latitude={10.7769}
+          longitude={106.7009}
         />
 
         {/* Global Google Ads Tag (gtag.js) */}

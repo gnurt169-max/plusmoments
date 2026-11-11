@@ -57,10 +57,6 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      { source: '/bo-suu-tap', destination: '/albums' },
-      { source: '/bo-suu-tap/:slug*', destination: '/albums/:slug*' },
-      { source: '/bang-gia', destination: '/pricing' },
-      { source: '/bang-gia/:slug*', destination: '/pricing/:slug*' },
       { source: '/cam-nang', destination: '/blog' },
       { source: '/cam-nang/:slug*', destination: '/blog/:slug*' },
       // Google Ads Dedicated Landing Pages & Conversion Thank You Pages

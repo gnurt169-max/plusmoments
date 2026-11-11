@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { formatDate } from '@/lib/utils';
-import { ImageGalleryJsonLd } from '@/components/seo/JsonLdSchema';
+import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
@@ -89,7 +89,14 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
 
   return (
     <div className="pt-28 pb-24">
-      {/* Schema.org ImageGallery */}
+      {/* Schema.org BreadcrumbList & ImageGallery */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Trang chủ', item: baseUrl },
+          { name: 'Bộ Sưu Tập Cưới', item: `${baseUrl}/bo-suu-tap` },
+          { name: album.title, item: albumUrl },
+        ]}
+      />
       <ImageGalleryJsonLd
         name={album.title}
         description={album.description || album.title}

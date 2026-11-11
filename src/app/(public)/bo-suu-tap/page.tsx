@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { FloatingCard } from '@/components/motion/FloatingCard';
-import { ImageGalleryJsonLd } from '@/components/seo/JsonLdSchema';
+import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
@@ -100,7 +100,13 @@ export default async function BoSuuTapPage({
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-      {/* Schema.org ImageGallery for Rich Snippets */}
+      {/* Schema.org BreadcrumbList & ImageGallery for Rich Snippets */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Trang chủ', item: baseUrl },
+          { name: 'Bộ Sưu Tập Cưới', item: `${baseUrl}/bo-suu-tap` },
+        ]}
+      />
       <ImageGalleryJsonLd
         name="Tất Cả Bộ Sưu Tập Ảnh Cưới Luxury - PlusMoments"
         description="Toàn bộ danh mục album ảnh cưới nghệ thuật điện ảnh của PlusMoments Studio"

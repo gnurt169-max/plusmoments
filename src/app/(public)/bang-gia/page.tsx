@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
-import { PricingPackagesJsonLd, FaqJsonLd } from '@/components/seo/JsonLdSchema';
+import { PricingPackagesJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { HelpCircle, Sparkles, CheckCircle2 } from 'lucide-react';
@@ -74,12 +74,19 @@ export default async function BangGiaPage() {
   return (
     <div className="pt-32 pb-24 space-y-20">
       {/* Structured Schema Data */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Trang chủ', item: baseUrl },
+          { name: 'Bảng Giá Dịch Vụ Cưới', item: `${baseUrl}/bang-gia` },
+        ]}
+      />
       <PricingPackagesJsonLd
         packages={packages.map((pkg) => ({
           name: pkg.name,
           description: pkg.subtitle || pkg.name,
           price: pkg.price.toString(),
           url: `${baseUrl}/bang-gia#${pkg.slug}`,
+          image: pkg.coverImage || undefined,
         }))}
       />
       <FaqJsonLd faqs={faqs} />
