@@ -216,6 +216,50 @@ Trả về định dạng JSON thuần túy (không kèm bất kỳ văn bản n
         break;
       }
 
+      case 'FACEBOOK_POST': {
+        const { title, type = 'ALBUM', concept, category, coupleNames, location, summary, description, content, postUrl, tone = 'LUXURY' } = inputContext;
+        
+        let toneInstruction = 'Sang trọng, đẳng cấp, mang hơi thở điện ảnh và nghệ thuật cao cấp.';
+        if (tone === 'ROMANTIC') toneInstruction = 'Lãng mạn, ngọt ngào, bay bổng, chạm đến trái tim đôi lứa.';
+        if (tone === 'HUMOROUS' || tone === 'MODERN') toneInstruction = 'Trẻ trung, tươi vui, hóm hỉnh nhẹ nhàng, bắt trend giới trẻ.';
+        if (tone === 'CONCISE') toneInstruction = 'Ngắn gọn, súc tích, dứt khoát, tập trung vào ưu đãi và lời kêu gọi hành động (CTA).';
+
+        userPrompt = `Bạn là Chuyên gia Sáng tạo Nội dung Fanpage Facebook (Facebook Content Creator) cho PlusMoments Wedding Studio.
+Hãy viết một bài đăng Facebook Fanpage hoàn chỉnh, cực kỳ thu hút và tối ưu tỷ lệ tương tác & nhắn tin (inbox) cho ${type === 'ALBUM' ? 'bộ ảnh cưới' : 'bài viết cẩm nang cưới'} này.
+
+Thông tin đầu vào:
+- Tiêu đề: "${title || 'Bộ Ảnh Cưới Nghệ Thuật'}"
+${concept || category ? `- Concept / Phân loại: "${concept || category}"` : ''}
+${coupleNames ? `- Tên Dâu & Rể: "${coupleNames}"` : ''}
+${location ? `- Địa điểm: "${location}"` : ''}
+${summary || description ? `- Nội dung tóm tắt: "${(summary || description).slice(0, 400)}"` : ''}
+${content ? `- Trích đoạn nội dung: "${content.slice(0, 400)}"` : ''}
+- Giọng văn yêu cầu: ${toneInstruction}
+- Link website: ${postUrl || 'https://plusmoments.vn'}
+
+Cấu trúc bài đăng bắt buộc (Format Facebook):
+1. Icon phù hợp mở đầu (🕊️ / 💍 / ✨) + Tiêu đề giật tít cảm xúc IN HOA (dưới 15 từ).
+2. Đoạn dẫn 2-3 câu khơi gợi cảm xúc, triết lý tình yêu hoặc nét đặc biệt của cô dâu chú rể/concept.
+3. Phần thông tin bullet points:
+   📸 Thông tin bộ ảnh:
+   • Dâu & Rể: ${coupleNames || title || 'Hai bạn uyên ương'}
+   • Concept: ${concept || category || 'Pre-Wedding Luxury'}
+   • Nhiếp ảnh & Hậu kỳ: PlusMoments Team
+   • Địa điểm: ${location || 'Studio & Ngoại cảnh'}
+4. Đoạn chia sẻ ngắn cảm xúc hoặc hậu trường thú vị.
+5. Lời kêu gọi hành động (Call to action): "Inbox ngay cho PlusMoments để được tư vấn thiết kế concept riêng biệt cho ngày trọng đại của bạn! ✨"
+6. Phần chữ ký studio:
+   ---
+   💍 PLUSMOMENTS - LUXURY WEDDING STUDIO
+   Hotline / Zalo: 0981 577 993
+   Website chi tiết: ${postUrl || 'https://plusmoments.vn'}
+   Địa chỉ: 32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh
+7. Bộ hashtag tối ưu: #PlusMoments #StudioAnhCuoi #AnhCuoiLuxury #PreWeddingEditorial #ChupAnhCuoiTPHCM #PhongSuNgayCuoi và các hashtag liên quan concept/địa điểm.
+
+Chỉ trả về toàn bộ nội dung bài đăng Facebook hoàn chỉnh, sẵn sàng đăng ngay, không kèm lời dẫn của AI.`;
+        break;
+      }
+
       default:
         userPrompt = promptOverride || 'Hãy gợi ý nội dung chất lượng cao cho studio chụp ảnh cưới.';
     }

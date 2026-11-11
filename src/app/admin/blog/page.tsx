@@ -16,12 +16,14 @@ import {
   Copy,
   Image as ImageIcon,
   Bot,
+  Share2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
 import { SingleImagePicker } from '@/components/admin/ImageFieldPicker';
 import { MediaLibraryPickerModal } from '@/components/admin/MediaLibraryPickerModal';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
+import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
 
 interface PackageOption {
   id: string;
@@ -78,6 +80,10 @@ export default function AdminBlogPage() {
   const [isAutoGeneratingAll, setIsAutoGeneratingAll] = useState(false);
   const [isAutoGeneratingFromImages, setIsAutoGeneratingFromImages] = useState(false);
   const [generatingSEO, setGeneratingSEO] = useState(false);
+
+  // Facebook Fanpage Post Generator State
+  const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
+  const [facebookModalData, setFacebookModalData] = useState<FacebookPostData | null>(null);
 
   const [formData, setFormData] = useState<{
     title: string;
@@ -209,6 +215,36 @@ export default function AdminBlogPage() {
       postImages: existingImages,
     });
     setIsModalOpen(true);
+  };
+
+  const handleOpenFacebookModalForPost = (post: BlogPostItem) => {
+    setFacebookModalData({
+      title: post.title,
+      slug: post.slug,
+      type: 'BLOG',
+      category: post.category,
+      author: post.author,
+      summary: post.summary,
+      content: post.content,
+      coverImage: post.coverImage,
+      images: post.images?.map((img) => img.url) || [],
+    });
+    setIsFacebookModalOpen(true);
+  };
+
+  const handleOpenFacebookModalFromForm = () => {
+    setFacebookModalData({
+      title: formData.title || 'Bài Viết Cẩm Nang Mới',
+      slug: formData.slug || '',
+      type: 'BLOG',
+      category: formData.category,
+      author: formData.author,
+      summary: formData.summary,
+      content: formData.content,
+      coverImage: formData.coverImage,
+      images: formData.postImages?.map((img) => img.url) || [],
+    });
+    setIsFacebookModalOpen(true);
   };
 
   const handleAddImages = (urls: string[]) => {
@@ -757,6 +793,14 @@ export default function AdminBlogPage() {
                             >
                               <ExternalLink className="w-4 h-4" />
                             </a>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenFacebookModalForPost(post)}
+                              className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                              title="Tạo bài đăng Fanpage Facebook"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
                             {canEditOrDelete && (
                               <>
                                 <button
@@ -1299,31 +1343,52 @@ export default function AdminBlogPage() {
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-200">
             <button
               type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl"
+              onClick={handleOpenFacebookModalFromForm}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+              title="Soạn nội dung và bố cục hình ảnh để đăng Fanpage Facebook"
             >
-              Hủy
+              <Share2 className="w-3.5 h-3.5 text-blue-200" />
+              <span>📱 Tạo bài đăng Facebook</span>
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Đang Lưu...</span>
-                </>
-              ) : (
-                <span>{editingId ? 'Cập Nhật Bài Viết' : 'Xuất Bản Bài Viết'}</span>
-              )}
-            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang Lưu...</span>
+                  </>
+                ) : (
+                  <span>{editingId ? 'Cập Nhật Bài Viết' : 'Xuất Bản Bài Viết'}</span>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>
+
+      {/* FACEBOOK POST GENERATOR MODAL */}
+      {facebookModalData && (
+        <FacebookPostGeneratorModal
+          isOpen={isFacebookModalOpen}
+          onClose={() => setIsFacebookModalOpen(false)}
+          data={facebookModalData}
+        />
+      )}
     </div>
   );
 }

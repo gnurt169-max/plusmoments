@@ -12,8 +12,10 @@ import {
   ExternalLink,
   Folder,
   Bot,
+  Share2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
@@ -65,6 +67,10 @@ export default function AdminAlbumsPage() {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [generatingSEO, setGeneratingSEO] = useState(false);
   const [isAutoGeneratingFromImages, setIsAutoGeneratingFromImages] = useState(false);
+
+  // Facebook Fanpage Post Generator State
+  const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
+  const [facebookModalData, setFacebookModalData] = useState<FacebookPostData | null>(null);
 
   // Google Drive Media Picker State
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
@@ -457,6 +463,43 @@ export default function AdminAlbumsPage() {
     }
   };
 
+  const handleOpenFacebookModalForAlbum = (album: AlbumItem) => {
+    setFacebookModalData({
+      title: album.title,
+      slug: album.slug,
+      type: 'ALBUM',
+      concept: album.concept,
+      coupleNames: album.coupleNames,
+      location: album.location,
+      summary: album.subtitle || album.description || '',
+      description: album.description || '',
+      coverImage: album.coverImage,
+      images: album.media?.map((m) => m.url) || [],
+    });
+    setIsFacebookModalOpen(true);
+  };
+
+  const handleOpenFacebookModalFromForm = () => {
+    const urls = formData.batchMediaUrls
+      .split('\n')
+      .map((u) => u.trim())
+      .filter(Boolean);
+
+    setFacebookModalData({
+      title: formData.title || 'Bộ Sưu Tập Cưới Mới',
+      slug: formData.slug || '',
+      type: 'ALBUM',
+      concept: formData.concept,
+      coupleNames: formData.coupleNames,
+      location: formData.location,
+      summary: formData.subtitle || formData.description || '',
+      description: formData.description || '',
+      coverImage: formData.coverImage,
+      images: urls,
+    });
+    setIsFacebookModalOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -647,6 +690,14 @@ export default function AdminAlbumsPage() {
                             >
                               <ExternalLink className="w-4 h-4" />
                             </a>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenFacebookModalForAlbum(album)}
+                              className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                              title="Tạo bài đăng Fanpage Facebook"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
                             {canEditOrDelete && (
                               <>
                                 <button
@@ -1003,28 +1054,40 @@ export default function AdminAlbumsPage() {
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-200">
             <button
               type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl"
+              onClick={handleOpenFacebookModalFromForm}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+              title="Soạn nội dung và bố cục hình ảnh để đăng Fanpage Facebook"
             >
-              Hủy
+              <Share2 className="w-3.5 h-3.5 text-blue-200" />
+              <span>📱 Tạo bài đăng Facebook</span>
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Đang Lưu Album...</span>
-                </>
-              ) : (
-                <span>{editingId ? 'Cập Nhật Album' : 'Tạo Album Mới'}</span>
-              )}
-            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang Lưu Album...</span>
+                  </>
+                ) : (
+                  <span>{editingId ? 'Cập Nhật Album' : 'Tạo Album Mới'}</span>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>
@@ -1115,6 +1178,15 @@ export default function AdminAlbumsPage() {
             : 'Chọn Bộ Ảnh Chi Tiết Album Từ Google Drive'
         }
       />
+
+      {/* FACEBOOK POST GENERATOR MODAL */}
+      {facebookModalData && (
+        <FacebookPostGeneratorModal
+          isOpen={isFacebookModalOpen}
+          onClose={() => setIsFacebookModalOpen(false)}
+          data={facebookModalData}
+        />
+      )}
     </div>
   );
 }
