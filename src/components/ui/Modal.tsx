@@ -60,7 +60,7 @@ export function Modal({
           type="button"
           onClick={onClose}
           aria-label="Đóng cửa sổ"
-          className="absolute top-5 right-5 p-2 rounded-full text-charcoal-500 hover:text-charcoal-900 hover:bg-champagne/40 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-full text-charcoal-500 hover:text-charcoal-900 hover:bg-champagne/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
         >
           <X className="w-5 h-5" />
         </button>

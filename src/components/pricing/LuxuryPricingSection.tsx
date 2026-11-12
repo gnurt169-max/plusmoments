@@ -163,7 +163,7 @@ export function LuxuryPricingSection({
                 tabIndex={0}
                 role="button"
                 aria-label={`Xem album và chi tiết gói ${pkg.name}`}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always ${
+                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
                   pkg.isPopular
                     ? 'bg-white shadow-2xl border-luxury-500 ring-2 ring-luxury-400/30 md:-translate-y-2 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(180,130,60,0.25)]'
                     : 'bg-white shadow-luxury hover:shadow-2xl border-champagne-dark/30 hover:-translate-y-2 hover:border-luxury-400'
@@ -274,7 +274,7 @@ export function LuxuryPricingSection({
                         openConsultModal(pkg.name);
                       }}
                       aria-label={`Chọn gói ${pkg.name} & nhận ưu đãi`}
-                      className={`relative z-20 w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
+                      className={`relative z-20 w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
                         pkg.isPopular
                           ? 'bg-luxury-600 hover:bg-luxury-700 text-white shadow-luxury hover:scale-[1.02] active:scale-[0.98]'
                           : 'bg-charcoal-900 hover:bg-luxury-800 text-white hover:scale-[1.02] active:scale-[0.98]'

@@ -149,7 +149,7 @@ export default async function BoSuuTapPage({
             <Link
               key={concept}
               href={href}
-              className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 ${
+              className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
                 isActive
                   ? 'bg-charcoal-900 text-white shadow-md'
                   : 'bg-white text-charcoal-700 hover:bg-[#C5A880]/15 border border-stone-200/80 shadow-2xs'
@@ -200,7 +200,7 @@ export default async function BoSuuTapPage({
                 <Link
                   href={`/bo-suu-tap/${album.slug}`}
                   aria-label={`Xem album ảnh cưới: ${album.title || album.coupleNames}`}
-                  className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
+                  className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
                 >
                   <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
                     <Image

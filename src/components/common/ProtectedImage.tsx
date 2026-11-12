@@ -42,7 +42,23 @@ export function ProtectedImage({
   return (
     <div
       onClick={onClick}
-      className={`relative select-none overflow-hidden group ${wrapperClassName}`}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick(e as any);
+              }
+            }
+          : undefined
+      }
+      className={`relative select-none overflow-hidden group ${
+        onClick
+          ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2'
+          : ''
+      } ${wrapperClassName}`}
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >

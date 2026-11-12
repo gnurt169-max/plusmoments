@@ -167,7 +167,16 @@ export function PackageDetailModal({
               {currentActiveImage ? (
                 <>
                   <div
-                    className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Xem ảnh phóng to toàn màn hình gói ${packageData.name}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setIsLightboxOpen(true);
+                      }
+                    }}
+                    className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl"
                     onClick={() => setIsLightboxOpen(true)}
                   >
                     <img

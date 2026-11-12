@@ -83,7 +83,7 @@ export function MobileBottomBar() {
             type="button"
             onClick={handlePhoneClick}
             aria-label={`Gọi hotline ngay ${displayPhone}`}
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer"
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
             <div className="relative flex items-center justify-center w-6 h-6">
               <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-emerald-400 opacity-60" />
@@ -103,7 +103,7 @@ export function MobileBottomBar() {
             rel="noopener noreferrer"
             onClick={handleZaloClick}
             aria-label="Chat trực tiếp qua Zalo với chuyên viên tư vấn"
-            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer"
+            className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
             <div className="w-6 h-6 rounded-full bg-[#0068FF] text-white flex items-center justify-center shadow-xs">
               <span className="font-extrabold text-[9px] tracking-tighter">Zalo</span>
@@ -118,7 +118,7 @@ export function MobileBottomBar() {
             type="button"
             onClick={() => setIsBottomSheetOpen(true)}
             aria-label="Nhận ưu đãi 2 triệu và đặt lịch chụp ảnh cưới"
-            className="flex-[2.4] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-charcoal-900 via-stone-900 to-luxury-900 text-white shadow-luxury active:scale-[0.98] border border-champagne-gold/40 transition-all cursor-pointer relative overflow-hidden group"
+            className="flex-[2.4] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-charcoal-900 via-stone-900 to-luxury-900 text-white shadow-luxury active:scale-[0.98] border border-champagne-gold/40 transition-all cursor-pointer relative overflow-hidden group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
             {/* Shimmer light sweep animation */}
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -151,6 +151,7 @@ export function MobileBottomBar() {
         >
           {/* Backdrop Blur Overlay */}
           <div
+            aria-hidden="true"
             onClick={() => setIsBottomSheetOpen(false)}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
           />
@@ -174,7 +175,7 @@ export function MobileBottomBar() {
               <button
                 type="button"
                 onClick={() => setIsBottomSheetOpen(false)}
-                className="p-2 rounded-full text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors"
+                className="p-2 rounded-full text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
                 aria-label="Đóng cửa sổ"
               >
                 <X className="w-5 h-5" />

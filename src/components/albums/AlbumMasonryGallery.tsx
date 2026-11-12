@@ -239,7 +239,16 @@ export function AlbumMasonryGallery({
             <div
               key={item.id}
               onClick={() => handleOpenLightbox(index)}
-              className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl border border-stone-200/80 group transition-all duration-300 cursor-pointer relative"
+              role="button"
+              tabIndex={0}
+              aria-label={`Xem ảnh lớn: ${item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenLightbox(index);
+                }
+              }}
+              className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl border border-stone-200/80 group transition-all duration-300 cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
             >
               {/* Natural Ratio Container - Auto Height Zero Whitespace */}
               <div className="relative w-full overflow-hidden bg-[#FAF8F5]">
@@ -381,7 +390,17 @@ export function AlbumMasonryGallery({
 
             {/* Uncropped Protected Image with Scale Transform */}
             <div
-              className="transition-transform duration-300 ease-out flex items-center justify-center max-h-[75vh] sm:max-h-[80vh] max-w-[96vw]"
+              role="button"
+              tabIndex={0}
+              aria-label={isZoomed ? "Thu nhỏ ảnh về kích thước chuẩn" : "Phóng to ảnh 200%"}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsZoomed((prev) => !prev);
+                  setZoomScale((prev) => (prev > 1 ? 1 : 2));
+                }
+              }}
+              className="transition-transform duration-300 ease-out flex items-center justify-center max-h-[75vh] sm:max-h-[80vh] max-w-[96vw] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl"
               style={{
                 transform: `scale(${zoomScale})`,
                 cursor: isZoomed ? 'zoom-out' : 'zoom-in',
