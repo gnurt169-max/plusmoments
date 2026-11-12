@@ -1,19 +1,21 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
+import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
 import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
 
-const fontSerif = Playfair_Display({
-  subsets: ['latin', 'vietnamese'],
-  variable: '--font-serif',
+const playfair = Playfair_Display({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-playfair',
   display: 'swap',
 });
 
-const fontSans = Plus_Jakarta_Sans({
-  subsets: ['latin', 'vietnamese'],
-  variable: '--font-sans',
+const montserrat = Montserrat({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-montserrat',
   display: 'swap',
 });
 
@@ -95,16 +97,24 @@ export default async function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${fontSerif.variable} ${fontSans.variable} scroll-smooth`}
+      className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
-        {/* Google Fonts Preconnect & Luxury Editorial Font Families */}
+        {/* Preconnect & DNS-Prefetch for Fast Handshake if dynamic custom font is used */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Prata&display=swap"
-        />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+        {/* Dynamic Google Font if custom logo font selected in settings (non-blocking) */}
+        {settings?.logoFontFamily &&
+          settings.logoFontFamily !== 'Playfair Display' &&
+          settings.logoFontFamily !== 'Montserrat' && (
+            <link
+              rel="stylesheet"
+              href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.logoFontFamily).replace(/%20/g, '+')}&display=swap`}
+            />
+        )}
 
         {/* Dynamic Theme Colors & Logo Typography Variables */}
         <style
@@ -119,6 +129,8 @@ export default async function RootLayout({
                 --color-bg: ${settings?.themeBgColor || '#0E0D0C'};
                 --color-text: ${settings?.themeTextColor || '#EAE5D9'};
                 --logo-font-family: '${settings?.logoFontFamily || 'Playfair Display'}', serif;
+                --font-serif: var(--font-playfair);
+                --font-sans: var(--font-montserrat);
               }
             `,
           }}

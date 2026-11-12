@@ -6,6 +6,8 @@
   :root {
     --background: #FAF8F5;
     --foreground: #1C1917;
+    --font-serif: var(--font-playfair);
+    --font-sans: var(--font-montserrat);
   }
 
   html {
@@ -17,7 +19,7 @@
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-montserrat), var(--font-sans), 'Montserrat', 'Plus Jakarta Sans', system-ui, sans-serif;
     overflow-x: hidden;
   }
 

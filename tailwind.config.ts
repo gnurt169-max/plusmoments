@@ -2,9 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -44,8 +42,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "Playfair Display", "Cinzel", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "Plus Jakarta Sans", "Inter", "sans-serif"],
+        serif: ["var(--font-playfair)", "var(--font-serif)", "Playfair Display", "Cinzel", "Georgia", "serif"],
+        sans: ["var(--font-montserrat)", "var(--font-sans)", "Montserrat", "Plus Jakarta Sans", "Inter", "sans-serif"],
+        playfair: ["var(--font-playfair)", "serif"],
+        montserrat: ["var(--font-montserrat)", "sans-serif"],
       },
       keyframes: {
         float: {
