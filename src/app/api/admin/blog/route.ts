@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 import DOMPurify from 'isomorphic-dompurify';
+import { regenerateLlmsTxt } from '@/lib/llms-generator';
 
 const ALLOWED_BLOG_FIELDS = [
   'title',
@@ -141,6 +142,9 @@ export async function POST(request: Request) {
       revalidatePath(`/cam-nang/${post.slug}`, 'page');
     }
 
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
+
     return NextResponse.json({
       success: true,
       message: 'Xuất bản bài viết thành công!',
@@ -270,6 +274,9 @@ export async function PUT(request: Request) {
     revalidatePath('/cam-nang', 'page');
     revalidatePath(`/cam-nang/${updated.slug}`, 'page');
 
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
+
     return NextResponse.json({
       success: true,
       message: 'Cập nhật bài viết thành công!',
@@ -332,6 +339,9 @@ export async function DELETE(request: Request) {
       revalidatePath(`/blog/${deleted.slug}`, 'page');
       revalidatePath(`/cam-nang/${deleted.slug}`, 'page');
     }
+
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
 
     return NextResponse.json({
       success: true,

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminSession, assertRole } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 import { exportDatabaseToSeedFiles } from '@/lib/seed-exporter';
+import { regenerateLlmsTxt } from '@/lib/llms-generator';
 
 export const dynamic = 'force-dynamic';
 
@@ -127,6 +128,9 @@ export async function POST(request: Request) {
       console.warn('Sync package to seed mockup failed:', err);
     });
 
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
+
     return NextResponse.json({
       success: true,
       message: 'Tạo gói dịch vụ thành công!',
@@ -218,6 +222,9 @@ export async function PUT(request: Request) {
       console.warn('Sync package to seed mockup failed:', err);
     });
 
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
+
     return NextResponse.json({
       success: true,
       message: 'Cập nhật gói dịch vụ thành công!',
@@ -260,6 +267,9 @@ export async function DELETE(request: Request) {
     exportDatabaseToSeedFiles().catch((err) => {
       console.warn('Sync package to seed mockup failed:', err);
     });
+
+    // Tự động làm mới public/llms.txt tĩnh
+    regenerateLlmsTxt().catch(console.error);
 
     return NextResponse.json({
       success: true,
