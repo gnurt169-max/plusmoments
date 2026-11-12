@@ -13,12 +13,14 @@ import { TrackingProvider } from '@/components/tracking/TrackingProvider';
 import { ContentProtection } from '@/components/security/ContentProtection';
 import { MaintenanceView } from '@/components/common/MaintenanceView';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  const nonce = (await headers()).get('x-nonce') || undefined;
   const [settings, activeAlbums, activePackages, activePosts] = await Promise.all([
     getSystemSettings(),
     prisma.album

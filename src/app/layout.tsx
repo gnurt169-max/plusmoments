@@ -100,8 +100,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const nonce = headersList.get('x-nonce') ?? undefined;
+  const nonce = (await headers()).get('x-nonce') || undefined;
   const settings = await getSystemSettings();
 
   return (
