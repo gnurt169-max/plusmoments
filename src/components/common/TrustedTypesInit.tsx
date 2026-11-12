@@ -24,3 +24,4 @@ export function TrustedTypesInit() {
 }
 
 export default TrustedTypesInit;
+

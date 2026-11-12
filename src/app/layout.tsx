@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { headers } from 'next/headers';
 import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
@@ -98,7 +97,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const nonce = (await headers()).get('x-nonce') || undefined;
   const settings = await getSystemSettings();
 
   return (
@@ -143,7 +141,7 @@ export default async function RootLayout({
         />
 
         {/* Trusted Types Default Policy Registration before React Hydration / GTM */}
-        <Script id="tt-default-policy" nonce={nonce} strategy="beforeInteractive">
+        <Script id="tt-default-policy" strategy="beforeInteractive">
           {`if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
             try {
               window.trustedTypes.createPolicy('default', {
@@ -161,13 +159,11 @@ export default async function RootLayout({
             <Script
               id="google-ads-gtag-src"
               strategy="afterInteractive"
-              nonce={nonce}
               src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAdsId}`}
             />
             <Script
               id="google-ads-gtag-init"
               strategy="afterInteractive"
-              nonce={nonce}
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];

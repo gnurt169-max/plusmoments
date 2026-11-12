@@ -23,18 +23,8 @@ function getHtmlFiles(dir) {
   return results;
 }
 
-const htmlFiles = [
-  ...getHtmlFiles(serverAppDir),
-  ...getHtmlFiles(serverPagesDir),
-];
-
-console.log(`⚡ [inline-css] Bắt đầu quét ${htmlFiles.length} file HTML trong .next/server...`);
-
-const cssCache = new Map();
-let totalInlined = 0;
-
-// Tinh gọn CSS font: Loại bỏ các block @font-face không dùng cho tiếng Việt (cyrillic, latin-ext)
-// để loại bỏ triệt để 2 file font latin-ext dư thừa (20.92 KiB + 67.06 KiB = ~88 KiB)
+// 1. Tinh gọn CSS font tĩnh trên đĩa: Loại bỏ các block @font-face không dùng cho tiếng Việt (cyrillic, latin-ext)
+// để loại bỏ triệt để các file font cyrillic & latin-ext dư thừa (~126 KiB)
 function optimizeFontCss(css) {
   if (!css.includes('@font-face') || !css.includes('unicode-range')) {
     return css;
@@ -49,6 +39,30 @@ function optimizeFontCss(css) {
     return block;
   });
 }
+
+const cssCache = new Map();
+
+// Tối ưu trước toàn bộ file CSS trong .next/static/css
+if (fs.existsSync(staticCssDir)) {
+  const cssFiles = fs.readdirSync(staticCssDir).filter((f) => f.endsWith('.css'));
+  for (const file of cssFiles) {
+    const filePath = path.join(staticCssDir, file);
+    let rawCss = fs.readFileSync(filePath, 'utf8');
+    rawCss = optimizeFontCss(rawCss);
+    cssCache.set(file, rawCss);
+    fs.writeFileSync(filePath, rawCss, 'utf8');
+    console.log(`  🔍 [inline-css] Đã tối ưu font & cache file CSS: ${file}`);
+  }
+}
+
+const htmlFiles = [
+  ...getHtmlFiles(serverAppDir),
+  ...getHtmlFiles(serverPagesDir),
+];
+
+console.log(`⚡ [inline-css] Bắt đầu quét ${htmlFiles.length} file HTML trong .next/server...`);
+
+let totalInlined = 0;
 
 for (const htmlPath of htmlFiles) {
   let content = fs.readFileSync(htmlPath, 'utf8');
