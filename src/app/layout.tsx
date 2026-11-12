@@ -104,21 +104,6 @@ export default async function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
-        {/* Dynamic Google Font ONLY if admin explicitly customized logo font to a non-bundled family */}
-        {(() => {
-          const rawFont = settings?.logoFontFamily;
-          if (!rawFont || typeof rawFont !== 'string') return null;
-          const font = rawFont.trim().toLowerCase();
-          const isBundled = !font || font === 'playfair display' || font === 'montserrat';
-          if (isBundled) return null;
-          return (
-            <link
-              rel="stylesheet"
-              href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(rawFont).replace(/%20/g, '+')}&display=swap`}
-            />
-          );
-        })()}
-
         {/* Dynamic Theme Colors & Logo Typography Variables */}
         <style
           id="system-theme-variables"
@@ -131,7 +116,7 @@ export default async function RootLayout({
                 --color-primary: ${settings?.themePrimaryColor || '#C5A880'};
                 --color-bg: ${settings?.themeBgColor || '#0E0D0C'};
                 --color-text: ${settings?.themeTextColor || '#EAE5D9'};
-                --logo-font-family: '${settings?.logoFontFamily || 'Playfair Display'}', serif;
+                --logo-font-family: ${settings?.logoFontFamily === 'Montserrat' ? 'var(--font-montserrat), sans-serif' : 'var(--font-playfair), Georgia, serif'};
                 --font-serif: var(--font-playfair);
                 --font-sans: var(--font-montserrat);
               }

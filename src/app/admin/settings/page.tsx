@@ -59,18 +59,7 @@ const GOOGLE_FONTS_LIST = [
   { value: 'Bodoni Moda', label: 'Bodoni Moda (Vogue Editorial Thời Thượng)' },
 ];
 
-function getGoogleFontUrl(fontFamily: string): string {
-  const map: Record<string, string> = {
-    'Playfair Display': 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap',
-    'Cormorant Garamond': 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap',
-    'Cinzel': 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap',
-    'Cinzel Decorative': 'https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&display=swap',
-    'Montserrat': 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
-    'Prata': 'https://fonts.googleapis.com/css2?family=Prata&display=swap',
-    'Bodoni Moda': 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&display=swap',
-  };
-  return map[fontFamily] || `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily).replace(/%20/g, '+')}&display=swap`;
-}
+
 
 const FONT_WEIGHT_LIST = [
   { value: '300', label: '300 (Light - Mảnh Mai)' },
@@ -1555,16 +1544,6 @@ export default function AdminSettingsPage() {
 
             {/* RIGHT COLUMN: DUAL LIVE PREVIEW & THEME PALETTE PREVIEW (40%) */}
             <div className="lg:col-span-5 sticky top-6 z-10 space-y-6 self-start">
-              {/* Dynamic Google Font Loader for Admin Preview (only for custom non-default fonts) */}
-              {formData.logoFontFamily &&
-                formData.logoFontFamily !== 'Playfair Display' &&
-                formData.logoFontFamily !== 'Montserrat' && (
-                  <link
-                    rel="stylesheet"
-                    key={formData.logoFontFamily}
-                    href={getGoogleFontUrl(formData.logoFontFamily)}
-                  />
-              )}
 
               <div className="flex items-center gap-2 px-1">
                 <Eye className="w-4 h-4 text-stone-500" />
