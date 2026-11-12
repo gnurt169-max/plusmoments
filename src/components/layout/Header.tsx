@@ -248,18 +248,20 @@ export function Header(props: HeaderProps) {
         </div>
       )}
 
-      {/* Global Consultation Modal */}
-      <Modal
-        isOpen={isConsultModalOpen}
-        onClose={() => setIsConsultModalOpen(false)}
-        title="Nhận Báo Giá & Tư Vấn Concept Cưới"
-        subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và lịch trình chụp ảnh cưới hoàn hảo nhất."
-      >
-        <ConsultationForm
-          onSuccess={() => setIsConsultModalOpen(false)}
-          redirectOnSuccess={false}
-        />
-      </Modal>
+      {/* Global Consultation Modal (Mounted only when open) */}
+      {isConsultModalOpen && (
+        <Modal
+          isOpen={isConsultModalOpen}
+          onClose={() => setIsConsultModalOpen(false)}
+          title="Nhận Báo Giá & Tư Vấn Concept Cưới"
+          subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và lịch trình chụp ảnh cưới hoàn hảo nhất."
+        >
+          <ConsultationForm
+            onSuccess={() => setIsConsultModalOpen(false)}
+            redirectOnSuccess={false}
+          />
+        </Modal>
+      )}
     </>
   );
 }

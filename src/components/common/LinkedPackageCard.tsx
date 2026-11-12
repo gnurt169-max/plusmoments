@@ -184,19 +184,21 @@ export function LinkedPackageCard({
         </div>
       </div>
 
-      {/* POPUP MODAL TƯ VẤN GÓI RIÊNG BIỆT */}
-      <Modal
-        isOpen={isConsultModalOpen}
-        onClose={() => setIsConsultModalOpen(false)}
-        maxWidth="max-w-xl"
-        title={`Tư Vấn Concept ${packageData.name}`}
-        subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và gửi báo giá ưu đãi tốt nhất cho hai bạn."
-      >
-        <ConsultationForm
-          defaultPackage={packageData.name}
-          onSuccess={() => setIsConsultModalOpen(false)}
-        />
-      </Modal>
+      {/* POPUP MODAL TƯ VẤN GÓI RIÊNG BIỆT (Strictly conditional) */}
+      {isConsultModalOpen && (
+        <Modal
+          isOpen={isConsultModalOpen}
+          onClose={() => setIsConsultModalOpen(false)}
+          maxWidth="max-w-xl"
+          title={`Tư Vấn Concept ${packageData.name}`}
+          subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và gửi báo giá ưu đãi tốt nhất cho hai bạn."
+        >
+          <ConsultationForm
+            defaultPackage={packageData.name}
+            onSuccess={() => setIsConsultModalOpen(false)}
+          />
+        </Modal>
+      )}
     </>
   );
 }

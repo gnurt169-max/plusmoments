@@ -145,17 +145,19 @@ export function VerticalFloatingContact() {
       {/* =========================================================================
           POPUP MODAL BÁO GIÁ & TƯ VẤN (Strict Portal Rendering to document.body)
       ========================================================================= */}
-      <Modal
-        isOpen={isConsultModalOpen}
-        onClose={() => setIsConsultModalOpen(false)}
-        title="Đăng Ký Tư Vấn & Nhận Báo Giá Trọn Gói"
-        subtitle={`Để lại thông tin để PlusMoments gửi trọn bộ catalog ảnh cưới và bảo lưu ưu đãi: "${contact.promoText}".`}
-      >
-        <ConsultationForm
-          onSuccess={() => setIsConsultModalOpen(false)}
-          redirectOnSuccess={false}
-        />
-      </Modal>
+      {isConsultModalOpen && (
+        <Modal
+          isOpen={isConsultModalOpen}
+          onClose={() => setIsConsultModalOpen(false)}
+          title="Đăng Ký Tư Vấn & Nhận Báo Giá Trọn Gói"
+          subtitle={`Để lại thông tin để PlusMoments gửi trọn bộ catalog ảnh cưới và bảo lưu ưu đãi: "${contact.promoText}".`}
+        >
+          <ConsultationForm
+            onSuccess={() => setIsConsultModalOpen(false)}
+            redirectOnSuccess={false}
+          />
+        </Modal>
+      )}
     </>
   );
 }

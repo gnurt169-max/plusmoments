@@ -197,7 +197,7 @@ export function AllPackagesCatalog({
                         <ul className={`space-y-1.5 text-sm text-[#4A4036] ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
                           {displayFeatures.map((feat: string, idx: number) => (
                             <li key={idx} className="flex items-start gap-2">
-                              <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                              <Check aria-hidden="true" className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
                               <span className={isSummary ? "line-clamp-2" : ""}>{feat}</span>
                             </li>
                           ))}
@@ -227,11 +227,13 @@ export function AllPackagesCatalog({
       )}
 
       {/* DETAIL MODAL WITH VIETQR REDIRECT */}
-      <PackageDetailModal
-        packageData={selectedPackage}
-        isOpen={!!selectedPackage}
-        onClose={() => setSelectedPackage(null)}
-      />
+      {selectedPackage && (
+        <PackageDetailModal
+          packageData={selectedPackage}
+          isOpen={!!selectedPackage}
+          onClose={() => setSelectedPackage(null)}
+        />
+      )}
     </div>
   );
 }

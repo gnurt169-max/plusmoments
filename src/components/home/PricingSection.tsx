@@ -42,7 +42,7 @@ export function PricingSection({
   const hasMorePackages = totalCount > 3;
 
   return (
-    <div className="w-full">
+    <>
       {/* SECTION HEADER */}
       <div className="text-center max-w-3xl mx-auto space-y-3.5 mb-12 sm:mb-16 px-4">
         {badge && (
@@ -75,53 +75,52 @@ export function PricingSection({
       </div>
 
       {/* 3-COLUMN LUXURY GRID / MOBILE SNAP CAROUSEL */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          {featuredPackages.map((pkg) => {
-            // Parse 4-5 bullet points
-            let highlights: string[] = [];
+      <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+        {featuredPackages.map((pkg) => {
+          // Parse 4-5 bullet points
+          let highlights: string[] = [];
+          try {
+            if (pkg.highlightPoints) {
+              const parsed = JSON.parse(pkg.highlightPoints);
+              if (Array.isArray(parsed) && parsed.length > 0) highlights = parsed;
+            }
+          } catch {
+            // ignore
+          }
+
+          if (highlights.length === 0 && pkg.inclusions) {
             try {
-              if (pkg.highlightPoints) {
-                const parsed = JSON.parse(pkg.highlightPoints);
-                if (Array.isArray(parsed) && parsed.length > 0) highlights = parsed;
-              }
+              const parsed = JSON.parse(pkg.inclusions);
+              if (Array.isArray(parsed)) highlights = parsed;
             } catch {
-              // ignore
+              highlights = pkg.inclusions
+                .split('\n')
+                .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
+                .filter(Boolean);
             }
+          }
 
-            if (highlights.length === 0 && pkg.inclusions) {
-              try {
-                const parsed = JSON.parse(pkg.inclusions);
-                if (Array.isArray(parsed)) highlights = parsed;
-              } catch {
-                highlights = pkg.inclusions
-                  .split('\n')
-                  .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
-                  .filter(Boolean);
-              }
-            }
+          if (highlights.length === 0) {
+            highlights = [
+              'Trang phục cưới cao cấp không giới hạn khu vực',
+              'Makeup nghệ thuật & làm tóc theo từng bối cảnh',
+              'Toàn bộ file gốc chất lượng cao bàn giao trong 24h',
+              'Photobook mở phẳng 30 trang & ảnh cổng ép gỗ Luxury',
+            ];
+          }
 
-            if (highlights.length === 0) {
-              highlights = [
-                'Trang phục cưới cao cấp không giới hạn khu vực',
-                'Makeup nghệ thuật & làm tóc theo từng bối cảnh',
-                'Toàn bộ file gốc chất lượng cao bàn giao trong 24h',
-                'Photobook mở phẳng 30 trang & ảnh cổng ép gỗ Luxury',
-              ];
-            }
+          const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
 
-            const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
-
-            return (
-              <div
-                key={pkg.id}
-                onClick={() => setSelectedPackage(pkg)}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 border cursor-pointer select-none w-[86vw] sm:w-[360px] md:w-auto shrink-0 md:shrink snap-center snap-always bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
-                  pkg.isPopular
-                    ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
-                    : 'hover:border-amber-400/60'
-                }`}
-              >
+          return (
+            <article
+              key={pkg.id}
+              onClick={() => setSelectedPackage(pkg)}
+              className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 border cursor-pointer select-none w-[86vw] sm:w-[360px] md:w-auto shrink-0 md:shrink snap-center snap-always bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
+                pkg.isPopular
+                  ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
+                  : 'hover:border-amber-400/60'
+              }`}
+            >
                 {/* 1. COVER IMAGE WITH FIXED HEIGHT */}
                 <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-200">
                   {coverImg ? (
@@ -194,7 +193,7 @@ export function PricingSection({
                         <ul className={`space-y-1.5 text-sm text-[#4A4036] ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
                           {displayFeatures.map((feat: string, idx: number) => (
                             <li key={idx} className="flex items-start gap-2">
-                              <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                              <Check aria-hidden="true" className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
                               <span className={isSummary ? "line-clamp-2" : ""}>{feat}</span>
                             </li>
                           ))}
@@ -217,11 +216,10 @@ export function PricingSection({
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
-      </div>
 
       {/* VIEW ALL PACKAGES ROUTE BUTTON */}
       {hasMorePackages && (
@@ -236,13 +234,15 @@ export function PricingSection({
         </div>
       )}
 
-      {/* PACKAGE DETAIL & VIETQR CHECKOUT MODAL */}
-      <PackageDetailModal
-        packageData={selectedPackage}
-        isOpen={!!selectedPackage}
-        onClose={() => setSelectedPackage(null)}
-      />
-    </div>
+      {/* PACKAGE DETAIL & VIETQR CHECKOUT MODAL (Strictly conditional) */}
+      {selectedPackage && (
+        <PackageDetailModal
+          packageData={selectedPackage}
+          isOpen={!!selectedPackage}
+          onClose={() => setSelectedPackage(null)}
+        />
+      )}
+    </>
   );
 }
 
