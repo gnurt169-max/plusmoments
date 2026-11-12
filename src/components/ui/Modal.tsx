@@ -27,11 +27,13 @@ export function Modal({
     setMounted(true);
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
+    } else if (document.body.style.overflow === 'hidden') {
       document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = '';
+      if (document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = '';
+      }
     };
   }, [isOpen]);
 

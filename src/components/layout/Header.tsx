@@ -32,26 +32,42 @@ export function Header(props: HeaderProps) {
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+    let rafId: number | null = null;
+
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (!ticking) {
+        ticking = true;
+        rafId = window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 20);
+          ticking = false;
+        });
       }
     };
+
+    // Chỉ chạy sau frame đầu tiên để tránh Forced Reflow lúc initial hydration
+    rafId = window.requestAnimationFrame(handleScroll);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // Prevent background scroll when mobile full-screen drawer is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
+    } else if (document.body.style.overflow === 'hidden') {
       document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = '';
+      if (document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = '';
+      }
     };
   }, [mobileMenuOpen]);
 

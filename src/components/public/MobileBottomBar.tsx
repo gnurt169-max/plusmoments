@@ -39,11 +39,13 @@ export function MobileBottomBar() {
   useEffect(() => {
     if (isBottomSheetOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
+    } else if (document.body.style.overflow === 'hidden') {
       document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = '';
+      if (document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = '';
+      }
     };
   }, [isBottomSheetOpen]);
 

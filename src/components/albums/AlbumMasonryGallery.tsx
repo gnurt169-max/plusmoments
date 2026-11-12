@@ -118,7 +118,9 @@ export function AlbumMasonryGallery({
     if (selectedIndex !== null && thumbnailScrollRef.current) {
       const thumbEl = thumbnailScrollRef.current.children[selectedIndex] as HTMLElement;
       if (thumbEl) {
-        thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        window.requestAnimationFrame(() => {
+          thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        });
       }
     }
   }, [selectedIndex]);
