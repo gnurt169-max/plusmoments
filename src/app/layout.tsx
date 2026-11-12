@@ -11,6 +11,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   preload: true,
+  adjustFontFallback: true,
 });
 
 const montserrat = Montserrat({
@@ -19,6 +20,7 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
   display: 'swap',
   preload: true,
+  adjustFontFallback: true,
 });
 
 export const viewport: Viewport = {
@@ -102,15 +104,20 @@ export default async function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
-        {/* Dynamic Google Font ONLY if admin customized logo font to a non-default family */}
-        {settings?.logoFontFamily &&
-          settings.logoFontFamily !== 'Playfair Display' &&
-          settings.logoFontFamily !== 'Montserrat' && (
+        {/* Dynamic Google Font ONLY if admin explicitly customized logo font to a non-bundled family */}
+        {(() => {
+          const rawFont = settings?.logoFontFamily;
+          if (!rawFont || typeof rawFont !== 'string') return null;
+          const font = rawFont.trim().toLowerCase();
+          const isBundled = !font || font === 'playfair display' || font === 'montserrat';
+          if (isBundled) return null;
+          return (
             <link
               rel="stylesheet"
-              href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.logoFontFamily).replace(/%20/g, '+')}&display=swap`}
+              href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(rawFont).replace(/%20/g, '+')}&display=swap`}
             />
-        )}
+          );
+        })()}
 
         {/* Dynamic Theme Colors & Logo Typography Variables */}
         <style

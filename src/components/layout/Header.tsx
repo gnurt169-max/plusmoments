@@ -61,27 +61,27 @@ export function Header(props: HeaderProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 min-h-[72px] sm:min-h-[80px] h-20 flex items-center ${
           isScrolled
             ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-stone-200/80 py-3'
             : 'bg-white/85 backdrop-blur-md border-b border-stone-200/60 py-3.5 shadow-2xs'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           {/* DESKTOP LAYOUT (Hidden on mobile) */}
-          <div className="hidden lg:flex items-center justify-between">
+          <div className="hidden lg:flex items-center justify-between min-h-[52px]">
             {/* Brand Logo */}
-            <Link href="/" className="inline-block hover:opacity-85 transition-opacity">
+            <Link href="/" className="inline-block hover:opacity-85 transition-opacity shrink-0">
               <BrandLogo variant="dark" />
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="flex items-center gap-8" aria-label="Menu chính">
+            <nav className="flex items-center gap-8 shrink-0" aria-label="Menu chính">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs uppercase tracking-widest font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group"
+                  className="text-xs uppercase tracking-widest font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group whitespace-nowrap"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-800 transition-all duration-300 group-hover:w-full" />
