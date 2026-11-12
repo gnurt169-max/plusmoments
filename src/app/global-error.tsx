@@ -12,7 +12,7 @@ export default function GlobalError({
   return (
     <html lang="vi">
       <body className="min-h-screen flex items-center justify-center bg-[#FAF8F5] text-stone-900 font-sans p-6">
-        <div className="max-w-md w-full text-center space-y-4">
+        <main id="main-content" className="max-w-md w-full text-center space-y-4">
           <div className="inline-block px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs uppercase tracking-widest font-medium">
             Hệ Thống Đang Nâng Cấp
           </div>
@@ -37,7 +37,7 @@ export default function GlobalError({
               Về Trang Chủ
             </a>
           </div>
-        </div>
+        </main>
       </body>
     </html>
   );

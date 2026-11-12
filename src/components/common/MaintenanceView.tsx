@@ -59,7 +59,7 @@ export function MaintenanceView({
       </div>
 
       {/* Main Center Announcement Card */}
-      <div className="relative z-10 max-w-2xl mx-auto w-full text-center space-y-8 my-auto py-12">
+      <main id="main-content" className="relative z-10 max-w-2xl mx-auto w-full text-center space-y-8 my-auto py-12">
         {/* Animated Badge Icon */}
         <div className="relative inline-flex items-center justify-center">
           <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-100 via-champagne-gold/40 to-stone-100 flex items-center justify-center text-luxury-700 shadow-xl border border-champagne-gold/40">
@@ -126,7 +126,7 @@ export function MaintenanceView({
             </span>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
       <div className="relative z-10 text-center text-xs text-charcoal-400 font-light max-w-5xl mx-auto w-full border-t border-stone-200/60 pt-4">

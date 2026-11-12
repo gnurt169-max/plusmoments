@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-[#FAF8F5] text-charcoal-900 font-sans px-4 py-20">
+    <main id="main-content" className="min-h-[70vh] flex items-center justify-center bg-[#FAF8F5] text-charcoal-900 font-sans px-4 py-20">
       <div className="max-w-lg w-full text-center space-y-6">
         <div className="inline-block px-4 py-1.5 rounded-full bg-stone-100 text-[#7A6243] text-xs uppercase tracking-widest font-medium">
           404 &bull; Trang Không Tồn Tại
@@ -29,7 +29,7 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

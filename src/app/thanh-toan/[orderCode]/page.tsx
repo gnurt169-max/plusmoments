@@ -350,7 +350,7 @@ export default function CheckoutPage({
       </header>
 
       {/* MAIN CONTAINER */}
-      <main className="max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 my-auto">
+      <main id="main-content" className="max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 my-auto">
         <div className="bg-stone-900/90 rounded-3xl border border-stone-800 shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12">
           {/* LEFT: QR CODE DISPLAY (5 COLS) */}
           <div className="md:col-span-5 bg-black/40 p-6 sm:p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-stone-800/80 space-y-4">

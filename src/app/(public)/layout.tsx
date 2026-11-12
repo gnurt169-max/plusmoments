@@ -153,7 +153,7 @@ export default async function PublicLayout({
         />
 
         {/* Main Content Area */}
-        <main className="flex-grow pb-16 md:pb-0">{children}</main>
+        <main id="main-content" className="flex-grow pb-16 md:pb-0">{children}</main>
 
         {/* Luxury Vertical Floating Action Bar (Desktop Only) */}
         <VerticalFloatingContact />

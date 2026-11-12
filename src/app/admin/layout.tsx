@@ -32,7 +32,7 @@ export default function AdminLayout({
             <AdminHeader />
 
             {/* SCROLLABLE MAIN CONTENT AREA */}
-            <main className="flex-1 overflow-y-auto bg-[#F8F7F4]">
+            <main id="main-content" className="flex-1 overflow-y-auto bg-[#F8F7F4]">
               {children}
             </main>
           </div>
