@@ -3,6 +3,21 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const cspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://apis.google.com https://connect.facebook.net https://analytics.tiktok.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.com.vn https://googleads.g.doubleclick.net https://lh3.googleusercontent.com https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://img.vietqr.io https://api.vietqr.io https://www.facebook.com;
+  font-src 'self' data: https://fonts.gstatic.com;
+  connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://www.googleadservices.com https://www.googleapis.com https://api.vietqr.io https://connect.facebook.net https://analytics.tiktok.com;
+  frame-src 'self' https://www.googletagmanager.com https://bid.g.doubleclick.net https://docs.google.com https://drive.google.com https://www.google.com https://maps.google.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'self';
+  upgrade-insecure-requests;
+`.replace(/\s{2,}/g, ' ').trim();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -48,23 +63,31 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path*',
         headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: cspHeader,
+          },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },
