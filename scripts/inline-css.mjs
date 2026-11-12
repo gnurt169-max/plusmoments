@@ -73,6 +73,8 @@ for (const htmlPath of htmlFiles) {
       let rawCss = fs.readFileSync(cssFilePath, 'utf8');
       rawCss = optimizeFontCss(rawCss);
       cssCache.set(cssFilename, rawCss);
+      // Ghi đè lại file CSS tĩnh trên đĩa để triệt tiêu các font dư thừa (cyrillic, latin-ext ~88 KiB)
+      fs.writeFileSync(cssFilePath, rawCss, 'utf8');
     }
 
     const cssContent = cssCache.get(cssFilename);
