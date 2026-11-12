@@ -157,6 +157,11 @@ Yêu cầu:
 ${price ? `- Mức giá: ${price} VNĐ` : ''}
 ${inclusions ? `- Quyền lợi hiện có: ${inclusions}` : ''}
 
+Nguyên tắc nội dung:
+- Phải bám sát thông tin thực tế từ tên gói và quyền lợi hiện có.
+- Tuyệt đối không dùng các câu sáo rỗng hoặc mẫu rập khuôn (như "Kể chuyện bằng cảm xúc", "Góc nhìn điện ảnh", "Chất lượng đẳng cấp").
+- Nếu người dùng chưa cung cấp sản phẩm bàn giao trong quyền lợi, deliverables có thể để chuỗi rỗng "".
+
 Yêu cầu trả về định dạng JSON thuần túy (không kèm văn bản ngoài):
 {
   "subtitle": "...câu định vị phong cách ngắn gọn, sang trọng (dưới 15 từ)...",
@@ -165,7 +170,7 @@ Yêu cầu trả về định dạng JSON thuần túy (không kèm văn bản n
     "...điểm nhấn 2 (về trang phục, địa điểm hoặc trải nghiệm)...",
     "...điểm nhấn 3 (về chất lượng ảnh in, bảo hành hoặc file gốc)..."
   ],
-  "deliverables": "...gợi ý sản phẩm bàn giao (ví dụ: 01 Album Photobook cao cấp 30x30, 02 ảnh cổng ép gỗ pha lê, toàn bộ file gốc nén chuẩn WebP...)..."
+  "deliverables": "...sản phẩm bàn giao thực tế tương ứng với gói hoặc để trống..."
 }`;
         break;
       }

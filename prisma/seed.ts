@@ -7081,7 +7081,12 @@ async function main() {
   }
 
   const validPackageIds = new Set();
-  if (Array.isArray(snapshot.servicePackage)) {
+  const existingPackagesCount = await prisma.servicePackage.count();
+  if (existingPackagesCount > 0) {
+    const existing = await prisma.servicePackage.findMany({ select: { id: true } });
+    existing.forEach((p) => validPackageIds.add(p.id));
+    console.log('✓ ServicePackage: Đã có ' + existingPackagesCount + ' bản ghi, bỏ qua seed để bảo toàn 100% dữ liệu người dùng.');
+  } else if (Array.isArray(snapshot.servicePackage)) {
     for (const item of (snapshot.servicePackage as any[])) {
       const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item as any;
       const upserted = await prisma.servicePackage.upsert({

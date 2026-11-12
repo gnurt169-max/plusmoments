@@ -157,7 +157,12 @@ export function PackageDetailModal({
         isOpen={isOpen}
         onClose={onClose}
         title={packageData.name}
-        subtitle={packageData.subtitle || 'Chi tiết toàn diện gói dịch vụ cưới cao cấp PlusMoments.'}
+        subtitle={
+          packageData.subtitle?.trim() &&
+          !packageData.subtitle.includes('Lưu giữ khoảnh khắc vĩnh cửu')
+            ? packageData.subtitle.trim()
+            : undefined
+        }
         maxWidth="max-w-4xl"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
@@ -278,12 +283,15 @@ export function PackageDetailModal({
             )}
 
             {/* Delivery process - Only render when real deliverable info exists in DB */}
-            {(packageData.deliveryProcess || packageData.deliverables)?.trim() && (
-              <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
-                <strong className="text-[#4A4036]">Quy trình bàn giao:</strong>{' '}
-                {(packageData.deliveryProcess || packageData.deliverables)?.trim()}
-              </div>
-            )}
+            {(() => {
+              const text = (packageData.deliveryProcess || packageData.deliverables)?.trim();
+              if (!text || text.includes('Minimalism 25x35')) return null;
+              return (
+                <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
+                  <strong className="text-[#4A4036]">Quy trình bàn giao:</strong> {text}
+                </div>
+              );
+            })()}
 
             {/* FORM ĐẶT GÓI & THANH TOÁN VIETQR */}
             <div className="pt-2 border-t border-stone-200">

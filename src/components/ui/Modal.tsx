@@ -61,16 +61,16 @@ export function Modal({
           <X className="w-5 h-5" />
         </button>
 
-        {(title || subtitle) && (
+        {(title || subtitle?.trim()) && (
           <div className="mb-6 pr-8">
             {title && (
               <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900 tracking-tight">
                 {title}
               </h3>
             )}
-            {subtitle && (
+            {subtitle?.trim() && (
               <p className="text-sm text-charcoal-500 mt-1 font-light">
-                {subtitle}
+                {subtitle.trim()}
               </p>
             )}
           </div>
