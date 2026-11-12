@@ -219,9 +219,9 @@ export default async function BoSuuTapPage({
                   </div>
 
                   <div className="space-y-1.5 px-2 pb-1 mt-auto">
-                    <div className="flex items-center justify-between text-xs text-luxury-600">
+                    <div className="flex items-center justify-between text-xs text-[#7A6243]">
                       <span className="font-medium tracking-wide">{album.coupleNames}</span>
-                      <span className="text-charcoal-400 text-[11px] group-hover:text-luxury-600 transition-colors">
+                      <span className="text-charcoal-600 text-[11px] group-hover:text-[#7A6243] transition-colors">
                         Xem album →
                       </span>
                     </div>
@@ -242,7 +242,7 @@ export default async function BoSuuTapPage({
       {/* CONSULTATION CTA SECTION */}
       <div className="pt-12 border-t border-stone-200/60">
         <div className="max-w-2xl mx-auto text-center space-y-4 mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#C5A880] font-semibold">
+          <p className="text-xs uppercase tracking-[0.25em] text-[#7A6243] font-semibold">
             Đồng Hành Cùng Bạn
           </p>
           <h2 className="font-serif text-3xl sm:text-4xl font-light text-charcoal-900">

@@ -74,9 +74,9 @@ export default async function BlogPage() {
                 </div>
 
                 <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-4 text-[11px] text-charcoal-400 font-mono">
+                  <div className="flex items-center gap-4 text-[11px] text-stone-600 font-mono">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-luxury-500" />
+                      <Clock className="w-3.5 h-3.5 text-[#7A6243]" />
                       {post.readingMinutes} phút đọc
                     </span>
                     <span>{formatDate(post.publishedAt)}</span>
@@ -92,7 +92,7 @@ export default async function BlogPage() {
                 </div>
               </div>
 
-              <div className="p-6 pt-0 border-t border-champagne-light/50 flex items-center justify-between text-xs font-medium text-luxury-700">
+              <div className="p-6 pt-0 border-t border-champagne-light/50 flex items-center justify-between text-xs font-medium text-[#7A6243]">
                 <span className="text-charcoal-500 font-light text-[11px]">{post.author}</span>
                 <Link
                   href={`/blog/${post.slug}`}

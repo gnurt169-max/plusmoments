@@ -169,18 +169,18 @@ export function PricingSection({
                   {/* Pricing Display */}
                   <div className="pb-4 border-b border-[#E8E2D9]/80 flex items-baseline justify-between gap-2">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium block">
+                      <span className="text-[10px] uppercase tracking-wider text-stone-600 font-medium block">
                         Giá trọn gói ưu đãi
                       </span>
                       <div className="flex items-baseline gap-1.5">
                         <span className="font-serif text-2xl sm:text-3xl font-light text-amber-900 font-semibold">
                           {formatVND(pkg.price)}
                         </span>
-                        <span className="text-xs text-stone-500">/{pkg.unit}</span>
+                        <span className="text-xs text-stone-600">/{pkg.unit}</span>
                       </div>
                     </div>
                     {pkg.originalPrice && (
-                      <span className="text-xs text-stone-400 line-through font-mono">
+                      <span className="text-xs text-stone-600 line-through font-mono">
                         {formatVND(pkg.originalPrice)}
                       </span>
                     )}
@@ -193,7 +193,7 @@ export function PricingSection({
                     if (displayFeatures.length === 0) return null;
                     return (
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
                           <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
                           <span>ĐẶC QUYỀN TRỌN GÓI:</span>
                         </div>
@@ -236,7 +236,11 @@ export function PricingSection({
         <div className="mt-12 sm:mt-16 text-center px-4">
           <Link
             href="/bang-gia"
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 border border-[#8C7A6B] text-[#8C7A6B] hover:bg-[#8C7A6B] hover:text-white transition-all duration-300 rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-2xs hover:shadow-md cursor-pointer"
+            className={`inline-flex items-center gap-2.5 px-8 py-3.5 border rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-2xs hover:shadow-md cursor-pointer transition-all duration-300 ${
+              darkTheme
+                ? 'border-[#E5C99B]/60 text-[#E5C99B] hover:border-white hover:text-white hover:bg-white/10'
+                : 'border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white'
+            }`}
           >
             <span>Xem Tất Cả Các Gói Dịch Vụ ({totalCount})</span>
             <ArrowRight className="w-4 h-4" />

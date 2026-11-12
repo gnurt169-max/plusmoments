@@ -351,7 +351,7 @@ export function ConsultationForm({
           )}
         </button>
 
-        <p className="text-[11px] text-center text-charcoal-400 mt-2.5 font-light">
+        <p className="text-[11px] text-center text-charcoal-600 mt-2.5 font-light">
           🔒 Thông tin được bảo mật tuyệt đối. PlusMoments cam kết không gọi làm phiền ngoài giờ hành chính.
         </p>
       </div>

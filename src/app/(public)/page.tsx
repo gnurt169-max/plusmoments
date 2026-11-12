@@ -260,7 +260,7 @@ export default async function HomePage() {
       ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-luxury-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
             Portfolio Tuyệt Tác
           </p>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-charcoal-900">
@@ -324,9 +324,9 @@ export default async function HomePage() {
                       </div>
 
                       <div className="space-y-1.5 px-2 pb-2 mt-auto">
-                        <div className="flex items-center justify-between text-xs text-luxury-600">
+                        <div className="flex items-center justify-between text-xs text-[#7A6243]">
                           <span className="font-medium tracking-wide">{album?.coupleNames || ''}</span>
-                          <span className="text-charcoal-400 text-[11px]">Chi tiết →</span>
+                          <span className="text-charcoal-600 text-[11px] font-medium">Chi tiết →</span>
                         </div>
                         <h3 className="font-serif text-lg text-charcoal-900 font-light group-hover:text-luxury-600 transition-colors line-clamp-1">
                           {album?.title || ''}
@@ -347,7 +347,7 @@ export default async function HomePage() {
         <div className="mt-12 text-center">
           <Link
             href="/bo-suu-tap"
-            className="inline-flex items-center gap-3 px-8 py-3.5 border border-[#C5A880] text-[#C5A880] hover:bg-[#C5A880] hover:text-[#0E0D0C] rounded-full text-sm font-medium tracking-widest uppercase transition-all duration-300 shadow-sm hover:shadow-lg group cursor-pointer"
+            className="inline-flex items-center gap-3 px-8 py-3.5 border border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white rounded-full text-sm font-medium tracking-widest uppercase transition-all duration-300 shadow-sm hover:shadow-lg group cursor-pointer"
           >
             <span>Xem Tất Cả Bộ Sưu Tập {totalAlbumsCount > 0 ? `(${totalAlbumsCount})` : ''}</span>
             <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -372,7 +372,7 @@ export default async function HomePage() {
             isSummary={true}
           />
 
-          <div className="text-center mt-12 text-xs text-stone-400">
+          <div className="text-center mt-12 text-xs text-stone-300">
             * Cần điều chỉnh lịch trình hoặc chụp ở nước ngoài? Liên hệ Hotline để nhận báo giá thiết kế riêng.
           </div>
         </div>
@@ -389,7 +389,7 @@ export default async function HomePage() {
       {(homeConfig?.showTestimonials ?? true) && testimonials.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-luxury-600">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
               Câu Chuyện Hạnh Phúc
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-charcoal-900">
@@ -467,8 +467,8 @@ export default async function HomePage() {
       >
         <div className="bg-[#FAF8F5] border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
           <div className="max-w-2xl mx-auto text-center space-y-3 mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-champagne/60 text-luxury-700 text-xs uppercase tracking-widest font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-champagne/60 text-[#7A6243] text-xs uppercase tracking-widest font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-[#7A6243]" />
               <span>Ưu Đãi Đặc Biệt Mùa Cưới 2025</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-light text-charcoal-900">

@@ -478,7 +478,7 @@ export async function Footer(props: FooterProps) {
         </div>
 
         {/* BOTTOM BAR & COPYRIGHT */}
-        <div className="pt-8 border-t border-charcoal-800/80 text-center text-[11px] text-stone-500">
+        <div className="pt-8 border-t border-charcoal-800/80 text-center text-[11px] text-stone-400">
           <p>{copyrightText}</p>
         </div>
       </div>
