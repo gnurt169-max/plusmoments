@@ -42,10 +42,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["var(--font-playfair)", "var(--font-serif)", "Playfair Display", "Cinzel", "Georgia", "serif"],
-        sans: ["var(--font-montserrat)", "var(--font-sans)", "Montserrat", "Plus Jakarta Sans", "Inter", "sans-serif"],
-        playfair: ["var(--font-playfair)", "serif"],
-        montserrat: ["var(--font-montserrat)", "sans-serif"],
+        serif: ['var(--font-playfair)', 'var(--font-serif)', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+        sans: ['var(--font-montserrat)', 'var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        playfair: ['var(--font-playfair)', 'Georgia', 'serif'],
+        montserrat: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         float: {

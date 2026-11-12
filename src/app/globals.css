@@ -19,7 +19,7 @@
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: var(--font-montserrat), var(--font-sans), 'Montserrat', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-montserrat), var(--font-sans), 'Montserrat', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 

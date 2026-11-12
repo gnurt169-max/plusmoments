@@ -7,7 +7,7 @@ import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
 
 const playfair = Playfair_Display({
   subsets: ['vietnamese', 'latin'],
-  weight: ['400', '600', '700'],
+  weight: ['400', '600'],
   variable: '--font-playfair',
   display: 'swap',
   preload: true,
