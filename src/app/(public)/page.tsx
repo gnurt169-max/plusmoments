@@ -176,7 +176,7 @@ export default async function HomePage() {
               priority
               quality={85}
               sizes="(max-width: 768px) 100vw, 100vw"
-              className="object-cover object-center scale-100 transition-transform duration-1000 ease-out select-none pointer-events-none"
+              className="object-cover object-center scale-100 select-none pointer-events-none"
             />
           </div>
         ) : (
@@ -192,7 +192,7 @@ export default async function HomePage() {
         {/* LỚP 3: NỘI DUNG CHỮ & NÚT BẤM CHÍNH GIỮA (CENTER CONTENT - z-20) */}
         <div className="relative z-20 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
           {/* 1. Tagline Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-black/30 backdrop-blur-md mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-black/30 backdrop-blur-md mb-6">
             <span className="text-amber-400 text-xs">✦</span>
             <span className="text-[11px] sm:text-xs font-sans tracking-[0.25em] text-stone-200 uppercase font-medium">
               {heroBadge || 'LUXURY WEDDING PHOTOGRAPHY & CINEMATIC ART'}
@@ -200,7 +200,7 @@ export default async function HomePage() {
           </div>
 
           {/* 2. Grand Serif Title */}
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-white tracking-tight leading-[1.15] mb-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-white tracking-wide leading-tight mb-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
             {heroTitle || 'Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật'}
           </h1>
 
