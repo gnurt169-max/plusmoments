@@ -71,7 +71,7 @@ for (const htmlPath of htmlFiles) {
   // Match <link ... rel="stylesheet" ...> or <link rel="stylesheet" ...>
   const linkRegex = /<link\s+[^>]*rel=["']stylesheet["'][^>]*>/gi;
 
-  const newContent = content.replace(linkRegex, (linkTag) => {
+  let newContent = content.replace(linkRegex, (linkTag) => {
     const hrefMatch = linkTag.match(/href=["'](\/_next\/static\/css\/([^"']+))["']/i);
     if (!hrefMatch) return linkTag;
 
@@ -98,6 +98,12 @@ for (const htmlPath of htmlFiles) {
     // Thay thế thẻ <link> chặn hiển thị bằng thẻ <style> nội tuyến với data-precedence và data-href
     return `<style data-precedence="next" data-href="${fullHref}">${cssContent}</style>`;
   });
+
+  // Đảm bảo thẻ <html> luôn có thuộc tính lang="vi" (đạt chuẩn Accessibility & SEO)
+  if (/<html\b(?![^>]*\blang=)/i.test(newContent)) {
+    newContent = newContent.replace(/<html\b/i, '<html lang="vi"');
+    fileInlinedCount++;
+  }
 
   if (fileInlinedCount > 0) {
     fs.writeFileSync(htmlPath, newContent, 'utf8');
