@@ -1555,13 +1555,15 @@ export default function AdminSettingsPage() {
 
             {/* RIGHT COLUMN: DUAL LIVE PREVIEW & THEME PALETTE PREVIEW (40%) */}
             <div className="lg:col-span-5 sticky top-6 z-10 space-y-6 self-start">
-              {/* Dynamic Google Font Loader */}
-              {formData.logoFontFamily && (
-                <link
-                  rel="stylesheet"
-                  key={formData.logoFontFamily}
-                  href={getGoogleFontUrl(formData.logoFontFamily)}
-                />
+              {/* Dynamic Google Font Loader for Admin Preview (only for custom non-default fonts) */}
+              {formData.logoFontFamily &&
+                formData.logoFontFamily !== 'Playfair Display' &&
+                formData.logoFontFamily !== 'Montserrat' && (
+                  <link
+                    rel="stylesheet"
+                    key={formData.logoFontFamily}
+                    href={getGoogleFontUrl(formData.logoFontFamily)}
+                  />
               )}
 
               <div className="flex items-center gap-2 px-1">

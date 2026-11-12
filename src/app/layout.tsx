@@ -10,13 +10,15 @@ const playfair = Playfair_Display({
   weight: ['400', '600', '700'],
   variable: '--font-playfair',
   display: 'swap',
+  preload: true,
 });
 
 const montserrat = Montserrat({
   subsets: ['vietnamese', 'latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-montserrat',
   display: 'swap',
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -100,13 +102,7 @@ export default async function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
-        {/* Preconnect & DNS-Prefetch for Fast Handshake if dynamic custom font is used */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
-        {/* Dynamic Google Font if custom logo font selected in settings (non-blocking) */}
+        {/* Dynamic Google Font ONLY if admin customized logo font to a non-default family */}
         {settings?.logoFontFamily &&
           settings.logoFontFamily !== 'Playfair Display' &&
           settings.logoFontFamily !== 'Montserrat' && (
