@@ -98,7 +98,14 @@ function formatHtmlOrMarkdown(raw: string): string {
       .replace(/<p>/gi, '<p class="text-stone-700 leading-relaxed mb-5 font-light text-base sm:text-[17px]">')
       .replace(/<ul>/gi, '<ul class="list-disc pl-5 my-4 space-y-1.5 text-stone-700">')
       .replace(/<ol>/gi, '<ol class="list-decimal pl-5 my-4 space-y-1.5 text-stone-700">')
-      .replace(/<li>/gi, '<li class="my-1 leading-relaxed">');
+      .replace(/<li>/gi, '<li class="my-1 leading-relaxed">')
+      .replace(/<div class="[^"]*grid[^"]*grid-cols-2[^"]*">/gi, '<div class="columns-1 md:columns-2 gap-6 my-6">')
+      .replace(/<figure([^>]*)>/gi, (match, p1) => {
+        if (/class="/i.test(p1)) {
+          return `<figure${p1.replace(/class="([^"]*)"/i, 'class="$1 break-inside-avoid mb-6"')}>`;
+        }
+        return `<figure class="break-inside-avoid mb-6"${p1}>`;
+      });
   }
 
   return str;
@@ -138,7 +145,7 @@ function renderContentWithImages(
         parts.push(
           <figure
             key={`sc-img-${match.index}`}
-            className="my-6 flex flex-col items-center w-full"
+            className="my-6 flex flex-col items-center w-full break-inside-avoid"
           >
             <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
               <ProtectedImage
@@ -165,7 +172,7 @@ function renderContentWithImages(
       parts.push(
         <figure
           key={`md-img-${match.index}`}
-          className="my-6 flex flex-col items-center w-full"
+          className="my-6 flex flex-col items-center w-full break-inside-avoid"
         >
           <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
             <ProtectedImage
@@ -349,11 +356,11 @@ export default async function BlogPostPage({ params }: Props) {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pt-4">
+            <div className="columns-1 md:columns-2 gap-6 space-y-6 pt-4">
               {unusedImages.map((img, i) => (
                 <figure
                   key={img.id || i}
-                  className="flex flex-col items-center w-full"
+                  className="break-inside-avoid mb-6 flex flex-col items-center w-full overflow-hidden"
                 >
                   <div className="relative w-full rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
                     <ProtectedImage

@@ -60,3 +60,23 @@ img, picture, [data-protected-image] {
   user-drag: none !important;
 }
 
+/* Blog detail Masonry & Figure Rules - Ngăn ngừa lủng khoảng trống do ảnh lệch chiều cao */
+article figure,
+.prose figure {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+@media (min-width: 768px) {
+  .prose .grid-cols-2 {
+    display: block !important;
+    column-count: 2;
+    column-gap: 1.5rem;
+  }
+  .prose .grid-cols-2 > * {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+  }
+}
+
+
