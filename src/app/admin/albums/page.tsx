@@ -160,7 +160,7 @@ export default function AdminAlbumsPage() {
     title: '',
     slug: '',
     subtitle: '',
-    concept: 'Outdoor Luxury',
+    concept: '',
     location: '',
     coupleNames: '',
     shootingDate: '',
@@ -174,6 +174,16 @@ export default function AdminAlbumsPage() {
     metaDescription: '',
     batchMediaUrls: '', // One URL per line
   });
+
+  const existingAlbumCategories = React.useMemo(() => {
+    return Array.from(
+      new Set(
+        albums
+          .map((a) => (a as any).category?.trim() || a.concept?.trim())
+          .filter((c): c is string => Boolean(c))
+      )
+    );
+  }, [albums]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -233,7 +243,7 @@ export default function AdminAlbumsPage() {
       title: '',
       slug: '',
       subtitle: '',
-      concept: 'Outdoor Luxury',
+      concept: existingAlbumCategories[0] || '',
       location: '',
       coupleNames: '',
       shootingDate: '',
@@ -820,13 +830,26 @@ export default function AdminAlbumsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <TaxonomySelect
-              type="concepts"
-              label="Concept Chụp"
-              value={formData.concept}
-              onChange={(val) => setFormData({ ...formData, concept: val })}
-              required
-            />
+            <div>
+              <label htmlFor="album-concept-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                Danh Mục / Concept <span className="text-luxury-600">*</span>
+              </label>
+              <input
+                id="album-concept-input"
+                list="album-categories"
+                type="text"
+                required
+                placeholder="Nhập hoặc chọn concept..."
+                value={formData.concept}
+                onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
+              />
+              <datalist id="album-categories">
+                {existingAlbumCategories.map((cat, idx) => (
+                  <option key={idx} value={cat} />
+                ))}
+              </datalist>
+            </div>
 
             <div>
               <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">

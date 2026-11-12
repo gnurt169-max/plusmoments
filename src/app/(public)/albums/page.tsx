@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 export default function AlbumsRedirectPage({
   searchParams,
 }: {
-  searchParams: { concept?: string };
+  searchParams: { concept?: string; category?: string };
 }) {
-  const query = searchParams?.concept ? `?concept=${encodeURIComponent(searchParams.concept)}` : '';
+  const param = searchParams?.category || searchParams?.concept;
+  const query = param ? `?concept=${encodeURIComponent(param)}` : '';
   redirect(`/bo-suu-tap${query}`);
 }

@@ -156,7 +156,7 @@ export async function POST(request: Request) {
     albumData.title = title;
     albumData.slug = slug;
     albumData.coverImage = coverImage;
-    albumData.concept = albumData.concept || 'Outdoor Luxury';
+    albumData.concept = albumData.concept?.trim() || 'Album Cưới';
     albumData.location = albumData.location || 'TP. Hồ Chí Minh';
     albumData.coupleNames = albumData.coupleNames || 'Cô dâu & Chú rể';
     albumData.orderIndex = parseInt(String(albumData.orderIndex), 10) || 0;
@@ -193,7 +193,7 @@ export async function POST(request: Request) {
         title,
         slug,
         coverImage,
-        concept: albumData.concept || 'Outdoor Luxury',
+        concept: albumData.concept?.trim() || 'Album Cưới',
         location: albumData.location || 'TP. Hồ Chí Minh',
         coupleNames: albumData.coupleNames || 'Cô dâu & Chú rể',
         shootingDate: parsedShootingDate,

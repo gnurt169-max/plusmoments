@@ -59,15 +59,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BoSuuTapPage({
   searchParams,
 }: {
-  searchParams: { concept?: string };
+  searchParams: { concept?: string; category?: string };
 }) {
-  const selectedConcept = searchParams.concept;
+  const selectedConcept = searchParams.category || searchParams.concept;
 
-  const [albums, dbConcepts, settings] = await Promise.all([
+  const [allAlbums, settings] = await Promise.all([
     prisma.album.findMany({
       where: {
         published: true,
-        ...(selectedConcept && selectedConcept !== 'Tất Cả' ? { concept: selectedConcept } : {}),
       },
       orderBy: [
         { featured: 'desc' },
@@ -78,23 +77,33 @@ export default async function BoSuuTapPage({
         media: { take: 1, orderBy: { orderIndex: 'asc' } },
       },
     }),
-    prisma.albumConcept.findMany({
-      orderBy: { order: 'asc' },
-    }),
     getSystemSettings(),
   ]);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
-  const concepts = [
-    'Tất Cả',
-    ...(dbConcepts.length > 0
-      ? dbConcepts.map((c) => c.name)
-      : ['Outdoor Luxury', 'Studio Editorial', 'Pre-Wedding Cinematic', 'Phóng Sự Cưới']),
-  ];
+  // Trích xuất danh mục duy nhất từ chính mảng albums thực tế từ Database
+  const dynamicCategories = Array.from(
+    new Set(
+      allAlbums
+        .map((album) => (album as any).category?.trim() || album.concept?.trim())
+        .filter((cat): cat is string => Boolean(cat))
+    )
+  );
+
+  const concepts = ['Tất Cả', ...dynamicCategories];
+
+  // Lọc chuẩn hóa chuỗi theo danh mục đã chọn
+  const filteredAlbums =
+    !selectedConcept || selectedConcept === 'Tất Cả'
+      ? allAlbums
+      : allAlbums.filter((album) => {
+          const cat = ((album as any).category?.trim() || album.concept?.trim() || '').toLowerCase();
+          return cat === selectedConcept.trim().toLowerCase();
+        });
 
   // Prepare images for ImageGallery Schema.org
-  const galleryImages = albums
+  const galleryImages = filteredAlbums
     .filter((a) => a.coverImage)
     .map((a) => ({
       url: a.coverImage,
@@ -137,31 +146,35 @@ export default async function BoSuuTapPage({
         </p>
       </div>
 
-      {/* CONCEPT FILTER CHIPS */}
-      <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-        {concepts.map((concept) => {
-          const isAll = concept === 'Tất Cả';
-          const isActive = isAll ? !selectedConcept || selectedConcept === 'Tất Cả' : selectedConcept === concept;
-          const href = isAll ? '/bo-suu-tap' : `/bo-suu-tap?concept=${encodeURIComponent(concept)}`;
+      {/* CONCEPT FILTER CHIPS (Chỉ hiển thị khi có từ 2 danh mục thực tế trở lên để lọc) */}
+      {dynamicCategories.length > 1 && (
+        <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+          {concepts.map((concept) => {
+            const isAll = concept === 'Tất Cả';
+            const isActive = isAll
+              ? !selectedConcept || selectedConcept === 'Tất Cả'
+              : selectedConcept?.trim().toLowerCase() === concept.trim().toLowerCase();
+            const href = isAll ? '/bo-suu-tap' : `/bo-suu-tap?concept=${encodeURIComponent(concept)}`;
 
-          return (
-            <Link
-              key={concept}
-              href={href}
-              className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
-                isActive
-                  ? 'bg-charcoal-900 text-white shadow-md'
-                  : 'bg-white text-charcoal-700 hover:bg-[#C5A880]/15 border border-stone-200/80 shadow-2xs'
-              }`}
-            >
-              {concept}
-            </Link>
-          );
-        })}
-      </div>
+            return (
+              <Link
+                key={concept}
+                href={href}
+                className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
+                  isActive
+                    ? 'bg-charcoal-900 text-white shadow-md font-semibold'
+                    : 'bg-white text-charcoal-700 hover:bg-[#C5A880]/15 border border-stone-200/80 shadow-2xs'
+                }`}
+              >
+                {concept}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* ALBUMS GRID */}
-      {albums.length === 0 ? (
+      {filteredAlbums.length === 0 ? (
         <div className="text-center py-24 bg-white rounded-3xl border border-stone-200/80 p-8 max-w-xl mx-auto space-y-4 shadow-sm">
           <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-xl">
             📷
@@ -182,7 +195,7 @@ export default async function BoSuuTapPage({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {albums.map((album, idx) => {
+          {filteredAlbums.map((album, idx) => {
             const coverImg =
               (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
               (album as any)?.photos?.[0]?.url ||

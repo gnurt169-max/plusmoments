@@ -22,7 +22,6 @@ import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
 import { SingleImagePicker } from '@/components/admin/ImageFieldPicker';
 import { MediaLibraryPickerModal } from '@/components/admin/MediaLibraryPickerModal';
-import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
 
 interface PackageOption {
@@ -107,13 +106,23 @@ export default function AdminBlogPage() {
     coverImage: '',
     packageId: '',
     author: 'PlusMoments Editorial',
-    category: 'Cẩm nang cưới',
+    category: '',
     readingMinutes: 4,
     published: true,
     metaTitle: '',
     metaDescription: '',
     postImages: [],
   });
+
+  const existingBlogCategories = React.useMemo(() => {
+    return Array.from(
+      new Set(
+        posts
+          .map((p) => p.category?.trim())
+          .filter((cat): cat is string => Boolean(cat))
+      )
+    );
+  }, [posts]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -177,7 +186,7 @@ export default function AdminBlogPage() {
       coverImage: '',
       packageId: '',
       author: 'PlusMoments Editorial',
-      category: 'Cẩm nang cưới',
+      category: existingBlogCategories[0] || '',
       readingMinutes: 4,
       published: true,
       metaTitle: '',
@@ -923,13 +932,25 @@ export default function AdminBlogPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <TaxonomySelect
-              type="blog-categories"
-              label="Chuyên Mục"
-              value={formData.category}
-              onChange={(val) => setFormData({ ...formData, category: val })}
-              required
-            />
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                Chuyên Mục <span className="text-luxury-600">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                list="blog-categories"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                placeholder="Ví dụ: Cẩm nang cưới, Kinh nghiệm cưới..."
+                className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
+              />
+              <datalist id="blog-categories">
+                {existingBlogCategories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+            </div>
 
             <div>
               <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
