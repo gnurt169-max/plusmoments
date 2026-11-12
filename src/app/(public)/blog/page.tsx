@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { formatDate } from '@/lib/utils';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
+import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import { Clock, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -65,6 +66,7 @@ export default async function BlogPage() {
                     alt={post.title}
                     fill
                     quality={70}
+                    unoptimized={isOptimizedUploadWebp(coverImg)}
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                     className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                   />

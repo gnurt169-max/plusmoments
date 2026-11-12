@@ -9,6 +9,7 @@ import { FeaturedBlogSection } from '@/components/home/FeaturedBlogSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import { extractPackageFeatures } from '@/lib/package-features';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
+import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import {
   Sparkles,
   Star,
@@ -175,6 +176,7 @@ export default async function HomePage() {
               fill
               priority
               quality={85}
+              unoptimized={isOptimizedUploadWebp(heroBanner)}
               sizes="(max-width: 768px) 100vw, 100vw"
               className="object-cover object-center scale-100 select-none pointer-events-none"
             />
@@ -308,6 +310,7 @@ export default async function HomePage() {
                           alt={album?.title || 'PlusMoments Wedding Album'}
                           fill
                           quality={70}
+                          unoptimized={isOptimizedUploadWebp(coverImageSrc)}
                           sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                         />
@@ -436,6 +439,7 @@ export default async function HomePage() {
                         src={avatar}
                         alt={test.coupleNames}
                         fill
+                        unoptimized={isOptimizedUploadWebp(avatar)}
                         sizes="48px"
                         className="object-cover"
                       />

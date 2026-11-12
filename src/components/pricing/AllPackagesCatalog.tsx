@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
+import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import type { PricingPackageData } from './LuxuryPricingSection';
 
 // Dynamic load PackageDetailModal on demand
@@ -130,6 +131,7 @@ export function AllPackagesCatalog({
                       alt={pkg.name}
                       fill
                       quality={70}
+                      unoptimized={isOptimizedUploadWebp(coverImg)}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                     />

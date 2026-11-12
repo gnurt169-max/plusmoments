@@ -17,10 +17,18 @@ const nextConfig = {
     ],
   },
   images: {
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days image cache
+    formats: ['image/webp'], // Chỉ dùng WebP để giảm 80% tải CPU khi nén trên VPS, tránh timeout
+    minimumCacheTTL: 31536000,
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [384, 512],
+    localPatterns: [
+      {
+        pathname: '/uploads/**',
+      },
+      {
+        pathname: '/images/**',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',

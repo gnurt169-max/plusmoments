@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import {
   CheckCircle2,
   Sparkles,
@@ -351,6 +352,7 @@ export function ThankYouClientView({
                   src={album.coverImage}
                   alt={album.title}
                   fill
+                  unoptimized={isOptimizedUploadWebp(album.coverImage)}
                   sizes="(max-width: 768px) 50vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />

@@ -10,6 +10,7 @@ import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
+import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import { ArrowLeft, Clock, Calendar, User, Sparkles, Images } from 'lucide-react';
 import DOMPurify from 'isomorphic-dompurify';
 
@@ -316,6 +317,7 @@ export default async function BlogPostPage({ params }: Props) {
             alt={post.title}
             fill
             priority
+            unoptimized={isOptimizedUploadWebp(post.coverImage)}
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover"
           />

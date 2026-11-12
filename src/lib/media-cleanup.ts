@@ -293,3 +293,78 @@ export async function cleanupDanglingFolderReferences(folderSlug: string, folder
   revalidateMediaRelatedPaths();
   return { success: true };
 }
+
+/**
+ * Scans DB tables for any /uploads/ paths whose physical file no longer exists on disk,
+ * and resets them cleanly to prevent /_next/image timeouts and 404 console errors.
+ */
+export async function cleanupMissingPhysicalImages() {
+  const fs = await import('fs');
+  const path = await import('path');
+  const rootDir = process.cwd();
+
+  const isFileMissing = (url?: string | null): boolean => {
+    if (!url || typeof url !== 'string' || !url.startsWith('/uploads/')) return false;
+    const cleanPath = url.split('?')[0].split('#')[0];
+    const absolutePath = path.join(rootDir, 'public', cleanPath);
+    return !fs.existsSync(absolutePath);
+  };
+
+  let cleaned = 0;
+
+  // 1. Albums
+  const albums = await prisma.album.findMany({ select: { id: true, coverImage: true } });
+  for (const album of albums) {
+    if (isFileMissing(album.coverImage)) {
+      await prisma.album.update({ where: { id: album.id }, data: { coverImage: '' } });
+      cleaned++;
+    }
+  }
+
+  // 2. Packages
+  const packages = await prisma.servicePackage.findMany({ select: { id: true, coverImage: true, demoImages: true } });
+  for (const pkg of packages) {
+    let updateData: any = {};
+    if (isFileMissing(pkg.coverImage)) {
+      updateData.coverImage = '';
+      cleaned++;
+    }
+    if (pkg.demoImages) {
+      try {
+        const parsed = JSON.parse(pkg.demoImages);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((u: string) => !isFileMissing(u));
+          if (filtered.length !== parsed.length) {
+            updateData.demoImages = filtered.length > 0 ? JSON.stringify(filtered) : null;
+            cleaned++;
+          }
+        }
+      } catch {}
+    }
+    if (Object.keys(updateData).length > 0) {
+      await prisma.servicePackage.update({ where: { id: pkg.id }, data: updateData });
+    }
+  }
+
+  // 3. Blog Posts
+  const posts = await prisma.blogPost.findMany({ select: { id: true, coverImage: true } });
+  for (const post of posts) {
+    if (isFileMissing(post.coverImage)) {
+      await prisma.blogPost.update({ where: { id: post.id }, data: { coverImage: '' } });
+      cleaned++;
+    }
+  }
+
+  // 4. HomePageConfig
+  const home = await prisma.homePageConfig.findFirst();
+  if (home && isFileMissing(home.heroBannerImage)) {
+    await prisma.homePageConfig.update({ where: { id: home.id }, data: { heroBannerImage: '' } });
+    cleaned++;
+  }
+
+  if (cleaned > 0) {
+    revalidateMediaRelatedPaths();
+  }
+
+  return { cleaned };
+}
