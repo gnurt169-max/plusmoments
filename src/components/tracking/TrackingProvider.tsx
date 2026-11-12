@@ -23,9 +23,15 @@ export function TrackingProvider({
   customHeadScript,
   customBodyScript,
 }: TrackingProviderProps) {
-  // Capture & persist UTM and GCLID on page load
+  // Capture & persist UTM and GCLID on page load (sau khi trình duyệt rảnh, không block hydration)
   useEffect(() => {
-    captureAndStoreTrafficSource();
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(() => captureAndStoreTrafficSource());
+      return () => window.cancelIdleCallback(id);
+    } else {
+      const timer = setTimeout(() => captureAndStoreTrafficSource(), 200);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const primaryGoogleId = googleAdsId || googleAnalyticsId;

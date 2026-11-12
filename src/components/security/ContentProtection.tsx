@@ -125,11 +125,28 @@ export function ContentProtection() {
       }
     };
 
-    window.addEventListener('contextmenu', handleContextMenu, { capture: true });
-    window.addEventListener('dragstart', handleDragStart, { capture: true });
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    let idleId: number | null = null;
+    let timerId: NodeJS.Timeout | null = null;
+
+    const attachListeners = () => {
+      window.addEventListener('contextmenu', handleContextMenu, { capture: true });
+      window.addEventListener('dragstart', handleDragStart, { capture: true });
+      window.addEventListener('keydown', handleKeyDown, { capture: true });
+    };
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(attachListeners);
+    } else {
+      timerId = setTimeout(attachListeners, 200);
+    }
 
     return () => {
+      if (idleId && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timerId) {
+        clearTimeout(timerId);
+      }
       window.removeEventListener('contextmenu', handleContextMenu, { capture: true });
       window.removeEventListener('dragstart', handleDragStart, { capture: true });
       window.removeEventListener('keydown', handleKeyDown, { capture: true });

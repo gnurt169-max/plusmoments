@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Phone, CalendarHeart, Sparkles } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
@@ -14,8 +14,22 @@ const ConsultationModal = dynamic(
 
 export function VerticalFloatingContact() {
   const { contact } = useContact();
+  const [mounted, setMounted] = useState(false);
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
   const [isHotlineHovered, setIsHotlineHovered] = useState(false);
+
+  // Trì hoãn khởi tạo widget nổi sau khi main-thread rảnh (requestIdleCallback)
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(() => setMounted(true));
+      return () => window.cancelIdleCallback(id);
+    } else {
+      const timer = setTimeout(() => setMounted(true), 150);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  if (!mounted) return null;
 
   const handleHotlineClick = () => {
     trackHotlineClick(

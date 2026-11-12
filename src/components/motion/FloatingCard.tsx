@@ -1,11 +1,4 @@
-'use client';
-
 import React from 'react';
-import { LazyMotion, m } from 'framer-motion';
-
-// Nạp bất đồng bộ domAnimation thay vì gom toàn bộ gói framer-motion khổng lồ vào First Load bundle
-const loadFeatures = () =>
-  import('framer-motion').then((res) => res.domAnimation);
 
 interface FloatingCardProps {
   children: React.ReactNode;
@@ -16,6 +9,10 @@ interface FloatingCardProps {
   enableHoverTilt?: boolean;
 }
 
+/**
+ * Tối ưu hiệu năng: Sử dụng CSS Animations & Transitions thuần túy (GPU Accelerated),
+ * loại bỏ hoàn toàn chi phí khởi tạo JavaScript và vòng lặp RAF của framer-motion trên main-thread.
+ */
 export function FloatingCard({
   children,
   delay = 0,
@@ -24,35 +21,21 @@ export function FloatingCard({
   className = '',
   enableHoverTilt = true,
 }: FloatingCardProps) {
+  const animClass = reverse ? 'animate-float-reverse' : 'animate-float';
+  const hoverClass = enableHoverTilt
+    ? 'hover:-translate-y-2 hover:scale-[1.01] transition-transform duration-500 ease-out will-change-transform'
+    : '';
+
   return (
-    <LazyMotion features={loadFeatures} strict>
-      <m.div
-        initial={{ y: 0 }}
-        animate={{
-          y: reverse ? [0, 8, 0] : [0, -8, 0],
-          rotate: reverse ? [0, -0.4, 0] : [0, 0.4, 0],
-        }}
-        transition={{
-          duration,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut',
-          delay,
-        }}
-        whileHover={
-          enableHoverTilt
-            ? {
-                y: -12,
-                scale: 1.02,
-                transition: { duration: 0.3, ease: 'easeOut' },
-              }
-            : undefined
-        }
-        className={`transition-shadow duration-300 ${className}`}
-      >
-        {children}
-      </m.div>
-    </LazyMotion>
+    <div
+      style={{
+        animationDelay: `${delay}s`,
+        animationDuration: `${duration}s`,
+      }}
+      className={`${animClass} ${hoverClass} ${className}`}
+    >
+      {children}
+    </div>
   );
 }
 

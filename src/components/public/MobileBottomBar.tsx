@@ -13,7 +13,19 @@ const ConsultationForm = dynamic(
 
 export function MobileBottomBar() {
   const { contact } = useContact();
+  const [mounted, setMounted] = useState(false);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  // Trì hoãn khởi tạo action bar di động khi trình duyệt rảnh (giải phóng Main-Thread)
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(() => setMounted(true));
+      return () => window.cancelIdleCallback(id);
+    } else {
+      const timer = setTimeout(() => setMounted(true), 150);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Clean phone number for tel: protocol
   const rawPhone = contact.hotline || '0903768871';
@@ -32,8 +44,10 @@ export function MobileBottomBar() {
     }
     return () => {
       document.body.style.overflow = '';
-    }
+    };
   }, [isBottomSheetOpen]);
+
+  if (!mounted) return null;
 
   const handlePhoneClick = () => {
     trackHotlineClick(
