@@ -66,7 +66,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                     src={post.coverImage || '/placeholder.jpg'}
                     alt={post.title}
                     fill
-                    quality={70}
+                    quality={65}
                     unoptimized={isOptimizedUploadWebp(post.coverImage)}
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"

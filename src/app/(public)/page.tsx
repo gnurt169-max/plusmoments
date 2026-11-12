@@ -309,7 +309,7 @@ export default async function HomePage() {
                           src={coverImageSrc}
                           alt={album?.title || 'PlusMoments Wedding Album'}
                           fill
-                          quality={70}
+                          quality={65}
                           unoptimized={isOptimizedUploadWebp(coverImageSrc)}
                           sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

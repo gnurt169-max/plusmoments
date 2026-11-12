@@ -17,10 +17,12 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const [posts, settings] = await Promise.all([
-    prisma.blogPost.findMany({
-      where: { published: true },
-      orderBy: { publishedAt: 'desc' },
-    }),
+    prisma.blogPost
+      .findMany({
+        where: { published: true },
+        orderBy: { publishedAt: 'desc' },
+      })
+      .catch(() => []),
     getSystemSettings(),
   ]);
 
