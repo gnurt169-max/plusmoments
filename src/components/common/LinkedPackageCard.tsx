@@ -112,9 +112,9 @@ export function LinkedPackageCard({
               <span className="text-[10px] uppercase tracking-widest text-amber-800 font-medium block">
                 Gói Dịch Vụ Cưới Cao Cấp
               </span>
-              <h4 className="font-serif text-lg sm:text-2xl text-charcoal-900 font-normal leading-snug line-clamp-2">
+              <p className="font-serif text-lg sm:text-2xl text-charcoal-900 font-normal leading-snug line-clamp-2">
                 {packageData.name}
-              </h4>
+              </p>
               <div className="flex items-baseline gap-2 pt-0.5">
                 <span className="font-mono text-base sm:text-xl font-bold text-amber-900">
                   {formatVND(numPrice)}

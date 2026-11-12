@@ -146,9 +146,9 @@ export function LandingPageClientView({
                   <Clock className="w-3 h-3 text-amber-600" />
                   <span>Ưu Đãi Còn Hiệu Lực Hôm Nay</span>
                 </div>
-                <h3 className="font-serif text-2xl font-light text-charcoal-900">
+                <h2 className="font-serif text-2xl font-light text-charcoal-900">
                   Nhận Báo Giá & Giữ Chỗ Ưu Đãi
-                </h3>
+                </h2>
                 <p className="text-xs text-charcoal-500 font-light">
                   Điền form bên dưới để bảo lưu voucher <strong>{settings.landingPageDiscountAmount}</strong>
                 </p>
@@ -180,7 +180,7 @@ export function LandingPageClientView({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 bg-charcoal-800/60 border border-stone-700 rounded-2xl space-y-2">
               <ShieldCheck className="w-6 h-6 text-champagne-light" />
-              <h4 className="font-serif text-base text-white font-medium">Cam Kết Minh Bạch</h4>
+              <h3 className="font-serif text-base text-white font-medium">Cam Kết Minh Bạch</h3>
               <p className="text-xs text-stone-400 font-light leading-relaxed">
                 Hợp đồng rõ ràng, cam kết 100% không phát sinh chi phí di chuyển hay chụp ngoài giờ.
               </p>
@@ -188,7 +188,7 @@ export function LandingPageClientView({
 
             <div className="p-6 bg-charcoal-800/60 border border-stone-700 rounded-2xl space-y-2">
               <Camera className="w-6 h-6 text-champagne-light" />
-              <h4 className="font-serif text-base text-white font-medium">Chất Màu Điện Ảnh</h4>
+              <h3 className="font-serif text-base text-white font-medium">Chất Màu Điện Ảnh</h3>
               <p className="text-xs text-stone-400 font-light leading-relaxed">
                 Phong cách chụp cảm xúc tự nhiên, màu ảnh sang trọng chuẩn chỉnh không lỗi thời theo năm tháng.
               </p>
@@ -196,7 +196,7 @@ export function LandingPageClientView({
 
             <div className="p-6 bg-charcoal-800/60 border border-stone-700 rounded-2xl space-y-2">
               <Gift className="w-6 h-6 text-champagne-light" />
-              <h4 className="font-serif text-base text-white font-medium">Váy Cưới Thiết Kế</h4>
+              <h3 className="font-serif text-base text-white font-medium">Váy Cưới Thiết Kế</h3>
               <p className="text-xs text-stone-400 font-light leading-relaxed">
                 Hơn 200 mẫu váy cưới luxury mới nhất cho cô dâu thử đồ thoải mái đến khi ưng ý nhất.
               </p>
@@ -204,7 +204,7 @@ export function LandingPageClientView({
 
             <div className="p-6 bg-charcoal-800/60 border border-stone-700 rounded-2xl space-y-2">
               <HeartHandshake className="w-6 h-6 text-champagne-light" />
-              <h4 className="font-serif text-base text-white font-medium">Bảo Hành Trọn Đời</h4>
+              <h3 className="font-serif text-base text-white font-medium">Bảo Hành Trọn Đời</h3>
               <p className="text-xs text-stone-400 font-light leading-relaxed">
                 Lưu trữ file gốc trọn đời trên đám mây an toàn, bảo hành in ấn album chất lượng cao.
               </p>

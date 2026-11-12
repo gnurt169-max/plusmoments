@@ -98,6 +98,7 @@ export default async function PricingPage() {
 
       {/* Luxury Wedding Pricing Cards with Detail Modal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="sr-only">Danh Sách Bảng Giá Các Gói Chụp Ảnh Cưới</h2>
         <AllPackagesCatalog packages={packages} isSummary={false} />
       </div>
 
@@ -105,9 +106,9 @@ export default async function PricingPage() {
         {/* FAQ Section */}
         <div className="max-w-3xl mx-auto pt-6 space-y-8">
           <div className="text-center space-y-2">
-            <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+            <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
               Câu Hỏi Thường Gặp
-            </h3>
+            </h2>
             <p className="text-xs text-charcoal-500 font-light">
               Giải đáp các thắc mắc phổ biến của các cặp dâu rể khi đặt lịch tại PlusMoments.
             </p>
@@ -119,10 +120,10 @@ export default async function PricingPage() {
                 key={index}
                 className="bg-white p-6 rounded-2xl border border-champagne-dark/30 shadow-sm space-y-2"
               >
-                <h4 className="font-serif text-base font-medium text-charcoal-900 flex items-start gap-2">
+                <h3 className="font-serif text-base font-medium text-charcoal-900 flex items-start gap-2">
                   <HelpCircle className="w-4 h-4 text-luxury-600 shrink-0 mt-0.5" />
                   <span>{faq.question}</span>
-                </h4>
+                </h3>
                 <p className="text-xs sm:text-sm text-charcoal-600 pl-6 font-light leading-relaxed">
                   {faq.answer}
                 </p>
@@ -136,9 +137,9 @@ export default async function PricingPage() {
           <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-12 shadow-xl">
             <div className="text-center space-y-2 mb-8">
               <Sparkles className="w-7 h-7 text-luxury-500 mx-auto" />
-              <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+              <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
                 Đăng Ký Nhận Tư Vấn Trực Tiếp
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-charcoal-500 font-light">
                 Chuyên viên PlusMoments sẽ gửi demo album đầy đủ và báo giá ưu đãi độc quyền theo ngày cưới của bạn.
               </p>

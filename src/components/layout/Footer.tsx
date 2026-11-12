@@ -319,9 +319,9 @@ export async function Footer(props: FooterProps) {
 
           {/* CỘT 2: BỘ SƯU TẬP CƯỚI (100% REAL DATABASE DATA) */}
           <div>
-            <h4 className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
+            <p className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
               {col1Title}
-            </h4>
+            </p>
             <ul className="space-y-2.5 text-xs font-light">
               {albums.map((album) => (
                 <li key={album.id}>
@@ -346,9 +346,9 @@ export async function Footer(props: FooterProps) {
 
           {/* CỘT 3: BẢNG GIÁ & DỊCH VỤ (100% REAL DATABASE DATA) */}
           <div>
-            <h4 className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
+            <p className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
               {col2Title}
-            </h4>
+            </p>
             <ul className="space-y-2.5 text-xs font-light">
               {packages.map((pkg) => (
                 <li key={pkg.id}>
@@ -373,9 +373,9 @@ export async function Footer(props: FooterProps) {
 
           {/* CỘT 4: CẨM NANG CƯỚI */}
           <div>
-            <h4 className="font-serif text-sm uppercase tracking-widest text-[#E8E2D9] mb-4 font-medium">
+            <p className="font-serif text-sm uppercase tracking-widest text-[#E8E2D9] mb-4 font-medium">
               Cẩm Nang Cưới
-            </h4>
+            </p>
             <ul className="space-y-2.5 text-xs text-[#A8A29E] font-light">
               {posts.map((post) => (
                 <li key={post.id}>
@@ -401,9 +401,9 @@ export async function Footer(props: FooterProps) {
 
           {/* CỘT 5: LIÊN HỆ STUDIO (CHỈ HIỂN THỊ CÁC Ô CÓ DỮ LIỆU) */}
           <div>
-            <h4 className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
+            <p className="font-serif text-sm uppercase tracking-widest text-white mb-5 font-medium">
               Liên Hệ Studio
-            </h4>
+            </p>
             <ul className="space-y-3 text-xs font-light">
               {address && (
                 <li className="flex items-start gap-2.5">

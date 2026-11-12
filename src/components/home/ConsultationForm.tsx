@@ -161,9 +161,9 @@ export function ConsultationForm({
         <div className="w-16 h-16 mx-auto mb-4 bg-emerald-50 border border-emerald-200/80 rounded-full flex items-center justify-center text-emerald-600 shadow-sm">
           <CheckCircle2 className="w-9 h-9 text-emerald-600" />
         </div>
-        <h4 className="font-serif text-2xl text-charcoal-900 font-medium mb-2">
+        <h3 className="font-serif text-2xl text-charcoal-900 font-medium mb-2">
           Đăng Ký Thành Công!
-        </h4>
+        </h3>
         <p className="text-sm text-charcoal-600 max-w-md mx-auto leading-relaxed">
           PlusMoments đã bảo lưu ưu đãi <strong className="text-luxury-700">2.000.000đ</strong> và gửi thông tin chi tiết vào email của bạn. Chuyên viên sẽ liên hệ trong ít phút.
         </p>

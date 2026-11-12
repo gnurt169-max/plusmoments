@@ -152,9 +152,9 @@ export default async function ContactPage() {
               <Sparkles className="w-4 h-4" />
               <span>Đăng Ký Tư Vấn Trực Tiếp</span>
             </div>
-            <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+            <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
               Gửi Yêu Cầu Cho PlusMoments
-            </h3>
+            </h2>
             <p className="text-xs text-charcoal-500 font-light">
               Chúng tôi sẽ phản hồi kèm thông tin báo giá chi tiết trong vòng 15 phút.
             </p>

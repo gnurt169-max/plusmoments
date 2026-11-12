@@ -340,9 +340,9 @@ export default async function BlogPostPage({ params }: Props) {
                 <Images className="w-4 h-4" />
                 <span>Bộ Sưu Tập Phóng Sự</span>
               </div>
-              <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+              <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
                 Khoảnh Khắc Trong Bài Viết
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-stone-500 font-light">
                 Các khung hình trọn vẹn trong buổi chụp
               </p>
@@ -390,9 +390,9 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="pt-12 border-t border-champagne-dark/30">
           <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-10 shadow-lg text-center space-y-4">
             <Sparkles className="w-8 h-8 text-luxury-500 mx-auto" />
-            <h3 className="font-serif text-2xl font-light text-charcoal-900">
+            <h2 className="font-serif text-2xl font-light text-charcoal-900">
               Bạn Đang Chuẩn Bị Cho Ngày Cưới?
-            </h3>
+            </h2>
             <p className="text-xs sm:text-sm text-charcoal-600 font-light max-w-md mx-auto">
               Đừng ngần ngại để lại thông tin để chuyên gia của PlusMoments hỗ trợ bạn lên ý tưởng concept và lộ trình chụp ảnh trọn vẹn nhất.
             </p>

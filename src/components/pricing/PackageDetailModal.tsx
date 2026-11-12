@@ -429,9 +429,9 @@ export function PackageDetailModal({
                 <span className="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 bg-white/10 rounded-full text-amber-200 font-mono">
                   {activeImageIndex + 1} / {demoImagesList.length}
                 </span>
-                <h4 className="font-serif text-sm sm:text-base font-light text-white truncate max-w-[200px] sm:max-w-md">
+                <p className="font-serif text-sm sm:text-base font-light text-white truncate max-w-[200px] sm:max-w-md">
                   {packageData.name}
-                </h4>
+                </p>
               </div>
 
               <button

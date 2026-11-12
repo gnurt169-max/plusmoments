@@ -215,9 +215,9 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         <div className="pt-16 max-w-2xl mx-auto">
           <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-10 shadow-xl text-center space-y-4">
             <Sparkles className="w-8 h-8 text-luxury-500 mx-auto" />
-            <h3 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+            <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
               Yêu Thích Phong Cách Này?
-            </h3>
+            </h2>
             <p className="text-xs sm:text-sm text-charcoal-600 font-light leading-relaxed">
               Để lại thông tin để PlusMoments tư vấn địa điểm, lựa chọn trang phục cưới và báo giá chi tiết cho bộ ảnh tương tự.
             </p>

@@ -440,9 +440,9 @@ export default async function HomePage() {
                       />
                     </div>
                     <div>
-                      <h4 className="font-serif text-sm font-medium text-charcoal-900">
+                      <h3 className="font-serif text-sm font-medium text-charcoal-900">
                         {test.coupleNames}
-                      </h4>
+                      </h3>
                       {test.weddingDate && (
                         <p className="text-[11px] text-charcoal-400 font-mono">
                           {test.weddingDate}

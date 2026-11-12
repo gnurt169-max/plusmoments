@@ -78,9 +78,9 @@ export function AllPackagesCatalog({
       {filteredPackages.length === 0 ? (
         <div className="text-center py-16 bg-stone-50 rounded-3xl border border-dashed border-stone-300 max-w-2xl mx-auto space-y-3">
           <Sparkles className="w-8 h-8 text-stone-400 mx-auto" />
-          <h4 className="font-serif text-lg text-charcoal-800">
+          <p className="font-serif text-lg text-charcoal-800">
             Chưa có gói dịch vụ nào trong danh mục này
-          </h4>
+          </p>
           <p className="text-xs text-stone-500">
             Vui lòng chọn danh mục khác hoặc liên hệ Hotline để được thiết kế gói riêng biệt.
           </p>
