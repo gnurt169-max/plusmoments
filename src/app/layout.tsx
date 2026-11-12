@@ -11,6 +11,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   preload: true,
+  adjustFontFallback: true,
 });
 
 const montserrat = Montserrat({
@@ -19,6 +20,7 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
   display: 'swap',
   preload: true,
+  adjustFontFallback: true,
 });
 
 export const viewport: Viewport = {

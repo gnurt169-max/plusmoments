@@ -201,10 +201,12 @@ export default async function HomePage() {
             </span>
           </div>
 
-          {/* 2. Grand Serif Title */}
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-white tracking-wide leading-tight mb-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
-            {heroTitle || 'Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật'}
-          </h1>
+          {/* 2. Grand Serif Title with Reserved Container to Prevent Swap CLS */}
+          <div className="min-h-[120px] sm:min-h-[160px] lg:min-h-[180px] flex items-center justify-center mb-6">
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-white tracking-wide leading-[1.15] drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+              {heroTitle || 'Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật'}
+            </h1>
+          </div>
 
           {/* 3. Emotional Description */}
           <p className="max-w-2xl text-stone-300 font-sans text-sm sm:text-base font-light leading-relaxed mb-10 drop-shadow-sm">
