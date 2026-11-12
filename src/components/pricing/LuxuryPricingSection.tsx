@@ -257,6 +257,7 @@ export function LuxuryPricingSection({
                         e.preventDefault();
                         openConsultModal(pkg.name);
                       }}
+                      aria-label={`Chọn gói ${pkg.name} & nhận ưu đãi`}
                       className={`relative z-20 w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
                         pkg.isPopular
                           ? 'bg-luxury-600 hover:bg-luxury-700 text-white shadow-luxury hover:scale-[1.02] active:scale-[0.98]'

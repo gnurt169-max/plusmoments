@@ -207,6 +207,7 @@ export function PricingSection({
                     <button
                       type="button"
                       onClick={() => setSelectedPackage(pkg)}
+                      aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
                       className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5 text-amber-300" />

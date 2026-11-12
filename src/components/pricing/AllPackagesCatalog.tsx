@@ -53,6 +53,8 @@ export function AllPackagesCatalog({
                 key={cat.key}
                 type="button"
                 onClick={() => setSelectedCategory(cat.key)}
+                aria-label={`Lọc gói dịch vụ: ${cat.label}`}
+                aria-pressed={isActive}
                 className={`px-4 sm:px-6 py-2 rounded-full text-xs uppercase tracking-wider font-medium transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-[#2E2824] text-white shadow-sm font-semibold'
@@ -208,6 +210,7 @@ export function AllPackagesCatalog({
                     <button
                       type="button"
                       onClick={() => setSelectedPackage(pkg)}
+                      aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
                       className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5 text-amber-300" />

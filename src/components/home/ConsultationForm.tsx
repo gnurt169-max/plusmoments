@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackConsultationSubmit, getStoredTrafficSource, TrafficSourceData } from '@/lib/tracking';
 import { useContact } from '@/context/ContactContext';
@@ -22,6 +22,8 @@ export function ConsultationForm({
 }: ConsultationFormProps) {
   const router = useRouter();
   const { contact } = useContact();
+  const uniqueId = useId();
+  const idPrefix = `consult-${uniqueId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -165,7 +167,9 @@ export function ConsultationForm({
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`}>
       {/* Honeypot field for bot suppression */}
+      <label htmlFor={`${idPrefix}-hp`} className="sr-only">Website URL</label>
       <input
+        id={`${idPrefix}-hp`}
         type="text"
         name="_hp_website"
         value={honeypot}
@@ -174,6 +178,7 @@ export function ConsultationForm({
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
+        aria-label="Website"
       />
 
       {errorMessage && (
@@ -184,12 +189,15 @@ export function ConsultationForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-fullName`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Họ Tên Dâu & Rể <span className="text-luxury-600">*</span>
           </label>
           <input
+            id={`${idPrefix}-fullName`}
+            name="fullName"
             type="text"
             required
+            aria-label="Họ Tên Dâu & Rể"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
             placeholder="Ví dụ: Hoàng Long & Thanh Thảo"
@@ -198,12 +206,15 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-phone`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Số Điện Thoại Nhận Báo Giá <span className="text-luxury-600">*</span>
           </label>
           <input
+            id={`${idPrefix}-phone`}
+            name="phone"
             type="tel"
             required
+            aria-label="Số Điện Thoại Nhận Báo Giá"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: formatVietnamesePhone(e.target.value) })}
             placeholder="Ví dụ: 0903 768 871"
@@ -214,11 +225,14 @@ export function ConsultationForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-zalo`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Số Zalo Nhận Catalog
           </label>
           <input
+            id={`${idPrefix}-zalo`}
+            name="zalo"
             type="tel"
+            aria-label="Số Zalo Nhận Catalog"
             value={formData.zalo}
             onChange={(e) => setFormData({ ...formData, zalo: formatVietnamesePhone(e.target.value) })}
             placeholder="Ví dụ: 0903 768 871"
@@ -227,11 +241,15 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-email`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Email Nhận Báo Giá
           </label>
           <input
+            id={`${idPrefix}-email`}
+            name="customerEmail"
             type="email"
+            aria-label="Email nhận báo giá & tư vấn"
+            placeholder="Ví dụ: contact@example.com"
             value={formData.customerEmail}
             onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all font-mono"
@@ -241,11 +259,15 @@ export function ConsultationForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-weddingDate`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Ngày Dự Kiến Cưới / Chụp
           </label>
           <input
+            id={`${idPrefix}-weddingDate`}
+            name="weddingDate"
             type="text"
+            aria-label="Ngày Dự Kiến Cưới hoặc Chụp Ảnh"
+            placeholder="Ví dụ: 25/12/2026 hoặc Tháng 11"
             value={formData.weddingDate}
             onChange={(e) => setFormData({ ...formData, weddingDate: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"
@@ -253,10 +275,13 @@ export function ConsultationForm({
         </div>
 
         <div>
-          <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+          <label htmlFor={`${idPrefix}-budget`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
             Ngân Sách Dự Kiến
           </label>
           <select
+            id={`${idPrefix}-budget`}
+            name="estimatedBudget"
+            aria-label="Ngân sách dự kiến cho gói chụp cưới"
             value={formData.estimatedBudget}
             onChange={(e) => setFormData({ ...formData, estimatedBudget: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all text-charcoal-700 cursor-pointer"
@@ -270,11 +295,15 @@ export function ConsultationForm({
       </div>
 
       <div>
-        <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+        <label htmlFor={`${idPrefix}-package`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
           Gói Dịch Vụ / Concept Bạn Đang Quan Tâm
         </label>
         <input
+          id={`${idPrefix}-package`}
+          name="expectedPackage"
           type="text"
+          aria-label="Gói Dịch Vụ hoặc Concept Bạn Đang Quan Tâm"
+          placeholder="Ví dụ: Phóng Sự Cưới Deluxe, Chụp Pre-Wedding..."
           value={formData.expectedPackage}
           onChange={(e) => setFormData({ ...formData, expectedPackage: e.target.value })}
           className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"
@@ -282,11 +311,15 @@ export function ConsultationForm({
       </div>
 
       <div>
-        <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
+        <label htmlFor={`${idPrefix}-notes`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
           Ghi Chú Hoặc Mong Muốn Riêng
         </label>
         <textarea
+          id={`${idPrefix}-notes`}
+          name="notes"
           rows={2}
+          aria-label="Ghi chú hoặc mong muốn riêng của bạn"
+          placeholder="Địa điểm tổ chức, thời gian cụ thể hoặc yêu cầu đặc biệt..."
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           className="w-full px-4 py-2.5 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"

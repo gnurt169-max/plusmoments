@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
@@ -32,6 +32,8 @@ export function PackageDetailModal({
   onClose,
 }: PackageDetailModalProps) {
   const router = useRouter();
+  const uniqueId = useId();
+  const idPrefix = `booking-${uniqueId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
   // Portal mount check for SSR safety
   const [mounted, setMounted] = useState(false);
@@ -186,6 +188,7 @@ export function PackageDetailModal({
                     }}
                     className="absolute bottom-3 right-3 z-20 px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 shadow-md cursor-pointer pointer-events-auto select-none"
                     title="Xem trọn vẹn toàn màn hình"
+                    aria-label="Xem trọn vẹn toàn màn hình"
                   >
                     <Maximize2 className="w-3.5 h-3.5 text-amber-200" />
                     <span>Xem Trọn Vẹn</span>
@@ -206,6 +209,7 @@ export function PackageDetailModal({
                     key={i}
                     type="button"
                     onClick={() => setActiveImageIndex(i)}
+                    aria-label={`Xem ảnh ${i + 1} của gói ${packageData.name}`}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer bg-[#F5F2EB] ${
                       activeImageIndex === i
                         ? 'border-amber-700 ring-2 ring-amber-400/40 scale-105 shadow-md'
@@ -295,12 +299,16 @@ export function PackageDetailModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                    <label htmlFor={`${idPrefix}-name`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                       Họ Tên Dâu & Rể <span className="text-luxury-600">*</span>
                     </label>
                     <input
+                      id={`${idPrefix}-name`}
+                      name="customerName"
                       type="text"
                       required
+                      aria-label="Họ Tên Dâu & Rể"
+                      placeholder="Ví dụ: Hoàng Long & Thanh Thảo"
                       value={formData.customerName}
                       onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
@@ -308,12 +316,16 @@ export function PackageDetailModal({
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                    <label htmlFor={`${idPrefix}-phone`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                       Số Điện Thoại <span className="text-luxury-600">*</span>
                     </label>
                     <input
+                      id={`${idPrefix}-phone`}
+                      name="customerPhone"
                       type="tel"
                       required
+                      aria-label="Số Điện Thoại"
+                      placeholder="Ví dụ: 0903 768 871"
                       value={formData.customerPhone}
                       onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono font-medium"
@@ -323,11 +335,15 @@ export function PackageDetailModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                    <label htmlFor={`${idPrefix}-email`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                       Email Nhận Xác Nhận
                     </label>
                     <input
+                      id={`${idPrefix}-email`}
+                      name="customerEmail"
                       type="email"
+                      aria-label="Email Nhận Xác Nhận"
+                      placeholder="Ví dụ: contact@example.com"
                       value={formData.customerEmail}
                       onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono"
@@ -335,11 +351,15 @@ export function PackageDetailModal({
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                    <label htmlFor={`${idPrefix}-weddingDate`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                       Ngày Dự Kiến Cưới / Chụp
                     </label>
                     <input
+                      id={`${idPrefix}-weddingDate`}
+                      name="weddingDate"
                       type="text"
+                      aria-label="Ngày Dự Kiến Cưới hoặc Chụp"
+                      placeholder="Ví dụ: 25/12/2026 hoặc Tháng 11"
                       value={formData.weddingDate}
                       onChange={(e) => setFormData({ ...formData, weddingDate: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
@@ -348,11 +368,15 @@ export function PackageDetailModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                  <label htmlFor={`${idPrefix}-notes`} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                     Ghi Chú Hoặc Mong Muốn Riêng
                   </label>
                   <textarea
+                    id={`${idPrefix}-notes`}
+                    name="notes"
                     rows={2}
+                    aria-label="Ghi Chú Hoặc Mong Muốn Riêng"
+                    placeholder="Địa điểm tổ chức, thời gian cụ thể hoặc yêu cầu đặc biệt..."
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 leading-relaxed"
@@ -477,6 +501,7 @@ export function PackageDetailModal({
                     key={i}
                     type="button"
                     onClick={() => setActiveImageIndex(i)}
+                    aria-label={`Chuyển đến ảnh phóng to ${i + 1}`}
                     className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                       activeImageIndex === i
                         ? 'border-amber-400 ring-2 ring-amber-300 scale-105 shadow-xl'
