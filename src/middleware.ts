@@ -47,9 +47,13 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('Content-Security-Policy', cspHeader);
 
-  // Helper to attach CSP to response
+  // Helper to attach CSP and Security headers to response
   const applyCspToResponse = (response: NextResponse) => {
     response.headers.set('Content-Security-Policy', cspHeader);
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=63072000; includeSubDomains; preload'
+    );
     return response;
   };
 
