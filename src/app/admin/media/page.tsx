@@ -126,6 +126,11 @@ export default function AdminMediaPage() {
   const [deleteTargetFolder, setDeleteTargetFolder] = useState<FolderItem | null>(null);
   const [deletingFolder, setDeletingFolder] = useState(false);
 
+  // Folder Multi-Selection & Bulk Delete state
+  const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([]);
+  const [isBulkDeleteFoldersModalOpen, setIsBulkDeleteFoldersModalOpen] = useState(false);
+  const [bulkDeletingFolders, setBulkDeletingFolders] = useState(false);
+
   // Multi-Selection State & Actions
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
@@ -230,6 +235,7 @@ export default function AdminMediaPage() {
   // Navigate into a folder
   const handleOpenFolder = (folder: FolderItem) => {
     setSelectedFileIds([]);
+    setSelectedFolderIds([]);
     setCurrentFolder(folder);
     setSearchQuery('');
     fetchFolderContent(folder.slug);
@@ -238,6 +244,7 @@ export default function AdminMediaPage() {
   // Navigate back to Root
   const handleBackToRoot = () => {
     setSelectedFileIds([]);
+    setSelectedFolderIds([]);
     setCurrentFolder(null);
     setFolderImages([]);
     setSearchQuery('');
@@ -653,6 +660,69 @@ export default function AdminMediaPage() {
     return folders.filter((f) => f.name.toLowerCase().includes(q) || f.slug.includes(q));
   }, [folders, searchQuery, currentFolder]);
 
+  // Folder Selection Helpers
+  const toggleSelectFolder = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedFolderIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const allFolderIds = useMemo(
+    () => filteredFolders.map((f) => f.id || f.slug),
+    [filteredFolders]
+  );
+
+  const isAllFoldersSelected =
+    allFolderIds.length > 0 &&
+    allFolderIds.every((id) => selectedFolderIds.includes(id));
+
+  const handleSelectAllFolders = () => {
+    if (isAllFoldersSelected) {
+      setSelectedFolderIds([]);
+    } else {
+      setSelectedFolderIds(allFolderIds);
+    }
+  };
+
+  const emptyFolders = useMemo(
+    () => filteredFolders.filter((f) => f.imageCount === 0),
+    [filteredFolders]
+  );
+
+  const handleSelectEmptyFolders = () => {
+    const emptyIds = emptyFolders.map((f) => f.id || f.slug);
+    setSelectedFolderIds((prev) => Array.from(new Set([...prev, ...emptyIds])));
+    showToast(`Đã chọn ${emptyIds.length} thư mục trống.`);
+  };
+
+  const handleBulkDeleteFolders = async () => {
+    if (selectedFolderIds.length === 0) return;
+
+    setBulkDeletingFolders(true);
+    try {
+      const res = await fetch('/api/admin/media/folders', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedFolderIds }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Lỗi khi xóa hàng loạt thư mục.');
+      }
+
+      showToast(`Đã xóa thành công ${selectedFolderIds.length} thư mục đã chọn!`);
+      setSelectedFolderIds([]);
+      setIsBulkDeleteFoldersModalOpen(false);
+      fetchMedia();
+    } catch (err: any) {
+      alert(err.message || 'Lỗi khi xóa hàng loạt thư mục.');
+    } finally {
+      setBulkDeletingFolders(false);
+    }
+  };
+
   // Unique formats
   const availableFormats = useMemo(() => {
     const set = new Set<string>();
@@ -861,18 +931,76 @@ export default function AdminMediaPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setNewFolderName('');
-                  setIsCreateFolderOpen(true);
-                }}
-                className="px-3.5 py-1.5 rounded-xl bg-luxury-100 hover:bg-luxury-200 text-luxury-800 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
-              >
-                <FolderPlus className="w-4 h-4" />
-                <span>+ Thêm Thư Mục Mới</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewFolderName('');
+                    setIsCreateFolderOpen(true);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-luxury-100 hover:bg-luxury-200 text-luxury-800 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
+                >
+                  <FolderPlus className="w-4 h-4" />
+                  <span>+ Thêm Thư Mục Mới</span>
+                </button>
+              </div>
             </div>
+
+            {/* BULK ACTION BAR FOR FOLDERS */}
+            {filteredFolders.length > 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-stone-50/80 border border-stone-200/80 rounded-2xl text-xs">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer select-none font-medium text-charcoal-700 hover:text-charcoal-900">
+                    <input
+                      type="checkbox"
+                      checked={isAllFoldersSelected}
+                      onChange={handleSelectAllFolders}
+                      className="w-4 h-4 rounded border-stone-300 text-luxury-600 focus:ring-luxury-500 cursor-pointer accent-[#C5A880]"
+                    />
+                    <span>Chọn tất cả ({filteredFolders.length})</span>
+                  </label>
+
+                  {emptyFolders.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleSelectEmptyFolders}
+                      className="px-2.5 py-1 rounded-lg bg-amber-100/80 hover:bg-amber-200 text-amber-800 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1"
+                      title="Tự động chọn tất cả các thư mục không có ảnh"
+                    >
+                      <Folder className="w-3.5 h-3.5 fill-amber-300 text-amber-600" />
+                      <span>Chọn thư mục trống ({emptyFolders.length})</span>
+                    </button>
+                  )}
+
+                  {selectedFolderIds.length > 0 && (
+                    <span className="text-[11px] text-stone-500 font-mono">
+                      Đã chọn: <strong className="text-charcoal-900 font-semibold">{selectedFolderIds.length}</strong> thư mục
+                    </span>
+                  )}
+                </div>
+
+                {selectedFolderIds.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFolderIds([])}
+                      className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-100 text-stone-600 text-xs font-medium transition-colors cursor-pointer"
+                    >
+                      Bỏ chọn
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsBulkDeleteFoldersModalOpen(true)}
+                      className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Xóa {selectedFolderIds.length} thư mục đã chọn</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {filteredFolders.length === 0 ? (
               <div className="py-12 text-center border-2 border-dashed border-stone-200 rounded-2xl p-6 space-y-3">
@@ -909,13 +1037,38 @@ export default function AdminMediaPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredFolders.map((f) => (
-                  <div
-                    key={f.slug}
-                    onClick={() => handleOpenFolder(f)}
-                    className="group rounded-2xl border border-stone-200 bg-white hover:border-luxury-400 hover:shadow-lg transition-all duration-300 p-4 cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden"
-                  >
-                    {/* Cover Photo / Thumbnail Box */}
+                {filteredFolders.map((f) => {
+                  const folderKey = f.id || f.slug;
+                  const isSelected = selectedFolderIds.includes(folderKey);
+
+                  return (
+                    <div
+                      key={f.slug}
+                      onClick={() => handleOpenFolder(f)}
+                      className={`group rounded-2xl border transition-all duration-300 p-4 cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden ${
+                        isSelected
+                          ? 'border-[#C5A880] ring-2 ring-[#C5A880]/30 shadow-md bg-amber-50/15'
+                          : 'border-stone-200 bg-white hover:border-luxury-400 hover:shadow-lg'
+                      }`}
+                    >
+                      {/* Selection Checkbox with stopPropagation */}
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelectFolder(folderKey, e);
+                        }}
+                        className="absolute top-2.5 left-2.5 z-10 p-1 rounded-lg bg-white/85 hover:bg-white backdrop-blur-xs shadow-xs transition-colors cursor-pointer"
+                        title={isSelected ? 'Bỏ chọn thư mục' : 'Chọn thư mục'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                          className="w-4 h-4 rounded border-stone-300 text-luxury-600 focus:ring-luxury-500 cursor-pointer accent-[#C5A880]"
+                        />
+                      </div>
+
+                      {/* Cover Photo / Thumbnail Box */}
                     <div className="relative w-full h-32 rounded-xl overflow-hidden bg-stone-100 border border-stone-200/80 flex items-center justify-center">
                       {f.coverImage ? (
                         <img
@@ -1002,7 +1155,8 @@ export default function AdminMediaPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             )}
           </div>
@@ -1507,6 +1661,57 @@ export default function AdminMediaPage() {
                 <>
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Xóa Vĩnh Viễn</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODAL 3.5: CONFIRM BULK DELETE FOLDERS */}
+      <Modal
+        isOpen={isBulkDeleteFoldersModalOpen}
+        onClose={() => setIsBulkDeleteFoldersModalOpen(false)}
+        title="Xác Nhận Xóa Hàng Loạt Thư Mục"
+        subtitle="Hành động này sẽ xóa toàn bộ thư mục đã chọn và giải phóng dung lượng ổ cứng"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4 pt-2">
+          <p className="text-xs text-charcoal-700 leading-relaxed">
+            Bạn có chắc chắn muốn xóa vĩnh viễn{' '}
+            <strong className="text-red-600 font-semibold font-serif text-sm">
+              {selectedFolderIds.length} thư mục
+            </strong>{' '}
+            đã chọn cùng toàn bộ dữ liệu bên trong? Thao tác này không thể hoàn tác.
+          </p>
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>Toàn bộ file ảnh vật lý trên máy chủ VPS sẽ bị xóa vĩnh viễn không thể khôi phục!</span>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
+            <button
+              type="button"
+              onClick={() => setIsBulkDeleteFoldersModalOpen(false)}
+              className="px-4 py-2 rounded-xl border border-stone-200 text-charcoal-600 text-xs font-medium hover:bg-stone-100 transition-colors cursor-pointer"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              disabled={bulkDeletingFolders}
+              onClick={handleBulkDeleteFolders}
+              className="px-5 py-2 rounded-xl bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-60 cursor-pointer"
+            >
+              {bulkDeletingFolders ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Đang Xóa {selectedFolderIds.length} Thư Mục...</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Xóa {selectedFolderIds.length} Thư Mục</span>
                 </>
               )}
             </button>

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
+import { getAdminSession } from '@/lib/auth';
+import { cleanupDanglingFolderReferences } from '@/lib/media-cleanup';
 
 export const dynamic = 'force-dynamic';
 
@@ -144,6 +146,76 @@ export async function POST(request: Request) {
     console.error('Create media folder error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Lỗi khi tạo thư mục media.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Chưa đăng nhập quyền quản trị.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { ids } = body;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Vui lòng cung cấp danh sách ID hoặc slug thư mục cần xóa.' },
+        { status: 400 }
+      );
+    }
+
+    // Find all matching folders in DB by id or slug
+    const foldersToDelete = await prisma.mediaFolder.findMany({
+      where: {
+        OR: [{ id: { in: ids } }, { slug: { in: ids } }],
+      },
+    });
+
+    const deletedFolderIds: string[] = [];
+
+    // Delete each folder: remove physical directory and cleanup dangling references
+    for (const folder of foldersToDelete) {
+      try {
+        const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', folder.slug);
+        if (fs.existsSync(folderDir)) {
+          await fs.promises.rm(folderDir, { recursive: true, force: true }).catch(() => {});
+        }
+      } catch (fsErr) {
+        console.warn(`[WARN] Lỗi xóa thư mục vật lý ${folder.slug}:`, fsErr);
+      }
+
+      await cleanupDanglingFolderReferences(folder.slug, folder.id);
+      deletedFolderIds.push(folder.id);
+    }
+
+    // Also handle any IDs that were physical folders on disk but not in DB
+    const foldersBaseDir = path.join(process.cwd(), 'public', 'uploads', 'folders');
+    for (const rawId of ids) {
+      if (typeof rawId === 'string' && !rawId.includes('..') && !rawId.includes('/')) {
+        const diskPath = path.join(foldersBaseDir, rawId);
+        if (fs.existsSync(diskPath)) {
+          await fs.promises.rm(diskPath, { recursive: true, force: true }).catch(() => {});
+        }
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Đã xóa thành công ${deletedFolderIds.length} thư mục và toàn bộ dữ liệu bên trong!`,
+      deletedCount: deletedFolderIds.length,
+      deletedIds: deletedFolderIds,
+    });
+  } catch (error: any) {
+    console.error('Bulk delete media folders error:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Lỗi khi xóa hàng loạt thư mục media.' },
       { status: 500 }
     );
   }

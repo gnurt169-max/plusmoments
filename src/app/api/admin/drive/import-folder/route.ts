@@ -57,12 +57,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Cache folders
+    // Cache folders & track created folders
     const folderCache = new Map<string, any>();
+    const newlyCreatedFolders = new Map<string, { id: string; slug: string }>();
+    const savedFolderIds = new Set<string>();
+
     const ensureDbFolder = async (folderItem: ScannedFolderItem) => {
       if (folderCache.has(folderItem.slug)) {
         return folderCache.get(folderItem.slug);
       }
+
+      const existingInDb = await prisma.mediaFolder.findUnique({
+        where: { slug: folderItem.slug },
+      });
 
       const targetDirAbsolute = path.join(
         process.cwd(),
@@ -88,22 +95,37 @@ export async function POST(request: Request) {
         .writeFile(metadataPath, JSON.stringify(metaData, null, 2), 'utf-8')
         .catch(() => null);
 
-      const dbFolder = await prisma.mediaFolder.upsert({
-        where: { slug: folderItem.slug },
-        update: { name: folderItem.name },
-        create: { name: folderItem.name, slug: folderItem.slug },
-      });
+      const dbFolder = existingInDb
+        ? await prisma.mediaFolder.update({
+            where: { slug: folderItem.slug },
+            data: { name: folderItem.name },
+          })
+        : await prisma.mediaFolder.create({
+            data: { name: folderItem.name, slug: folderItem.slug },
+          });
+
+      if (!existingInDb) {
+        newlyCreatedFolders.set(folderItem.slug, { id: dbFolder.id, slug: dbFolder.slug });
+      }
 
       folderCache.set(folderItem.slug, dbFolder);
       return dbFolder;
     };
 
-    // Ensure all discovered folders exist
-    for (const f of scanResult.folders) {
-      await ensureDbFolder(f);
-    }
-
-    const rootDbFolder = await ensureDbFolder(scanResult.folders[0]);
+    const cleanupEmptyCreatedFolders = async () => {
+      for (const [slug, fInfo] of newlyCreatedFolders.entries()) {
+        if (!savedFolderIds.has(fInfo.id)) {
+          const count = await prisma.mediaFile.count({ where: { folderId: fInfo.id } });
+          if (count === 0) {
+            await prisma.mediaFolder.delete({ where: { id: fInfo.id } }).catch(() => {});
+            const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', slug);
+            if (fs.existsSync(folderDir)) {
+              await fs.promises.rm(folderDir, { recursive: true, force: true }).catch(() => {});
+            }
+          }
+        }
+      }
+    };
 
     // If client requested streaming progress
     if (wantStream) {
@@ -129,7 +151,7 @@ export async function POST(request: Request) {
           // Notify start
           safeEnqueue({
             type: 'start',
-            folderId: rootDbFolder.id,
+            folderId: scanResult.folders[0]?.id || '',
             folderName: resolvedFolderName,
             folderSlug: scanResult.folders[0]?.slug,
             total: validImages.length,
@@ -180,10 +202,9 @@ export async function POST(request: Request) {
               }
 
               const fallbackUrl = undefined;
-              const dbFolder = await ensureDbFolder(file.folder);
-
-              // Download and convert
+              // Download and convert only when valid
               const { buffer } = await downloadDriveImageBuffer(fileId, apiKey, fallbackUrl);
+              const dbFolder = await ensureDbFolder(file.folder);
               const converted = await convertBufferToOptimizedWebP(
                 buffer,
                 fileName,
@@ -210,6 +231,7 @@ export async function POST(request: Request) {
                 },
               });
 
+              savedFolderIds.add(dbFolder.id);
               importedCount++;
 
               const item = {
@@ -250,14 +272,18 @@ export async function POST(request: Request) {
             }
           }
 
+          // Cleanup any newly created folders that ended up with 0 images
+          await cleanupEmptyCreatedFolders();
+
           // Complete
           safeEnqueue({
             type: 'complete',
             success: true,
-            folderId: rootDbFolder.id,
+            folderId: Array.from(savedFolderIds)[0] || '',
             folderName: resolvedFolderName,
             folderSlug: scanResult.folders[0]?.slug,
             total: results.length,
+            discoveredFolders: savedFolderIds.size,
             importedCount,
             skippedCount,
             urls: results.map((r) => r.url),
@@ -324,9 +350,8 @@ export async function POST(request: Request) {
         }
 
         const fallbackUrl = undefined;
-        const dbFolder = await ensureDbFolder(file.folder);
-
         const { buffer } = await downloadDriveImageBuffer(fileId, apiKey, fallbackUrl);
+        const dbFolder = await ensureDbFolder(file.folder);
         const converted = await convertBufferToOptimizedWebP(
           buffer,
           fileName,
@@ -352,6 +377,7 @@ export async function POST(request: Request) {
           },
         });
 
+        savedFolderIds.add(dbFolder.id);
         importedCount++;
         results.push({
           id: dbFile.id,
@@ -370,13 +396,16 @@ export async function POST(request: Request) {
       }
     }
 
+    // Cleanup empty created folders
+    await cleanupEmptyCreatedFolders();
+
     return NextResponse.json({
       success: true,
       message: `Đã import trọn vẹn thư mục "${resolvedFolderName}"! Thêm mới: ${importedCount} ảnh | Bỏ qua: ${skippedCount} ảnh đã tồn tại.`,
-      folderId: rootDbFolder.id,
+      folderId: Array.from(savedFolderIds)[0] || '',
       folderName: resolvedFolderName,
       folderSlug: scanResult.folders[0]?.slug,
-      discoveredFolders: scanResult.folders.length,
+      discoveredFolders: savedFolderIds.size,
       total: results.length,
       importedCount,
       skippedCount,

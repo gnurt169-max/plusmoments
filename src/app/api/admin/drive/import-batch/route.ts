@@ -74,15 +74,20 @@ export async function POST(request: Request) {
 
           let totalImportedImages = 0;
           let totalSkippedImages = 0;
-          let totalImportedFolders = 0;
           const globalErrors: string[] = [];
           const folderCache = new Map<string, any>();
+          const newlyCreatedFolders = new Map<string, { id: string; slug: string }>();
+          const savedFolderIds = new Set<string>();
 
-          // Helper to get or create DB folder
+          // Helper to get or create DB folder on-demand
           const ensureDbFolder = async (folderItem: ScannedFolderItem) => {
             if (folderCache.has(folderItem.slug)) {
               return folderCache.get(folderItem.slug);
             }
+
+            const existingInDb = await prisma.mediaFolder.findUnique({
+              where: { slug: folderItem.slug },
+            });
 
             const targetDirAbsolute = path.join(
               process.cwd(),
@@ -108,14 +113,36 @@ export async function POST(request: Request) {
               .writeFile(metadataPath, JSON.stringify(metaData, null, 2), 'utf-8')
               .catch(() => null);
 
-            const dbFolder = await prisma.mediaFolder.upsert({
-              where: { slug: folderItem.slug },
-              update: { name: folderItem.name },
-              create: { name: folderItem.name, slug: folderItem.slug },
-            });
+            const dbFolder = existingInDb
+              ? await prisma.mediaFolder.update({
+                  where: { slug: folderItem.slug },
+                  data: { name: folderItem.name },
+                })
+              : await prisma.mediaFolder.create({
+                  data: { name: folderItem.name, slug: folderItem.slug },
+                });
+
+            if (!existingInDb) {
+              newlyCreatedFolders.set(folderItem.slug, { id: dbFolder.id, slug: dbFolder.slug });
+            }
 
             folderCache.set(folderItem.slug, dbFolder);
             return dbFolder;
+          };
+
+          const cleanupEmptyCreatedFolders = async () => {
+            for (const [slug, fInfo] of newlyCreatedFolders.entries()) {
+              if (!savedFolderIds.has(fInfo.id)) {
+                const count = await prisma.mediaFile.count({ where: { folderId: fInfo.id } });
+                if (count === 0) {
+                  await prisma.mediaFolder.delete({ where: { id: fInfo.id } }).catch(() => {});
+                  const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', slug);
+                  if (fs.existsSync(folderDir)) {
+                    await fs.promises.rm(folderDir, { recursive: true, force: true }).catch(() => {});
+                  }
+                }
+              }
+            }
           };
 
           // Process each selected root folder in sequence (for...of loop, never early return)
@@ -134,12 +161,6 @@ export async function POST(request: Request) {
             try {
               // 1. Recursive scan: finds all subfolders and all images at every depth level
               const scanResult = await getAllFilesRecursively(target.id, '', apiKey);
-
-              // Ensure all discovered folders exist in DB and disk
-              for (const f of scanResult.folders) {
-                await ensureDbFolder(f);
-              }
-              totalImportedFolders += scanResult.folders.length;
 
               const totalImagesInBatch = scanResult.images.length;
 
@@ -173,8 +194,6 @@ export async function POST(request: Request) {
 
                 const img = scanResult.images[imgIdx];
                 try {
-                  const dbFolder = await ensureDbFolder(img.folder);
-
                   // Two-tier deduplication check:
                   // Tier 1: driveFileId unique match
                   // Tier 2: md5Checksum match (if present from Drive API)
@@ -214,6 +233,7 @@ export async function POST(request: Request) {
 
                   const fallbackUrl = undefined;
                   const { buffer } = await downloadDriveImageBuffer(img.id, apiKey, fallbackUrl);
+                  const dbFolder = await ensureDbFolder(img.folder);
                   const converted = await convertBufferToOptimizedWebP(
                     buffer,
                     img.name,
@@ -239,6 +259,7 @@ export async function POST(request: Request) {
                     },
                   });
 
+                  savedFolderIds.add(dbFolder.id);
                   analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
 
                   totalImportedImages++;
@@ -301,12 +322,15 @@ export async function POST(request: Request) {
             }
           }
 
+          // Cleanup any newly created folders that ended up with 0 images
+          await cleanupEmptyCreatedFolders();
+
           // Complete entire batch
           safeEnqueue({
             type: 'complete',
             success: true,
             totalFolders: targetFolders.length,
-            discoveredFolders: totalImportedFolders,
+            discoveredFolders: savedFolderIds.size,
             totalImages: totalImportedImages,
             total: totalImportedImages,
             importedCount: totalImportedImages,
@@ -336,15 +360,20 @@ export async function POST(request: Request) {
     // NON-STREAMING FALLBACK
     let totalImportedImages = 0;
     let totalSkippedImages = 0;
-    let totalImportedFolders = 0;
     const globalErrors: string[] = [];
     const results: any[] = [];
     const folderCache = new Map<string, any>();
+    const newlyCreatedFoldersSync = new Map<string, { id: string; slug: string }>();
+    const savedFolderIdsSync = new Set<string>();
 
     const ensureDbFolderSync = async (folderItem: ScannedFolderItem) => {
       if (folderCache.has(folderItem.slug)) {
         return folderCache.get(folderItem.slug);
       }
+
+      const existingInDb = await prisma.mediaFolder.findUnique({
+        where: { slug: folderItem.slug },
+      });
 
       const targetDirAbsolute = path.join(
         process.cwd(),
@@ -370,28 +399,44 @@ export async function POST(request: Request) {
         .writeFile(metadataPath, JSON.stringify(metaData, null, 2), 'utf-8')
         .catch(() => null);
 
-      const dbFolder = await prisma.mediaFolder.upsert({
-        where: { slug: folderItem.slug },
-        update: { name: folderItem.name },
-        create: { name: folderItem.name, slug: folderItem.slug },
-      });
+      const dbFolder = existingInDb
+        ? await prisma.mediaFolder.update({
+            where: { slug: folderItem.slug },
+            data: { name: folderItem.name },
+          })
+        : await prisma.mediaFolder.create({
+            data: { name: folderItem.name, slug: folderItem.slug },
+          });
+
+      if (!existingInDb) {
+        newlyCreatedFoldersSync.set(folderItem.slug, { id: dbFolder.id, slug: dbFolder.slug });
+      }
 
       folderCache.set(folderItem.slug, dbFolder);
       return dbFolder;
     };
 
+    const cleanupEmptyCreatedFoldersSync = async () => {
+      for (const [slug, fInfo] of newlyCreatedFoldersSync.entries()) {
+        if (!savedFolderIdsSync.has(fInfo.id)) {
+          const count = await prisma.mediaFile.count({ where: { folderId: fInfo.id } });
+          if (count === 0) {
+            await prisma.mediaFolder.delete({ where: { id: fInfo.id } }).catch(() => {});
+            const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', slug);
+            if (fs.existsSync(folderDir)) {
+              await fs.promises.rm(folderDir, { recursive: true, force: true }).catch(() => {});
+            }
+          }
+        }
+      }
+    };
+
     for (const target of targetFolders) {
       try {
         const scanResult = await getAllFilesRecursively(target.id, '', apiKey);
-        for (const f of scanResult.folders) {
-          await ensureDbFolderSync(f);
-        }
-        totalImportedFolders += scanResult.folders.length;
 
         for (const img of scanResult.images) {
           try {
-            const dbFolder = await ensureDbFolderSync(img.folder);
-
             // Deduplication check
             const existingFile = await prisma.mediaFile.findFirst({
               where: {
@@ -417,6 +462,7 @@ export async function POST(request: Request) {
 
             const fallbackUrl = undefined;
             const { buffer } = await downloadDriveImageBuffer(img.id, apiKey, fallbackUrl);
+            const dbFolder = await ensureDbFolderSync(img.folder);
             const converted = await convertBufferToOptimizedWebP(
               buffer,
               img.name,
@@ -442,6 +488,7 @@ export async function POST(request: Request) {
               },
             });
 
+            savedFolderIdsSync.add(dbFolder.id);
             analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
 
             totalImportedImages++;
@@ -461,11 +508,14 @@ export async function POST(request: Request) {
       }
     }
 
+    // Cleanup empty created folders
+    await cleanupEmptyCreatedFoldersSync();
+
     return NextResponse.json({
       success: true,
       message: `Đã hoàn tất import ${targetFolders.length} thư mục! Thêm mới: ${totalImportedImages} ảnh | Bỏ qua: ${totalSkippedImages} ảnh đã tồn tại.`,
       totalFolders: targetFolders.length,
-      discoveredFolders: totalImportedFolders,
+      discoveredFolders: savedFolderIdsSync.size,
       totalImages: totalImportedImages,
       importedCount: totalImportedImages,
       skippedCount: totalSkippedImages,

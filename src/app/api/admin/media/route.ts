@@ -156,6 +156,12 @@ export async function GET(request: Request) {
     // Separate Root media (standalone in /uploads/products or /uploads/) vs Folders media
     const rootMedia = media.filter((m) => !m.url.startsWith('/uploads/folders/'));
 
+    // Query DB folders to map IDs
+    const dbMediaFolders = await prisma.mediaFolder.findMany({
+      select: { id: true, slug: true, name: true },
+    });
+    const dbFolderMap = new Map(dbMediaFolders.map((df) => [df.slug, df]));
+
     // Read list of folders
     const folderEntries = await fs.promises.readdir(foldersBaseDir, { withFileTypes: true });
     const folders: any[] = [];
@@ -165,8 +171,9 @@ export async function GET(request: Request) {
 
       const folderSlug = entry.name;
       const folderFullPath = path.join(foldersBaseDir, folderSlug);
+      const dbMatch = dbFolderMap.get(folderSlug);
 
-      let folderName = folderSlug.replace(/[-_]/g, ' ');
+      let folderName = dbMatch?.name || folderSlug.replace(/[-_]/g, ' ');
       let createdAt = new Date().toISOString();
       let driveFolderId: string | undefined;
 
@@ -175,7 +182,7 @@ export async function GET(request: Request) {
         try {
           const rawMeta = await fs.promises.readFile(metaPath, 'utf-8');
           const parsed = JSON.parse(rawMeta);
-          if (parsed.name) folderName = parsed.name;
+          if (parsed.name && !dbMatch?.name) folderName = parsed.name;
           if (parsed.createdAt) createdAt = parsed.createdAt;
           if (parsed.driveFolderId) driveFolderId = parsed.driveFolderId;
         } catch {}
@@ -189,6 +196,7 @@ export async function GET(request: Request) {
       const totalFolderBytes = folderImages.reduce((sum, img) => sum + img.size, 0);
 
       folders.push({
+        id: dbMatch?.id || folderSlug,
         slug: folderSlug,
         name: folderName,
         path: `/uploads/folders/${folderSlug}`,
