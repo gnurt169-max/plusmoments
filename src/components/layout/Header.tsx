@@ -31,43 +31,30 @@ export function Header(props: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
 
+  // Sử dụng IntersectionObserver theo dõi mốc sentinel thay cho scroll listener
+  // Triệt tiêu 100% Forced Reflow do không bao giờ đọc window.scrollY đồng bộ
   useEffect(() => {
-    let ticking = false;
-    let rafId: number | null = null;
+    const sentinel = document.getElementById('scroll-sentinel');
+    if (!sentinel) return;
 
-    const handleScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        rafId = window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 20);
-          ticking = false;
-        });
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsScrolled(!entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
 
-    // Chỉ chạy sau frame đầu tiên để tránh Forced Reflow lúc initial hydration
-    rafId = window.requestAnimationFrame(handleScroll);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
-      }
-      window.removeEventListener('scroll', handleScroll);
-    };
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, []);
 
-  // Prevent background scroll when mobile full-screen drawer is open
+  // Prevent background scroll only when mobile full-screen drawer is opened
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else if (document.body.style.overflow === 'hidden') {
-      document.body.style.overflow = '';
-    }
+    if (!mobileMenuOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      if (document.body.style.overflow === 'hidden') {
-        document.body.style.overflow = '';
-      }
+      document.body.style.overflow = originalOverflow;
     };
   }, [mobileMenuOpen]);
 
@@ -81,6 +68,13 @@ export function Header(props: HeaderProps) {
 
   return (
     <>
+      {/* Invisible Scroll Sentinel Fallback */}
+      <div
+        id="scroll-sentinel"
+        aria-hidden="true"
+        className="absolute top-0 left-0 h-6 w-px pointer-events-none opacity-0 z-[-1]"
+      />
+
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 min-h-[72px] sm:min-h-[80px] h-20 flex items-center ${
           isScrolled

@@ -114,7 +114,14 @@ export default async function PublicLayout({
         customBodyScript={settings.customBodyScript}
       />
 
-      <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans">
+      <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans relative">
+        {/* Invisible Scroll Sentinel for Zero-Reflow IntersectionObserver Navbar */}
+        <div
+          id="scroll-sentinel"
+          aria-hidden="true"
+          className="absolute top-0 left-0 h-6 w-px pointer-events-none opacity-0"
+        />
+
         {/* Multi-Layer Image & Copyright Protection */}
         <ContentProtection />
 

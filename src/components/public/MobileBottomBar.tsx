@@ -35,17 +35,13 @@ export function MobileBottomBar() {
   // Zalo URL
   const zaloUrl = contact.zaloUrl || `https://zalo.me/${cleanPhone}`;
 
-  // Prevent background scroll when bottom sheet is open
+  // Prevent background scroll only when bottom sheet is opened
   useEffect(() => {
-    if (isBottomSheetOpen) {
-      document.body.style.overflow = 'hidden';
-    } else if (document.body.style.overflow === 'hidden') {
-      document.body.style.overflow = '';
-    }
+    if (!isBottomSheetOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      if (document.body.style.overflow === 'hidden') {
-        document.body.style.overflow = '';
-      }
+      document.body.style.overflow = originalOverflow;
     };
   }, [isBottomSheetOpen]);
 

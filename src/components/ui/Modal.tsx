@@ -25,15 +25,11 @@ export function Modal({
 
   useEffect(() => {
     setMounted(true);
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else if (document.body.style.overflow === 'hidden') {
-      document.body.style.overflow = '';
-    }
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      if (document.body.style.overflow === 'hidden') {
-        document.body.style.overflow = '';
-      }
+      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
 
