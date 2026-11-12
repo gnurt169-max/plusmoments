@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { FloatingCard } from '@/components/motion/FloatingCard';
-import { PricingSection } from '@/components/home/PricingSection';
 import { FeaturedBlogSection } from '@/components/home/FeaturedBlogSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import { extractPackageFeatures } from '@/lib/package-features';
@@ -15,6 +14,12 @@ import {
   Star,
   ArrowRight,
 } from 'lucide-react';
+
+// Tách JS của Bảng giá & Modal chi tiết bên dưới trang chủ thành chunk riêng
+const PricingSection = dynamic(
+  () => import('@/components/home/PricingSection'),
+  { ssr: true }
+);
 
 // Tách CSS và JS của biểu mẫu tư vấn ở cuối trang (Below-the-fold) thành chunk riêng
 const ConsultationForm = dynamic(

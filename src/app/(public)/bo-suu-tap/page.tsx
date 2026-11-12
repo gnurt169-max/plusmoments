@@ -4,10 +4,15 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
+import dynamic from 'next/dynamic';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { Sparkles, ArrowRight } from 'lucide-react';
+
+const ConsultationForm = dynamic(
+  () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
+  { ssr: false }
+);
 
 export const revalidate = 60;
 

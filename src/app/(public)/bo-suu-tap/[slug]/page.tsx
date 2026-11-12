@@ -2,15 +2,20 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { formatDate } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { MapPin, Calendar, Heart, ArrowLeft, Sparkles, Image as ImageIcon } from 'lucide-react';
+
+const ConsultationForm = dynamic(
+  () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
+  { ssr: false }
+);
 
 export const revalidate = 60;
 
