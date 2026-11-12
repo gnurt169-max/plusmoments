@@ -17,6 +17,15 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "browserslist": [
+    "chrome >= 100",
+    "edge >= 100",
+    "firefox >= 100",
+    "safari >= 15.4",
+    "ios >= 15.4",
+    "not dead",
+    "not ie 11"
+  ],
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@react-email/components": "^1.0.12",
