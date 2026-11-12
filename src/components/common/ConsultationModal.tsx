@@ -11,6 +11,7 @@ interface ConsultationModalProps {
   promoText?: string;
   title?: string;
   subtitle?: string;
+  source?: string;
 }
 
 export function ConsultationModal({
@@ -20,6 +21,7 @@ export function ConsultationModal({
   promoText = 'Bảo lưu ưu đãi 2.000.000đ khi đăng ký tư vấn hôm nay',
   title = 'Đăng Ký Tư Vấn & Nhận Báo Giá Trọn Gói',
   subtitle,
+  source,
 }: ConsultationModalProps) {
   return (
     <Modal
@@ -32,6 +34,7 @@ export function ConsultationModal({
         defaultPackage={defaultPackage}
         onSuccess={onClose}
         redirectOnSuccess={false}
+        source={source}
       />
     </Modal>
   );

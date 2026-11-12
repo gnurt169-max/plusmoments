@@ -12,6 +12,7 @@ interface ConsultationFormProps {
   onSuccess?: () => void;
   className?: string;
   redirectOnSuccess?: boolean;
+  source?: string;
 }
 
 export function ConsultationForm({
@@ -19,6 +20,7 @@ export function ConsultationForm({
   onSuccess,
   className = '',
   redirectOnSuccess,
+  source,
 }: ConsultationFormProps) {
   const router = useRouter();
   const { contact } = useContact();

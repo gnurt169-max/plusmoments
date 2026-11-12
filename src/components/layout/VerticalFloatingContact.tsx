@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Phone, CalendarHeart, Sparkles } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
 import { trackHotlineClick, trackZaloClick } from '@/lib/tracking';
-import { Modal } from '@/components/ui/Modal';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
+
+// Tách biệt hoàn toàn JS & CSS của Modal tư vấn khỏi layout chính
+const ConsultationModal = dynamic(
+  () => import('@/components/common/ConsultationModal'),
+  { ssr: false }
+);
 
 export function VerticalFloatingContact() {
   const { contact } = useContact();
@@ -143,20 +148,16 @@ export function VerticalFloatingContact() {
       </aside>
 
       {/* =========================================================================
-          POPUP MODAL BÁO GIÁ & TƯ VẤN (Strict Portal Rendering to document.body)
+          POPUP MODAL BÁO GIÁ & TƯ VẤN (Chỉ nạp JS/CSS khi người dùng click mở)
       ========================================================================= */}
       {isConsultModalOpen && (
-        <Modal
+        <ConsultationModal
           isOpen={isConsultModalOpen}
           onClose={() => setIsConsultModalOpen(false)}
           title="Đăng Ký Tư Vấn & Nhận Báo Giá Trọn Gói"
           subtitle={`Để lại thông tin để PlusMoments gửi trọn bộ catalog ảnh cưới và bảo lưu ưu đãi: "${contact.promoText}".`}
-        >
-          <ConsultationForm
-            onSuccess={() => setIsConsultModalOpen(false)}
-            redirectOnSuccess={false}
-          />
-        </Modal>
+          source="vertical_floating_bar"
+        />
       )}
     </>
   );

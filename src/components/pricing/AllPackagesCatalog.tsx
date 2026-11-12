@@ -13,9 +13,15 @@ import {
   Heart,
   ArrowRight,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
-import { PackageDetailModal } from './PackageDetailModal';
 import type { PricingPackageData } from './LuxuryPricingSection';
+
+// Dynamic load PackageDetailModal on demand
+const PackageDetailModal = dynamic(
+  () => import('@/components/common/PackageDetailModal'),
+  { ssr: false }
+);
 
 export interface AllPackagesCatalogProps {
   packages: PricingPackageData[];

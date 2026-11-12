@@ -1,10 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Phone, Sparkles, X, ChevronUp, Gift } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
 import { trackHotlineClick, trackZaloClick } from '@/lib/tracking';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
+
+const ConsultationForm = dynamic(
+  () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
+  { ssr: false }
+);
 
 export function MobileBottomBar() {
   const { contact } = useContact();

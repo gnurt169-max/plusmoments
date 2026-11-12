@@ -11,9 +11,15 @@ import {
   CreditCard,
   ShieldCheck,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
-import { PackageDetailModal } from '@/components/pricing/PackageDetailModal';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
+
+// Chỉ tải JS + CSS của Modal khi người dùng bấm mở
+const PackageDetailModal = dynamic(
+  () => import('@/components/common/PackageDetailModal'),
+  { ssr: false }
+);
 
 export interface PricingSectionProps {
   packages: PricingPackageData[];

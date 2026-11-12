@@ -2,12 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Menu, X, Sparkles, Phone, MapPin, MessageCircle, ArrowRight } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
-import { Modal } from '@/components/ui/Modal';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { trackHotlineClick, trackZaloClick } from '@/lib/tracking';
+
+// Tách biệt hoàn toàn JS & CSS của Modal tư vấn khỏi thanh Header Above-the-fold
+const ConsultationModal = dynamic(
+  () => import('@/components/common/ConsultationModal'),
+  { ssr: false }
+);
 
 interface HeaderProps {
   hotlineDisplay?: string;
@@ -248,19 +253,15 @@ export function Header(props: HeaderProps) {
         </div>
       )}
 
-      {/* Global Consultation Modal (Mounted only when open) */}
+      {/* Global Consultation Modal (Chỉ nạp JS/CSS khi người dùng click mở) */}
       {isConsultModalOpen && (
-        <Modal
+        <ConsultationModal
           isOpen={isConsultModalOpen}
           onClose={() => setIsConsultModalOpen(false)}
           title="Nhận Báo Giá & Tư Vấn Concept Cưới"
           subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và lịch trình chụp ảnh cưới hoàn hảo nhất."
-        >
-          <ConsultationForm
-            onSuccess={() => setIsConsultModalOpen(false)}
-            redirectOnSuccess={false}
-          />
-        </Modal>
+          source="header_modal"
+        />
       )}
     </>
   );

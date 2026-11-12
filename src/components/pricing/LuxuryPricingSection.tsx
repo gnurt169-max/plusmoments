@@ -17,10 +17,19 @@ import {
   ChevronRight,
   X,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
-import { Modal } from '@/components/ui/Modal';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
-import { PackageDetailModal } from './PackageDetailModal';
+
+// Dynamic load modals strictly on user interaction
+const PackageDetailModal = dynamic(
+  () => import('@/components/common/PackageDetailModal'),
+  { ssr: false }
+);
+
+const ConsultationModal = dynamic(
+  () => import('@/components/common/ConsultationModal'),
+  { ssr: false }
+);
 
 export interface PricingPackageData {
   id: string;
@@ -280,26 +289,23 @@ export function LuxuryPricingSection({
       {/* =========================================================================
           DETAILED PACKAGE POPUP MODAL (100% Inclusions & VietQR Checkout Redirect)
       ========================================================================= */}
-      <PackageDetailModal
-        packageData={selectedPackage}
-        isOpen={!!selectedPackage}
-        onClose={() => setSelectedPackage(null)}
-      />
+      {selectedPackage && (
+        <PackageDetailModal
+          packageData={selectedPackage}
+          isOpen={!!selectedPackage}
+          onClose={() => setSelectedPackage(null)}
+        />
+      )}
 
       {/* QUICK CONSULTATION MODAL */}
       {consultPackageName && (
-        <Modal
+        <ConsultationModal
           isOpen={!!consultPackageName}
           onClose={() => setConsultPackageName(null)}
           title="Nhận Ưu Đãi Gói Cưới"
           subtitle={`Để lại thông tin để PlusMoments giữ ưu đãi 2.000.000đ cho "${consultPackageName}".`}
-        >
-          <ConsultationForm
-            defaultPackage={consultPackageName}
-            onSuccess={() => setConsultPackageName(null)}
-            redirectOnSuccess={false}
-          />
-        </Modal>
+          defaultPackage={consultPackageName}
+        />
       )}
     </div>
   );

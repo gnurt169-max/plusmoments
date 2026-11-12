@@ -2,10 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Sparkles, Check, ArrowRight } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
-import { Modal } from '@/components/ui/Modal';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
+
+const ConsultationModal = dynamic(
+  () => import('@/components/common/ConsultationModal'),
+  { ssr: false }
+);
 
 export interface LinkedPackageData {
   id: string;
@@ -184,20 +188,16 @@ export function LinkedPackageCard({
         </div>
       </div>
 
-      {/* POPUP MODAL TƯ VẤN GÓI RIÊNG BIỆT (Strictly conditional) */}
+      {/* POPUP MODAL TƯ VẤN GÓI RIÊNG BIỆT (Chỉ nạp JS/CSS khi bấm mở) */}
       {isConsultModalOpen && (
-        <Modal
+        <ConsultationModal
           isOpen={isConsultModalOpen}
           onClose={() => setIsConsultModalOpen(false)}
-          maxWidth="max-w-xl"
           title={`Tư Vấn Concept ${packageData.name}`}
           subtitle="Để lại thông tin để PlusMoments liên hệ tư vấn bối cảnh, váy cưới và gửi báo giá ưu đãi tốt nhất cho hai bạn."
-        >
-          <ConsultationForm
-            defaultPackage={packageData.name}
-            onSuccess={() => setIsConsultModalOpen(false)}
-          />
-        </Modal>
+          defaultPackage={packageData.name}
+          source="linked_package_card"
+        />
       )}
     </>
   );

@@ -1,10 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { FloatingCard } from '@/components/motion/FloatingCard';
-import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { PricingSection } from '@/components/home/PricingSection';
 import { FeaturedBlogSection } from '@/components/home/FeaturedBlogSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
@@ -15,6 +15,19 @@ import {
   Star,
   ArrowRight,
 } from 'lucide-react';
+
+// Tách CSS và JS của biểu mẫu tư vấn ở cuối trang (Below-the-fold) thành chunk riêng
+const ConsultationForm = dynamic(
+  () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-48 flex items-center justify-center text-xs text-stone-400">
+        Đang tải biểu mẫu tư vấn...
+      </div>
+    ),
+  }
+);
 
 export const revalidate = 60; // ISR cache revalidation every 60s
 
