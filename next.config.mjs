@@ -1,3 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -82,6 +87,23 @@ const nextConfig = {
       { source: '/lp', destination: '/uu-dai' },
       { source: '/lp/:slug*', destination: '/uu-dai' },
     ];
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      const emptyPolyfillPath = path.resolve(__dirname, 'src/lib/empty-polyfill.js');
+      const polyfillModulePath = path.resolve(
+        __dirname,
+        'node_modules/next/dist/build/polyfills/polyfill-module.js'
+      );
+
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'next/dist/build/polyfills/polyfill-module': emptyPolyfillPath,
+        'next/dist/build/polyfills/polyfill-module.js': emptyPolyfillPath,
+        [polyfillModulePath]: emptyPolyfillPath,
+      };
+    }
+    return config;
   },
 };
 
