@@ -288,8 +288,9 @@ export default async function HomePage() {
                           src={coverImageSrc}
                           alt={album?.title || 'PlusMoments Wedding Album'}
                           fill
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          quality={80}
+                          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                         />
                         {album?.concept && (
                           <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">

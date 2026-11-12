@@ -1,7 +1,7 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Clock, Calendar } from 'lucide-react';
-import { ProtectedImage } from '@/components/common/ProtectedImage';
 
 export interface PostItem {
   id: string;
@@ -57,15 +57,16 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                 {/* Thumbnail Container */}
                 <Link
                   href={`/cam-nang/${post.slug}`}
-                  className="relative aspect-[16/10] overflow-hidden bg-[#F5F2EB] block"
+                  className="relative aspect-[16/10] w-full overflow-hidden bg-[#1E1C1A] block"
                   title={post.title}
                 >
-                  <ProtectedImage
-                    src={post.coverImage || '/images/default-blog.jpg'}
+                  <Image
+                    src={post.coverImage || '/placeholder.jpg'}
                     alt={post.title}
-                    wrapperClassName="w-full h-full"
-                    imageClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
+                    fill
+                    quality={80}
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
                   />
                   {post.category && (
                     <span className="absolute top-3 left-3 z-20 px-3 py-1 bg-white/90 backdrop-blur-md text-[11px] font-medium tracking-wider uppercase text-[#2E2824] rounded-full shadow-sm pointer-events-none">
