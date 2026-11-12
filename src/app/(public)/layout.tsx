@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { getAdminSession } from '@/lib/auth';
@@ -17,6 +18,7 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   const [settings, activeAlbums, activePackages, activePosts] = await Promise.all([
     getSystemSettings(),
     prisma.album
@@ -105,6 +107,7 @@ export default async function PublicLayout({
     >
       {/* Centralized Ad & Analytics Tracking Scripts */}
       <TrackingProvider
+        nonce={nonce}
         gtmId={settings.gtmId}
         googleAdsId={settings.googleAdsId}
         googleAnalyticsId={settings.googleAnalyticsId}
