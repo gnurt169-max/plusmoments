@@ -183,7 +183,7 @@ export function LuxuryPricingSection({
                       src={coverImg}
                       alt={pkg.name}
                       fill
-                      quality={80}
+                      quality={70}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                     />
