@@ -59,6 +59,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                   href={`/cam-nang/${post.slug}`}
                   className="relative aspect-[16/10] w-full overflow-hidden bg-[#1E1C1A] block"
                   title={post.title}
+                  aria-label={`Xem bài viết: ${post.title}`}
                 >
                   <Image
                     src={post.coverImage || '/placeholder.jpg'}
@@ -94,7 +95,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                   </div>
 
                   <h3 className="text-lg font-serif font-medium text-[#1C1917] group-hover:text-[#8C7A6B] transition-colors duration-200 line-clamp-2 leading-snug mb-3">
-                    <Link href={`/cam-nang/${post.slug}`}>
+                    <Link href={`/cam-nang/${post.slug}`} aria-label={`Đọc bài viết: ${post.title}`}>
                       {post.title}
                     </Link>
                   </h3>
@@ -108,10 +109,12 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                   <div className="pt-4 border-t border-[#F5F2EB] mt-auto">
                     <Link
                       href={`/cam-nang/${post.slug}`}
+                      aria-label={`Khám phá bài viết: ${post.title}`}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#2E2824] group-hover:text-[#8C7A6B] transition-colors"
                     >
                       <span>Khám phá bài viết</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                      <span className="sr-only">: {post.title}</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
                     </Link>
                   </div>
                 </div>

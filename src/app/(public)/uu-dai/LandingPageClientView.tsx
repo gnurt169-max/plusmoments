@@ -300,10 +300,12 @@ export function LandingPageClientView({
                       onClick={() => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
+                      aria-label={`Giữ chỗ ưu đãi gói ${pkg.name}`}
                       className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-900 hover:bg-luxury-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <span>Giữ Chỗ Gói Này</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span className="sr-only">: {pkg.name}</span>
+                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 </div>

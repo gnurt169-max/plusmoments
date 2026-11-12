@@ -171,18 +171,21 @@ export function LinkedPackageCard({
             <button
               type="button"
               onClick={() => setIsConsultModalOpen(true)}
+              aria-label={`Tư vấn gói dịch vụ cưới ${packageData.name}`}
               className="w-full px-5 py-3 rounded-full bg-[#9A6436] hover:bg-[#855328] active:scale-95 text-white text-xs uppercase tracking-wider font-semibold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-200" aria-hidden="true" />
               <span>Tư Vấn Concept Này</span>
             </button>
 
             <Link
               href={`/pricing#${packageData.slug}`}
+              aria-label={`Xem báo giá chi tiết gói ${packageData.name}`}
               className="w-full px-5 py-3 rounded-full border border-stone-300 hover:border-charcoal-900 text-charcoal-800 hover:bg-white text-xs uppercase tracking-wider font-medium transition-all bg-white/70 shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer text-center"
             >
               <span>Xem Báo Giá Chi Tiết</span>
-              <ArrowRight className="w-3.5 h-3.5 text-stone-500" />
+              <span className="sr-only">: {packageData.name}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-stone-500" aria-hidden="true" />
             </Link>
           </div>
         </div>

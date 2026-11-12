@@ -299,6 +299,7 @@ export default async function HomePage() {
                   >
                     <Link
                       href={`/bo-suu-tap/${album?.slug || ''}`}
+                      aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
                       className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                     >
                       <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">

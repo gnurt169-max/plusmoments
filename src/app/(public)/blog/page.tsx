@@ -96,10 +96,12 @@ export default async function BlogPage() {
                 <span className="text-charcoal-500 font-light text-[11px]">{post.author}</span>
                 <Link
                   href={`/blog/${post.slug}`}
+                  aria-label={`Đọc bài viết: ${post.title}`}
                   className="flex items-center gap-1 hover:text-luxury-800 transition-colors"
                 >
                   <span>Đọc bài viết</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span className="sr-only">: {post.title}</span>
+                  <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                 </Link>
               </div>
             </article>
