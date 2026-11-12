@@ -33,6 +33,23 @@ console.log(`⚡ [inline-css] Bắt đầu quét ${htmlFiles.length} file HTML t
 const cssCache = new Map();
 let totalInlined = 0;
 
+// Tinh gọn CSS font: Loại bỏ các block @font-face không dùng cho tiếng Việt (cyrillic, latin-ext)
+// để loại bỏ triệt để 2 file font latin-ext dư thừa (20.92 KiB + 67.06 KiB = ~88 KiB)
+function optimizeFontCss(css) {
+  if (!css.includes('@font-face') || !css.includes('unicode-range')) {
+    return css;
+  }
+  return css.replace(/@font-face\s*\{[^}]*\}/gi, (block) => {
+    const lower = block.toLowerCase();
+    const isCyrillic = lower.includes('u+0400') || lower.includes('u+0460') || lower.includes('u+0301');
+    const isLatinExt = lower.includes('u+0100-02ba');
+    if (isCyrillic || isLatinExt) {
+      return '';
+    }
+    return block;
+  });
+}
+
 for (const htmlPath of htmlFiles) {
   let content = fs.readFileSync(htmlPath, 'utf8');
   let fileInlinedCount = 0;
@@ -53,7 +70,9 @@ for (const htmlPath of htmlFiles) {
     }
 
     if (!cssCache.has(cssFilename)) {
-      cssCache.set(cssFilename, fs.readFileSync(cssFilePath, 'utf8'));
+      let rawCss = fs.readFileSync(cssFilePath, 'utf8');
+      rawCss = optimizeFontCss(rawCss);
+      cssCache.set(cssFilename, rawCss);
     }
 
     const cssContent = cssCache.get(cssFilename);
