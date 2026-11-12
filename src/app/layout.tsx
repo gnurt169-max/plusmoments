@@ -6,7 +6,7 @@ import { getSystemSettings } from '@/lib/settings';
 import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
 
 const playfair = Playfair_Display({
-  subsets: ['vietnamese', 'latin'],
+  subsets: ['vietnamese'],
   weight: ['400', '600'],
   variable: '--font-playfair',
   display: 'swap',
@@ -15,8 +15,8 @@ const playfair = Playfair_Display({
 });
 
 const montserrat = Montserrat({
-  subsets: ['vietnamese', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  subsets: ['vietnamese'],
+  weight: ['400', '500', '600'],
   variable: '--font-montserrat',
   display: 'swap',
   preload: true,
