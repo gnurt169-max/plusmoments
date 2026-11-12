@@ -14,10 +14,10 @@ const nextConfig = {
   images: {
     loader: 'custom',
     loaderFile: './src/lib/image-loader.ts',
-    formats: ['image/webp'], // Chỉ dùng WebP để giảm 80% tải CPU khi nén trên VPS, tránh timeout
+    deviceSizes: [640, 1440, 1920],
+    imageSizes: [384, 640],
+    formats: ['image/webp'],
     minimumCacheTTL: 31536000,
-    deviceSizes: [640, 828, 1080, 1200, 1920],
-    imageSizes: [384, 512],
     localPatterns: [
       {
         pathname: '/uploads/**',

@@ -15,12 +15,14 @@ export const metadata: Metadata = {
     'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
 };
 
+export const revalidate = 60;
+
 export default async function PricingPage() {
   const [packagesRaw, settings, faqsRaw] = await Promise.all([
     prisma.servicePackage.findMany({
       where: { published: true },
       orderBy: { orderIndex: 'asc' },
-    }),
+    }).catch(() => []),
     getSystemSettings(),
     prisma.pricingFaq.findMany({
       where: { isActive: true },
