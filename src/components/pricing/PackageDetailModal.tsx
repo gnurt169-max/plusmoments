@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
   Sparkles,
-  Check,
   Maximize2,
   ChevronLeft,
   ChevronRight,
@@ -266,7 +265,9 @@ export function PackageDetailModal({
                       key={idx}
                       className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"
                     >
-                      <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                      <span aria-hidden="true" className="text-[#C5A880] font-semibold shrink-0 leading-5">
+                        ✓
+                      </span>
                       <span>{item}</span>
                     </li>
                   ))}

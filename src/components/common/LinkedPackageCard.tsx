@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Sparkles, Check, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
 
 const ConsultationModal = dynamic(
@@ -143,7 +143,9 @@ export function LinkedPackageCard({
               <ul className="space-y-2 text-xs text-charcoal-700">
                 {highlights.slice(0, 3).map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
+                    <span aria-hidden="true" className="text-amber-800 font-semibold shrink-0 leading-5">
+                      ✓
+                    </span>
                     <span className="line-clamp-2 leading-relaxed font-light">{item}</span>
                   </li>
                 ))}

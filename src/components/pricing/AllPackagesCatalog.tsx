@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import {
   Sparkles,
-  Check,
   Eye,
   ShieldCheck,
   Clock,
@@ -194,7 +193,9 @@ export function AllPackagesCatalog({
                         <ul className={`space-y-1.5 text-sm text-[#4A4036] ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
                           {displayFeatures.map((feat: string, idx: number) => (
                             <li key={idx} className="flex items-start gap-2">
-                              <Check aria-hidden="true" className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                              <span aria-hidden="true" className="text-[#C5A880] font-semibold shrink-0 leading-5">
+                                ✓
+                              </span>
                               <span className={isSummary ? "line-clamp-2" : ""}>{feat}</span>
                             </li>
                           ))}
