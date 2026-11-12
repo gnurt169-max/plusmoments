@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https: http:;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.com.vn https://googleads.g.doubleclick.net https://lh3.googleusercontent.com https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://img.vietqr.io https://api.vietqr.io https://www.facebook.com;
     font-src 'self' data: https://fonts.gstatic.com;
