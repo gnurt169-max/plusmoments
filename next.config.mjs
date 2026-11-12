@@ -105,6 +105,8 @@ const nextConfig = {
       { source: '/cam-nang', destination: '/blog' },
       { source: '/cam-nang/:slug*', destination: '/blog/:slug*' },
       { source: '/lien-he', destination: '/contact' },
+      { source: '/packages', destination: '/bang-gia' },
+      { source: '/packages/:slug*', destination: '/bang-gia' },
       // Google Ads Dedicated Landing Pages & Conversion Thank You Pages
       { source: '/thank-you', destination: '/cam-on' },
       { source: '/dat-lich-thanh-cong', destination: '/cam-on' },

@@ -82,21 +82,31 @@ export default function AdminPackagesPage() {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    category: 'PRE_WEDDING',
+    category: '',
     subtitle: '',
     price: '' as string | number,
     originalPrice: '' as string | number,
     unit: 'trọn gói',
     coverImage: '',
-    highlightPointsList: [''],
+    highlightPointsList: [] as string[],
     demoImagesText: '',
     isPopular: false,
     isFeatured: false,
     orderIndex: 0,
     published: true,
-    inclusionsList: [''],
+    inclusionsList: [] as string[],
     deliverables: '',
   });
+
+  const existingCategories = React.useMemo(() => {
+    return Array.from(
+      new Set(
+        packages
+          .map((p) => p.category?.trim())
+          .filter((c): c is string => Boolean(c))
+      )
+    );
+  }, [packages]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -127,19 +137,19 @@ export default function AdminPackagesPage() {
     setFormData({
       name: '',
       slug: '',
-      category: 'PRE_WEDDING',
+      category: existingCategories[0] || '',
       subtitle: '',
       price: '',
       originalPrice: '',
       unit: 'trọn gói',
       coverImage: '',
-      highlightPointsList: [''],
+      highlightPointsList: [],
       demoImagesText: '',
       isPopular: false,
       isFeatured: false,
       orderIndex: packages.length + 1,
       published: true,
-      inclusionsList: [''],
+      inclusionsList: [],
       deliverables: '',
     });
     setIsModalOpen(true);
@@ -181,13 +191,13 @@ export default function AdminPackagesPage() {
       originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : '',
       unit: pkg.unit || 'trọn gói',
       coverImage: pkg.coverImage || '',
-      highlightPointsList: parsedHighlights.length > 0 ? parsedHighlights : [''],
+      highlightPointsList: parsedHighlights,
       demoImagesText: parsedDemoImages.join('\n'),
       isPopular: pkg.isPopular,
       isFeatured: pkg.isFeatured,
       orderIndex: pkg.orderIndex,
       published: pkg.published,
-      inclusionsList: parsedInclusions.length > 0 ? parsedInclusions : [''],
+      inclusionsList: parsedInclusions,
       deliverables: pkg.deliverables || '',
     });
     setIsModalOpen(true);
@@ -474,11 +484,7 @@ export default function AdminPackagesPage() {
 
                       <td className="py-4 px-6">
                         <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-champagne text-luxury-800">
-                          {pkg.category === 'PRE_WEDDING'
-                            ? 'Pre-Wedding'
-                            : pkg.category === 'STUDIO_CONCEPT'
-                            ? 'Studio Editorial'
-                            : 'Wedding Day'}
+                          {pkg.category || 'Chưa phân loại'}
                         </span>
                       </td>
 
@@ -624,13 +630,26 @@ export default function AdminPackagesPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <TaxonomySelect
-              type="service-categories"
-              label="Phân Loại Dịch Vụ"
-              value={formData.category}
-              onChange={(val) => setFormData({ ...formData, category: val })}
-              required
-            />
+            <div>
+              <label htmlFor="pkg-category-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+                Danh Mục Gói Dịch Vụ <span className="text-luxury-600">*</span>
+              </label>
+              <input
+                id="pkg-category-input"
+                list="existing-categories"
+                type="text"
+                required
+                placeholder="Nhập hoặc chọn danh mục (vd: PRE-WEDDING...)"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
+              />
+              <datalist id="existing-categories">
+                {existingCategories.map((cat, idx) => (
+                  <option key={idx} value={cat} />
+                ))}
+              </datalist>
+            </div>
 
             <div>
               <label htmlFor="pkg-price-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
@@ -722,27 +741,33 @@ export default function AdminPackagesPage() {
             </div>
 
             <div className="space-y-2">
-              {formData.highlightPointsList.map((pt, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-luxury-600 w-5 text-center font-bold">
-                    0{i + 1}
-                  </span>
-                  <input
-                    type="text"
-                    aria-label={`Điểm nhấn nổi bật ${i + 1}`}
-                    value={pt}
-                    onChange={(e) => handleHighlightChange(i, e.target.value)}
-                    className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-luxury-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveHighlight(i)}
-                    className="p-1 text-stone-400 hover:text-red-500 rounded cursor-pointer"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+              {formData.highlightPointsList.length === 0 ? (
+                <div className="text-center py-3 bg-white/70 rounded-xl border border-dashed border-stone-300 text-stone-400 text-xs font-light">
+                  Chưa có điểm nhấn rút gọn. Bấm &quot;Thêm&quot; để tạo điểm nhấn hiển thị trên card (nếu cần).
                 </div>
-              ))}
+              ) : (
+                formData.highlightPointsList.map((pt, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono text-luxury-600 w-5 text-center font-bold">
+                      0{i + 1}
+                    </span>
+                    <input
+                      type="text"
+                      aria-label={`Điểm nhấn nổi bật ${i + 1}`}
+                      value={pt}
+                      onChange={(e) => handleHighlightChange(i, e.target.value)}
+                      className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-luxury-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveHighlight(i)}
+                      className="p-1 text-stone-400 hover:text-red-500 rounded cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -779,25 +804,31 @@ export default function AdminPackagesPage() {
             </div>
 
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-              {formData.inclusionsList.map((inc, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-luxury-500 shrink-0" />
-                  <input
-                    type="text"
-                    aria-label={`Chi tiết quyền lợi ${i + 1}`}
-                    value={inc}
-                    onChange={(e) => handleInclusionChange(i, e.target.value)}
-                    className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveInclusion(i)}
-                    className="p-1 text-stone-400 hover:text-red-500 rounded cursor-pointer"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+              {formData.inclusionsList.length === 0 ? (
+                <div className="text-center py-4 bg-white/70 rounded-xl border border-dashed border-stone-300 text-stone-400 text-xs font-light">
+                  Chưa có chi tiết quyền lợi nào. Bấm &quot;Thêm quyền lợi&quot; để nhập nội dung thực tế.
                 </div>
-              ))}
+              ) : (
+                formData.inclusionsList.map((inc, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-luxury-500 shrink-0" />
+                    <input
+                      type="text"
+                      aria-label={`Chi tiết quyền lợi ${i + 1}`}
+                      value={inc}
+                      onChange={(e) => handleInclusionChange(i, e.target.value)}
+                      className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveInclusion(i)}
+                      className="p-1 text-stone-400 hover:text-red-500 rounded cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
+import { extractPackageFeatures } from '@/lib/package-features';
 
 const ConsultationModal = dynamic(
   () => import('@/components/common/ConsultationModal'),
@@ -40,32 +41,8 @@ export function LinkedPackageCard({
 
   if (!packageData) return null;
 
-  // Parse 3 core highlights
-  let highlights: string[] = [];
-  try {
-    if (Array.isArray(packageData.highlightPoints)) {
-      highlights = packageData.highlightPoints;
-    } else if (typeof packageData.highlightPoints === 'string' && packageData.highlightPoints.trim()) {
-      const parsed = JSON.parse(packageData.highlightPoints);
-      highlights = Array.isArray(parsed) ? parsed : [];
-    }
-  } catch {
-    highlights = [];
-  }
-
-  // Fallback to inclusions if highlights empty
-  if (highlights.length === 0) {
-    try {
-      if (Array.isArray(packageData.inclusions)) {
-        highlights = packageData.inclusions.slice(0, 3);
-      } else if (typeof packageData.inclusions === 'string' && packageData.inclusions.trim()) {
-        const parsed = JSON.parse(packageData.inclusions);
-        highlights = Array.isArray(parsed) ? parsed.slice(0, 3) : [];
-      }
-    } catch {
-      highlights = [];
-    }
-  }
+  // Extract real highlights from DB without AI mockup padding
+  const highlights = extractPackageFeatures(packageData).slice(0, 3);
 
   const numPrice = Number(packageData.price) || 0;
   const numOriginalPrice = packageData.originalPrice ? Number(packageData.originalPrice) : null;
@@ -126,9 +103,9 @@ export function LinkedPackageCard({
                 )}
                 <span className="text-xs text-stone-500 font-light">/{unit}</span>
               </div>
-              {packageData.subtitle && (
+              {packageData.subtitle?.trim() && !packageData.subtitle.includes('Lưu giữ khoảnh khắc vĩnh cửu') && (
                 <p className="text-[11px] sm:text-xs text-charcoal-500 line-clamp-1 font-light">
-                  {packageData.subtitle}
+                  {packageData.subtitle.trim()}
                 </p>
               )}
             </div>

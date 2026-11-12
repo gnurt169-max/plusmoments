@@ -142,13 +142,6 @@ export function LuxuryPricingSection({
                 ? pkg.coverImage.trim()
                 : '';
 
-            const categoryLabel =
-              pkg.category === 'PRE_WEDDING'
-                ? 'Pre-Wedding Ngoại Cảnh'
-                : pkg.category === 'STUDIO_CONCEPT'
-                ? 'Studio Concept'
-                : 'Phóng Sự Cưới';
-
             return (
               <article
                 key={pkg.id}

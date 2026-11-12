@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       data: {
         name,
         slug: slug.trim().toLowerCase().replace(/\s+/g, '-'),
-        category: category || 'PRE_WEDDING',
+        category: category?.trim() || 'Dịch Vụ Cưới',
         subtitle: subtitle || null,
         price: safePrice,
         originalPrice: safeOriginalPrice,
@@ -192,6 +192,7 @@ export async function PUT(request: Request) {
 
     if (orderIndex !== undefined) updateData.orderIndex = Number(orderIndex) || 0;
     if (slug) updateData.slug = slug.trim().toLowerCase().replace(/\s+/g, '-');
+    if (fields.category !== undefined) updateData.category = String(fields.category).trim();
     if (inclusions !== undefined) {
       updateData.inclusions = Array.isArray(inclusions)
         ? JSON.stringify(inclusions)
