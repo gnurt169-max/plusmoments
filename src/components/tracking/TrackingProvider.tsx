@@ -12,6 +12,7 @@ interface TrackingProviderProps {
   tiktokPixelId?: string | null;
   customHeadScript?: string | null;
   customBodyScript?: string | null;
+  nonce?: string;
 }
 
 export function TrackingProvider({
@@ -22,6 +23,7 @@ export function TrackingProvider({
   tiktokPixelId,
   customHeadScript,
   customBodyScript,
+  nonce,
 }: TrackingProviderProps) {
   // Capture & persist UTM and GCLID on page load (sau khi trình duyệt rảnh, không block hydration)
   useEffect(() => {
@@ -44,6 +46,7 @@ export function TrackingProvider({
           <Script
             id="gtm-script"
             strategy="afterInteractive"
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -71,11 +74,13 @@ export function TrackingProvider({
           <Script
             id="google-tag-script"
             strategy="afterInteractive"
+            nonce={nonce}
             src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleId}`}
           />
           <Script
             id="google-tag-init"
             strategy="afterInteractive"
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];
@@ -94,6 +99,7 @@ export function TrackingProvider({
         <Script
           id="fb-pixel-script"
           strategy="afterInteractive"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               !function(f,b,e,v,n,t,s)
@@ -116,6 +122,7 @@ export function TrackingProvider({
         <Script
           id="tiktok-pixel-script"
           strategy="afterInteractive"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               !function (w, d, t) {
@@ -133,6 +140,7 @@ export function TrackingProvider({
         <Script
           id="custom-head-script"
           strategy="afterInteractive"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: customHeadScript }}
         />
       )}
@@ -140,6 +148,7 @@ export function TrackingProvider({
         <Script
           id="custom-body-script"
           strategy="lazyOnload"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: customBodyScript }}
         />
       )}
