@@ -238,33 +238,30 @@ export function AlbumMasonryGallery({
           return (
             <div
               key={item.id}
-              onClick={() => handleOpenLightbox(index)}
-              role="button"
-              tabIndex={0}
-              aria-label={`Xem ảnh lớn: ${item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleOpenLightbox(index);
-                }
-              }}
-              className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl border border-stone-200/80 group transition-all duration-300 cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+              className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-2xl border border-stone-200/80 group transition-all duration-300 relative"
             >
               {/* Natural Ratio Container - Auto Height Zero Whitespace */}
               <div className="relative w-full overflow-hidden bg-[#FAF8F5]">
-                <ProtectedImage
-                  src={item.url}
-                  alt={item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}
-                  priority={index < 4}
-                  imageClassName="w-full h-auto object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                />
+                <button
+                  type="button"
+                  onClick={() => handleOpenLightbox(index)}
+                  aria-label={`Xem ảnh lớn: ${item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}`}
+                  className="w-full text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 block border-none bg-transparent p-0"
+                >
+                  <ProtectedImage
+                    src={item.url}
+                    alt={item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}
+                    priority={index < 4}
+                    imageClassName="w-full h-auto object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  />
+                </button>
 
                 {/* Heart Button on Corner */}
                 <button
                   type="button"
                   aria-label="Lưu concept yêu thích"
                   onClick={(e) => toggleLikePhoto(item.id, e)}
-                  className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md transition-all active:scale-90"
+                  className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
                 >
                   <Heart
                     className={`w-4 h-4 transition-colors ${
@@ -389,18 +386,10 @@ export function AlbumMasonryGallery({
             )}
 
             {/* Uncropped Protected Image with Scale Transform */}
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               aria-label={isZoomed ? "Thu nhỏ ảnh về kích thước chuẩn" : "Phóng to ảnh 200%"}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setIsZoomed((prev) => !prev);
-                  setZoomScale((prev) => (prev > 1 ? 1 : 2));
-                }
-              }}
-              className="transition-transform duration-300 ease-out flex items-center justify-center max-h-[75vh] sm:max-h-[80vh] max-w-[96vw] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl"
+              className="transition-transform duration-300 ease-out flex items-center justify-center max-h-[75vh] sm:max-h-[80vh] max-w-[96vw] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent p-0"
               style={{
                 transform: `scale(${zoomScale})`,
                 cursor: isZoomed ? 'zoom-out' : 'zoom-in',
@@ -419,7 +408,7 @@ export function AlbumMasonryGallery({
                 wrapperClassName="rounded-xl shadow-2xl flex items-center justify-center"
                 imageClassName="max-h-[75vh] sm:max-h-[80vh] max-w-[96vw] w-auto h-auto object-contain"
               />
-            </div>
+            </button>
 
             {/* Desktop Next Button */}
             {validMedia.length > 1 && (

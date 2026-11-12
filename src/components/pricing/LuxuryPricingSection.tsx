@@ -151,19 +151,9 @@ export function LuxuryPricingSection({
                 : 'Phóng Sự Cưới';
 
             return (
-              <div
+              <article
                 key={pkg.id}
-                onClick={() => openDetailModal(pkg)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openDetailModal(pkg);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`Xem album và chi tiết gói ${pkg.name}`}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
+                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always ${
                   pkg.isPopular
                     ? 'bg-white shadow-2xl border-luxury-500 ring-2 ring-luxury-400/30 md:-translate-y-2 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(180,130,60,0.25)]'
                     : 'bg-white shadow-luxury hover:shadow-2xl border-champagne-dark/30 hover:-translate-y-2 hover:border-luxury-400'
@@ -257,13 +247,16 @@ export function LuxuryPricingSection({
                   {/* 3. Dual CTA Actions */}
                   <div className="pt-4 border-t border-stone-100 space-y-2.5">
                     {/* Visual Indicator: View Album & Detail Modal (Interactive State on Card Hover) */}
-                    <div
-                      className="w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider font-medium text-charcoal-800 border border-charcoal-300 group-hover:border-luxury-600 group-hover:bg-luxury-600 group-hover:text-white transition-all duration-300 flex items-center justify-center gap-1.5 shadow-2xs"
+                    <button
+                      type="button"
+                      onClick={() => openDetailModal(pkg)}
+                      aria-label={`Xem album và chi tiết gói ${pkg.name}`}
+                      className="w-full py-2.5 px-4 rounded-xl text-xs uppercase tracking-wider font-medium text-charcoal-800 border border-charcoal-300 group-hover:border-luxury-600 group-hover:bg-luxury-600 group-hover:text-white transition-all duration-300 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 after:absolute after:inset-0 after:content-['']"
                     >
                       <Eye className="w-3.5 h-3.5 text-luxury-600 group-hover:text-white transition-colors duration-300" />
                       <span>Xem Album & Chi Tiết Gói</span>
                       <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                    </div>
+                    </button>
 
                     {/* Solid Button: Instant Consultation Booking (Opens Form without triggering detail modal) */}
                     <button
@@ -286,7 +279,7 @@ export function LuxuryPricingSection({
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

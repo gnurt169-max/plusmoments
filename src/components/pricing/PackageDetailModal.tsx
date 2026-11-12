@@ -166,17 +166,10 @@ export function PackageDetailModal({
             <div className="relative group rounded-2xl overflow-hidden bg-[#F5F2EB] border border-amber-900/10 shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px]">
               {currentActiveImage ? (
                 <>
-                  <div
-                    role="button"
-                    tabIndex={0}
+                  <button
+                    type="button"
                     aria-label={`Xem ảnh phóng to toàn màn hình gói ${packageData.name}`}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setIsLightboxOpen(true);
-                      }
-                    }}
-                    className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl"
+                    className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent"
                     onClick={() => setIsLightboxOpen(true)}
                   >
                     <img
@@ -185,7 +178,7 @@ export function PackageDetailModal({
                       className="max-w-full max-h-full object-contain drop-shadow-sm select-none transition-transform duration-200 group-hover:scale-[1.01]"
                       loading="eager"
                     />
-                  </div>
+                  </button>
 
                   {/* Nút phóng to toàn màn hình với z-index cao & pointer-events-auto */}
                   <button

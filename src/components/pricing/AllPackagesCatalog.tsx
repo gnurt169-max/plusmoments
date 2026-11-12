@@ -114,19 +114,9 @@ export function AllPackagesCatalog({
             const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
 
             return (
-              <div
+              <article
                 key={pkg.id}
-                onClick={() => setSelectedPackage(pkg)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Xem chi tiết gói dịch vụ ${pkg.name}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setSelectedPackage(pkg);
-                  }
-                }}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
+                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
                   pkg.isPopular
                     ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
                     : 'hover:border-amber-400/60'
@@ -221,7 +211,7 @@ export function AllPackagesCatalog({
                       type="button"
                       onClick={() => setSelectedPackage(pkg)}
                       aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
-                      className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+                      className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 after:absolute after:inset-0 after:content-['']"
                     >
                       <Eye className="w-3.5 h-3.5 text-amber-300" />
                       <span>Xem Chi Tiết & Đặt Lịch</span>
@@ -229,7 +219,7 @@ export function AllPackagesCatalog({
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
