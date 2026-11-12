@@ -7,7 +7,6 @@ import { getSystemSettings } from '@/lib/settings';
 import dynamic from 'next/dynamic';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
-import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 const ConsultationForm = dynamic(
@@ -208,8 +207,7 @@ export default async function BoSuuTapPage({
                       alt={album.title || 'PlusMoments Album'}
                       fill
                       quality={70}
-                      unoptimized={isOptimizedUploadWebp(coverImg)}
-                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
+                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                     />
                     <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">

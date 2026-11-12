@@ -12,6 +12,8 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion'],
   },
   images: {
+    loader: 'custom',
+    loaderFile: './src/lib/image-loader.ts',
     formats: ['image/webp'], // Chỉ dùng WebP để giảm 80% tải CPU khi nén trên VPS, tránh timeout
     minimumCacheTTL: 31536000,
     deviceSizes: [640, 828, 1080, 1200, 1920],

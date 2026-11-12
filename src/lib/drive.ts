@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { generateResponsiveWebPVariants } from './image-variants';
 
 export interface DriveFolderItem {
   id: string;
@@ -399,10 +400,10 @@ export async function convertBufferToOptimizedWebP(
     let pipeline = sharp(buffer);
     const metadata = await pipeline.metadata();
 
-    // Only resize if image exceeds 2560px (2K/QHD) to preserve crystal-clear sharpness
-    if (metadata.width && metadata.width > 2560) {
+    // Only resize if image exceeds 2048px (2K max for full-screen Lightbox)
+    if (metadata.width && metadata.width > 2048) {
       pipeline = pipeline.resize({
-        width: 2560,
+        width: 2048,
         withoutEnlargement: true,
         fit: 'inside',
       });
@@ -416,6 +417,9 @@ export async function convertBufferToOptimizedWebP(
         lossless: false,
       })
       .toFile(targetFilePath);
+
+    // Generate responsive static variants: -sm.webp (640px) & -md.webp (1440px)
+    await generateResponsiveWebPVariants(targetFilePath, targetFilePath);
 
     const stats = fs.statSync(targetFilePath);
     const outputMeta = await sharp(targetFilePath).metadata();

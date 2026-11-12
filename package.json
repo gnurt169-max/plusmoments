@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "generate:llms": "node scripts/generate-llms.mjs",
+    "optimize:variants": "node scripts/generate-image-variants.mjs",
     "inline:css": "node scripts/inline-css.mjs",
     "build": "npm run generate:llms && next build",
     "postbuild": "node scripts/inline-css.mjs",

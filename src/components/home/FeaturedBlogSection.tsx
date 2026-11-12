@@ -2,7 +2,6 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Clock, Calendar } from 'lucide-react';
-import { isOptimizedUploadWebp } from '@/lib/image-utils';
 
 export interface PostItem {
   id: string;
@@ -67,8 +66,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                     alt={post.title}
                     fill
                     quality={65}
-                    unoptimized={isOptimizedUploadWebp(post.coverImage)}
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
                   />
                   {post.category && (

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { generateResponsiveWebPVariants } from '@/lib/image-variants';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { analyzeAndCacheImageChunk, getOrAnalyzeImageChunk } from '@/lib/vision-ai';
@@ -66,13 +67,22 @@ export async function POST(request: Request) {
     let finalBuffer: Buffer = buffer;
 
     try {
-      const image = sharp(buffer);
+      let image = sharp(buffer);
       const metadata = await image.metadata();
       imageWidth = metadata.width;
       imageHeight = metadata.height;
 
+      // Only resize if image exceeds 2048px (2K max for full-screen Lightbox)
+      if (imageWidth && imageWidth > 2048) {
+        image = image.resize({
+          width: 2048,
+          withoutEnlargement: true,
+          fit: 'inside',
+        });
+      }
+
       finalBuffer = await image
-        .webp({ quality: 85 })
+        .webp({ quality: 82, effort: 4 })
         .toBuffer();
     } catch {
       // Fallback if sharp fails on vector or special format
@@ -80,6 +90,9 @@ export async function POST(request: Request) {
     }
 
     await fs.promises.writeFile(finalFilePath, finalBuffer);
+
+    // Generate responsive static variants: -sm.webp (640px) & -md.webp (1440px)
+    await generateResponsiveWebPVariants(finalFilePath, finalFilePath);
 
     const publicUrl = `${relativeUrlPrefix}/${finalFilename}`;
     const displayName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');

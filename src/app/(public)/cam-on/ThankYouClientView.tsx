@@ -352,7 +352,6 @@ export function ThankYouClientView({
                   src={album.coverImage}
                   alt={album.title}
                   fill
-                  unoptimized={isOptimizedUploadWebp(album.coverImage)}
                   sizes="(max-width: 768px) 50vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />

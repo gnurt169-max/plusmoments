@@ -317,7 +317,6 @@ export default async function BlogPostPage({ params }: Props) {
             alt={post.title}
             fill
             priority
-            unoptimized={isOptimizedUploadWebp(post.coverImage)}
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover"
           />
