@@ -259,5 +259,6 @@ export function PricingSection({
   );
 }
 
+export const PricingPackagesSection = PricingSection;
 export default PricingSection;
 

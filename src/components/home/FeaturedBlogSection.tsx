@@ -138,5 +138,6 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
   );
 }
 
+export const BlogPreviewSection = FeaturedBlogSection;
 export default FeaturedBlogSection;
 

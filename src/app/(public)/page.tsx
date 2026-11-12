@@ -5,23 +5,33 @@ import dynamic from 'next/dynamic';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { FloatingCard } from '@/components/motion/FloatingCard';
-import { FeaturedBlogSection } from '@/components/home/FeaturedBlogSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import { extractPackageFeatures } from '@/lib/package-features';
-import { ProtectedImage } from '@/components/common/ProtectedImage';
 import {
   Sparkles,
-  Star,
   ArrowRight,
 } from 'lucide-react';
 
+// TRÌ HOÃN HYDRATION CÁC SECTION NẰM DƯỚI TRANG CHỦ (BELOW-THE-FOLD)
 // Tách JS của Bảng giá & Modal chi tiết bên dưới trang chủ thành chunk riêng
 const PricingSection = dynamic(
   () => import('@/components/home/PricingSection'),
   { ssr: true }
 );
 
-// Tách CSS và JS của biểu mẫu tư vấn ở cuối trang (Below-the-fold) thành chunk riêng
+// Tách JS của Cẩm nang cưới (Blog Preview) thành chunk riêng
+const FeaturedBlogSection = dynamic(
+  () => import('@/components/home/FeaturedBlogSection').then((mod) => mod.FeaturedBlogSection),
+  { ssr: true }
+);
+
+// Tách JS của Đánh giá khách hàng (Testimonials) thành chunk riêng
+const TestimonialsSection = dynamic(
+  () => import('@/components/home/TestimonialsSection').then((mod) => mod.TestimonialsSection),
+  { ssr: true }
+);
+
+// Tách CSS và JS của biểu mẫu tư vấn ở cuối trang thành chunk riêng
 const ConsultationForm = dynamic(
   () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
   {
@@ -389,75 +399,11 @@ export default async function HomePage() {
           TESTIMONIALS (Floating Love Stories)
       ========================================================================= */}
       {(homeConfig?.showTestimonials ?? true) && testimonials.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
-              Câu Chuyện Hạnh Phúc
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-charcoal-900">
-              {homeConfig?.testimonialsTitle || 'Cảm Xúc Của Các Dâu Rể'}
-            </h2>
-            <p className="text-sm text-charcoal-600 font-light leading-relaxed">
-              {homeConfig?.testimonialsSubtitle ||
-                'Hạnh phúc của bạn chính là niềm tự hào lớn nhất của ekip sáng tạo PlusMoments.'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((test, index) => {
-              const avatar =
-                test.avatarUrl ||
-                test.coverImageUrl ||
-                '';
-              const contentText = test.content || test.reviewContent || '';
-
-              return (
-                <FloatingCard
-                  key={test.id}
-                  delay={index * 0.5}
-                  reverse={index % 2 === 1}
-                  className="bg-white p-8 rounded-2xl border border-champagne-dark/30 shadow-luxury flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center gap-1 text-amber-500 mb-4">
-                      {[...Array(test.rating || 5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
-                      ))}
-                    </div>
-                    <blockquote className="font-serif text-lg sm:text-xl font-light text-charcoal-900 italic mb-4">
-                      "{test.quote}"
-                    </blockquote>
-                    <p className="text-xs text-charcoal-600 font-light leading-relaxed mb-6">
-                      {contentText}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-4 pt-4 border-t border-champagne-light">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-champagne-light shrink-0">
-                      <Image
-                        src={avatar}
-                        alt={test.coupleNames}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-sm font-medium text-charcoal-900">
-                        {test.coupleNames}
-                      </h3>
-                      {test.weddingDate && (
-                        <p className="text-[11px] text-charcoal-400 font-mono">
-                          {test.weddingDate}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </FloatingCard>
-              );
-            })}
-          </div>
-        </section>
+        <TestimonialsSection
+          testimonials={testimonials}
+          title={homeConfig?.testimonialsTitle}
+          subtitle={homeConfig?.testimonialsSubtitle}
+        />
       )}
 
       {/* =========================================================================
