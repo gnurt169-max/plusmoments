@@ -287,12 +287,12 @@ export function ConsultationForm({
 
         <div>
           <label htmlFor={budgetId} className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1.5 font-medium">
-            Ngân Sách Dự Kiến
+            Ngân Sách Dự Kiến <span className="sr-only">cho gói chụp ảnh cưới</span>
           </label>
           <select
             id={budgetId}
             name="estimatedBudget"
-            aria-label="Ngân sách dự kiến cho gói chụp cưới"
+            aria-label="Ngân sách dự kiến cho gói chụp ảnh cưới"
             value={formData.estimatedBudget}
             onChange={(e) => setFormData({ ...formData, estimatedBudget: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all text-charcoal-700 cursor-pointer"

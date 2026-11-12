@@ -220,6 +220,7 @@ export function TaxonomySelect({
 
       <div className="relative">
         <select
+          aria-label={`Chọn ${currentTypeInfo.title}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required={required}

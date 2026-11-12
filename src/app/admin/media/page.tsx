@@ -1119,6 +1119,7 @@ export default function AdminMediaPage() {
             <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-stone-200 shadow-2xs">
               <Layers className="w-3.5 h-3.5 text-stone-400" />
               <select
+                aria-label="Lọc theo định dạng ảnh"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 className="text-xs bg-transparent border-none focus:outline-none text-charcoal-700 cursor-pointer font-medium"
@@ -1136,6 +1137,7 @@ export default function AdminMediaPage() {
             <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-stone-200 shadow-2xs">
               <SlidersHorizontal className="w-3.5 h-3.5 text-stone-400" />
               <select
+                aria-label="Sắp xếp danh sách tệp"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="text-xs bg-transparent border-none focus:outline-none text-charcoal-700 cursor-pointer font-medium"

@@ -374,6 +374,7 @@ export default function AdminOrdersPage() {
                       </span>
 
                       <select
+                        aria-label="Cập nhật trạng thái đơn hàng"
                         value={order.status}
                         disabled={updatingId === order.id}
                         onChange={(e) => handleStatusChange(order.id, e.target.value as any)}
@@ -455,6 +456,7 @@ export default function AdminOrdersPage() {
                         {/* Status */}
                         <td className="py-4 px-6">
                           <select
+                            aria-label="Cập nhật trạng thái đơn hàng"
                             value={order.status}
                             disabled={updatingId === order.id}
                             onChange={(e) => handleStatusChange(order.id, e.target.value as any)}

@@ -582,7 +582,7 @@ export default function AdminUsersPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="block font-semibold text-stone-700">Vai trò phân quyền *</label>
+                <label htmlFor="create-user-role-select" className="block font-semibold text-stone-700">Vai trò phân quyền *</label>
                 {currentUserRole === 'ADMIN' ? (
                   <div className="px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl text-stone-600 text-xs flex items-center justify-between">
                     <span>Người Dùng (USER)</span>
@@ -590,6 +590,8 @@ export default function AdminUsersPage() {
                   </div>
                 ) : (
                   <select
+                    id="create-user-role-select"
+                    aria-label="Vai trò phân quyền"
                     value={formRole}
                     onChange={(e) => setFormRole(e.target.value as any)}
                     className="w-full px-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-600"
@@ -665,8 +667,10 @@ export default function AdminUsersPage() {
 
               {isSuperAdmin && selectedUser.username !== 'trunglnm' && (
                 <div className="space-y-1">
-                  <label className="block font-semibold text-stone-700">Vai trò phân quyền</label>
+                  <label htmlFor="edit-user-role-select" className="block font-semibold text-stone-700">Vai trò phân quyền</label>
                   <select
+                    id="edit-user-role-select"
+                    aria-label="Vai trò phân quyền"
                     value={editRole}
                     onChange={(e) => setEditRole(e.target.value as any)}
                     className="w-full px-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-600"

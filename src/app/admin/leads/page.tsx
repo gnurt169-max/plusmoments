@@ -682,6 +682,7 @@ export default function AdminLeadsPage() {
                     {/* Status & Read Toggle */}
                     <div className="flex items-center justify-between pt-2 border-t border-stone-100">
                       <select
+                        aria-label="Cập nhật trạng thái khách hàng"
                         value={lead.status}
                         disabled={updatingId === lead.id}
                         onChange={(e) => handleUpdateStatus(lead.id, e.target.value)}
@@ -870,6 +871,7 @@ export default function AdminLeadsPage() {
                       {/* Status Dropdown */}
                       <td className="py-4 px-6">
                         <select
+                          aria-label="Cập nhật trạng thái khách hàng"
                           value={lead.status}
                           disabled={updatingId === lead.id}
                           onChange={(e) => handleUpdateStatus(lead.id, e.target.value)}

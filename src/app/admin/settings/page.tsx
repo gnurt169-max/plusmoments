@@ -1149,10 +1149,12 @@ export default function AdminSettingsPage() {
 
                       {/* GOOGLE FONT SELECTOR */}
                       <div>
-                        <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                        <label htmlFor="logo-font-family-select" className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
                           Kiểu Chữ (Google Fonts Nghệ Thuật)
                         </label>
                         <select
+                          id="logo-font-family-select"
+                          aria-label="Kiểu chữ logo"
                           value={formData.logoFontFamily || 'Playfair Display'}
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, logoFontFamily: e.target.value }))
@@ -1219,10 +1221,12 @@ export default function AdminSettingsPage() {
                       {/* FONT WEIGHT & LETTER SPACING IN 2 COLUMNS */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                          <label htmlFor="logo-font-weight-select" className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
                             Độ Đậm Nhạt (Font Weight)
                           </label>
                           <select
+                            id="logo-font-weight-select"
+                            aria-label="Độ đậm nhạt font chữ logo"
                             value={formData.logoFontWeight || '600'}
                             onChange={(e) =>
                               setFormData((prev) => ({ ...prev, logoFontWeight: e.target.value }))
@@ -1238,10 +1242,12 @@ export default function AdminSettingsPage() {
                         </div>
 
                         <div>
-                          <label className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
+                          <label htmlFor="logo-letter-spacing-select" className="text-xs font-semibold tracking-wider text-stone-600 mb-1.5 block uppercase">
                             Khoảng Cách Chữ (Letter Spacing)
                           </label>
                           <select
+                            id="logo-letter-spacing-select"
+                            aria-label="Khoảng cách chữ logo"
                             value={formData.logoLetterSpacing || '0.15em'}
                             onChange={(e) =>
                               setFormData((prev) => ({ ...prev, logoLetterSpacing: e.target.value }))
@@ -3661,10 +3667,12 @@ export default function AdminSettingsPage() {
 
                 {/* Active Model Selector */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium uppercase tracking-wider text-stone-700">
+                  <label htmlFor="gemini-model-select" className="block text-xs font-medium uppercase tracking-wider text-stone-700">
                     Mô Hình AI Kích Hoạt (Active Model)
                   </label>
                   <select
+                    id="gemini-model-select"
+                    aria-label="Mô hình AI kích hoạt"
                     value={formData.geminiModel}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, geminiModel: e.target.value }))
@@ -3706,10 +3714,12 @@ export default function AdminSettingsPage() {
 
                 {/* Brand Tone Selector */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium uppercase tracking-wider text-stone-700">
+                  <label htmlFor="gemini-tone-select" className="block text-xs font-medium uppercase tracking-wider text-stone-700">
                     Giọng Văn Thương Hiệu (Brand Tone)
                   </label>
                   <select
+                    id="gemini-tone-select"
+                    aria-label="Giọng văn thương hiệu AI"
                     value={formData.geminiTone}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, geminiTone: e.target.value }))

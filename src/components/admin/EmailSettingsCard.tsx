@@ -399,10 +399,12 @@ export function EmailSettingsCard() {
 
           {/* GIAO THỨC BẢO MẬT (3 COLS) */}
           <div className="md:col-span-3 space-y-1.5">
-            <label className="block text-xs uppercase tracking-wider text-charcoal-600 font-medium">
+            <label htmlFor="smtp-secure-select" className="block text-xs uppercase tracking-wider text-charcoal-600 font-medium">
               Giao Thức Bảo Mật
             </label>
             <select
+              id="smtp-secure-select"
+              aria-label="Giao thức bảo mật SMTP"
               value={formData.smtpSecure ? 'SSL' : 'TLS'}
               onChange={(e) => {
                 const isSsl = e.target.value === 'SSL';

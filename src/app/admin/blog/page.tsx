@@ -972,10 +972,12 @@ export default function AdminBlogPage() {
 
           {/* LINKED PRICING PACKAGE (CROSS-SELL) */}
           <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-200/70 space-y-2">
-            <label className="block text-xs uppercase tracking-wider text-charcoal-700 font-semibold">
+            <label htmlFor="blog-linked-package-select" className="block text-xs uppercase tracking-wider text-charcoal-700 font-semibold">
               Gói Dịch Vụ Giới Thiệu Kèm Bài Viết (Cross-sell)
             </label>
             <select
+              id="blog-linked-package-select"
+              aria-label="Gói dịch vụ giới thiệu kèm bài viết này"
               value={formData.packageId}
               onChange={(e) => setFormData({ ...formData, packageId: e.target.value })}
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
