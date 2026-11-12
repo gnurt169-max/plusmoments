@@ -587,29 +587,31 @@ export default function AdminPackagesPage() {
           {/* BASIC INFO */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+              <label htmlFor="pkg-name-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                 Tên Gói Chụp <span className="text-luxury-600">*</span>
               </label>
               <input
+                id="pkg-name-input"
+                aria-label="Tên Gói Chụp"
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="Nhập tên gói chụp..."
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+              <label htmlFor="pkg-slug-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                 Đường Dẫn URL (Slug) <span className="text-luxury-600">*</span>
               </label>
               <input
+                id="pkg-slug-input"
+                aria-label="Đường Dẫn URL (Slug)"
                 type="text"
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="duong-dan-goi-chup"
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
@@ -625,10 +627,12 @@ export default function AdminPackagesPage() {
             />
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+              <label htmlFor="pkg-price-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                 Giá Ưu Đãi (VND) <span className="text-luxury-600">*</span>
               </label>
               <input
+                id="pkg-price-input"
+                aria-label="Giá Ưu Đãi"
                 type="number"
                 required
                 value={formData.price}
@@ -638,16 +642,17 @@ export default function AdminPackagesPage() {
                     price: e.target.value === '' ? '' : Number(e.target.value),
                   })
                 }
-                placeholder="Nhập giá ưu đãi..."
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+              <label htmlFor="pkg-origprice-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
                 Giá Gốc (Gạch ngang)
               </label>
               <input
+                id="pkg-origprice-input"
+                aria-label="Giá Gốc"
                 type="number"
                 value={formData.originalPrice}
                 onChange={(e) =>
@@ -656,21 +661,21 @@ export default function AdminPackagesPage() {
                     originalPrice: e.target.value === '' ? '' : Number(e.target.value),
                   })
                 }
-                placeholder="Nhập giá gốc (nếu có)..."
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+            <label htmlFor="pkg-subtitle-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
               Mô Tả Ngắn (Subtitle)
             </label>
             <input
+              id="pkg-subtitle-input"
+              aria-label="Mô Tả Ngắn"
               type="text"
               value={formData.subtitle}
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-              placeholder="Nhập mô tả ngắn về gói chụp..."
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
             />
           </div>
@@ -718,9 +723,9 @@ export default function AdminPackagesPage() {
                   </span>
                   <input
                     type="text"
+                    aria-label={`Điểm nhấn nổi bật ${i + 1}`}
                     value={pt}
                     onChange={(e) => handleHighlightChange(i, e.target.value)}
-                    placeholder="Nhập điểm nhấn nổi bật..."
                     className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-luxury-400"
                   />
                   <button
@@ -773,9 +778,9 @@ export default function AdminPackagesPage() {
                   <Check className="w-3.5 h-3.5 text-luxury-500 shrink-0" />
                   <input
                     type="text"
+                    aria-label={`Chi tiết quyền lợi ${i + 1}`}
                     value={inc}
                     onChange={(e) => handleInclusionChange(i, e.target.value)}
-                    placeholder="Nhập chi tiết quyền lợi..."
                     className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400"
                   />
                   <button
@@ -791,16 +796,17 @@ export default function AdminPackagesPage() {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+            <label htmlFor="pkg-deliverables-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
               Thời Gian & Cam Kết Bàn Giao File
             </label>
             <input
+              id="pkg-deliverables-input"
+              aria-label="Thời Gian & Cam Kết Bàn Giao File"
               type="text"
               value={formData.deliverables}
               onChange={(e) =>
                 setFormData({ ...formData, deliverables: e.target.value })
               }
-              placeholder="Cam kết bàn giao file và thời gian xử lý..."
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
             />
           </div>

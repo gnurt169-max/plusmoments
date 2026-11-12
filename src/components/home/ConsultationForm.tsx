@@ -211,7 +211,6 @@ export function ConsultationForm({
             aria-label="Họ tên cô dâu và chú rể"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-            placeholder="Ví dụ: Hoàng Long & Thanh Thảo"
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"
           />
         </div>
@@ -228,7 +227,6 @@ export function ConsultationForm({
             aria-label="Số điện thoại hoặc Zalo liên hệ"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: formatVietnamesePhone(e.target.value) })}
-            placeholder="Ví dụ: 0903 768 871"
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all font-mono"
           />
         </div>
@@ -246,7 +244,6 @@ export function ConsultationForm({
             aria-label="Số Zalo nhận catalog ảnh cưới"
             value={formData.zalo}
             onChange={(e) => setFormData({ ...formData, zalo: formatVietnamesePhone(e.target.value) })}
-            placeholder="Ví dụ: 0903 768 871"
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all font-mono"
           />
         </div>
@@ -260,7 +257,6 @@ export function ConsultationForm({
             name="customerEmail"
             type="email"
             aria-label="Email nhận thông tin tư vấn và báo giá"
-            placeholder="Ví dụ: contact@example.com"
             value={formData.customerEmail}
             onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all font-mono"
@@ -278,7 +274,6 @@ export function ConsultationForm({
             name="weddingDate"
             type="text"
             aria-label="Ngày dự kiến cưới hoặc chụp ảnh cưới"
-            placeholder="Ví dụ: 25/12/2026 hoặc Tháng 11"
             value={formData.weddingDate}
             onChange={(e) => setFormData({ ...formData, weddingDate: e.target.value })}
             className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"
@@ -314,7 +309,6 @@ export function ConsultationForm({
           name="expectedPackage"
           type="text"
           aria-label="Gói dịch vụ hoặc concept cưới bạn đang quan tâm"
-          placeholder="Ví dụ: Phóng Sự Cưới Deluxe, Chụp Pre-Wedding..."
           value={formData.expectedPackage}
           onChange={(e) => setFormData({ ...formData, expectedPackage: e.target.value })}
           className="w-full px-4 py-3 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"
@@ -330,7 +324,6 @@ export function ConsultationForm({
           name="notes"
           rows={2}
           aria-label="Lời nhắn hoặc mong muốn chi tiết về concept chụp ảnh cưới"
-          placeholder="Địa điểm tổ chức, thời gian cụ thể hoặc yêu cầu đặc biệt..."
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           className="w-full px-4 py-2.5 text-xs bg-white/90 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 focus:border-transparent transition-all"

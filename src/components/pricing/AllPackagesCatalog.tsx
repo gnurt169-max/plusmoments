@@ -88,7 +88,7 @@ export function AllPackagesCatalog({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {filteredPackages.map((pkg) => {
-            // Parse 4 bullet points
+            // Parse real highlights from Database (highlightPoints or inclusions)
             let highlights: string[] = [];
             try {
               if (pkg.highlightPoints) {
@@ -109,15 +109,6 @@ export function AllPackagesCatalog({
                   .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
                   .filter(Boolean);
               }
-            }
-
-            if (highlights.length === 0) {
-              highlights = [
-                'Trang phục cưới cao cấp không giới hạn khu vực',
-                'Makeup nghệ thuật & làm tóc theo từng bối cảnh',
-                'Toàn bộ file gốc chất lượng cao bàn giao trong 24h',
-                'Photobook mở phẳng 30 trang & ảnh cổng ép gỗ Luxury',
-              ];
             }
 
             const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
@@ -189,11 +180,11 @@ export function AllPackagesCatalog({
                     )}
                   </div>
 
-                  {/* Danh sách đặc quyền (isSummary=false: toàn bộ; isSummary=true: 3 dòng) */}
+                  {/* Danh sách đặc quyền - Chỉ hiển thị khi có dữ liệu thật trong DB */}
                   {(() => {
-                    const displayFeatures = isSummary
-                      ? (pkg.features || highlights || []).slice(0, 3)
-                      : (pkg.features || highlights || []);
+                    const rawFeatures = (pkg.features && pkg.features.length > 0) ? pkg.features : highlights;
+                    const displayFeatures = isSummary ? rawFeatures.slice(0, 3) : rawFeatures;
+                    if (displayFeatures.length === 0) return null;
                     return (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">

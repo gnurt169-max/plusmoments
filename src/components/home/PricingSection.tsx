@@ -81,41 +81,43 @@ export function PricingSection({
       </div>
 
       {/* 3-COLUMN LUXURY GRID / MOBILE SNAP CAROUSEL */}
-      <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-        {featuredPackages.map((pkg) => {
-          // Parse 4-5 bullet points
-          let highlights: string[] = [];
-          try {
-            if (pkg.highlightPoints) {
-              const parsed = JSON.parse(pkg.highlightPoints);
-              if (Array.isArray(parsed) && parsed.length > 0) highlights = parsed;
-            }
-          } catch {
-            // ignore
-          }
-
-          if (highlights.length === 0 && pkg.inclusions) {
+      {featuredPackages.length === 0 ? (
+        <div className="text-center py-16 bg-stone-900/40 rounded-3xl border border-dashed border-stone-800 max-w-xl mx-auto space-y-3">
+          <Sparkles className="w-8 h-8 text-amber-500/60 mx-auto" />
+          <p className="font-serif text-lg text-stone-300">
+            Chưa có gói dịch vụ nào được cập nhật
+          </p>
+          <p className="text-xs text-stone-400">
+            Vui lòng liên hệ Hotline để được tư vấn thiết kế gói riêng biệt.
+          </p>
+        </div>
+      ) : (
+        <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+          {featuredPackages.map((pkg) => {
+            // Parse real highlights from Database (highlightPoints or inclusions)
+            let highlights: string[] = [];
             try {
-              const parsed = JSON.parse(pkg.inclusions);
-              if (Array.isArray(parsed)) highlights = parsed;
+              if (pkg.highlightPoints) {
+                const parsed = JSON.parse(pkg.highlightPoints);
+                if (Array.isArray(parsed) && parsed.length > 0) highlights = parsed;
+              }
             } catch {
-              highlights = pkg.inclusions
-                .split('\n')
-                .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
-                .filter(Boolean);
+              // ignore
             }
-          }
 
-          if (highlights.length === 0) {
-            highlights = [
-              'Trang phục cưới cao cấp không giới hạn khu vực',
-              'Makeup nghệ thuật & làm tóc theo từng bối cảnh',
-              'Toàn bộ file gốc chất lượng cao bàn giao trong 24h',
-              'Photobook mở phẳng 30 trang & ảnh cổng ép gỗ Luxury',
-            ];
-          }
+            if (highlights.length === 0 && pkg.inclusions) {
+              try {
+                const parsed = JSON.parse(pkg.inclusions);
+                if (Array.isArray(parsed)) highlights = parsed;
+              } catch {
+                highlights = pkg.inclusions
+                  .split('\n')
+                  .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
+                  .filter(Boolean);
+              }
+            }
 
-          const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
+            const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
 
           return (
             <article
@@ -185,11 +187,11 @@ export function PricingSection({
                     )}
                   </div>
 
-                  {/* Đặc quyền gói (isSummary=true: 3 dòng tóm tắt; isSummary=false: toàn bộ) */}
+                  {/* Đặc quyền gói - Chỉ hiển thị khi có dữ liệu thật trong DB */}
                   {(() => {
-                    const displayFeatures = isSummary
-                      ? (pkg.features || highlights || []).slice(0, 3)
-                      : (pkg.features || highlights || []);
+                    const rawFeatures = (pkg.features && pkg.features.length > 0) ? pkg.features : highlights;
+                    const displayFeatures = isSummary ? rawFeatures.slice(0, 3) : rawFeatures;
+                    if (displayFeatures.length === 0) return null;
                     return (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
@@ -226,6 +228,7 @@ export function PricingSection({
             );
           })}
         </div>
+      )}
 
       {/* VIEW ALL PACKAGES ROUTE BUTTON */}
       {hasMorePackages && (

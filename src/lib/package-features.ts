@@ -1,27 +1,13 @@
-export const DEFAULT_PACKAGE_FEATURES = [
-  'Chụp không giới hạn số lượng file suốt buổi chụp',
-  'Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h',
-  'Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc điện ảnh',
-  '02 Váy cưới cao cấp & 02 Vest Ý thiết kế riêng cho dâu rể',
-  'Chuyên viên trang điểm nghệ thuật & làm tóc thay đổi theo từng trang phục',
-  '01 Hoa cầm tay tươi cao cấp & hoa cài áo chú rể theo concept',
-  '01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu (30x30 cm)',
-  '02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)',
-  '01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc',
-];
-
 /**
- * Extracts and guarantees a full, comprehensive array of 6-9 wedding package features.
- * Works seamlessly with JSON string, array, newline-delimited text, or fallback defaults.
+ * Extracts the real package features from Database records (features, highlightPoints, inclusions).
+ * Strictly returns only features inputted by Admin - no hardcoded fallbacks or mock padding.
  */
 export function extractPackageFeatures(pkg: {
-  features?: string[];
-  inclusions?: string | null;
-  highlightPoints?: string | null;
+  features?: string[] | null;
+  inclusions?: string | null | string[];
+  highlightPoints?: string | null | string[];
 }): string[] {
-  if (Array.isArray(pkg.features) && pkg.features.length >= 5) {
-    return pkg.features;
-  }
+  if (!pkg) return [];
 
   const items: string[] = [];
 
@@ -59,18 +45,8 @@ export function extractPackageFeatures(pkg: {
   };
 
   extract(pkg.features);
-  extract(pkg.inclusions);
   extract(pkg.highlightPoints);
-
-  // If fewer than 5 features, pad with realistic luxury wedding deliverables
-  if (items.length < 5) {
-    for (const d of DEFAULT_PACKAGE_FEATURES) {
-      if (!items.includes(d)) {
-        items.push(d);
-      }
-    }
-  }
+  extract(pkg.inclusions);
 
   return items;
 }
-

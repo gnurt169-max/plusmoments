@@ -124,12 +124,16 @@ export function LuxuryPricingSection({
               highlights = [];
             }
 
-            if (highlights.length === 0) {
+            if (highlights.length === 0 && pkg.inclusions) {
               try {
                 const inc = JSON.parse(pkg.inclusions || '[]');
-                highlights = inc.slice(0, 3);
+                highlights = Array.isArray(inc) ? inc.slice(0, 3) : [];
               } catch {
-                highlights = [pkg.subtitle || 'Dịch vụ trọn gói cao cấp'];
+                highlights = pkg.inclusions
+                  .split('\n')
+                  .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
+                  .filter(Boolean)
+                  .slice(0, 3);
               }
             }
 
@@ -215,9 +219,9 @@ export function LuxuryPricingSection({
                 <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
                   {/* 2. Core Highlights */}
                   {(() => {
-                    const displayFeatures = isSummary
-                      ? (pkg.features || highlights || []).slice(0, 3)
-                      : (pkg.features || highlights || []);
+                    const rawFeatures = (pkg.features && pkg.features.length > 0) ? pkg.features : highlights;
+                    const displayFeatures = isSummary ? rawFeatures.slice(0, 3) : rawFeatures;
+                    if (displayFeatures.length === 0) return null;
                     return (
                       <div className="space-y-3">
                         <p className="text-[11px] uppercase tracking-wider text-charcoal-400 font-semibold">

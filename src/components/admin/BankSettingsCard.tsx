@@ -292,7 +292,7 @@ export function BankSettingsCard() {
               <input
                 type="text"
                 required
-                placeholder="Ví dụ: 0908123456 hoặc 1029384756"
+                aria-label="Số tài khoản ngân hàng"
                 value={bankAccountNumber}
                 onChange={(e) => setBankAccountNumber(e.target.value.replace(/\s+/g, ''))}
                 className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl font-mono text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-luxury-600"
@@ -312,7 +312,7 @@ export function BankSettingsCard() {
               </div>
               <input
                 type="text"
-                placeholder="Ví dụ: NGUYEN VAN A (Không bắt buộc)"
+                aria-label="Tên chủ tài khoản"
                 value={bankAccountName}
                 onChange={(e) => setBankAccountName(e.target.value.toUpperCase())}
                 className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl uppercase font-medium text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-luxury-600"

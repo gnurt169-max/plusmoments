@@ -2279,7 +2279,6 @@ export default function AdminSettingsPage() {
                     type="text"
                     value={formData.promoText || ''}
                     onChange={(e) => setFormData({ ...formData, promoText: e.target.value })}
-                    placeholder="Ví dụ: Nhận Báo Giá Ưu Đãi 2Tr hoặc Đăng Ký Thử Váy Cưới"
                     className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-normal"
                   />
                   <p className="text-stone-400 text-xs mt-1.5">

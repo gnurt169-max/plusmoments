@@ -253,30 +253,34 @@ export function PackageDetailModal({
               )}
             </div>
 
-            {/* Inclusions List */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
-                <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
-                <span>QUYỀN LỢI CHI TIẾT & THÀNH PHẨM BÀN GIAO:</span>
-              </div>
-              <ul className="space-y-2 text-sm text-[#4A4036] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {(packageData.features || fullFeaturesList || []).map((item: string, idx: number) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"
-                  >
-                    <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              {(packageData.deliveryProcess || packageData.deliverables) && (
-                <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
-                  <strong className="text-[#4A4036]">Quy trình bàn giao:</strong>{' '}
-                  {packageData.deliveryProcess || packageData.deliverables}
+            {/* Inclusions List - Only render when real features exist in DB */}
+            {fullFeaturesList.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
+                  <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
+                  <span>QUYỀN LỢI CHI TIẾT & THÀNH PHẨM BÀN GIAO:</span>
                 </div>
-              )}
-            </div>
+                <ul className="space-y-2 text-sm text-[#4A4036] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {fullFeaturesList.map((item: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"
+                    >
+                      <Check className="w-4 h-4 text-[#C5A880] shrink-0 mt-0.5" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Delivery process - Only render when real deliverable info exists in DB */}
+            {(packageData.deliveryProcess || packageData.deliverables)?.trim() && (
+              <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
+                <strong className="text-[#4A4036]">Quy trình bàn giao:</strong>{' '}
+                {(packageData.deliveryProcess || packageData.deliverables)?.trim()}
+              </div>
+            )}
 
             {/* FORM ĐẶT GÓI & THANH TOÁN VIETQR */}
             <div className="pt-2 border-t border-stone-200">
@@ -308,7 +312,6 @@ export function PackageDetailModal({
                       type="text"
                       required
                       aria-label="Họ Tên Dâu & Rể"
-                      placeholder="Ví dụ: Hoàng Long & Thanh Thảo"
                       value={formData.customerName}
                       onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
@@ -325,7 +328,6 @@ export function PackageDetailModal({
                       type="tel"
                       required
                       aria-label="Số Điện Thoại"
-                      placeholder="Ví dụ: 0903 768 871"
                       value={formData.customerPhone}
                       onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono font-medium"
@@ -343,7 +345,6 @@ export function PackageDetailModal({
                       name="customerEmail"
                       type="email"
                       aria-label="Email Nhận Xác Nhận"
-                      placeholder="Ví dụ: contact@example.com"
                       value={formData.customerEmail}
                       onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono"
@@ -359,7 +360,6 @@ export function PackageDetailModal({
                       name="weddingDate"
                       type="text"
                       aria-label="Ngày Dự Kiến Cưới hoặc Chụp"
-                      placeholder="Ví dụ: 25/12/2026 hoặc Tháng 11"
                       value={formData.weddingDate}
                       onChange={(e) => setFormData({ ...formData, weddingDate: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
@@ -376,7 +376,6 @@ export function PackageDetailModal({
                     name="notes"
                     rows={2}
                     aria-label="Ghi Chú Hoặc Mong Muốn Riêng"
-                    placeholder="Địa điểm tổ chức, thời gian cụ thể hoặc yêu cầu đặc biệt..."
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 leading-relaxed"

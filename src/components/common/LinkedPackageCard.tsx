@@ -91,8 +91,8 @@ export function LinkedPackageCard({
 
         {/* 3-Column Luxury Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
-          {/* CỘT 1: THUMBNAIL + TÊN GÓI + GIÁ (lg:col-span-5) */}
-          <div className="lg:col-span-5 flex items-center gap-4 sm:gap-5">
+          {/* CỘT 1: THUMBNAIL + TÊN GÓI + GIÁ */}
+          <div className={`${highlights.length > 0 ? 'lg:col-span-5' : 'lg:col-span-9'} flex items-center gap-4 sm:gap-5`}>
             <div className="relative w-20 h-28 sm:w-24 sm:h-32 rounded-2xl overflow-hidden bg-stone-200 shrink-0 border border-stone-300/80 shadow-xs">
               {packageData.coverImage ? (
                 <img
@@ -134,12 +134,12 @@ export function LinkedPackageCard({
             </div>
           </div>
 
-          {/* CỘT 2: 3 ĐẶC QUYỀN CỐT LÕI (lg:col-span-4) */}
-          <div className="lg:col-span-4 py-3 lg:py-0 border-y lg:border-y-0 lg:border-x border-amber-900/10 lg:px-6">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-700 mb-2.5">
-              Đặc Quyền Bao Gồm Trong Gói:
-            </p>
-            {highlights.length > 0 ? (
+          {/* CỘT 2: 3 ĐẶC QUYỀN CỐT LÕI (lg:col-span-4) - Chỉ hiển thị khi có dữ liệu thật */}
+          {highlights.length > 0 && (
+            <div className="lg:col-span-4 py-3 lg:py-0 border-y lg:border-y-0 lg:border-x border-amber-900/10 lg:px-6">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-charcoal-700 mb-2.5">
+                Đặc Quyền Bao Gồm Trong Gói:
+              </p>
               <ul className="space-y-2 text-xs text-charcoal-700">
                 {highlights.slice(0, 3).map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -148,23 +148,8 @@ export function LinkedPackageCard({
                   </li>
                 ))}
               </ul>
-            ) : (
-              <ul className="space-y-2 text-xs text-charcoal-700">
-                <li className="flex items-start gap-2">
-                  <Check className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
-                  <span className="font-light">01 Album Photobook cao cấp & 02 Ảnh cổng pha lê</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
-                  <span className="font-light">Trang phục cưới thiết kế Luxury & Makeup riêng</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
-                  <span className="font-light">Bàn giao 100% file gốc và ảnh blend màu cao cấp</span>
-                </li>
-              </ul>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* CỘT 3: CẶP NÚT CTA HÀNH ĐỘNG (lg:col-span-3) */}
           <div className="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center">
