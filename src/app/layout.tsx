@@ -5,7 +5,6 @@ import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
 import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
-import { TrustedTypesInit } from '@/components/common/TrustedTypesInit';
 
 const playfair = Playfair_Display({
   subsets: ['vietnamese'],
@@ -109,6 +108,24 @@ export default async function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
+        {/* Trusted Types Default Policy Registration - Synchronous & Immediate before any chunk executes */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
+                try {
+                  window.trustedTypes.createPolicy('default', {
+                    createHTML: function (s) { return s; },
+                    createScript: function (s) { return s; },
+                    createScriptURL: function (s) { return s; }
+                  });
+                } catch (e) {}
+              }
+            `,
+          }}
+        />
+
         {/* Dynamic Theme Colors & Logo Typography Variables */}
         <style
           id="system-theme-variables"
@@ -144,19 +161,6 @@ export default async function RootLayout({
           longitude={106.7009}
         />
 
-        {/* Trusted Types Default Policy Registration before React Hydration / GTM */}
-        <Script id="tt-default-policy" nonce={nonce} strategy="beforeInteractive">
-          {`if (window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
-            try {
-              window.trustedTypes.createPolicy('default', {
-                createHTML: function(s) { return s; },
-                createScript: function(s) { return s; },
-                createScriptURL: function(s) { return s; }
-              });
-            } catch (e) {}
-          }`}
-        </Script>
-
         {/* Global Google Ads Tag (gtag.js) */}
         {settings.googleAdsId && (
           <>
@@ -183,7 +187,6 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans antialiased">
-        <TrustedTypesInit />
         {children}
       </body>
     </html>
