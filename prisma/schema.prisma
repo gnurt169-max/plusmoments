@@ -183,6 +183,9 @@ model SystemSetting {
   footerCopyrightText     String   @default("© 2026 PlusMoments Wedding Studio. All rights reserved.")
   footerPolicyLinks       Json?    // Mảng: [{ label: "Chính Sách Bảo Mật", url: "/contact" }, { label: "Quy Trình & Hợp Đồng", url: "/pricing" }]
 
+  // Dynamic Pricing Page FAQs
+  pricingFaqs             Json?    // Array: [{ id: "...", question: "...", answer: "...", order: 1 }]
+
   updatedAt               DateTime @updatedAt
   createdAt               DateTime @default(now())
 }
@@ -568,7 +571,19 @@ model Order {
   @@index([status])
 }
 
+// -----------------------------------------------------------------------------
+// 12. PRICING FAQS (Câu Hỏi Thường Gặp Bảng Giá)
+// -----------------------------------------------------------------------------
+model PricingFaq {
+  id        String   @id @default(cuid())
+  question  String   @db.Text
+  answer    String   @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-
-
+  @@index([order])
+  @@index([isActive])
+}
 

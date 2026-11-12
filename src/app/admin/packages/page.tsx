@@ -19,6 +19,7 @@ import { formatVND } from '@/lib/utils';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
+import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
 
 interface PackageItem {
   id: string;
@@ -545,6 +546,11 @@ export default function AdminPackagesPage() {
           </div>
         </div>
       )}
+
+      {/* SECTION QUẢN LÝ CÂU HỎI THƯỜNG GẶP (FAQ - TRANG BẢNG GIÁ) */}
+      <div className="pt-4">
+        <PricingFaqManager onSuccessNotification={(msg) => showToast(msg)} />
+      </div>
 
       {/* CREATE / EDIT PACKAGE MODAL */}
       <Modal
