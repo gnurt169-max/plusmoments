@@ -40,6 +40,8 @@ export async function middleware(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'self';
     upgrade-insecure-requests;
+    require-trusted-types-for 'script';
+    trusted-types default nextjs nextjs#bundler goog#html 'allow-duplicates';
   `.replace(/\s{2,}/g, ' ').trim();
 
   const requestHeaders = new Headers(request.headers);
