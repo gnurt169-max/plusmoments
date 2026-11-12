@@ -9,12 +9,7 @@ const nextConfig = {
   swcMinify: true,
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: [
-      'lucide-react',
-      'date-fns',
-      'framer-motion',
-      '@heroicons/react',
-    ],
+    optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion'],
   },
   images: {
     formats: ['image/webp'], // Chỉ dùng WebP để giảm 80% tải CPU khi nén trên VPS, tránh timeout
