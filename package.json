@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "generate:llms": "node scripts/generate-llms.mjs",
+    "inline:css": "node scripts/inline-css.mjs",
     "build": "npm run generate:llms && next build",
+    "postbuild": "node scripts/inline-css.mjs",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",

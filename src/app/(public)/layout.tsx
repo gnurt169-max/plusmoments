@@ -17,9 +17,8 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, session, activeAlbums, activePackages, activePosts] = await Promise.all([
+  const [settings, activeAlbums, activePackages, activePosts] = await Promise.all([
     getSystemSettings(),
-    getAdminSession(),
     prisma.album
       .findMany({
         where: { published: true },
@@ -46,19 +45,23 @@ export default async function PublicLayout({
       .catch(() => []),
   ]);
 
+  let session = null;
   // If maintenance mode is ON and visitor is not an authenticated Admin, display Maintenance View
-  if (settings.isMaintenanceMode && !session) {
-    return (
-      <MaintenanceView
-        notice={settings.maintenanceNotice}
-        hotline={settings.hotline}
-        hotlineDisplay={settings.hotlineDisplay}
-        zaloUrl={settings.zaloUrl || ''}
-        brandNamePart1={settings.brandNamePart1}
-        brandNamePart2={settings.brandNamePart2}
-        brandSubtitle={settings.brandSubtitle}
-      />
-    );
+  if (settings.isMaintenanceMode) {
+    session = await getAdminSession();
+    if (!session) {
+      return (
+        <MaintenanceView
+          notice={settings.maintenanceNotice}
+          hotline={settings.hotline}
+          hotlineDisplay={settings.hotlineDisplay}
+          zaloUrl={settings.zaloUrl || ''}
+          brandNamePart1={settings.brandNamePart1}
+          brandNamePart2={settings.brandNamePart2}
+          brandSubtitle={settings.brandSubtitle}
+        />
+      );
+    }
   }
 
   return (
