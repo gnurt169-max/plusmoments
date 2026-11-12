@@ -214,7 +214,7 @@ export function LuxuryPricingSection({
                     if (displayFeatures.length === 0) return null;
                     return (
                       <div className="space-y-3">
-                        <p className="text-[11px] uppercase tracking-wider text-charcoal-400 font-semibold">
+                        <p className="text-[11px] uppercase tracking-wider text-charcoal-600 font-semibold">
                           Đặc quyền trọn gói:
                         </p>
                         <ul className={`space-y-2.5 ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>

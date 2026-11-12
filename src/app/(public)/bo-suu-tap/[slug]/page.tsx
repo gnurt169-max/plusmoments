@@ -142,16 +142,16 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
               {album.coupleNames}
             </span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-charcoal-400" />
+              <MapPin className="w-3.5 h-3.5 text-charcoal-500" />
               {album.location}
             </span>
             {album.shootingDate && (
               <span className="flex items-center gap-1.5 font-mono">
-                <Calendar className="w-3.5 h-3.5 text-charcoal-400" />
+                <Calendar className="w-3.5 h-3.5 text-charcoal-500" />
                 {formatDate(album.shootingDate)}
               </span>
             )}
-            <span className="flex items-center gap-1.5 font-mono text-stone-400">
+            <span className="flex items-center gap-1.5 font-mono text-stone-600">
               <ImageIcon className="w-3.5 h-3.5" />
               {album.media.length} tác phẩm
             </span>
@@ -189,11 +189,11 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         {/* 2. MASONRY GALLERY - Uncropped Portrait & Landscape Flow with Lightbox */}
         <div className="space-y-4 pt-6">
           <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-            <span className="text-xs uppercase tracking-widest text-charcoal-400 font-semibold flex items-center gap-2">
+            <span className="text-xs uppercase tracking-widest text-charcoal-600 font-semibold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
               <span>Toàn Bộ Góc Ảnh Trong Album</span>
             </span>
-            <span className="text-xs font-mono text-stone-400">
+            <span className="text-xs font-mono text-stone-600">
               Nhấp vào ảnh để xem chi tiết
             </span>
           </div>

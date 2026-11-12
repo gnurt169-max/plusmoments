@@ -86,7 +86,7 @@ export function TestimonialsSection({
                     {test.coupleNames}
                   </h3>
                   {test.weddingDate && (
-                    <p className="text-[11px] text-charcoal-400 font-mono">
+                    <p className="text-[11px] text-charcoal-600 font-mono">
                       {test.weddingDate}
                     </p>
                   )}

@@ -235,20 +235,20 @@ export function PackageDetailModal({
             {/* Pricing Box */}
             <div className="p-4 bg-white rounded-2xl border border-champagne-dark/30 shadow-sm flex items-baseline justify-between">
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-charcoal-400 font-medium">
+                <p className="text-[10px] uppercase tracking-wider text-charcoal-600 font-medium">
                   Giá Trọn Gói Ưu Đãi
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="font-serif text-3xl font-light text-luxury-700">
                     {formatVND(packageData.price)}
                   </span>
-                  <span className="text-xs text-charcoal-400">
+                  <span className="text-xs text-charcoal-600">
                     /{packageData.unit}
                   </span>
                 </div>
               </div>
               {packageData.originalPrice && (
-                <span className="text-xs text-charcoal-400 line-through font-mono">
+                <span className="text-xs text-charcoal-600 line-through font-mono">
                   Giá niêm yết: {formatVND(packageData.originalPrice)}
                 </span>
               )}
@@ -403,7 +403,7 @@ export function PackageDetailModal({
                     </>
                   )}
                 </button>
-                <p className="text-[11px] text-center text-stone-400 font-light">
+                <p className="text-[11px] text-center text-stone-600 font-light">
                   Sau khi bấm, bạn sẽ được chuyển đến cổng thanh toán quét mã VietQR tự động.
                 </p>
               </form>

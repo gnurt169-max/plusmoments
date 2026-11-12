@@ -37,7 +37,7 @@ const ConsultationForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-48 flex items-center justify-center text-xs text-stone-400">
+      <div className="h-48 flex items-center justify-center text-xs text-stone-600">
         Đang tải biểu mẫu tư vấn...
       </div>
     ),
@@ -287,7 +287,7 @@ export default async function HomePage() {
           const displayedAlbums = albums && Array.isArray(albums) ? albums.slice(0, 3) : [];
           if (displayedAlbums.length === 0) {
             return (
-              <div className="text-center py-12 text-xs text-charcoal-400">
+              <div className="text-center py-12 text-xs text-charcoal-600">
                 Đang cập nhật các bộ sưu tập mới...
               </div>
             );

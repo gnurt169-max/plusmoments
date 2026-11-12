@@ -230,7 +230,7 @@ export function ThankYouClientView({
 
             <div className="flex items-center justify-between gap-3 bg-white px-4 py-3 rounded-xl border border-stone-200 shadow-inner">
               <div className="text-left">
-                <p className="text-[10px] text-charcoal-400 uppercase tracking-wider">Mã Voucher</p>
+                <p className="text-[10px] text-charcoal-600 uppercase tracking-wider">Mã Voucher</p>
                 <p className="font-mono text-base sm:text-lg font-bold text-luxury-800 tracking-wider">
                   {settings.thankYouVoucherCode}
                 </p>

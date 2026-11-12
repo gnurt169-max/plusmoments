@@ -120,7 +120,7 @@ export function LinkedPackageCard({
                   {formatVND(numPrice)}
                 </span>
                 {numOriginalPrice && numOriginalPrice > numPrice && (
-                  <span className="font-mono text-xs text-stone-400 line-through">
+                  <span className="font-mono text-xs text-stone-600 line-through">
                     {formatVND(numOriginalPrice)}
                   </span>
                 )}

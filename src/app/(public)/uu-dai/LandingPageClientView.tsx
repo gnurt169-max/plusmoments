@@ -346,7 +346,7 @@ export function LandingPageClientView({
                   </p>
                   <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
                     <span className="font-medium text-luxury-700">{t.coupleNames}</span>
-                    <span className="text-stone-400 text-[11px]">{t.weddingDate}</span>
+                    <span className="text-stone-600 text-[11px]">{t.weddingDate}</span>
                   </div>
                 </div>
               ))}
