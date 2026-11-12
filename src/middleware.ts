@@ -47,6 +47,9 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('Content-Security-Policy', cspHeader);
 
+  const isAdminRoute = pathname.startsWith('/admin');
+  const coopValue = isAdminRoute ? 'same-origin-allow-popups' : 'same-origin';
+
   // Helper to attach CSP and Security headers to response
   const applyCspToResponse = (response: NextResponse) => {
     response.headers.set('Content-Security-Policy', cspHeader);
@@ -54,6 +57,7 @@ export async function middleware(request: NextRequest) {
       'Strict-Transport-Security',
       'max-age=63072000; includeSubDomains; preload'
     );
+    response.headers.set('Cross-Origin-Opener-Policy', coopValue);
     return response;
   };
 
