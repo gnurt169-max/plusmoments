@@ -189,7 +189,7 @@ export function GalleryLightboxModal({
           <button
             type="button"
             onClick={(e) => onToggleLike(currentItem.id, e)}
-            aria-label={isCurrentLiked ? 'Xóa khỏi Concept Yêu Thích' : 'Lưu góc ảnh này vào Concept Yêu Thích'}
+            aria-label={isCurrentLiked ? 'Bỏ thích ảnh này' : 'Thích ảnh này'}
             title={isCurrentLiked ? 'Xóa khỏi Concept Yêu Thích' : 'Lưu Concept Yêu Thích'}
             className={`p-2 sm:p-2.5 rounded-full transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
               isCurrentLiked
@@ -208,7 +208,7 @@ export function GalleryLightboxModal({
               setIsZoomed((prev) => !prev);
               setZoomScale((prev) => (prev > 1 ? 1 : 2));
             }}
-            aria-label={isZoomed ? 'Thu nhỏ ảnh về kích thước chuẩn (1x)' : 'Phóng to ảnh 200% (2x)'}
+            aria-label={isZoomed ? 'Thu nhỏ ảnh' : 'Phóng to ảnh'}
             title={isZoomed ? 'Thu nhỏ (1x)' : 'Phóng to (2x)'}
             className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
@@ -223,7 +223,7 @@ export function GalleryLightboxModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Đóng trình xem ảnh toàn màn hình (phím ESC)"
+            aria-label="Đóng trình xem ảnh"
             title="Đóng (ESC)"
             className="p-2 sm:p-2.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
@@ -242,7 +242,7 @@ export function GalleryLightboxModal({
           <button
             type="button"
             onClick={handlePrev}
-            aria-label="Xem ảnh trước (phím mũi tên trái)"
+            aria-label="Xem ảnh trước"
             title="Ảnh trước (Mũi tên trái)"
             className="hidden md:flex absolute left-3 sm:left-6 z-30 p-3 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all backdrop-blur-xs cursor-pointer shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
@@ -253,7 +253,7 @@ export function GalleryLightboxModal({
         {/* Uncropped Protected Image with Scale Transform */}
         <button
           type="button"
-          aria-label={isZoomed ? 'Thu nhỏ ảnh về kích thước chuẩn' : 'Phóng to ảnh 200%'}
+          aria-label={isZoomed ? 'Thu nhỏ ảnh' : 'Phóng to ảnh'}
           className="transition-transform duration-300 ease-out flex items-center justify-center max-h-[75vh] sm:max-h-[80vh] max-w-[96vw] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent p-0"
           style={{
             transform: `scale(${zoomScale})`,
@@ -280,7 +280,7 @@ export function GalleryLightboxModal({
           <button
             type="button"
             onClick={handleNext}
-            aria-label="Xem ảnh tiếp theo (phím mũi tên phải)"
+            aria-label="Xem ảnh tiếp theo"
             title="Ảnh tiếp theo (Mũi tên phải)"
             className="hidden md:flex absolute right-3 sm:right-6 z-30 p-3 rounded-full bg-black/50 hover:bg-black/80 text-white transition-all backdrop-blur-xs cursor-pointer shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
