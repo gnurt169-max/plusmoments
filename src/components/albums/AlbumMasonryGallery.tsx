@@ -9,8 +9,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-const AlbumLightboxModal = dynamic(
-  () => import('./AlbumLightboxModal').then((mod) => mod.AlbumLightboxModal),
+const GalleryLightboxModal = dynamic(
+  () => import('./GalleryLightboxModal'),
   { ssr: false }
 );
 
@@ -170,7 +170,7 @@ export function AlbumMasonryGallery({
           FULLSCREEN MOBILE-FIRST LIGHTBOX (Lazy dynamic chunk, only loaded on click)
       ========================================================================= */}
       {selectedIndex !== null && (
-        <AlbumLightboxModal
+        <GalleryLightboxModal
           selectedIndex={selectedIndex}
           validMedia={validMedia}
           albumTitle={albumTitle}
