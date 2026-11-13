@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import {
   Sparkles,
   Camera,
@@ -162,7 +163,7 @@ export function LuxuryPricingSection({
                 {/* 1. Card Header Image (Aspect 4:3 with Smooth Zoom) */}
                 <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#1E1C1A]">
                   {coverImg ? (
-                    <Image
+                    <SafeImage
                       src={coverImg}
                       alt={pkg.name}
                       fill

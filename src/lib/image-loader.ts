@@ -18,6 +18,11 @@ export default function staticVariantLoader({ src, width }: ImageLoaderParams): 
 
   const clean = src.split('?')[0].split('#')[0].trim();
 
+  // Guard: If flagged as raw/fallback, bypass variant loading and return original src
+  if (src.includes('raw=1') || src.includes('fallback=1')) {
+    return src;
+  }
+
   // Only transform local uploads ending with .webp
   if (!clean.startsWith('/uploads/') || !clean.endsWith('.webp')) {
     return src;

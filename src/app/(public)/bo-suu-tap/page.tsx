@@ -1,11 +1,10 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import dynamic from 'next/dynamic';
-import { FloatingCard } from '@/components/motion/FloatingCard';
+import { AlbumCard } from '@/components/albums/AlbumCard';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
@@ -195,61 +194,14 @@ export default async function BoSuuTapPage({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredAlbums.map((album, idx) => {
-            const coverImg =
-              (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
-              (album as any)?.photos?.[0]?.url ||
-              album?.media?.[0]?.url ||
-              '/placeholder.jpg';
-
-            return (
-              <FloatingCard
-                key={album.id}
-                delay={idx * 0.15}
-                reverse={idx % 2 === 1}
-                className="group h-full"
-              >
-                <Link
-                  href={`/bo-suu-tap/${album.slug}`}
-                  aria-label={`Xem album ảnh cưới: ${album.title || album.coupleNames}`}
-                  className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
-                >
-                  <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
-                    <Image
-                      src={coverImg || '/placeholder.jpg'}
-                      alt={album.title || 'PlusMoments Album'}
-                      fill
-                      priority={idx < 2}
-                      quality={70}
-                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
-                    />
-                    <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
-                      {album.concept}
-                    </div>
-                    <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[11px] font-mono text-charcoal-800">
-                      {album.location}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5 px-2 pb-1 mt-auto">
-                    <div className="flex items-center justify-between text-xs text-[#7A6243]">
-                      <span className="font-medium tracking-wide">{album.coupleNames}</span>
-                      <span className="text-charcoal-600 text-[11px] group-hover:text-[#7A6243] transition-colors">
-                        Xem album →
-                      </span>
-                    </div>
-                    <h2 className="font-serif text-lg text-charcoal-900 font-light group-hover:text-luxury-600 transition-colors line-clamp-1">
-                      {album.title}
-                    </h2>
-                    <p className="text-xs text-charcoal-500 line-clamp-2 font-light">
-                      {album.subtitle || album.description}
-                    </p>
-                  </div>
-                </Link>
-              </FloatingCard>
-            );
-          })}
+          {filteredAlbums.map((album, idx) => (
+            <AlbumCard
+              key={album.id}
+              album={album}
+              priority={idx < 2}
+              idx={idx}
+            />
+          ))}
         </div>
       )}
 

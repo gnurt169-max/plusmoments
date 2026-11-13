@@ -72,7 +72,7 @@ async function processFile(filePath) {
       tasks.push(
         sharp(filePath)
           .resize({ width: 1440, withoutEnlargement: true, fit: 'inside' })
-          .webp({ quality: 78, effort: 4 })
+          .webp({ quality: 80, effort: 5 })
           .toFile(mdPath)
           .then(() => {
             createdMdCount++;

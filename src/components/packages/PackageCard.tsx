@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import { Sparkles, Eye, ArrowRight, ShieldCheck } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
@@ -56,7 +56,7 @@ export function PackageCard({
       {/* 1. COVER IMAGE */}
       <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#1E1C1A]">
         {coverImg ? (
-          <Image
+          <SafeImage
             src={coverImg}
             alt={pkg.name}
             fill

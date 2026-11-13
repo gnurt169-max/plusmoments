@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { SafeImage } from '@/components/common/SafeImage';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -130,7 +131,7 @@ export function PricingSection({
                 {/* 1. COVER IMAGE WITH FIXED ASPECT RATIO */}
                 <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-stone-200">
                   {coverImg ? (
-                    <Image
+                    <SafeImage
                       src={coverImg}
                       alt={pkg.name}
                       fill
