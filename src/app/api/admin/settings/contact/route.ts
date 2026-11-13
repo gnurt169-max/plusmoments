@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { exportDatabaseToSeedFiles } from '@/lib/seed-exporter';
 import { resolveGoogleMapsUrl } from '@/lib/maps-converter';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,11 @@ function extractIframeSrc(input: string): string {
 
 export async function PUT(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const existing = await getSystemSettings();
 

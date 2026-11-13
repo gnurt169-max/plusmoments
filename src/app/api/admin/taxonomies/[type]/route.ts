@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { exportDatabaseToSeedFiles } from '@/lib/seed-exporter';
+import { getAdminSession } from '@/lib/auth';
 
 function slugify(text: string): string {
   return text
@@ -45,6 +46,11 @@ export async function GET(
   { params }: { params: { type: string } }
 ) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { type } = params;
     const delegate = getModelDelegate(type);
 
@@ -91,6 +97,11 @@ export async function POST(
   { params }: { params: { type: string } }
 ) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { type } = params;
     const delegate = getModelDelegate(type);
 
@@ -156,6 +167,11 @@ export async function PUT(
   { params }: { params: { type: string } }
 ) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { type } = params;
     const delegate = getModelDelegate(type);
 
@@ -225,6 +241,11 @@ export async function DELETE(
   { params }: { params: { type: string } }
 ) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { type } = params;
     const delegate = getModelDelegate(type);
 

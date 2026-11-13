@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { cleanupDanglingFolderReferences, cleanupDanglingMediaReferences } from '@/lib/media-cleanup';
+import { deleteImageWithVariants } from '@/lib/image-variants';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +36,11 @@ async function findFolder(identifier: string) {
 
 export async function GET(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const folder = await findFolder(params.id);
 
     if (!folder) {
@@ -87,6 +94,11 @@ export async function GET(request: Request, { params }: Props) {
 
 export async function PUT(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const folder = await findFolder(params.id);
 
     if (!folder) {
@@ -146,6 +158,11 @@ export async function PUT(request: Request, { params }: Props) {
 
 export async function DELETE(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const folder = await findFolder(params.id);
 
     if (!folder) {
@@ -163,7 +180,7 @@ export async function DELETE(request: Request, { params }: Props) {
         try {
           const relativePath = possibleFile.url.startsWith('/') ? possibleFile.url.slice(1) : possibleFile.url;
           const absolutePath = path.join(process.cwd(), 'public', relativePath);
-          await fs.promises.unlink(absolutePath).catch(() => {});
+          await deleteImageWithVariants(absolutePath);
         } catch {}
 
         await cleanupDanglingMediaReferences([possibleFile.url]);

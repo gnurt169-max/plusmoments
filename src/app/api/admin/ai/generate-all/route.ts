@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getOrAnalyzeImageChunk, VisionAIChunk } from '@/lib/vision-ai';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,11 @@ function formatAltText(chunk: VisionAIChunk, postTitle: string, index: number): 
 
 export async function POST(req: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json().catch(() => ({}));
     const { title, category, images } = body;
 

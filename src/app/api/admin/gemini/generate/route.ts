@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,11 @@ function extractJsonFromText(text: string): any {
 
 export async function POST(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { taskType, promptOverride, model: customModel, temperature: customTemp, tone: customTone } = body;
     const inputContext = { ...body, ...(body.inputContext || {}) };

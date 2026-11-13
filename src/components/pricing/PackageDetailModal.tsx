@@ -51,6 +51,8 @@ export function PackageDetailModal({
     customerEmail: '',
     weddingDate: '',
     notes: '',
+    website_url: '',
+    confirm_hp_field: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -128,6 +130,8 @@ export function PackageDetailModal({
           customerEmail: formData.customerEmail.trim(),
           notes: formData.notes.trim(),
           eventDate: formData.weddingDate.trim(),
+          website_url: formData.website_url,
+          confirm_hp_field: formData.confirm_hp_field,
         }),
       });
 
@@ -390,6 +394,26 @@ export function PackageDetailModal({
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 leading-relaxed"
+                  />
+                </div>
+
+                {/* Honeypot Anti-Spam Fields (Hidden from humans) */}
+                <div className="hidden" aria-hidden="true">
+                  <input
+                    type="text"
+                    name="website_url"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website_url}
+                    onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                  />
+                  <input
+                    type="text"
+                    name="confirm_hp_field"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.confirm_hp_field}
+                    onChange={(e) => setFormData({ ...formData, confirm_hp_field: e.target.value })}
                   />
                 </div>
 

@@ -15,8 +15,22 @@ export interface SessionUser {
 export const SESSION_COOKIE_NAME = 'admin_session';
 export const SESSION_DURATION = 60 * 60 * 8; // 8 hours in seconds
 
+const DEFAULT_FALLBACK_SECRET = 'plusmoments_super_secure_random_key_2026_xyz';
+let hasWarnedMissingSecret = false;
+
 function getSecretKey(): Uint8Array {
-  const secret = process.env.SESSION_SECRET || 'plusmoments_super_secure_random_key_2026_xyz';
+  const envSecret = process.env.SESSION_SECRET?.trim();
+  if (
+    process.env.NODE_ENV === 'production' &&
+    (!envSecret || envSecret === DEFAULT_FALLBACK_SECRET) &&
+    !hasWarnedMissingSecret
+  ) {
+    hasWarnedMissingSecret = true;
+    console.error(
+      '[SECURITY WARNING] SESSION_SECRET is missing in production! Please configure a strong random secret in .env'
+    );
+  }
+  const secret = envSecret || DEFAULT_FALLBACK_SECRET;
   return new TextEncoder().encode(secret);
 }
 

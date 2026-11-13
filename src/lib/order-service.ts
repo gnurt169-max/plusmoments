@@ -22,6 +22,18 @@ export async function processCreateOrder(request: Request) {
     }
 
     const body = await request.json();
+
+    // 1. Honeypot Bot Trap Defense: silently drop spam bots without writing DB or sending email
+    if (Boolean(body.website_url || body.confirm_hp_field)) {
+      console.warn(`[SPAM BLOCKED] Honeypot triggered on /api/orders from IP: ${clientIp}`);
+      return NextResponse.json({
+        success: true,
+        message: 'Khởi tạo đơn hàng thành công.',
+        orderCode: 'PM99999',
+        redirectUrl: '/cam-on',
+      });
+    }
+
     const {
       packageId,
       packageName,
@@ -36,15 +48,35 @@ export async function processCreateOrder(request: Request) {
     } = body;
 
     const name = (customerName || body.fullName || '').trim();
-    const phone = (customerPhone || body.phone || '').trim();
+    const rawPhone = (customerPhone || body.phone || '').trim();
+    const cleanPhone = rawPhone.replace(/[\s.-]/g, '');
     const email = (customerEmail || body.email || '').trim();
 
-    if (!name || !phone) {
+    if (!name || !cleanPhone) {
       return NextResponse.json(
         { success: false, error: 'Họ tên và số điện thoại là bắt buộc.' },
         { status: 400 }
       );
     }
+
+    // 2. Validate Customer Name (at least 2 chars, no URLs)
+    if (name.length < 2 || /https?:\/\//i.test(name)) {
+      return NextResponse.json(
+        { success: false, error: 'Họ tên không hợp lệ, vui lòng kiểm tra lại.' },
+        { status: 400 }
+      );
+    }
+
+    // 3. Validate Vietnamese Phone Number format (03, 05, 07, 08, 09 or +84 followed by 8 digits)
+    const vnPhoneRegex = /^(?:\+84|0)(?:3|5|7|8|9)\d{8}$/;
+    if (!vnPhoneRegex.test(cleanPhone)) {
+      return NextResponse.json(
+        { success: false, error: 'Số điện thoại không hợp lệ, vui lòng kiểm tra lại.' },
+        { status: 400 }
+      );
+    }
+
+    const phone = cleanPhone.startsWith('+84') ? `0${cleanPhone.slice(3)}` : cleanPhone;
 
     // Sanitize price/amount to safe integer
     let rawAmount = price !== undefined && price !== null ? price : amount;

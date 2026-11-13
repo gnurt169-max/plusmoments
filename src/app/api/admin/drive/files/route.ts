@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { listGoogleDriveFiles, parseGoogleDriveFolderId } from '@/lib/drive';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const parentFolderId = searchParams.get('parentFolderId') || searchParams.get('folderId');
     const allowedExtensionsParam = searchParams.get('allowedExtensions') || searchParams.get('formats');

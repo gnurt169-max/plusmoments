@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,11 @@ const FALLBACK_BANKS: BankItem[] = [
 
 export async function GET() {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const res = await fetch('https://api.vietqr.io/v2/banks', {
       headers: {
         Accept: 'application/json',

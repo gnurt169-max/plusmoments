@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,11 @@ interface Props {
 
 export async function GET(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const testimonial = await prisma.testimonial.findUnique({
       where: { id: params.id },
     });
@@ -32,6 +38,11 @@ export async function GET(request: Request, { params }: Props) {
 
 export async function PUT(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       coupleNames,
@@ -127,6 +138,11 @@ export async function PUT(request: Request, { params }: Props) {
 
 export async function DELETE(request: Request, { params }: Props) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const existing = await prisma.testimonial.findUnique({
       where: { id: params.id },
     });

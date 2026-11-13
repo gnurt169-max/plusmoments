@@ -2,11 +2,17 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getNotificationSettings } from '@/lib/notifications';
 import { syncNotificationEmailToSeeds } from '@/lib/seed-sync';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const settings = await getNotificationSettings();
     return NextResponse.json({ success: true, settings });
   } catch (error: any) {
@@ -19,6 +25,11 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       telegramEnabled,

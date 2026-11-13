@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { deleteImageWithVariants } from '@/lib/image-variants';
+import { getAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,6 +84,11 @@ function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] 
 
 export async function GET() {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 
     if (!fs.existsSync(uploadsDir)) {
@@ -110,6 +116,11 @@ export async function GET() {
 
 export async function DELETE(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const targetUrl = searchParams.get('url');
 
