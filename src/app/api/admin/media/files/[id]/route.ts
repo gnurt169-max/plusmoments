@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { cleanupDanglingMediaReferences, revalidateMediaRelatedPaths } from '@/lib/media-cleanup';
+import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 
@@ -47,13 +47,11 @@ export async function DELETE(request: Request, { params }: Props) {
     }
 
     if (!file) {
-      // Check if file exists physically on disk to clean up
+      // Check if file exists physically on disk to clean up (along with -sm.webp & -md.webp variants)
       const candidateUrl = fileId.startsWith('/') ? fileId : `/uploads/${fileId}`;
       const relativePath = candidateUrl.replace(/^\/+/, '');
       const absolutePath = path.join(process.cwd(), 'public', relativePath);
-      await fs.unlink(absolutePath).catch(() => {
-        // Physical file does not exist, nothing to delete
-      });
+      await deleteImageWithVariants(absolutePath);
 
       // Cleanup dangling references if any
       await cleanupDanglingMediaReferences([candidateUrl]);
@@ -65,14 +63,11 @@ export async function DELETE(request: Request, { params }: Props) {
       );
     }
 
-    // 2. Physical deletion with graceful try/catch (never block DB deletion if file/folder missing)
+    // 2. Physical deletion of original file + variants (-sm.webp, -md.webp)
     try {
       const relativePath = file.url.startsWith('/') ? file.url.slice(1) : file.url;
       const absolutePath = path.join(process.cwd(), 'public', relativePath);
-
-      await fs.unlink(absolutePath).catch(() => {
-        console.warn(`[WARN] File vật lý không tìm thấy tại: ${absolutePath}, tiếp tục xóa bản ghi DB.`);
-      });
+      await deleteImageWithVariants(absolutePath);
     } catch (fsError) {
       console.warn('[WARN] Lỗi khi xử lý file vật lý, bỏ qua để dọn sạch Database:', fsError);
     }

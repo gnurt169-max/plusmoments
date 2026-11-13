@@ -6,6 +6,7 @@
     "dev": "next dev",
     "generate:llms": "node scripts/generate-llms.mjs",
     "images:variants": "node scripts/generate-image-variants.mjs",
+    "images:cleanup": "node scripts/cleanup-orphan-variants.mjs",
     "optimize:variants": "node scripts/generate-image-variants.mjs",
     "inline:css": "node scripts/inline-css.mjs",
     "build": "npm run generate:llms && next build",

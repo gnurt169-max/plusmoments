@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { deleteImageWithVariants } from '@/lib/image-variants';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,11 @@ function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] 
     if (entry.isDirectory()) {
       results = results.concat(getLocalMediaFiles(fullPath, rootDir));
     } else if (entry.isFile()) {
+      // Skip auto-generated responsive WebP variants (-sm.webp and -md.webp)
+      if (entry.name.endsWith('-sm.webp') || entry.name.endsWith('-md.webp')) {
+        continue;
+      }
+
       const ext = path.extname(entry.name).toLowerCase();
       if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
         try {
@@ -126,12 +132,13 @@ export async function DELETE(request: Request) {
     const fullPath = path.join(process.cwd(), 'public', relativePath);
 
     if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+      await deleteImageWithVariants(fullPath);
       return NextResponse.json({
         success: true,
-        message: 'Đã xóa ảnh khỏi server thành công!',
+        message: 'Đã xóa ảnh và các biến thể (-sm, -md) khỏi server thành công!',
       });
     } else {
+      await deleteImageWithVariants(fullPath);
       return NextResponse.json(
         { success: false, error: 'Không tìm thấy tệp ảnh trên server.' },
         { status: 404 }

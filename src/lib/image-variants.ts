@@ -63,3 +63,23 @@ export async function generateResponsiveWebPVariants(
   return { smPath, mdPath };
 }
 
+/**
+ * Safely deletes an original image file along with its responsive WebP variants (-sm.webp & -md.webp)
+ * using Promise.allSettled so missing variants never throw a 500 error.
+ */
+export async function deleteImageWithVariants(absoluteOriginalPath: string): Promise<void> {
+  const pathsToDelete = [absoluteOriginalPath];
+  if (
+    absoluteOriginalPath.endsWith('.webp') &&
+    !absoluteOriginalPath.endsWith('-sm.webp') &&
+    !absoluteOriginalPath.endsWith('-md.webp')
+  ) {
+    const base = absoluteOriginalPath.slice(0, -5);
+    pathsToDelete.push(`${base}-sm.webp`, `${base}-md.webp`);
+  }
+  await Promise.allSettled(
+    pathsToDelete.map((filePath) => fs.promises.unlink(filePath).catch(() => {}))
+  );
+}
+
+

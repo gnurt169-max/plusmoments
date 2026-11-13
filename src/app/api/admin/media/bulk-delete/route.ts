@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { cleanupDanglingMediaReferences } from '@/lib/media-cleanup';
+import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 
@@ -82,9 +83,9 @@ async function handleBulkDelete(request: Request) {
 
       try {
         if (fs.existsSync(fullPath)) {
-          await fs.promises.unlink(fullPath);
           unlinkedCount++;
         }
+        await deleteImageWithVariants(fullPath);
       } catch (err) {
         console.warn(`Could not unlink file ${fullPath}:`, err);
       }
