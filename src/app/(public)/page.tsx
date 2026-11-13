@@ -13,7 +13,10 @@ import {
 import { SafeImage } from '@/components/common/SafeImage';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
-import { extractPackageFeatures } from '@/lib/package-features';
+import {
+  extractPackageHighlights,
+  extractPackageInclusions,
+} from '@/lib/package-features';
 import {
   Sparkles,
   ArrowRight,
@@ -130,7 +133,8 @@ export default async function HomePage() {
     '';
 
   const formattedPackages: PricingPackageData[] = packages.map((pkg) => {
-    const fullFeatures = extractPackageFeatures(pkg);
+    const coreHighlights = extractPackageHighlights(pkg);
+    const fullInclusions = extractPackageInclusions(pkg);
     return {
       id: pkg.id,
       name: pkg.name,
@@ -147,10 +151,14 @@ export default async function HomePage() {
       deliverables: pkg.deliverables,
       isPopular: pkg.isPopular,
       isFeatured: pkg.isFeatured,
-      features: fullFeatures,
-      fullFeatures: fullFeatures,
-      shortFeatures: fullFeatures.slice(0, 3),
+      highlights: coreHighlights,
+      coreHighlights: coreHighlights,
+      inclusionsList: fullInclusions,
+      features: fullInclusions,
+      fullFeatures: fullInclusions,
+      shortFeatures: coreHighlights,
       deliveryProcess: pkg.deliverables,
+      blurDataUrl: (pkg as any).blurDataUrl || null,
     };
   });
 

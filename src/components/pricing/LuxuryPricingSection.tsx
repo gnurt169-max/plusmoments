@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
+import { extractPackageHighlights } from '@/lib/package-features';
 
 // Dynamic load modals strictly on user interaction
 const PackageDetailModal = dynamic(
@@ -43,15 +44,19 @@ export interface PricingPackageData {
   unit: string;
   coverImage?: string;
   demoImages?: string | null;
-  highlightPoints?: string | null;
-  inclusions: string;
+  highlightPoints?: string | null | string[];
+  inclusions?: string | null | string[];
   deliverables?: string | null;
   isPopular: boolean;
   isFeatured: boolean;
   shortFeatures?: string[];
   fullFeatures?: string[];
   features?: string[];
+  highlights?: string[];
+  coreHighlights?: string[];
+  inclusionsList?: string[];
   deliveryProcess?: string | null;
+  blurDataUrl?: string | null;
 }
 
 interface LuxuryPricingSectionProps {
@@ -117,26 +122,8 @@ export function LuxuryPricingSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 items-stretch">
           {packages.map((pkg, index) => {
-            // Parse highlights (3 core summary points)
-            let highlights: string[] = [];
-            try {
-              highlights = JSON.parse(pkg.highlightPoints || '[]');
-            } catch {
-              highlights = [];
-            }
-
-            if (highlights.length === 0 && pkg.inclusions) {
-              try {
-                const inc = JSON.parse(pkg.inclusions || '[]');
-                highlights = Array.isArray(inc) ? inc.slice(0, 3) : [];
-              } catch {
-                highlights = pkg.inclusions
-                  .split('\n')
-                  .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
-                  .filter(Boolean)
-                  .slice(0, 3);
-              }
-            }
+            // Parse 3-4 core highlights
+            const highlights = extractPackageHighlights(pkg);
 
             const coverImg =
               pkg.coverImage && pkg.coverImage.trim()
@@ -146,7 +133,7 @@ export function LuxuryPricingSection({
             return (
               <article
                 key={pkg.id}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always ${
+                className={`group relative rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always ${
                   pkg.isPopular
                     ? 'bg-white shadow-2xl border-luxury-500 ring-2 ring-luxury-400/30 md:-translate-y-2 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(180,130,60,0.25)]'
                     : 'bg-white shadow-luxury hover:shadow-2xl border-champagne-dark/30 hover:-translate-y-2 hover:border-luxury-400'
@@ -201,45 +188,39 @@ export function LuxuryPricingSection({
                   </div>
                 </div>
 
-                {/* 2. Core Highlights (Tóm tắt rút gọn 3 quyền lợi với icon tinh tế) */}
-                <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
-                  {/* 2. Core Highlights */}
-                  {(() => {
-                    const rawFeatures = (pkg.features && pkg.features.length > 0) ? pkg.features : highlights;
-                    const displayFeatures = isSummary ? rawFeatures.slice(0, 3) : rawFeatures;
-                    if (displayFeatures.length === 0) return null;
-                    return (
-                      <div className="space-y-3">
-                        <p className="text-[11px] uppercase tracking-wider text-charcoal-600 font-semibold">
-                          Đặc quyền trọn gói:
-                        </p>
-                        <ul className={`space-y-2.5 ${!isSummary ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar' : ''}`}>
-                          {displayFeatures.map((item, idx) => {
-                            const Icon =
-                              idx % 3 === 0
-                                ? BookOpen
-                                : idx % 3 === 1
-                                ? Camera
-                                : Sparkles;
-                            return (
-                              <li
-                                key={idx}
-                                className="flex items-start gap-2.5 text-xs text-charcoal-700 font-light leading-relaxed"
-                              >
-                                <span className="w-5 h-5 rounded-full bg-champagne/60 text-luxury-700 flex items-center justify-center shrink-0 mt-0.5">
-                                  <Icon className="w-3 h-3" />
-                                </span>
-                                <span className={isSummary ? "line-clamp-2" : ""}>{item}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    );
-                  })()}
+                {/* 2. Core Highlights (Tóm tắt rút gọn 3-4 quyền lợi cốt lõi) */}
+                <div className="p-6 space-y-5 flex-1 flex flex-col">
+                  {highlights.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-[11px] uppercase tracking-wider text-charcoal-600 font-semibold">
+                        Đặc quyền trọn gói:
+                      </p>
+                      <ul className="space-y-2.5">
+                        {highlights.map((item, idx) => {
+                          const Icon =
+                            idx % 3 === 0
+                              ? BookOpen
+                              : idx % 3 === 1
+                              ? Camera
+                              : Sparkles;
+                          return (
+                            <li
+                              key={idx}
+                              className="flex items-start gap-2.5 text-xs text-charcoal-700 font-light leading-relaxed"
+                            >
+                              <span className="w-5 h-5 rounded-full bg-champagne/60 text-luxury-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <Icon className="w-3 h-3" />
+                              </span>
+                              <span className={isSummary ? 'line-clamp-2' : ''}>{item}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
 
                   {/* 3. Dual CTA Actions */}
-                  <div className="pt-4 border-t border-stone-100 space-y-2.5">
+                  <div className="mt-auto pt-4 border-t border-stone-100 space-y-2.5">
                     {/* Visual Indicator: View Album & Detail Modal (Interactive State on Card Hover) */}
                     <button
                       type="button"

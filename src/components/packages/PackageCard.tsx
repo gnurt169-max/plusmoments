@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Sparkles, Eye, ArrowRight, ShieldCheck } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
+import { extractPackageHighlights } from '@/lib/package-features';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 
 const DEFAULT_WARM_BLUR_DATA_URL =
@@ -24,35 +25,15 @@ export function PackageCard({
 }: PackageCardProps) {
   const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
 
-  // Parse real highlights from Database (highlightPoints or inclusions)
-  let highlights: string[] = [];
-  try {
-    if (pkg.highlightPoints) {
-      const parsed = JSON.parse(pkg.highlightPoints);
-      if (Array.isArray(parsed) && parsed.length > 0) highlights = parsed;
-    }
-  } catch {
-    // ignore
-  }
-
-  if (highlights.length === 0 && pkg.inclusions) {
-    try {
-      const parsed = JSON.parse(pkg.inclusions);
-      if (Array.isArray(parsed)) highlights = parsed;
-    } catch {
-      highlights = pkg.inclusions
-        .split('\n')
-        .map((s) => s.replace(/^[•\-\*]\s*/, '').trim())
-        .filter(Boolean);
-    }
-  }
+  // 3-4 Điểm nhấn cốt lõi từ DB (highlightPoints) hoặc fallback 3 mục đầu của inclusions
+  const highlights = extractPackageHighlights(pkg);
 
   const coverImg = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
 
   return (
     <article
       onClick={() => onSelect?.(pkg)}
-      className={`group relative rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
+      className={`group relative rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
         pkg.isPopular
           ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
           : 'hover:border-amber-400/60'
@@ -101,7 +82,7 @@ export function PackageCard({
       </div>
 
       {/* 2. BODY CONTENT */}
-      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-6">
+      <div className="p-6 sm:p-7 flex-1 flex flex-col space-y-6">
         {/* Pricing Display */}
         <div className="pb-4 border-b border-[#E8E2D9]/80 flex items-baseline justify-between gap-2">
           <div>
@@ -122,42 +103,31 @@ export function PackageCard({
           )}
         </div>
 
-        {/* Danh sách đặc quyền - Chỉ hiển thị khi có dữ liệu thật trong DB */}
-        {(() => {
-          const rawFeatures = pkg.features && pkg.features.length > 0 ? pkg.features : highlights;
-          const displayFeatures = isSummary ? rawFeatures.slice(0, 3) : rawFeatures;
-          if (displayFeatures.length === 0) return null;
-          return (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
-                <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
-                <span>ĐẶC QUYỀN TRỌN GÓI:</span>
-              </div>
-              <ul
-                className={`space-y-1.5 text-sm text-[#4A4036] ${
-                  !isSummary
-                    ? 'min-h-[160px] max-h-[320px] overflow-y-auto pr-1 custom-scrollbar'
-                    : ''
-                }`}
-              >
-                {displayFeatures.map((feat: string, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span
-                      aria-hidden="true"
-                      className="text-[#C5A880] font-semibold shrink-0 leading-5"
-                    >
-                      ✓
-                    </span>
-                    <span className={isSummary ? 'line-clamp-2' : ''}>{feat}</span>
-                  </li>
-                ))}
-              </ul>
+        {/* Điểm nhấn cốt lõi gói dịch vụ (Chỉ hiển thị khi có dữ liệu thật trong DB) */}
+        {highlights.length > 0 && (
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
+              <Sparkles className="w-3.5 h-3.5 text-[#C5A880] shrink-0" />
+              <span>ĐIỂM NHẤN CỐT LÕI:</span>
             </div>
-          );
-        })()}
+            <ul className="space-y-2 text-sm text-[#4A4036]">
+              {highlights.map((feat: string, idx: number) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="text-[#C5A880] font-semibold shrink-0 leading-5"
+                  >
+                    ✓
+                  </span>
+                  <span className="line-clamp-2 leading-relaxed">{feat}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* 3. CARD FOOTER BUTTON */}
-        <div className="pt-4 border-t border-[#E8E2D9]/80">
+        <div className="mt-auto pt-4 border-t border-[#E8E2D9]/80">
           <button
             type="button"
             onClick={(e) => {

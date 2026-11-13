@@ -10,7 +10,10 @@ import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { HelpCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
-import { extractPackageFeatures } from '@/lib/package-features';
+import {
+  extractPackageHighlights,
+  extractPackageInclusions,
+} from '@/lib/package-features';
 
 export const metadata: Metadata = {
   title: 'Bảng Giá Dịch Vụ Cưới Trọn Gói 2026 | PlusMoments Studio',
@@ -48,7 +51,8 @@ export default async function BangGiaPage() {
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
   const packages: PricingPackageData[] = packagesRaw.map((pkg) => {
-    const fullFeatures = extractPackageFeatures(pkg);
+    const coreHighlights = extractPackageHighlights(pkg);
+    const fullInclusions = extractPackageInclusions(pkg);
     return {
       id: pkg.id,
       name: pkg.name,
@@ -65,10 +69,14 @@ export default async function BangGiaPage() {
       deliverables: pkg.deliverables,
       isPopular: pkg.isPopular,
       isFeatured: pkg.isFeatured,
-      features: fullFeatures,
-      fullFeatures: fullFeatures,
-      shortFeatures: fullFeatures.slice(0, 3),
+      highlights: coreHighlights,
+      coreHighlights: coreHighlights,
+      inclusionsList: fullInclusions,
+      features: fullInclusions,
+      fullFeatures: fullInclusions,
+      shortFeatures: coreHighlights,
       deliveryProcess: pkg.deliverables,
+      blurDataUrl: (pkg as any).blurDataUrl || null,
     };
   });
 

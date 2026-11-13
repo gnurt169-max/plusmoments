@@ -13,10 +13,16 @@ import {
   ArrowRight,
   CreditCard,
   QrCode,
+  ShieldCheck,
+  Clock,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
-import { extractPackageFeatures } from '@/lib/package-features';
+import {
+  parseArrayOrLines,
+  extractPackageInclusions,
+  isMockString,
+} from '@/lib/package-features';
 import type { PricingPackageData } from './LuxuryPricingSection';
 
 export interface PackageDetailModalProps {
@@ -87,10 +93,22 @@ export function PackageDetailModal({
 
   const currentActiveImage = demoImagesList[activeImageIndex] || demoImagesList[0] || '';
 
-  // Full features list guaranteed to contain 100% full comprehensive features (never sliced)
-  const fullFeaturesList: string[] = useMemo(() => {
+  // 1. Điểm nhấn cốt lõi từ DB (highlightPoints) - hiển thị tại Khối 1
+  const coreHighlightsList: string[] = useMemo(() => {
     if (!packageData) return [];
-    return extractPackageFeatures(packageData);
+    if (Array.isArray(packageData.coreHighlights) && packageData.coreHighlights.length > 0) {
+      return packageData.coreHighlights.filter((s) => !isMockString(s));
+    }
+    if (Array.isArray(packageData.highlights) && packageData.highlights.length > 0) {
+      return packageData.highlights.filter((s) => !isMockString(s));
+    }
+    return parseArrayOrLines(packageData.highlightPoints);
+  }, [packageData]);
+
+  // 2. Toàn bộ 100% quyền lợi chi tiết từ DB (inclusions) - hiển thị tại Khối 2
+  const fullInclusionsList: string[] = useMemo(() => {
+    if (!packageData) return [];
+    return extractPackageInclusions(packageData);
   }, [packageData]);
 
   // Keyboard navigation & ESC close for Fullscreen Lightbox
@@ -263,15 +281,36 @@ export function PackageDetailModal({
               )}
             </div>
 
-            {/* Inclusions List - Only render when real features exist in DB */}
-            {fullFeaturesList.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#8C7A6B]">
-                  <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
-                  <span>QUYỀN LỢI CHI TIẾT & THÀNH PHẨM BÀN GIAO:</span>
+            {/* KHỐI 1: ĐIỂM NHẤN CỐT LÕI TRỌN GÓI (Chỉ render khi có dữ liệu thật từ highlightPoints) */}
+            {coreHighlightsList.length > 0 && (
+              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-amber-300/60 shadow-2xs space-y-2.5">
+                <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-amber-900">
+                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>ĐIỂM NHẤN CỐT LÕI TRỌN GÓI:</span>
                 </div>
-                <ul className="space-y-2 text-sm text-[#4A4036] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {fullFeaturesList.map((item: string, idx: number) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {coreHighlightsList.map((item: string, idx: number) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-amber-200/60 text-xs shadow-2xs"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0" />
+                      <span className="font-medium text-stone-900 leading-snug">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* KHỐI 2: CHI TIẾT 100% QUYỀN LỢI & SẢN PHẨM BÀN GIAO */}
+            {fullInclusionsList.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
+                  <ShieldCheck className="w-4 h-4 text-[#C5A880] shrink-0" />
+                  <span>CHI TIẾT 100% QUYỀN LỢI & SẢN PHẨM BÀN GIAO:</span>
+                </div>
+                <ul className="space-y-2 text-sm text-[#4A4036] max-h-[260px] overflow-y-auto pr-2 custom-scrollbar">
+                  {fullInclusionsList.map((item: string, idx: number) => (
                     <li
                       key={idx}
                       className="flex items-start gap-2.5 text-xs text-[#4A4036] font-light leading-relaxed"
@@ -286,13 +325,17 @@ export function PackageDetailModal({
               </div>
             )}
 
-            {/* Delivery process - Only render when real deliverable info exists in DB */}
+            {/* KHỐI 3: THỜI GIAN & CAM KẾT BÀN GIAO FILE */}
             {(() => {
               const text = (packageData.deliveryProcess || packageData.deliverables)?.trim();
               if (!text || text.includes('Minimalism 25x35')) return null;
               return (
-                <div className="p-3 bg-[#F9F7F4] rounded-lg text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed">
-                  <strong className="text-[#4A4036]">Quy trình bàn giao:</strong> {text}
+                <div className="p-3.5 bg-[#F9F7F4] rounded-xl text-xs text-[#7A6E64] border border-[#EAE5D9] leading-relaxed space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-[#4A4036] uppercase tracking-wider text-[11px]">
+                    <Clock className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>THỜI GIAN & CAM KẾT BÀN GIAO FILE:</span>
+                  </div>
+                  <p className="text-charcoal-700 pl-5">{text}</p>
                 </div>
               );
             })()}

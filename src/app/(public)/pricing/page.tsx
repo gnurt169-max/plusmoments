@@ -9,7 +9,10 @@ import { PricingPackagesJsonLd, FaqJsonLd } from '@/components/seo/JsonLdSchema'
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
-import { extractPackageFeatures } from '@/lib/package-features';
+import {
+  extractPackageHighlights,
+  extractPackageInclusions,
+} from '@/lib/package-features';
 import { HelpCircle, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -49,7 +52,8 @@ export default async function PricingPage() {
 
   // Format packages data for LuxuryPricingSection
   const packages: PricingPackageData[] = packagesRaw.map((pkg) => {
-    const fullFeatures = extractPackageFeatures(pkg);
+    const coreHighlights = extractPackageHighlights(pkg);
+    const fullInclusions = extractPackageInclusions(pkg);
     return {
       id: pkg.id,
       name: pkg.name,
@@ -66,10 +70,14 @@ export default async function PricingPage() {
       deliverables: pkg.deliverables,
       isPopular: pkg.isPopular,
       isFeatured: pkg.isFeatured,
-      features: fullFeatures,
-      fullFeatures: fullFeatures,
-      shortFeatures: fullFeatures.slice(0, 3),
+      highlights: coreHighlights,
+      coreHighlights: coreHighlights,
+      inclusionsList: fullInclusions,
+      features: fullInclusions,
+      fullFeatures: fullInclusions,
+      shortFeatures: coreHighlights,
       deliveryProcess: pkg.deliverables,
+      blurDataUrl: (pkg as any).blurDataUrl || null,
     };
   });
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
-import { extractPackageFeatures } from '@/lib/package-features';
+import { extractPackageHighlights } from '@/lib/package-features';
 
 const ConsultationModal = dynamic(
   () => import('@/components/common/ConsultationModal'),
@@ -42,7 +42,7 @@ export function LinkedPackageCard({
   if (!packageData) return null;
 
   // Extract real highlights from DB without AI mockup padding
-  const highlights = extractPackageFeatures(packageData).slice(0, 3);
+  const highlights = extractPackageHighlights(packageData);
 
   const numPrice = Number(packageData.price) || 0;
   const numOriginalPrice = packageData.originalPrice ? Number(packageData.originalPrice) : null;
