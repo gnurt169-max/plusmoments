@@ -264,3 +264,65 @@ export function trackConsultationSubmit(details: {
     });
   }
 }
+
+/**
+ * E-commerce / Google Ads / GA4 begin_checkout tracking action
+ */
+export function trackBeginCheckout(packageData: {
+  id: string;
+  name: string;
+  price: number | string;
+  orderCode?: string;
+}) {
+  const value = Number(packageData.price) || 0;
+
+  trackEvent('begin_checkout', {
+    order_code: packageData.orderCode,
+    package_id: packageData.id,
+    package_name: packageData.name,
+    value: value,
+    currency: 'VND',
+  });
+
+  // Google Tag Manager / GA4 Standard E-commerce payload
+  if (typeof window !== 'undefined' && window.dataLayer) {
+    window.dataLayer.push({
+      event: 'begin_checkout',
+      ecommerce: {
+        currency: 'VND',
+        value: value,
+        transaction_id: packageData.orderCode,
+        items: [
+          {
+            item_id: packageData.id,
+            item_name: packageData.name,
+            price: value,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+  }
+
+  // Meta Pixel InitiateCheckout
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    window.fbq('track', 'InitiateCheckout', {
+      content_name: packageData.name,
+      content_ids: [packageData.id],
+      value: value,
+      currency: 'VND',
+      num_items: 1,
+    });
+  }
+
+  // TikTok Pixel InitiateCheckout
+  if (typeof window !== 'undefined' && window.ttq && typeof window.ttq.track === 'function') {
+    window.ttq.track('InitiateCheckout', {
+      content_name: packageData.name,
+      content_id: packageData.id,
+      value: value,
+      currency: 'VND',
+      quantity: 1,
+    });
+  }
+}

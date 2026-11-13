@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
-import { getStoredTrafficSource, trackEvent } from '@/lib/tracking';
+import { getStoredTrafficSource, trackEvent, trackBeginCheckout } from '@/lib/tracking';
 import {
   parseArrayOrLines,
   extractPackageInclusions,
@@ -169,31 +169,13 @@ export function PackageDetailModal({
       }
 
       if (data.success && data.orderCode) {
-        // Track E-commerce / Google Ads begin_checkout event
-        trackEvent('begin_checkout', {
-          order_code: data.orderCode,
-          package_id: packageData.id,
-          package_name: packageData.name,
-          value: packageData.price,
-          currency: 'VND',
+        // Track E-commerce / Google Ads / GA4 / Meta / TikTok begin_checkout event
+        trackBeginCheckout({
+          id: packageData.id,
+          name: packageData.name,
+          price: packageData.price,
+          orderCode: data.orderCode,
         });
-        if (typeof window !== 'undefined' && (window as any).dataLayer) {
-          (window as any).dataLayer.push({
-            event: 'begin_checkout',
-            ecommerce: {
-              currency: 'VND',
-              value: packageData.price,
-              items: [
-                {
-                  item_id: packageData.id,
-                  item_name: packageData.name,
-                  price: packageData.price,
-                  quantity: 1,
-                },
-              ],
-            },
-          });
-        }
 
         // Đóng modal
         onClose();
