@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { SafeImage } from '@/components/common/SafeImage';
+import Image from 'next/image';
 import { formatDate } from '@/lib/utils';
 import { Clock, ArrowRight } from 'lucide-react';
 
@@ -24,18 +24,22 @@ export interface BlogCardProps {
 }
 
 export function BlogCard({ post, priority = false }: BlogCardProps) {
+  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
   const coverImg = post.coverImage && post.coverImage.trim() ? post.coverImage : '';
 
   return (
     <article className="bg-white rounded-2xl overflow-hidden border border-champagne-dark/30 shadow-luxury hover:shadow-luxury-hover transition-all duration-300 flex flex-col justify-between group">
       <div>
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-champagne-light">
-          <SafeImage
+          <Image
+            key={fallbackToOriginal ? 'raw' : 'opt'}
             src={coverImg || '/placeholder.jpg'}
             alt={post.title}
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
+            unoptimized={fallbackToOriginal}
+            onError={() => setFallbackToOriginal(true)}
             quality={70}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

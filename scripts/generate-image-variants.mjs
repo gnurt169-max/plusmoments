@@ -13,16 +13,23 @@ function getAllWebpFiles(dir) {
   let results = [];
   const list = fs.readdirSync(dir);
   for (const file of list) {
+    // CHỈ bỏ qua file ẩn bắt đầu bằng dấu chấm '.' (tuyệt đối KHÔNG bỏ qua file bắt đầu bằng dấu '-')
+    if (file.startsWith('.')) continue;
+
     const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getAllWebpFiles(fullPath));
-    } else if (
-      file.endsWith('.webp') &&
-      !file.endsWith('-sm.webp') &&
-      !file.endsWith('-md.webp')
-    ) {
-      results.push(fullPath);
+    try {
+      const stat = fs.statSync(fullPath);
+      if (stat && stat.isDirectory()) {
+        results = results.concat(getAllWebpFiles(fullPath));
+      } else if (
+        file.endsWith('.webp') &&
+        !file.endsWith('-sm.webp') &&
+        !file.endsWith('-md.webp')
+      ) {
+        results.push(fullPath);
+      }
+    } catch {
+      // bỏ qua file không thể đọc
     }
   }
   return results;
@@ -99,11 +106,13 @@ async function run() {
     await Promise.all(batch.map(processFile));
   }
 
-  console.log(`\n🎉 [generate-image-variants] Hoàn tất!`);
-  console.log(`   - Tổng ảnh gốc quét: ${allFiles.length}`);
-  console.log(`   - Tạo mới -sm.webp (540w): ${createdSmCount}`);
-  console.log(`   - Tạo mới -md.webp (1440w): ${createdMdCount}`);
-  console.log(`   - Đã có sẵn bỏ qua: ${skippedCount}`);
+  console.log(`\n==================================================`);
+  console.log(`🎉 [generate-image-variants] HOÀN TẤT XỬ LÝ BIẾN THỂ ẢNH:`);
+  console.log(`   - Tổng số file ảnh WebP gốc quét được: ${allFiles.length}`);
+  console.log(`   - Tổng số file -sm.webp (540w) vừa tạo mới: ${createdSmCount}`);
+  console.log(`   - Tổng số file -md.webp (1440w) vừa tạo mới: ${createdMdCount}`);
+  console.log(`   - Số file ảnh đã có sẵn biến thể (bỏ qua): ${skippedCount}`);
+  console.log(`==================================================\n`);
 }
 
 run().catch((err) => {

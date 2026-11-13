@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { SafeImage } from '@/components/common/SafeImage';
+import Image from 'next/image';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 
 export interface AlbumCardData {
@@ -26,7 +26,9 @@ export interface AlbumCardProps {
 }
 
 export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) {
-  const coverImg =
+  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
+
+  const originalSrc =
     (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
     album?.photos?.[0]?.url ||
     album?.media?.[0]?.url ||
@@ -44,12 +46,15 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
         className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
       >
         <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
-          <SafeImage
-            src={coverImg || '/placeholder.jpg'}
+          <Image
+            key={fallbackToOriginal ? 'raw' : 'opt'}
+            src={originalSrc}
             alt={album.title || 'PlusMoments Album'}
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
+            unoptimized={fallbackToOriginal}
+            onError={() => setFallbackToOriginal(true)}
             quality={70}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

@@ -50,6 +50,7 @@ export function SafeImage({
 
   return (
     <Image
+      key={errorLevel > 0 ? `raw-${errorLevel}` : 'opt'}
       {...rest}
       src={finalSrc}
       unoptimized={errorLevel > 0 || unoptimized}

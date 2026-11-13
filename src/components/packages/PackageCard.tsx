@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { SafeImage } from '@/components/common/SafeImage';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { Sparkles, Eye, ArrowRight, ShieldCheck } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
@@ -19,6 +19,8 @@ export function PackageCard({
   isSummary = false,
   onSelect,
 }: PackageCardProps) {
+  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
+
   // Parse real highlights from Database (highlightPoints or inclusions)
   let highlights: string[] = [];
   try {
@@ -56,12 +58,15 @@ export function PackageCard({
       {/* 1. COVER IMAGE */}
       <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#1E1C1A]">
         {coverImg ? (
-          <SafeImage
+          <Image
+            key={fallbackToOriginal ? 'raw' : 'opt'}
             src={coverImg}
             alt={pkg.name}
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
+            unoptimized={fallbackToOriginal}
+            onError={() => setFallbackToOriginal(true)}
             quality={65}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
