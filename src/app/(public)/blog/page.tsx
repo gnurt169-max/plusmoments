@@ -116,7 +116,7 @@ export default async function BlogPage({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredPosts.map((post) => {
+          {filteredPosts.map((post, idx) => {
             const coverImg =
               post.coverImage && post.coverImage.trim()
                 ? post.coverImage
@@ -133,6 +133,7 @@ export default async function BlogPage({
                       src={coverImg || '/placeholder.jpg'}
                       alt={post.title}
                       fill
+                      priority={idx === 0}
                       quality={70}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

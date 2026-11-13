@@ -219,6 +219,7 @@ export default async function BoSuuTapPage({
                       src={coverImg || '/placeholder.jpg'}
                       alt={album.title || 'PlusMoments Album'}
                       fill
+                      priority={idx < 2}
                       quality={70}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
