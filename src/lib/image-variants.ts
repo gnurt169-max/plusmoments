@@ -22,30 +22,43 @@ export async function generateResponsiveWebPVariants(
     return { smPath: targetFilePath, mdPath: targetFilePath };
   }
 
+  // Ensure target directory exists
+  if (!fs.existsSync(dir)) {
+    await fs.promises.mkdir(dir, { recursive: true });
+  }
+
   const smPath = path.join(dir, `${baseName}-sm.webp`);
   const mdPath = path.join(dir, `${baseName}-md.webp`);
 
-  // Variant 1: -sm.webp (width: 540px, quality: 75, effort: 6) ~15-25 KiB
-  const pSm = sharp(sourceInput)
-    .resize({ width: 540, withoutEnlargement: true, fit: 'inside' })
-    .webp({ quality: 75, effort: 6 })
-    .toFile(smPath)
-    .catch((err) => {
-      console.warn(`[IMAGE_VARIANTS] Failed to create -sm variant for ${targetFilePath}:`, err.message);
-      return null;
-    });
+  try {
+    const inputBuffer = Buffer.isBuffer(sourceInput)
+      ? sourceInput
+      : await fs.promises.readFile(sourceInput);
 
-  // Variant 2: -md.webp (width: 1440px, quality: 78, effort: 4) ~110-140 KiB
-  const pMd = sharp(sourceInput)
-    .resize({ width: 1440, withoutEnlargement: true, fit: 'inside' })
-    .webp({ quality: 78, effort: 4 })
-    .toFile(mdPath)
-    .catch((err) => {
-      console.warn(`[IMAGE_VARIANTS] Failed to create -md variant for ${targetFilePath}:`, err.message);
-      return null;
-    });
+    // Variant 1: -sm.webp (width: 540px, quality: 75, effort: 6) ~15-25 KiB
+    const pSm = sharp(inputBuffer)
+      .resize({ width: 540, withoutEnlargement: true, fit: 'inside' })
+      .webp({ quality: 75, effort: 6 })
+      .toFile(smPath)
+      .catch((err) => {
+        console.warn(`[IMAGE_VARIANTS] Failed to create -sm variant for ${targetFilePath}:`, err.message);
+        return null;
+      });
 
-  await Promise.all([pSm, pMd]);
+    // Variant 2: -md.webp (width: 1440px, quality: 80, effort: 5) ~110-140 KiB
+    const pMd = sharp(inputBuffer)
+      .resize({ width: 1440, withoutEnlargement: true, fit: 'inside' })
+      .webp({ quality: 80, effort: 5 })
+      .toFile(mdPath)
+      .catch((err) => {
+        console.warn(`[IMAGE_VARIANTS] Failed to create -md variant for ${targetFilePath}:`, err.message);
+        return null;
+      });
+
+    await Promise.all([pSm, pMd]);
+  } catch (err: any) {
+    console.warn(`[IMAGE_VARIANTS] Failed to process variants for ${targetFilePath}:`, err.message);
+  }
 
   return { smPath, mdPath };
 }

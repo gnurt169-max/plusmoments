@@ -91,8 +91,8 @@ export async function POST(request: Request) {
 
     await fs.promises.writeFile(finalFilePath, finalBuffer);
 
-    // Generate responsive static variants: -sm.webp (640px) & -md.webp (1440px)
-    await generateResponsiveWebPVariants(finalFilePath, finalFilePath);
+    // Generate responsive static variants: -sm.webp (540px) & -md.webp (1440px) immediately alongside base file
+    await generateResponsiveWebPVariants(finalBuffer, finalFilePath);
 
     const publicUrl = `${relativeUrlPrefix}/${finalFilename}`;
     const displayName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
