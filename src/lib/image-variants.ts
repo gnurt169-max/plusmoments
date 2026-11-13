@@ -64,6 +64,50 @@ export async function generateResponsiveWebPVariants(
 }
 
 /**
+ * Default warm-beige (#F3EFEA) tiny 16x16 SVG data URL fallback
+ */
+export const DEFAULT_WARM_BLUR_DATA_URL =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+
+/**
+ * Generates a tiny 16px blurred WebP Base64 placeholder (~150-250 bytes) for instant blur-up rendering.
+ */
+export async function generateTinyBlurDataUrl(
+  inputBufferOrPath: Buffer | string
+): Promise<string> {
+  try {
+    const inputBuffer = Buffer.isBuffer(inputBufferOrPath)
+      ? inputBufferOrPath
+      : await fs.promises.readFile(inputBufferOrPath);
+
+    const tinyBuffer = await sharp(inputBuffer)
+      .resize({ width: 16, withoutEnlargement: true })
+      .blur(1)
+      .webp({ quality: 20 })
+      .toBuffer();
+
+    return `data:image/webp;base64,${tinyBuffer.toString('base64')}`;
+  } catch {
+    return DEFAULT_WARM_BLUR_DATA_URL;
+  }
+}
+
+/**
+ * Resolves a public URL (e.g. /uploads/...) to a 16px Base64 blurDataUrl if the file exists on disk,
+ * otherwise returns DEFAULT_WARM_BLUR_DATA_URL.
+ */
+export async function resolvePublicUrlBlurDataUrl(publicUrl: string): Promise<string> {
+  if (!publicUrl || !publicUrl.startsWith('/uploads/') || publicUrl.includes('..')) {
+    return DEFAULT_WARM_BLUR_DATA_URL;
+  }
+  const fullPath = path.join(process.cwd(), 'public', publicUrl.replace(/^\//, '').split('?')[0]);
+  if (!fs.existsSync(fullPath)) {
+    return DEFAULT_WARM_BLUR_DATA_URL;
+  }
+  return generateTinyBlurDataUrl(fullPath);
+}
+
+/**
  * Safely deletes an original image file along with its responsive WebP variants (-sm.webp & -md.webp)
  * using Promise.allSettled so missing variants never throw a 500 error.
  */

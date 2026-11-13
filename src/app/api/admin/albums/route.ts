@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
+import { resolvePublicUrlBlurDataUrl } from '@/lib/image-variants';
 
 export const dynamic = 'force-dynamic';
 
@@ -177,13 +178,16 @@ export async function POST(request: Request) {
 
     // 3. Prepare child AlbumMedia records
     const finalMediaUrls = urls.length > 0 ? urls : [coverImage];
-    const mediaCreateData = finalMediaUrls.map((url, idx) => ({
-      url,
-      altText: `${title} - Ảnh ${idx + 1}`,
-      caption: null,
-      orderIndex: idx,
-      isCover: idx === 0,
-    }));
+    const mediaCreateData = await Promise.all(
+      finalMediaUrls.map(async (url, idx) => ({
+        url,
+        altText: `${title} - Ảnh ${idx + 1}`,
+        caption: null,
+        blurDataUrl: await resolvePublicUrlBlurDataUrl(url),
+        orderIndex: idx,
+        isCover: idx === 0,
+      }))
+    );
 
     // 4. Create Album with nested media
     const album = await prisma.album.create({
@@ -309,19 +313,26 @@ export async function PUT(request: Request) {
       };
     }
 
+    const precomputedMediaRecords =
+      urls.length > 0
+        ? await Promise.all(
+            urls.map(async (url, idx) => ({
+              albumId: id,
+              url,
+              altText: `${albumUpdateData.title || rawFields.title || 'Album'} - Ảnh ${idx + 1}`,
+              blurDataUrl: await resolvePublicUrlBlurDataUrl(url),
+              orderIndex: idx,
+              isCover: idx === 0,
+            }))
+          )
+        : [];
+
     // 3. Update Album record and replace/update child AlbumMedia records safely
     const updated = await prisma.$transaction(async (tx) => {
       // If new media URLs are supplied, update AlbumMedia records
-      if (urls.length > 0) {
+      if (precomputedMediaRecords.length > 0) {
         await tx.albumMedia.deleteMany({ where: { albumId: id } });
-        const newMediaRecords = urls.map((url, idx) => ({
-          albumId: id,
-          url,
-          altText: `${albumUpdateData.title || rawFields.title || 'Album'} - Ảnh ${idx + 1}`,
-          orderIndex: idx,
-          isCover: idx === 0,
-        }));
-        await tx.albumMedia.createMany({ data: newMediaRecords });
+        await tx.albumMedia.createMany({ data: precomputedMediaRecords });
       }
 
       // Update Album table strictly with whitelisted columns

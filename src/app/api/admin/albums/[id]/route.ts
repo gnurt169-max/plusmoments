@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
+import { resolvePublicUrlBlurDataUrl } from '@/lib/image-variants';
 
 export const dynamic = 'force-dynamic';
 
@@ -192,19 +193,26 @@ async function handleUpdate(request: Request, id: string) {
       };
     }
 
+    const precomputedMediaRecords =
+      urls.length > 0
+        ? await Promise.all(
+            urls.map(async (url, idx) => ({
+              albumId: targetId,
+              url,
+              altText: `${albumUpdateData.title || rawFields.title || 'Album'} - Ảnh ${idx + 1}`,
+              blurDataUrl: await resolvePublicUrlBlurDataUrl(url),
+              orderIndex: idx,
+              isCover: idx === 0,
+            }))
+          )
+        : [];
+
     // 3. Perform update in a transaction
     const updated = await prisma.$transaction(async (tx) => {
       // If media URLs are provided, sync child AlbumMedia records
-      if (urls.length > 0) {
+      if (precomputedMediaRecords.length > 0) {
         await tx.albumMedia.deleteMany({ where: { albumId: targetId } });
-        const newMediaRecords = urls.map((url, idx) => ({
-          albumId: targetId,
-          url,
-          altText: `${albumUpdateData.title || rawFields.title || 'Album'} - Ảnh ${idx + 1}`,
-          orderIndex: idx,
-          isCover: idx === 0,
-        }));
-        await tx.albumMedia.createMany({ data: newMediaRecords });
+        await tx.albumMedia.createMany({ data: precomputedMediaRecords });
       }
 
       // Update Album row strictly

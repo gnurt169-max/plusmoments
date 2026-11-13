@@ -21,6 +21,7 @@ export interface GalleryMediaItem {
   caption?: string | null;
   width?: number | null;
   height?: number | null;
+  blurDataUrl?: string | null;
 }
 
 interface AlbumMasonryGalleryProps {
@@ -251,6 +252,7 @@ export function AlbumMasonryGallery({
                   <ProtectedImage
                     src={item.url}
                     alt={item.altText || `${albumTitle} - Ảnh cưới ${index + 1}`}
+                    blurDataUrl={item.blurDataUrl}
                     priority={index < 4}
                     imageClassName="w-full h-auto object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />

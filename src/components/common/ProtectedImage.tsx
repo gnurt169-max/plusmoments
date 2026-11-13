@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 
+const DEFAULT_WARM_BLUR_DATA_URL =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+
 export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
   sizes?: string;
+  blurDataUrl?: string | null;
   wrapperClassName?: string;
   imageClassName?: string;
   priority?: boolean;
@@ -14,19 +18,14 @@ export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageEl
 }
 
 /**
- * ProtectedImage: Multi-layer Image Protection Wrapper with Responsive WebP srcSet & Defensive Error Fallback
- * 
- * Layers of defense:
- * 1. Image layer: responsive -sm.webp / -md.webp srcSet with automatic fallback to original on 404,
- *    pointer-events-none, user-select-none, draggable=false
- * 2. Transparent Shield: absolute overlay that absorbs right-clicks and drag events
- * 3. Optional subtle luxury watermark
- * 4. Preserves onClick and interactive functionality for lightboxes & gallery navigation
+ * ProtectedImage: Multi-layer Image Protection Wrapper with Responsive WebP srcSet,
+ * 16px Blur Placeholder / Warm-Beige Transition & Defensive Error Fallback
  */
 export function ProtectedImage({
   src,
   alt,
   sizes = '(max-width: 640px) 95vw, (max-width: 1200px) 50vw, 900px',
+  blurDataUrl,
   wrapperClassName = '',
   imageClassName = '',
   priority = false,
@@ -37,11 +36,13 @@ export function ProtectedImage({
 }: ProtectedImageProps) {
   const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(priority);
 
   useEffect(() => {
     setFallbackToOriginal(false);
     setHasError(false);
-  }, [src]);
+    setIsLoaded(priority);
+  }, [src, priority]);
 
   // Defensive rendering: If src is null, undefined, empty, or failed to load, suppress rendering cleanly
   if (!src || !src.trim() || hasError) {
@@ -59,6 +60,7 @@ export function ProtectedImage({
     isLocalWebp && !fallbackToOriginal
       ? `${base}-sm.webp 540w, ${base}-md.webp 1440w, ${cleanSrc} 2048w`
       : undefined;
+  const effectiveBlurUrl = blurDataUrl || DEFAULT_WARM_BLUR_DATA_URL;
 
   return (
     <div
@@ -75,7 +77,7 @@ export function ProtectedImage({
             }
           : undefined
       }
-      className={`relative select-none overflow-hidden group ${
+      className={`relative select-none overflow-hidden bg-[#F3EFEA] group ${
         onClick
           ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2'
           : ''
@@ -83,7 +85,17 @@ export function ProtectedImage({
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* LAYER 1: Core Image with responsive WebP srcSet, interaction lock & error boundary */}
+      {/* LAYER 0: Instant 16px Blur Placeholder / Warm-Beige Backdrop */}
+      {!isLoaded && (
+        <img
+          src={effectiveBlurUrl}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover blur-md scale-105 pointer-events-none select-none"
+        />
+      )}
+
+      {/* LAYER 1: Core Image with responsive WebP srcSet, smooth blur-to-sharp opacity transition & error boundary */}
       <img
         key={fallbackToOriginal ? 'orig' : 'srcset'}
         {...props}
@@ -95,7 +107,13 @@ export function ProtectedImage({
         fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : (props.loading || 'lazy')}
         decoding="async"
-        className={`pointer-events-none select-none w-full h-auto object-cover block transition-all duration-500 ${imageClassName}`}
+        onLoad={(e) => {
+          setIsLoaded(true);
+          props.onLoad?.(e);
+        }}
+        className={`pointer-events-none select-none w-full h-auto object-cover block transition-opacity duration-500 ${
+          isLoaded ? 'opacity-100' : 'opacity-90'
+        } ${imageClassName}`}
         onContextMenu={(e) => e.preventDefault()}
         onError={(e) => {
           if (isLocalWebp && !fallbackToOriginal) {

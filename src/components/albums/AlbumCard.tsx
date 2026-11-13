@@ -5,6 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 
+const DEFAULT_WARM_BLUR_DATA_URL =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+
 export interface AlbumCardData {
   id: string;
   slug: string;
@@ -15,8 +18,9 @@ export interface AlbumCardData {
   concept?: string | null;
   location?: string | null;
   coverImage?: string | null;
-  photos?: { url: string }[];
-  media?: { url: string }[];
+  blurDataUrl?: string | null;
+  photos?: { url: string; blurDataUrl?: string | null }[];
+  media?: { url: string; blurDataUrl?: string | null }[];
 }
 
 export interface AlbumCardProps {
@@ -34,6 +38,12 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
     album?.media?.[0]?.url ||
     '/placeholder.jpg';
 
+  const blurDataURL =
+    album?.blurDataUrl ||
+    album?.media?.[0]?.blurDataUrl ||
+    album?.photos?.[0]?.blurDataUrl ||
+    DEFAULT_WARM_BLUR_DATA_URL;
+
   return (
     <FloatingCard
       delay={idx * 0.15}
@@ -45,7 +55,7 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
         aria-label={`Xem album ảnh cưới: ${album.title || album.coupleNames}`}
         className="flex flex-col h-full bg-white p-4 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
       >
-        <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
+        <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#F3EFEA]">
           <Image
             key={fallbackToOriginal ? 'raw' : 'opt'}
             src={originalSrc}
@@ -53,11 +63,13 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
+            placeholder="blur"
+            blurDataURL={blurDataURL}
             unoptimized={fallbackToOriginal}
             onError={() => setFallbackToOriginal(true)}
             quality={70}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
+            className="object-cover group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
           />
           {album.concept && (
             <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">

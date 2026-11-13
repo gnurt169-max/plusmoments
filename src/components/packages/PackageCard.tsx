@@ -6,8 +6,11 @@ import { Sparkles, Eye, ArrowRight, ShieldCheck } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 
+const DEFAULT_WARM_BLUR_DATA_URL =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+
 export interface PackageCardProps {
-  pkg: PricingPackageData;
+  pkg: PricingPackageData & { blurDataUrl?: string | null };
   priority?: boolean;
   isSummary?: boolean;
   onSelect?: (pkg: PricingPackageData) => void;
@@ -56,7 +59,7 @@ export function PackageCard({
       }`}
     >
       {/* 1. COVER IMAGE */}
-      <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#1E1C1A]">
+      <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#F3EFEA]">
         {coverImg ? (
           <Image
             key={fallbackToOriginal ? 'raw' : 'opt'}
@@ -65,11 +68,13 @@ export function PackageCard({
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
+            placeholder="blur"
+            blurDataURL={pkg.blurDataUrl || DEFAULT_WARM_BLUR_DATA_URL}
             unoptimized={fallbackToOriginal}
             onError={() => setFallbackToOriginal(true)}
             quality={65}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
+            className="object-cover group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-[#1E1C1A] text-stone-400">

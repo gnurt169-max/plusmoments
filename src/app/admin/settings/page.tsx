@@ -41,6 +41,7 @@ import {
   Palette,
   Type,
   RotateCcw,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/common/BrandLogo';
@@ -129,6 +130,8 @@ export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<'branding' | 'footer' | 'contact' | 'seo' | 'tracking' | 'drive' | 'payment' | 'gemini' | 'email' | 'system'>('branding');
   const [exportingSeed, setExportingSeed] = useState(false);
   const [seedExportSuccess, setSeedExportSuccess] = useState<string | null>(null);
+  const [downloadingBackup, setDownloadingBackup] = useState(false);
+  const [backupSuccess, setBackupSuccess] = useState<string | null>(null);
   const [testingDrive, setTestingDrive] = useState(false);
   const [driveTestResult, setDriveTestResult] = useState<{
     success: boolean;
@@ -778,6 +781,45 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleDownloadBackup = async () => {
+    try {
+      setDownloadingBackup(true);
+      setBackupSuccess(null);
+      setErrorMessage('');
+
+      const res = await fetch('/api/admin/backup', {
+        method: 'GET',
+        cache: 'no-store',
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.error || 'Không thể tải xuống bản sao lưu dữ liệu.');
+      }
+
+      const blob = await res.blob();
+      const dateStamp = new Date().toISOString().slice(0, 10);
+      const filename = `plusmoments-backup-${dateStamp}.json`;
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      const msg = `Đã tải xuống bản sao lưu ${filename} thành công!`;
+      setBackupSuccess(msg);
+      showToast(msg);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Lỗi khi tải xuống bản sao lưu JSON.');
+    } finally {
+      setDownloadingBackup(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-stone-400 gap-3">
@@ -981,21 +1023,21 @@ export default function AdminSettingsPage() {
               <Bot className="w-3.5 h-3.5 text-luxury-400" />
               <span>Gemini AI Assistant</span>
             </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('system')}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium transition-all cursor-pointer ${
-                activeTab === 'system'
-                  ? 'bg-stone-900 text-white shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
-              }`}
-            >
-              <Database className="w-3.5 h-3.5 text-luxury-400" />
-              <span>Hệ Thống / VPS Seed</span>
-            </button>
           </>
         )}
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('system')}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium transition-all cursor-pointer ${
+            activeTab === 'system'
+              ? 'bg-stone-900 text-white shadow-sm'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+          }`}
+        >
+          <Database className="w-3.5 h-3.5 text-luxury-400" />
+          <span>Hệ Thống & Sao Lưu</span>
+        </button>
       </div>
 
       {activeTab === 'payment' ? (
@@ -3860,10 +3902,59 @@ export default function AdminSettingsPage() {
         )}
 
         {/* =========================================================================
-            TAB: SYSTEM & VPS PERSISTENT SEED SNAPSHOT & MAINTENANCE (SUPER_ADMIN ONLY)
+            TAB: SYSTEM, JSON BACKUP, VPS PERSISTENT SEED SNAPSHOT & MAINTENANCE
         ========================================================================= */}
-        {currentUserRole === 'SUPER_ADMIN' && activeTab === 'system' && (
+        {activeTab === 'system' && (
           <div className="space-y-6">
+            {/* ONE-CLICK JSON DATABASE BACKUP CARD */}
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8 shadow-xs">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-stone-100">
+                <div className="space-y-1.5 max-w-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60">
+                      <Download className="w-5 h-5" />
+                    </span>
+                    <h2 className="text-lg font-serif font-medium text-stone-900">
+                      Sao Lưu Dữ Liệu Hệ Thống (Backup)
+                    </h2>
+                  </div>
+                  <p className="text-xs text-stone-500 font-light leading-relaxed">
+                    Tải xuống toàn bộ dữ liệu hiện tại của studio (Cài đặt hệ thống, Bộ sưu tập Album, Bảng giá gói chụp, Bài viết Blog, Danh sách khách hàng đăng ký tư vấn, Đơn hàng & Thư viện Media) dưới dạng tệp <span className="font-mono font-medium">.json</span> về máy tính cá nhân chỉ với 1 cú nhấp chuột.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadBackup}
+                  disabled={downloadingBackup}
+                  className="px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-md cursor-pointer disabled:opacity-50 shrink-0"
+                >
+                  {downloadingBackup ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Đang Chuẩn Bị Tệp Sao Lưu...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 text-emerald-100" />
+                      <span>Tải Xuống Bản Sao Lưu (.JSON)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {backupSuccess && (
+                <div className="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-3 animate-fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-semibold">{backupSuccess}</p>
+                    <p className="text-[11px] text-emerald-700/80">
+                      Bản sao lưu chỉ đọc (Read-Only) đã được tải về máy tính của bạn an toàn mà không làm thay đổi bất kỳ dữ liệu nào trên máy chủ.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
             {/* MAINTENANCE MODE CARD */}
             <div className={`rounded-2xl border p-6 md:p-8 shadow-xs transition-colors ${
               formData.isMaintenanceMode

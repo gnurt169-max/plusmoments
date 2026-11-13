@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { generateResponsiveWebPVariants } from '@/lib/image-variants';
+import {
+  generateResponsiveWebPVariants,
+  generateTinyBlurDataUrl,
+} from '@/lib/image-variants';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { analyzeAndCacheImageChunk, getOrAnalyzeImageChunk } from '@/lib/vision-ai';
@@ -92,7 +95,11 @@ export async function POST(request: Request) {
     await fs.promises.writeFile(finalFilePath, finalBuffer);
 
     // Generate responsive static variants: -sm.webp (540px) & -md.webp (1440px) immediately alongside base file
-    await generateResponsiveWebPVariants(finalBuffer, finalFilePath);
+    // and compute 16px Base64 tiny blur placeholder in parallel
+    const [, blurDataUrl] = await Promise.all([
+      generateResponsiveWebPVariants(finalBuffer, finalFilePath),
+      generateTinyBlurDataUrl(finalBuffer),
+    ]);
 
     const publicUrl = `${relativeUrlPrefix}/${finalFilename}`;
     const displayName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
@@ -105,7 +112,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // Save into MediaFile table
+    // Save into MediaFile table (including tiny 16px blurDataUrl in aiContextChunk metadata)
     const mediaFile = await prisma.mediaFile.create({
       data: {
         name: displayName,
@@ -116,6 +123,7 @@ export async function POST(request: Request) {
         height: imageHeight,
         folderId: folderRecord?.id || null,
         uploadedById: session.userId,
+        aiContextChunk: { blurDataUrl } as any,
       },
     });
 
@@ -128,6 +136,7 @@ export async function POST(request: Request) {
       id: mediaFile.id,
       url: publicUrl,
       name: displayName,
+      blurDataUrl,
     });
   } catch (error: any) {
     console.error('[MEDIA_UPLOAD_ERROR]:', error);

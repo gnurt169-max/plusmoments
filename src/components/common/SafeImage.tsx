@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
 
+const DEFAULT_WARM_BLUR_DATA_URL =
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+
 export interface SafeImageProps extends Omit<ImageProps, 'src'> {
   src: string;
   fallbackSrc?: string;
@@ -11,12 +14,13 @@ export interface SafeImageProps extends Omit<ImageProps, 'src'> {
 /**
  * SafeImage wrapper for Next.js Image:
  * Automatically falls back to the original image (bypassing -sm.webp/-md.webp static variant loader)
- * if the browser encounters a 404 on the variant file.
- * If the original image also fails, it falls back to fallbackSrc (default '/placeholder.jpg').
+ * if the browser encounters a 404 on the variant file, and provides a warm-beige blur placeholder.
  */
 export function SafeImage({
   src,
   fallbackSrc = '/placeholder.jpg',
+  placeholder = 'blur',
+  blurDataURL = DEFAULT_WARM_BLUR_DATA_URL,
   onError,
   unoptimized,
   ...rest
@@ -50,6 +54,8 @@ export function SafeImage({
       key={errorLevel > 0 ? `raw-${errorLevel}` : 'opt'}
       {...rest}
       src={finalSrc}
+      placeholder={placeholder}
+      blurDataURL={blurDataURL}
       unoptimized={errorLevel > 0 || unoptimized}
       onError={handleError}
     />

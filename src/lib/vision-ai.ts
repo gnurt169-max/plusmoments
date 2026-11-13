@@ -225,11 +225,15 @@ export async function getOrAnalyzeImageChunk(
     const analyzed = await analyzeImageWithVisionAI(cleanUrl);
     if (!analyzed) return null;
 
-    // 4. Cache into database
+    // 4. Cache into database (preserving any existing blurDataUrl field)
     if (dbFile) {
+      const existingChunk =
+        dbFile.aiContextChunk && typeof dbFile.aiContextChunk === 'object'
+          ? (dbFile.aiContextChunk as Record<string, any>)
+          : {};
       await prisma.mediaFile.update({
         where: { id: dbFile.id },
-        data: { aiContextChunk: analyzed as any },
+        data: { aiContextChunk: { ...existingChunk, ...analyzed } as any },
       });
     } else {
       // Create new record for this file so chunk is persistently cached
