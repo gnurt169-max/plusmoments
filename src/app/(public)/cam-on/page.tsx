@@ -7,6 +7,9 @@ import { ThankYouClientView } from './ThankYouClientView';
 export const metadata: Metadata = {
   title: 'Đặt Lịch Thành Công | PlusMoments Wedding Studio',
   description: 'Cảm ơn bạn đã liên hệ PlusMoments. Chuyên viên tư vấn sẽ liên hệ lại với bạn ngay trong ít phút.',
+  alternates: {
+    canonical: 'https://plusmoments.vn/cam-on',
+  },
   robots: {
     index: false,
     follow: false,

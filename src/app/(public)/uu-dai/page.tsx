@@ -6,11 +6,15 @@ import { LandingPageClientView } from './LandingPageClientView';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSystemSettings();
+  const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   return {
     title: `${settings.landingPageTitle || 'Ưu Đãi Mùa Cưới 2025'} | PlusMoments Wedding`,
     description:
       settings.landingPageSubtitle ||
       'Nhận ngay Voucher ưu đãi 2.000.000đ khi đăng ký gói chụp ảnh cưới Pre-Wedding hôm nay. Số lượng có hạn!',
+    alternates: {
+      canonical: `${baseUrl}/uu-dai`,
+    },
     robots: {
       index: true,
       follow: true,

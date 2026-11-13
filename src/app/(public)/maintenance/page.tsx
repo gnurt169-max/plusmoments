@@ -6,6 +6,9 @@ import { MaintenanceView } from '@/components/common/MaintenanceView';
 export const metadata: Metadata = {
   title: 'Hệ Thống Đang Nâng Cấp | PlusMoments Wedding Studio',
   description: 'PlusMoments đang tiến hành nâng cấp hệ thống định kỳ để mang lại trải nghiệm tốt nhất.',
+  alternates: {
+    canonical: 'https://plusmoments.vn/maintenance',
+  },
   robots: {
     index: false,
     follow: false,

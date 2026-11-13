@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
   description:
     'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+  alternates: {
+    canonical: 'https://plusmoments.vn/blog',
+  },
 };
 
 export default async function BlogPage({

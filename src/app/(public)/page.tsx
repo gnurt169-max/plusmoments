@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -45,6 +46,16 @@ const ConsultationForm = dynamic(
 );
 
 export const revalidate = 60; // ISR cache revalidation every 60s
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSystemSettings();
+  const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
+  return {
+    alternates: {
+      canonical: baseUrl,
+    },
+  };
+}
 
 export default async function HomePage() {
   const [

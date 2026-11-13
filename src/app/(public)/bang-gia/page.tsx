@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: 'Bảng Giá Dịch Vụ Cưới Trọn Gói 2026 | PlusMoments Studio',
   description:
     'Bảng giá trọn gói tất cả các dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio phong cách Hàn Quốc, phóng sự cưới tại TP.HCM. Cam kết 100% không phát sinh chi phí.',
+  alternates: {
+    canonical: 'https://plusmoments.vn/bang-gia',
+  },
 };
 
 export const revalidate = 60;
