@@ -19,6 +19,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://plusmoments.vn/pricing',
   },
+  openGraph: {
+    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2025 | PlusMoments Studio',
+    description:
+      'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
+    url: 'https://plusmoments.vn/pricing',
+    siteName: 'PlusMoments Wedding Pictures & Films',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2025 | PlusMoments Studio',
+    description:
+      'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
+  },
 };
 
 export const revalidate = 60;

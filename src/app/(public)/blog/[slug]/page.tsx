@@ -229,13 +229,19 @@ export default async function BlogPostPage({ params }: Props) {
 
   const unusedImages = (post.images || []).filter((_, idx) => !usedIndices.has(idx));
 
-  // Article JSON-LD
+  // Article JSON-LD with absolute image URL for 100% Google Rich Results validation
+  const absoluteCoverImage = post.coverImage
+    ? post.coverImage.startsWith('http')
+      ? post.coverImage
+      : `https://plusmoments.vn${post.coverImage.startsWith('/') ? '' : '/'}${post.coverImage}`
+    : undefined;
+
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.summary,
-    image: post.coverImage,
+    image: absoluteCoverImage,
     datePublished: new Date(post.publishedAt).toISOString(),
     dateModified: new Date(post.updatedAt).toISOString(),
     author: {

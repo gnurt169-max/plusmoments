@@ -159,16 +159,22 @@ export default async function RootLayout({
           }}
         />
 
-        {/* Dynamic BridalShop, Organization & WebSite Schemas for Rich Snippets */}
+        {/* Dynamic LocalBusiness, PhotographyBusiness, BridalShop & WebSite Schemas for Rich Snippets */}
         <RootWebsiteJsonLd
           name={settings?.siteName || 'PlusMoments - Luxury Wedding Studio'}
           description={settings?.defaultMetaDescription || 'PlusMoments Studio chuyên cung cấp dịch vụ chụp ảnh cưới Pre-Wedding, phóng sự cưới cao cấp với phong cách sang trọng, tự nhiên và đậm chất điện ảnh.'}
           url={settings?.canonicalBaseUrl || 'https://plusmoments.vn'}
           logo={`${settings?.canonicalBaseUrl || 'https://plusmoments.vn'}/logo.png`}
           image={settings?.defaultOgImage || `${settings?.canonicalBaseUrl || 'https://plusmoments.vn'}/og-image.jpg`}
-          telephone={settings?.hotline || '0981577993'}
-          email={settings?.email || 'contact@plusmoments.vn'}
-          address={settings?.studioAddress || '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh'}
+          telephone={settings?.hotline || '0903768871'}
+          email={settings?.contactEmail || settings?.email || 'contact@plusmoments.vn'}
+          address={settings?.address || settings?.studioAddress || '31 Hùng Vương, Phường An Đông'}
+          sameAs={[
+            settings?.facebookUrl,
+            settings?.instagramUrl,
+            settings?.tiktokUrl,
+            settings?.youtubeUrl,
+          ].filter((u): u is string => Boolean(u && u.trim()))}
           priceRange="6.000.000đ - 25.000.000đ"
           latitude={10.7769}
           longitude={106.7009}

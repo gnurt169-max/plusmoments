@@ -12,6 +12,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://plusmoments.vn/contact',
   },
+  openGraph: {
+    title: 'Liên Hệ Studio & Đặt Lịch Tư Vấn | PlusMoments Wedding',
+    description:
+      'Ghé thăm studio PlusMoments tại TP.HCM và các chi nhánh để thử váy cưới miễn phí và trải nghiệm không gian tư vấn riêng tư, sang trọng.',
+    url: 'https://plusmoments.vn/contact',
+    siteName: 'PlusMoments Wedding Pictures & Films',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Liên Hệ Studio & Đặt Lịch Tư Vấn | PlusMoments Wedding',
+    description:
+      'Ghé thăm studio PlusMoments tại TP.HCM và các chi nhánh để thử váy cưới miễn phí và trải nghiệm không gian tư vấn riêng tư, sang trọng.',
+  },
 };
 
 export default async function ContactPage() {

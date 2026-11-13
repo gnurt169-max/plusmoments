@@ -12,6 +12,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://plusmoments.vn/blog',
   },
+  openGraph: {
+    title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+    description:
+      'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+    url: 'https://plusmoments.vn/blog',
+    siteName: 'PlusMoments Wedding Pictures & Films',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+    description:
+      'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+  },
 };
 
 export default async function BlogPage({

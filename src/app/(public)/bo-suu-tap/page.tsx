@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: canonicalUrl,
-      siteName: settings.siteName,
+      siteName: settings.siteName || 'PlusMoments Wedding Pictures & Films',
       locale: 'vi_VN',
       type: 'website',
       images: [

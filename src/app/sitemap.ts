@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
-  // 1. Static Core Pages
+  // 1. Static Core Pages (strictly 1 canonical URL per content page, zero duplicate aliases)
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}`,
@@ -27,22 +27,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/cam-nang`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.85,
-    },
-    {
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/contact`,
@@ -84,38 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    const blogRoutes: MetadataRoute.Sitemap = blogPosts.flatMap((post) => [
-      {
-        url: `${baseUrl}/cam-nang/${post.slug}`,
-        lastModified: post.updatedAt,
-        changeFrequency: 'weekly',
-        priority: 0.8,
-      },
-      {
-        url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: post.updatedAt,
-        changeFrequency: 'monthly',
-        priority: 0.75,
-      },
-    ]);
-
-    // 4. Dynamic Packages from Database
-    const packages = await prisma.servicePackage.findMany({
-      where: { published: true },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-    });
-
-    const packageRoutes: MetadataRoute.Sitemap = packages.map((pkg) => ({
-      url: `${baseUrl}/bang-gia/${pkg.slug}`,
-      lastModified: pkg.updatedAt,
+    const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.updatedAt,
       changeFrequency: 'weekly',
-      priority: 0.85,
+      priority: 0.8,
     }));
 
-    return [...staticRoutes, ...albumRoutes, ...blogRoutes, ...packageRoutes];
+    return [...staticRoutes, ...albumRoutes, ...blogRoutes];
   } catch (err) {
     console.error('Failed to generate dynamic sitemap:', err);
     return staticRoutes;

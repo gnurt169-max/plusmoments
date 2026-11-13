@@ -40,7 +40,7 @@ export function RootWebsiteJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'BridalShop',
+        '@type': ['LocalBusiness', 'PhotographyBusiness', 'BridalShop'],
         '@id': `${url}/#organization`,
         name,
         ...(description ? { description } : {}),
@@ -52,7 +52,7 @@ export function RootWebsiteJsonLd({
         priceRange,
         address: {
           '@type': 'PostalAddress',
-          streetAddress: address || '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh',
+          streetAddress: address || '31 Hùng Vương, Phường An Đông',
           addressLocality: 'Hồ Chí Minh',
           addressRegion: 'TP.HCM',
           addressCountry: 'VN',
