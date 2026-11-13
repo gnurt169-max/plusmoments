@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { BrandLogo } from '@/components/common/BrandLogo';
+import { GoogleMapFacade } from '@/components/common/GoogleMapFacade';
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Youtube, MessageCircle } from 'lucide-react';
 import { resolveGoogleMapsUrl } from '@/lib/maps-converter';
 
@@ -458,19 +459,14 @@ export async function Footer(props: FooterProps) {
               )}
             </ul>
 
-            {/* Khung Bản Đồ Nhỏ Trực Tiếp (Nền tối, bo góc, sang trọng) */}
+            {/* Khung Bản Đồ Click-to-Load Facade (Triệt tiêu 800KB JS khi mới mở trang) */}
             {googleMapsEmbedUrl && (
-              <div className="mt-4 w-full h-36 rounded-xl overflow-hidden border border-[#3E3834] bg-[#1A1614] shadow-inner relative group">
-                <iframe
-                  src={googleMapsEmbedUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, filter: 'contrast(95%) opacity(85%)' }}
-                  allowFullScreen={false}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Bản đồ chỉ đường PlusMoments Wedding Studio"
-                  className="group-hover:opacity-100 transition duration-300"
+              <div className="mt-4">
+                <GoogleMapFacade
+                  embedUrl={googleMapsEmbedUrl}
+                  shareUrl={googleMapsShareUrl}
+                  address={address}
+                  studioName={settings?.siteName || 'PlusMoments Wedding Studio'}
                 />
               </div>
             )}

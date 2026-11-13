@@ -137,6 +137,8 @@ export function BrandLogo({
           <img
             src={imageUrl}
             alt={altText}
+            fetchPriority="high"
+            decoding="async"
             className="h-8 sm:h-9 w-auto max-w-[200px] object-contain transition-transform"
             onError={() => setImageError(true)}
           />

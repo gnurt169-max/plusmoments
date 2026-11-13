@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import { headers } from 'next/headers';
 import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
@@ -179,31 +178,6 @@ export default async function RootLayout({
           latitude={10.7769}
           longitude={106.7009}
         />
-
-        {/* Global Google Ads Tag (gtag.js) */}
-        {settings.googleAdsId && (
-          <>
-            <Script
-              id="google-ads-gtag-src"
-              strategy="afterInteractive"
-              nonce={nonce}
-              src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAdsId}`}
-            />
-            <Script
-              id="google-ads-gtag-init"
-              strategy="afterInteractive"
-              nonce={nonce}
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${settings.googleAdsId}', { 'allow_enhanced_conversions': true });
-                `,
-              }}
-            />
-          </>
-        )}
       </head>
       <body className="min-h-screen bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans antialiased">
         {children}

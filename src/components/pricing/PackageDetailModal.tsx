@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
+import { getStoredTrafficSource, trackEvent } from '@/lib/tracking';
 import {
   parseArrayOrLines,
   extractPackageInclusions,
@@ -136,6 +137,8 @@ export function PackageDetailModal({
     setErrorMessage('');
 
     try {
+      const traffic = getStoredTrafficSource();
+
       const res = await fetch('/api/orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -150,6 +153,12 @@ export function PackageDetailModal({
           eventDate: formData.weddingDate.trim(),
           website_url: formData.website_url,
           confirm_hp_field: formData.confirm_hp_field,
+          utmSource: traffic.utmSource,
+          utmMedium: traffic.utmMedium,
+          utmCampaign: traffic.utmCampaign,
+          utmTerm: traffic.utmTerm,
+          utmContent: traffic.utmContent,
+          gclid: traffic.gclid,
         }),
       });
 
@@ -160,6 +169,32 @@ export function PackageDetailModal({
       }
 
       if (data.success && data.orderCode) {
+        // Track E-commerce / Google Ads begin_checkout event
+        trackEvent('begin_checkout', {
+          order_code: data.orderCode,
+          package_id: packageData.id,
+          package_name: packageData.name,
+          value: packageData.price,
+          currency: 'VND',
+        });
+        if (typeof window !== 'undefined' && (window as any).dataLayer) {
+          (window as any).dataLayer.push({
+            event: 'begin_checkout',
+            ecommerce: {
+              currency: 'VND',
+              value: packageData.price,
+              items: [
+                {
+                  item_id: packageData.id,
+                  item_name: packageData.name,
+                  price: packageData.price,
+                  quantity: 1,
+                },
+              ],
+            },
+          });
+        }
+
         // Đóng modal
         onClose();
         // Chuyển hướng ngay sang trang thanh toán VietQR

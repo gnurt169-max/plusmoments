@@ -11,7 +11,7 @@ const nextConfig = {
   compress: true,
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion'],
+    optimizePackageImports: ['lucide-react'],
   },
   images: {
     loader: 'custom',

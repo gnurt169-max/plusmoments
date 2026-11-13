@@ -117,6 +117,14 @@ export async function processCreateOrder(request: Request) {
         : `Ngày dự kiến: ${targetDate}`;
     }
 
+    // Attach UTM / GCLID marketing attribution if present
+    const utmSource = (body.utmSource || '').trim();
+    const gclid = (body.gclid || '').trim();
+    if (utmSource || gclid) {
+      const utmInfo = `[Nguồn: ${utmSource || 'direct'}${body.utmCampaign ? ` / ${body.utmCampaign}` : ''}${gclid ? ` | GCLID: ${gclid}` : ''}]`;
+      finalNotes = finalNotes ? `${finalNotes} ${utmInfo}` : utmInfo;
+    }
+
     // Generate unique orderCode
     let orderCode = generateOrderCode();
     let attempts = 0;
