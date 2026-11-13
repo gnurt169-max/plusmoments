@@ -1,6 +1,8 @@
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { prisma } from './prisma';
 
-export async function getSystemSettings() {
+async function fetchSystemSettingsFromDb() {
   try {
     let settings = await prisma.systemSetting.findUnique({
       where: { id: 'default' },
@@ -156,4 +158,20 @@ export async function getSystemSettings() {
     };
   }
 }
+
+const getUnstableCachedSystemSettings = unstable_cache(
+  fetchSystemSettingsFromDb,
+  ['system-settings'],
+  {
+    tags: ['settings'],
+    revalidate: 60,
+  }
+);
+
+export const getSystemSettings = cache(async () => {
+  return getUnstableCachedSystemSettings();
+});
+
+export const getCachedSystemSettings = getSystemSettings;
+
 

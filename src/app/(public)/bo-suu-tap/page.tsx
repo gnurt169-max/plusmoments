@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
 import { AlbumCard } from '@/components/albums/AlbumCard';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
@@ -16,7 +15,7 @@ const ConsultationForm = dynamic(
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSystemSettings();
+  const settings = await getCachedSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const canonicalUrl = `${baseUrl}/bo-suu-tap`;
 
@@ -63,20 +62,8 @@ export default async function BoSuuTapPage({
   const selectedConcept = searchParams.category || searchParams.concept;
 
   const [allAlbums, settings] = await Promise.all([
-    prisma.album.findMany({
-      where: {
-        published: true,
-      },
-      orderBy: [
-        { featured: 'desc' },
-        { orderIndex: 'asc' },
-        { createdAt: 'desc' },
-      ],
-      include: {
-        media: { take: 1, orderBy: { orderIndex: 'asc' } },
-      },
-    }),
-    getSystemSettings(),
+    getCachedAlbums(),
+    getCachedSystemSettings(),
   ]);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession, assertRole } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -110,6 +110,8 @@ export async function POST(request: Request) {
     });
 
     // Revalidate public and admin pages
+    revalidateTag('packages');
+    revalidateTag('settings');
     revalidatePath('/bang-gia');
     revalidatePath('/pricing');
     revalidatePath('/admin/packages');

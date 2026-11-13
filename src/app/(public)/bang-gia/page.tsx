@@ -1,7 +1,10 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import {
+  getCachedPackages,
+  getCachedSystemSettings,
+  getCachedPricingFaqs,
+} from '@/lib/cached-queries';
 import { PricingPackagesJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
@@ -22,15 +25,9 @@ export const revalidate = 60;
 
 export default async function BangGiaPage() {
   const [packagesRaw, settings, faqsRaw] = await Promise.all([
-    prisma.servicePackage.findMany({
-      where: { published: true },
-      orderBy: { orderIndex: 'asc' },
-    }).catch(() => []),
-    getSystemSettings(),
-    prisma.pricingFaq.findMany({
-      where: { isActive: true },
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    }).catch(() => []),
+    getCachedPackages(),
+    getCachedSystemSettings(),
+    getCachedPricingFaqs(),
   ]);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';

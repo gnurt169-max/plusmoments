@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -204,6 +204,7 @@ export async function POST(request: Request) {
       include: { media: true },
     });
 
+    revalidateTag('albums');
     revalidatePath('/', 'page');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/albums', 'page');
@@ -337,6 +338,7 @@ export async function PUT(request: Request) {
       });
     });
 
+    revalidateTag('albums');
     revalidatePath('/', 'page');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/albums', 'page');
@@ -400,6 +402,7 @@ export async function DELETE(request: Request) {
       where: { id },
     });
 
+    revalidateTag('albums');
     revalidatePath('/', 'page');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/albums', 'page');

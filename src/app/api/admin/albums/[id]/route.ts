@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -221,6 +221,7 @@ async function handleUpdate(request: Request, id: string) {
       });
     });
 
+    revalidateTag('albums');
     revalidatePath('/', 'page');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/albums', 'page');
@@ -285,6 +286,7 @@ export async function DELETE(
       where: { id },
     });
 
+    revalidateTag('albums');
     revalidatePath('/', 'page');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/albums', 'page');

@@ -7,6 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  poweredByHeader: false,
+  compress: true,
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion'],

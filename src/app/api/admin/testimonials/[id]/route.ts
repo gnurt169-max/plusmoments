@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -108,6 +108,7 @@ export async function PUT(request: Request, { params }: Props) {
       data: updateData,
     });
 
+    revalidateTag('settings');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({
@@ -141,6 +142,7 @@ export async function DELETE(request: Request, { params }: Props) {
       where: { id: params.id },
     });
 
+    revalidateTag('settings');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({

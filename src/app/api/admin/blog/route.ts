@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -134,6 +134,7 @@ export async function POST(request: Request) {
       },
     });
 
+    revalidateTag('blogs');
     revalidatePath('/', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath('/cam-nang', 'page');
@@ -268,6 +269,7 @@ export async function PUT(request: Request) {
       },
     });
 
+    revalidateTag('blogs');
     revalidatePath('/', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath(`/blog/${updated.slug}`, 'page');
@@ -332,6 +334,7 @@ export async function DELETE(request: Request) {
       where: { id },
     });
 
+    revalidateTag('blogs');
     revalidatePath('/', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath('/cam-nang', 'page');

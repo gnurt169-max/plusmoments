@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import { getCachedBlogs, getCachedSystemSettings } from '@/lib/cached-queries';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { BlogCard } from '@/components/blog/BlogCard';
 
@@ -23,13 +22,8 @@ export default async function BlogPage({
   const selectedCategory = searchParams?.category;
 
   const [posts, settings] = await Promise.all([
-    prisma.blogPost
-      .findMany({
-        where: { published: true },
-        orderBy: { publishedAt: 'desc' },
-      })
-      .catch(() => []),
-    getSystemSettings(),
+    getCachedBlogs(),
+    getCachedSystemSettings(),
   ]);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';

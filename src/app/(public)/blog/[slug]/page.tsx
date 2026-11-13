@@ -1,14 +1,13 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import { getCachedBlogBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
 import { formatDate } from '@/lib/utils';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
+import { SafeImage } from '@/components/common/SafeImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import { ArrowLeft, Clock, Calendar, User, Sparkles, Images } from 'lucide-react';
@@ -19,15 +18,13 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await prisma.blogPost.findUnique({
-    where: { slug: params.slug },
-  });
+  const post = await getCachedBlogBySlug(params.slug);
 
   if (!post) {
     return { title: 'Không tìm thấy bài viết | PlusMoments' };
   }
 
-  const settings = await getSystemSettings();
+  const settings = await getCachedSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const postUrl = `${baseUrl}/blog/${post.slug}`;
 
@@ -46,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: postUrl,
       images: [{ url: post.coverImage, width: 1200, height: 630 }],
       type: 'article',
-      publishedTime: post.publishedAt.toISOString(),
+      publishedTime: new Date(post.publishedAt).toISOString(),
       authors: [post.author],
     },
     twitter: {
@@ -213,16 +210,8 @@ function renderContentWithImages(
 
 export default async function BlogPostPage({ params }: Props) {
   const [post, settings] = await Promise.all([
-    prisma.blogPost.findUnique({
-      where: { slug: params.slug },
-      include: {
-        package: true,
-        images: {
-          orderBy: { orderIndex: 'asc' },
-        },
-      },
-    }),
-    getSystemSettings(),
+    getCachedBlogBySlug(params.slug),
+    getCachedSystemSettings(),
   ]);
 
   if (!post) {
@@ -247,8 +236,8 @@ export default async function BlogPostPage({ params }: Props) {
     headline: post.title,
     description: post.summary,
     image: post.coverImage,
-    datePublished: post.publishedAt.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
+    datePublished: new Date(post.publishedAt).toISOString(),
+    dateModified: new Date(post.updatedAt).toISOString(),
     author: {
       '@type': 'Person',
       name: post.author,
@@ -319,11 +308,12 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* Featured Cover Image */}
         <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-luxury bg-champagne-light">
-          <Image
+          <SafeImage
             src={post.coverImage}
             alt={post.title}
             fill
-            priority
+            priority={true}
+            fetchPriority="high"
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover"
           />

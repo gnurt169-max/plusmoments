@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { exportDatabaseToSeedFiles } from '@/lib/seed-exporter';
@@ -86,6 +86,7 @@ export async function PUT(request: Request) {
     });
 
     // Revalidate all pages to purge stale cached contact data across the entire site
+    revalidateTag('settings');
     revalidatePath('/', 'layout');
 
     // Auto-sync snapshot to prisma/seed.ts

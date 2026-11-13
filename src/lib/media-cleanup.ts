@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -6,6 +6,11 @@ import { prisma } from '@/lib/prisma';
  */
 export function revalidateMediaRelatedPaths() {
   try {
+    revalidateTag('settings');
+    revalidateTag('albums');
+    revalidateTag('packages');
+    revalidateTag('blogs');
+
     // Public routes
     revalidatePath('/', 'page');
     revalidatePath('/albums', 'page');

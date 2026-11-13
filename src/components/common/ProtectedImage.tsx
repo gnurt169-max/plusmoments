@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
+  sizes?: string;
   wrapperClassName?: string;
   imageClassName?: string;
   priority?: boolean;
@@ -13,10 +14,11 @@ export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageEl
 }
 
 /**
- * ProtectedImage: Multi-layer Image Protection Wrapper with Defensive Error Fallback
+ * ProtectedImage: Multi-layer Image Protection Wrapper with Responsive WebP srcSet & Defensive Error Fallback
  * 
  * Layers of defense:
- * 1. Image layer: pointer-events-none, user-select-none, draggable=false, onError fallback
+ * 1. Image layer: responsive -sm.webp / -md.webp srcSet with automatic fallback to original on 404,
+ *    pointer-events-none, user-select-none, draggable=false
  * 2. Transparent Shield: absolute overlay that absorbs right-clicks and drag events
  * 3. Optional subtle luxury watermark
  * 4. Preserves onClick and interactive functionality for lightboxes & gallery navigation
@@ -24,6 +26,7 @@ export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageEl
 export function ProtectedImage({
   src,
   alt,
+  sizes = '(max-width: 640px) 95vw, (max-width: 1200px) 50vw, 900px',
   wrapperClassName = '',
   imageClassName = '',
   priority = false,
@@ -32,12 +35,30 @@ export function ProtectedImage({
   onClick,
   ...props
 }: ProtectedImageProps) {
+  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setFallbackToOriginal(false);
+    setHasError(false);
+  }, [src]);
 
   // Defensive rendering: If src is null, undefined, empty, or failed to load, suppress rendering cleanly
   if (!src || !src.trim() || hasError) {
     return null;
   }
+
+  const cleanSrc = src.trim();
+  const isLocalWebp =
+    cleanSrc.startsWith('/uploads/') &&
+    cleanSrc.endsWith('.webp') &&
+    !cleanSrc.endsWith('-sm.webp') &&
+    !cleanSrc.endsWith('-md.webp');
+  const base = isLocalWebp ? cleanSrc.slice(0, -5) : '';
+  const computedSrcSet =
+    isLocalWebp && !fallbackToOriginal
+      ? `${base}-sm.webp 540w, ${base}-md.webp 1440w, ${cleanSrc} 2048w`
+      : undefined;
 
   return (
     <div
@@ -62,24 +83,31 @@ export function ProtectedImage({
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* LAYER 1: Core Image with interaction lock & error boundary */}
+      {/* LAYER 1: Core Image with responsive WebP srcSet, interaction lock & error boundary */}
       <img
-        src={src}
+        key={fallbackToOriginal ? 'orig' : 'srcset'}
+        {...props}
+        src={cleanSrc}
+        srcSet={computedSrcSet}
+        sizes={computedSrcSet ? sizes : undefined}
         alt={alt}
         draggable={false}
         fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : (props.loading || 'lazy')}
-        decoding={props.decoding || 'async'}
+        decoding="async"
         className={`pointer-events-none select-none w-full h-auto object-cover block transition-all duration-500 ${imageClassName}`}
         onContextMenu={(e) => e.preventDefault()}
         onError={(e) => {
+          if (isLocalWebp && !fallbackToOriginal) {
+            setFallbackToOriginal(true);
+            return;
+          }
           setHasError(true);
           try {
             (e.target as HTMLElement).style.display = 'none';
           } catch {}
           props.onError?.(e);
         }}
-        {...props}
       />
 
       {/* LAYER 2: Transparent Security Shield */}

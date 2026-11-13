@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import { getCachedAlbumBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
 import { formatDate } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
@@ -24,15 +23,13 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const album = await prisma.album.findUnique({
-    where: { slug: params.slug },
-  });
+  const album = await getCachedAlbumBySlug(params.slug);
 
   if (!album) {
     return { title: 'Không tìm thấy album | PlusMoments' };
   }
 
-  const settings = await getSystemSettings();
+  const settings = await getCachedSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const albumUrl = `${baseUrl}/bo-suu-tap/${album.slug}`;
 
@@ -75,14 +72,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BoSuuTapDetailPage({ params }: Props) {
   const [album, settings] = await Promise.all([
-    prisma.album.findUnique({
-      where: { slug: params.slug },
-      include: {
-        package: true,
-        media: { orderBy: { orderIndex: 'asc' } },
-      },
-    }),
-    getSystemSettings(),
+    getCachedAlbumBySlug(params.slug),
+    getCachedSystemSettings(),
   ]);
 
   if (!album) {
@@ -167,10 +158,14 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         {/* 1. ALBUM COVER HERO - Full Aspect Ratio Preservation (Zero Cropping) */}
         {album.coverImage && (
           <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center overflow-hidden rounded-3xl bg-stone-100/70 p-2 sm:p-4 border border-stone-200/80 shadow-2xl">
-            {/* Ambient backdrop glow */}
-            <div
-              className="absolute inset-0 bg-cover bg-center opacity-20 blur-3xl scale-125 pointer-events-none"
-              style={{ backgroundImage: `url(${album.coverImage})` }}
+            {/* Ambient backdrop glow (pure Tailwind + responsive -sm.webp via ProtectedImage, zero inline style) */}
+            <ProtectedImage
+              src={album.coverImage}
+              alt=""
+              aria-hidden="true"
+              sizes="100vw"
+              wrapperClassName="absolute inset-0 pointer-events-none"
+              imageClassName="w-full h-full object-cover blur-2xl scale-110 opacity-30"
             />
 
             {/* Pristine uncropped cover photo with Multi-Layer Copyright Defense */}
@@ -178,6 +173,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
               src={album.coverImage}
               alt={album.title}
               priority
+              sizes="(max-width: 1024px) 95vw, 1024px"
               watermark
               watermarkText="PlusMoments Photography"
               wrapperClassName="relative z-10 w-full max-h-[82vh] rounded-2xl shadow-xl transition-transform duration-700 hover:scale-[1.01] flex items-center justify-center"

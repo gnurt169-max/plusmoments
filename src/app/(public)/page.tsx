@@ -1,10 +1,16 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import {
+  getCachedSystemSettings,
+  getCachedHomePageConfig,
+  getCachedAlbums,
+  getCachedPackages,
+  getCachedTestimonials,
+  getCachedBlogs,
+} from '@/lib/cached-queries';
+import { SafeImage } from '@/components/common/SafeImage';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import { extractPackageFeatures } from '@/lib/package-features';
@@ -48,7 +54,7 @@ const ConsultationForm = dynamic(
 export const revalidate = 60; // ISR cache revalidation every 60s
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSystemSettings();
+  const settings = await getCachedSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   return {
     alternates: {
@@ -61,56 +67,23 @@ export default async function HomePage() {
   const [
     settings,
     homeConfig,
-    featuredAlbumsRaw,
+    allAlbumsRaw,
     allPackagesRaw,
-    totalPackagesCount,
     testimonials,
-    totalAlbumsCount,
-    featuredPostsRaw,
+    allBlogsRaw,
   ] = await Promise.all([
-    getSystemSettings(),
-    prisma.homePageConfig.findUnique({ where: { id: 'default' } }).catch(() => null),
-    prisma.album.findMany({
-      where: { published: true },
-      include: { media: { take: 1, orderBy: { orderIndex: 'asc' } }, package: true },
-      orderBy: [
-        { featured: 'desc' }, // Ưu tiên Album nổi bật (featured: true) lên đầu
-        { orderIndex: 'asc' },
-        { createdAt: 'desc' },
-      ],
-      take: 3, // GIỚI HẠN CHÍNH XÁC 3 ALBUM TỐI ƯU CORE WEB VITALS
-    }).catch(() => []),
-    prisma.servicePackage.findMany({
-      where: { published: true },
-      orderBy: [{ isPopular: 'desc' }, { isFeatured: 'desc' }, { orderIndex: 'asc' }],
-    }).catch(() => []),
-    prisma.servicePackage.count({
-      where: { published: true },
-    }).catch(() => 0),
-    prisma.testimonial.findMany({
-      where: { published: true, OR: [{ featured: true }, { isFeatured: true }] },
-      orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
-      take: 6,
-    }).catch(() => []),
-    prisma.album.count({
-      where: { published: true },
-    }).catch(() => 0),
-    prisma.blogPost.findMany({
-      where: { published: true },
-      take: 3,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        summary: true,
-        coverImage: true,
-        category: true,
-        readingMinutes: true,
-        createdAt: true,
-      },
-    }).catch(() => []),
+    getCachedSystemSettings(),
+    getCachedHomePageConfig(),
+    getCachedAlbums(),
+    getCachedPackages(),
+    getCachedTestimonials(),
+    getCachedBlogs(),
   ]);
+
+  const featuredAlbumsRaw = (allAlbumsRaw || []).slice(0, 3);
+  const totalAlbumsCount = (allAlbumsRaw || []).length;
+  const totalPackagesCount = (allPackagesRaw || []).length;
+  const featuredPostsRaw = (allBlogsRaw || []).slice(0, 3);
 
   const featuredPosts = (featuredPostsRaw || []).map((post) => ({
     id: post.id,
@@ -190,11 +163,12 @@ export default async function HomePage() {
         {/* LỚP 1: ẢNH NỀN TRÀN MÀN HÌNH (BACKGROUND IMAGE) */}
         {heroBanner && heroBanner.trim() ? (
           <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden bg-stone-950">
-            <Image
+            <SafeImage
               src={heroBanner.trim()}
               alt="Studio ảnh cưới cao cấp PlusMoments"
               fill
-              priority
+              priority={true}
+              fetchPriority="high"
               quality={85}
               sizes="100vw"
               className="object-cover object-center scale-100 select-none pointer-events-none"
@@ -326,7 +300,7 @@ export default async function HomePage() {
                       className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
                     >
                       <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
-                        <Image
+                        <SafeImage
                           src={coverImageSrc}
                           alt={album?.title || 'PlusMoments Wedding Album'}
                           fill

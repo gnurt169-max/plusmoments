@@ -1,8 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { prisma } from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
+import {
+  getCachedSystemSettings,
+  getCachedAlbums,
+  getCachedPackages,
+  getCachedBlogs,
+} from '@/lib/cached-queries';
 import { getAdminSession } from '@/lib/auth';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -21,33 +25,28 @@ export default async function PublicLayout({
   children: React.ReactNode;
 }) {
   const nonce = (await headers()).get('x-nonce') || undefined;
-  const [settings, activeAlbums, activePackages, activePosts] = await Promise.all([
-    getSystemSettings(),
-    prisma.album
-      .findMany({
-        where: { published: true },
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, title: true, slug: true },
-      })
-      .catch(() => []),
-    prisma.servicePackage
-      .findMany({
-        where: { published: true },
-        take: 5,
-        orderBy: { orderIndex: 'asc' },
-        select: { id: true, name: true, slug: true },
-      })
-      .catch(() => []),
-    prisma.blogPost
-      .findMany({
-        where: { published: true },
-        take: 4,
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, title: true, slug: true },
-      })
-      .catch(() => []),
+  const [settings, allAlbums, allPackages, allPosts] = await Promise.all([
+    getCachedSystemSettings(),
+    getCachedAlbums(),
+    getCachedPackages(),
+    getCachedBlogs(),
   ]);
+
+  const activeAlbums = allAlbums.slice(0, 5).map((a) => ({
+    id: a.id,
+    title: a.title,
+    slug: a.slug,
+  }));
+  const activePackages = allPackages.slice(0, 5).map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+  }));
+  const activePosts = allPosts.slice(0, 4).map((b) => ({
+    id: b.id,
+    title: b.title,
+    slug: b.slug,
+  }));
 
   let session = null;
   // If maintenance mode is ON and visitor is not an authenticated Admin, display Maintenance View

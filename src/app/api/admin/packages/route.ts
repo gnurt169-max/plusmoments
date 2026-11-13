@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession, assertRole } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -119,6 +119,7 @@ export async function POST(request: Request) {
     });
 
     // Cập nhật bộ nhớ cache Next.js
+    revalidateTag('packages');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
@@ -214,6 +215,7 @@ export async function PUT(request: Request) {
       data: updateData,
     });
 
+    revalidateTag('packages');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
@@ -260,6 +262,7 @@ export async function DELETE(request: Request) {
       where: { id },
     });
 
+    revalidateTag('packages');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');

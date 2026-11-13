@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { parseGoogleDriveFolderId } from '@/lib/drive';
@@ -271,6 +271,7 @@ export async function PUT(request: Request) {
     });
 
     // Invalidate cached server components and pages
+    revalidateTag('settings');
     revalidatePath('/', 'layout');
     revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/bang-gia', 'page');

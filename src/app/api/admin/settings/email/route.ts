@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession, assertRole } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
@@ -101,6 +102,8 @@ export async function POST(request: Request) {
         ...updateData,
       },
     });
+
+    revalidateTag('settings');
 
     // 2. Keep NotificationSetting's adminReceiverEmail in sync
     if (updateData.adminNotifyEmail) {

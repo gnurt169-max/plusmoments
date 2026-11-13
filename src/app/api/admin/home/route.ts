@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -58,6 +58,7 @@ export async function PUT(request: Request) {
       },
     });
 
+    revalidateTag('settings');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({

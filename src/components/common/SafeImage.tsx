@@ -41,10 +41,7 @@ export function SafeImage({
   };
 
   let finalSrc = src || fallbackSrc;
-  if (errorLevel === 1) {
-    const clean = src ? src.split('#')[0] : '';
-    finalSrc = clean ? (clean.includes('?') ? `${clean}&fallback=1` : `${clean}?fallback=1`) : fallbackSrc;
-  } else if (errorLevel === 2) {
+  if (errorLevel === 2) {
     finalSrc = fallbackSrc;
   }
 
