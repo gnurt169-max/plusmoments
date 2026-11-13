@@ -108,6 +108,22 @@ export default async function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} scroll-smooth`}
     >
       <head>
+        {/* Preload Critical WOFF2 Fonts to eliminate CSS-to-Font network chain */}
+        <link
+          rel="preload"
+          href="/_next/static/media/eaead17c7dbfcd5d-s.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/_next/static/media/904be59b21bd51cb-s.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
         {/* Trusted Types Default Policy Registration - Synchronous & Immediate before any chunk executes */}
         <script
           nonce={nonce}
