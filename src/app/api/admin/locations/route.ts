@@ -55,8 +55,8 @@ export async function POST(request: Request) {
       data: {
         name,
         address,
-        hotline: hotline || '0908123456',
-        hotlineDisplay: hotlineDisplay || hotline || '0908.123.456',
+        hotline: hotline || '0903768871',
+        hotlineDisplay: hotlineDisplay || hotline || '0903.768.871',
         email: email || null,
         googleMapsUrl: googleMapsUrl || null,
         googleMapsEmbed: googleMapsEmbed || null,

@@ -48,13 +48,13 @@ interface ContactContextType {
 }
 
 const defaultContactConfig: ContactConfig = {
-  hotline: '0908123456',
-  hotlineDisplay: '0908.123.456',
-  zaloPhone: '0908123456',
-  zaloUrl: 'https://zalo.me/0908123456',
+  hotline: '0903768871',
+  hotlineDisplay: '0903.768.871',
+  zaloPhone: '0903768871',
+  zaloUrl: 'https://zalo.me/0903768871',
   messengerUrl: 'https://m.me/plusmoments.vn',
   promoText: 'Nhận Báo Giá Ưu Đãi 2Tr',
-  address: '123 Đường Hoa Lan, Phường 2, Quận Phú Nhuận, TP. Hồ Chí Minh',
+  address: '31 Hùng Vương, Phường An Đông',
   email: 'contact@plusmoments.vn',
   googleMapsUrl: 'https://maps.google.com',
   openingHours: '09:00 - 21:00 hàng ngày',

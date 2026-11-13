@@ -24,9 +24,9 @@ interface MaintenanceViewProps {
 
 export function MaintenanceView({
   notice,
-  hotline = '0908123456',
-  hotlineDisplay = '0908.123.456',
-  zaloUrl = 'https://zalo.me/0908123456',
+  hotline = '0903768871',
+  hotlineDisplay = '0903.768.871',
+  zaloUrl = 'https://zalo.me/0903768871',
   brandNamePart1 = 'PLUS',
   brandNamePart2 = 'MOMENTS',
   brandSubtitle = 'LUXURY WEDDING STUDIO',

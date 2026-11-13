@@ -124,9 +124,6 @@ export async function syncBankSettingsToSeeds(bankData: BankSeedData): Promise<b
     if (bankData.bankAccountName !== undefined) {
       settingsContent = settingsContent.replace(/bankAccountName:\s*['"][^'"]*['"]/g, `bankAccountName: '${bankData.bankAccountName}'`);
     }
-    if (bankData.paymentWebhookKey !== undefined) {
-      settingsContent = settingsContent.replace(/paymentWebhookKey:\s*['"][^'"]*['"]/g, `paymentWebhookKey: '${bankData.paymentWebhookKey}'`);
-    }
 
     await fs.writeFile(settingsTsPath, settingsContent, 'utf-8');
     console.log('[SEED SYNC] ✓ Successfully updated default bank settings in src/lib/settings.ts');
@@ -248,9 +245,6 @@ export async function syncSmtpSettingsToSeeds(data: SmtpSeedData): Promise<boole
     }
     if (data.smtpUser !== undefined) {
       settingsContent = settingsContent.replace(/smtpUser:\s*['"][^'"]*['"]/g, `smtpUser: '${data.smtpUser}'`);
-    }
-    if (data.smtpPass !== undefined) {
-      settingsContent = settingsContent.replace(/smtpPass:\s*['"][^'"]*['"]/g, `smtpPass: '${data.smtpPass}'`);
     }
     if (data.emailFrom !== undefined) {
       settingsContent = settingsContent.replace(/emailFrom:\s*['"][^'"]*['"]/g, `emailFrom: '${data.emailFrom}'`);

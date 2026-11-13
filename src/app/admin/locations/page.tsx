@@ -38,8 +38,8 @@ export default function AdminLocationsPage() {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
-    hotline: '0908123456',
-    hotlineDisplay: '0908.123.456',
+    hotline: '0903768871',
+    hotlineDisplay: '0903.768.871',
     email: 'contact@plusmoments.vn',
     googleMapsUrl: 'https://maps.google.com',
     googleMapsEmbed: '',
@@ -78,8 +78,8 @@ export default function AdminLocationsPage() {
     setFormData({
       name: '',
       address: '',
-      hotline: '0908123456',
-      hotlineDisplay: '0908.123.456',
+      hotline: '0903768871',
+      hotlineDisplay: '0903.768.871',
       email: 'contact@plusmoments.vn',
       googleMapsUrl: 'https://maps.google.com',
       googleMapsEmbed: '',
@@ -335,7 +335,7 @@ export default function AdminLocationsPage() {
               required
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="123 Đường Hoa Lan, Phường 2, Quận Phú Nhuận, TP.HCM"
+              placeholder="31 Hùng Vương, Phường An Đông"
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
             />
           </div>
@@ -350,7 +350,7 @@ export default function AdminLocationsPage() {
                 required
                 value={formData.hotline}
                 onChange={(e) => setFormData({ ...formData, hotline: e.target.value })}
-                placeholder="0908123456"
+                placeholder="0903768871"
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
@@ -366,7 +366,7 @@ export default function AdminLocationsPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, hotlineDisplay: e.target.value })
                 }
-                placeholder="0908.123.456"
+                placeholder="0903.768.871"
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl font-mono focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>

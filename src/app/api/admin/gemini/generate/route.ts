@@ -195,7 +195,7 @@ Hãy soạn một tin nhắn tư vấn gửi dâu rể qua Zalo hoặc Messenger
 - Mở đầu: Lịch thiệp, ấm áp, gọi tên dâu rể thân mật và chúc mừng hạnh phúc.
 - Thân bài: Giải đáp đúng gói họ đang quan tâm hoặc gợi ý giải pháp phù hợp với ngày cưới và ngân sách.
 - Lời mời: Nhẹ nhàng, tinh tế mời dâu rể ghé studio uống cà phê, trò chuyện trực tiếp và thử váy cưới/xem chất liệu photobook thực tế mà không hề tạo cảm giác chèo kéo.
-- Ký tên: "PlusMoments Wedding Studio - Hotline/Zalo: 0908.123.456".
+- Ký tên: "PlusMoments Wedding Studio - Hotline/Zalo: 0903.768.871".
 Chỉ trả về nội dung tin nhắn, không thêm lời giải thích nào.`;
         break;
       }
@@ -262,9 +262,9 @@ Cấu trúc bài đăng bắt buộc (Format Facebook):
 6. Phần chữ ký studio:
    ---
    💍 PLUSMOMENTS - LUXURY WEDDING STUDIO
-   Hotline / Zalo: 0981 577 993
+   Hotline / Zalo: 0903.768.871
    Website chi tiết: ${postUrl || 'https://plusmoments.vn'}
-   Địa chỉ: 32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh
+   Địa chỉ: 31 Hùng Vương, Phường An Đông
 7. Bộ hashtag tối ưu: #PlusMoments #StudioAnhCuoi #AnhCuoiLuxury #PreWeddingEditorial #ChupAnhCuoiTPHCM #PhongSuNgayCuoi và các hashtag liên quan concept/địa điểm.
 
 Chỉ trả về toàn bộ nội dung bài đăng Facebook hoàn chỉnh, sẵn sàng đăng ngay, không kèm lời dẫn của AI.`;

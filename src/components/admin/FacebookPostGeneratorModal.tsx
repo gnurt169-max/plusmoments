@@ -50,8 +50,8 @@ export function FacebookPostGeneratorModal({
   isOpen,
   onClose,
   data,
-  hotline = '0981 577 993',
-  address = '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh',
+  hotline = '0903.768.871',
+  address = '31 Hùng Vương, Phường An Đông',
 }: FacebookPostGeneratorModalProps) {
   const [selectedTone, setSelectedTone] = useState<ToneType>('LUXURY');
   const [postContent, setPostContent] = useState('');

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const testPayload = {
       leadId: 'test_lead_demo',
       fullName: 'Dâu Ngọc Hân & Rể Quốc Bảo (Test Email)',
-      phone: '0908123456',
+      phone: '0903768871',
       email: email.trim(),
       packageInterested: 'Gói Thử Nghiệm Thông Báo PlusMoments',
       weddingDate: 'Tháng 12, 2025',

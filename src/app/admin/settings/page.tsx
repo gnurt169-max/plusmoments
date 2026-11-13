@@ -2297,11 +2297,11 @@ export default function AdminSettingsPage() {
                       required
                       value={formData.hotline || ''}
                       onChange={(e) => setFormData({ ...formData, hotline: e.target.value })}
-                      placeholder="0908123456"
+                      placeholder="0903768871"
                       className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-mono"
                     />
                     <p className="text-stone-400 text-xs mt-1.5">
-                      Viết liền không dấu cách (vd: 0908123456).
+                      Viết liền không dấu cách (vd: 0903768871).
                     </p>
                   </div>
 
@@ -2316,11 +2316,11 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, hotlineDisplay: e.target.value })
                       }
-                      placeholder="0908.123.456"
+                      placeholder="0903.768.871"
                       className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-mono"
                     />
                     <p className="text-stone-400 text-xs mt-1.5">
-                      Định dạng có dấu chấm đẹp mắt (vd: 0908.123.456).
+                      Định dạng có dấu chấm đẹp mắt (vd: 0903.768.871).
                     </p>
                   </div>
                 </div>
@@ -2343,7 +2343,7 @@ export default function AdminSettingsPage() {
                           zaloNumber: val.replace(/[^0-9]/g, '') || formData.zaloNumber,
                         });
                       }}
-                      placeholder="https://zalo.me/0908123456 hoặc 0908123456"
+                      placeholder="https://zalo.me/0903768871 hoặc 0903768871"
                       className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-mono"
                     />
                     <p className="text-stone-400 text-xs mt-1.5">
@@ -2383,7 +2383,7 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, studioAddress: e.target.value })
                       }
-                      placeholder="123 Đường Hoa Lan, Phường 2, Quận Phú Nhuận, TP.HCM"
+                      placeholder="31 Hùng Vương, Phường An Đông"
                       className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm"
                     />
                   </div>
@@ -2516,7 +2516,7 @@ export default function AdminSettingsPage() {
                     {/* Hotline Action Button */}
                     <div className="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 text-white rounded-full text-xs font-mono font-medium shadow-md">
                       <PhoneCall className="w-3.5 h-3.5 animate-bounce" />
-                      <span>{formData.hotlineDisplay || formData.hotline || '0908.123.456'}</span>
+                      <span>{formData.hotlineDisplay || formData.hotline || '0903.768.871'}</span>
                     </div>
 
                     {/* Chat Buttons Row */}
@@ -2696,7 +2696,7 @@ export default function AdminSettingsPage() {
 
                 <div className="flex items-center gap-2">
                   <a
-                    href="/cam-on?leadId=test-preview&name=Kh%C3%A1ch+H%C3%A0ng+M%E1%BA%ABu&phone=0908123456&package=G%C3%B3i+Pre-Wedding+Luxury"
+                    href="/cam-on?leadId=test-preview&name=Kh%C3%A1ch+H%C3%A0ng+M%E1%BA%ABu&phone=0903768871&package=G%C3%B3i+Pre-Wedding+Luxury"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-[11px] font-medium text-stone-700 transition-colors"
@@ -3126,7 +3126,7 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <a
-                  href="/cam-on?leadId=demo&name=Thu+Th%E1%BA%A3o&phone=0908123456&package=G%C3%B3i+Pre-Wedding+Studio"
+                  href="/cam-on?leadId=demo&name=Thu+Th%E1%BA%A3o&phone=0903768871&package=G%C3%B3i+Pre-Wedding+Studio"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-luxury-700 hover:text-luxury-900 font-medium inline-flex items-center gap-1"
