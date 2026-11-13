@@ -115,7 +115,7 @@ export function LuxuryPricingSection({
       {/* Luxury Cards Grid & Mobile Horizontal Snap Carousel */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 items-stretch">
-          {packages.map((pkg) => {
+          {packages.map((pkg, index) => {
             // Parse highlights (3 core summary points)
             let highlights: string[] = [];
             try {
@@ -159,13 +159,14 @@ export function LuxuryPricingSection({
                   </div>
                 )}
 
-                {/* 1. Card Header Image (Aspect 4:5 with Smooth Zoom) */}
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#1E1C1A]">
+                {/* 1. Card Header Image (Aspect 4:3 with Smooth Zoom) */}
+                <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#1E1C1A]">
                   {coverImg ? (
                     <Image
                       src={coverImg}
                       alt={pkg.name}
                       fill
+                      priority={index < 2}
                       quality={65}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

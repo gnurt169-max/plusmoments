@@ -44,8 +44,9 @@ async function processFile(filePath) {
   const smPath = path.join(dir, `${baseName}-sm.webp`);
   const mdPath = path.join(dir, `${baseName}-md.webp`);
 
-  const needSm = !fs.existsSync(smPath);
-  const needMd = !fs.existsSync(mdPath);
+  const force = process.argv.includes('--force') || process.env.FORCE_REGENERATE === 'true';
+  const needSm = force || !fs.existsSync(smPath);
+  const needMd = force || !fs.existsSync(mdPath);
 
   if (!needSm && !needMd) {
     skippedCount++;
@@ -58,8 +59,8 @@ async function processFile(filePath) {
     if (needSm) {
       tasks.push(
         sharp(filePath)
-          .resize({ width: 640, withoutEnlargement: true, fit: 'inside' })
-          .webp({ quality: 72, effort: 4 })
+          .resize({ width: 540, withoutEnlargement: true, fit: 'inside' })
+          .webp({ quality: 75, effort: 6 })
           .toFile(smPath)
           .then(() => {
             createdSmCount++;
@@ -100,7 +101,7 @@ async function run() {
 
   console.log(`\n🎉 [generate-image-variants] Hoàn tất!`);
   console.log(`   - Tổng ảnh gốc quét: ${allFiles.length}`);
-  console.log(`   - Tạo mới -sm.webp (640w): ${createdSmCount}`);
+  console.log(`   - Tạo mới -sm.webp (540w): ${createdSmCount}`);
   console.log(`   - Tạo mới -md.webp (1440w): ${createdMdCount}`);
   console.log(`   - Đã có sẵn bỏ qua: ${skippedCount}`);
 }

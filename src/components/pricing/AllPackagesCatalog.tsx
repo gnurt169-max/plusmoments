@@ -116,7 +116,7 @@ export function AllPackagesCatalog({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-          {filteredPackages.map((pkg) => {
+          {filteredPackages.map((pkg, index) => {
             // Parse real highlights from Database (highlightPoints or inclusions)
             let highlights: string[] = [];
             try {
@@ -152,12 +152,13 @@ export function AllPackagesCatalog({
                 }`}
               >
                 {/* 1. COVER IMAGE */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#1E1C1A]">
+                <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#1E1C1A]">
                   {coverImg ? (
                     <Image
                       src={coverImg}
                       alt={pkg.name}
                       fill
+                      priority={index < 2}
                       quality={65}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

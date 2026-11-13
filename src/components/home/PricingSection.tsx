@@ -92,7 +92,7 @@ export function PricingSection({
         </div>
       ) : (
         <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          {featuredPackages.map((pkg) => {
+          {featuredPackages.map((pkg, index) => {
             // Parse real highlights from Database (highlightPoints or inclusions)
             let highlights: string[] = [];
             try {
@@ -127,13 +127,14 @@ export function PricingSection({
                   : 'hover:border-amber-400/60'
               }`}
             >
-                {/* 1. COVER IMAGE WITH FIXED HEIGHT */}
-                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-200">
+                {/* 1. COVER IMAGE WITH FIXED ASPECT RATIO */}
+                <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-stone-200">
                   {coverImg ? (
                     <Image
                       src={coverImg}
                       alt={pkg.name}
                       fill
+                      priority={index < 2}
                       quality={65}
                       sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"

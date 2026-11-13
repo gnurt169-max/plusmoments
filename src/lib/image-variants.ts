@@ -25,10 +25,10 @@ export async function generateResponsiveWebPVariants(
   const smPath = path.join(dir, `${baseName}-sm.webp`);
   const mdPath = path.join(dir, `${baseName}-md.webp`);
 
-  // Variant 1: -sm.webp (width: 640px, quality: 72, effort: 4) ~20-35 KiB
+  // Variant 1: -sm.webp (width: 540px, quality: 75, effort: 6) ~15-25 KiB
   const pSm = sharp(sourceInput)
-    .resize({ width: 640, withoutEnlargement: true, fit: 'inside' })
-    .webp({ quality: 72, effort: 4 })
+    .resize({ width: 540, withoutEnlargement: true, fit: 'inside' })
+    .webp({ quality: 75, effort: 6 })
     .toFile(smPath)
     .catch((err) => {
       console.warn(`[IMAGE_VARIANTS] Failed to create -sm variant for ${targetFilePath}:`, err.message);
