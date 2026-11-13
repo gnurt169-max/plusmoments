@@ -13,7 +13,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     // Log exception for debugging without exposing raw details to visitors
-    console.error('[PlusMoments Runtime Error]:', error);
+    console.error('[PlusMoments Error Boundary]:', error);
   }, [error]);
 
   return (

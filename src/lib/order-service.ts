@@ -118,10 +118,11 @@ export async function processCreateOrder(request: Request) {
     }
 
     // Attach UTM / GCLID marketing attribution if present
-    const utmSource = (body.utmSource || '').trim();
-    const gclid = (body.gclid || '').trim();
+    const utmSource = (body.utmSource || body.trafficSource?.utmSource || '').trim();
+    const utmCampaign = (body.utmCampaign || body.trafficSource?.utmCampaign || '').trim();
+    const gclid = (body.gclid || body.trafficSource?.gclid || '').trim();
     if (utmSource || gclid) {
-      const utmInfo = `[Nguồn: ${utmSource || 'direct'}${body.utmCampaign ? ` / ${body.utmCampaign}` : ''}${gclid ? ` | GCLID: ${gclid}` : ''}]`;
+      const utmInfo = `[Nguồn: ${utmSource || 'direct'}${utmCampaign ? ` / ${utmCampaign}` : ''}${gclid ? ` | GCLID: ${gclid}` : ''}]`;
       finalNotes = finalNotes ? `${finalNotes} ${utmInfo}` : utmInfo;
     }
 

@@ -275,6 +275,7 @@ export function trackBeginCheckout(packageData: {
   orderCode?: string;
 }) {
   const value = Number(packageData.price) || 0;
+  const traffic = getStoredTrafficSource();
 
   trackEvent('begin_checkout', {
     order_code: packageData.orderCode,
@@ -282,6 +283,7 @@ export function trackBeginCheckout(packageData: {
     package_name: packageData.name,
     value: value,
     currency: 'VND',
+    ...traffic,
   });
 
   // Google Tag Manager / GA4 Standard E-commerce payload

@@ -153,6 +153,7 @@ export function PackageDetailModal({
           eventDate: formData.weddingDate.trim(),
           website_url: formData.website_url,
           confirm_hp_field: formData.confirm_hp_field,
+          trafficSource: traffic,
           utmSource: traffic.utmSource,
           utmMedium: traffic.utmMedium,
           utmCampaign: traffic.utmCampaign,
