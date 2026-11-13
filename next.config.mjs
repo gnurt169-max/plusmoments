@@ -14,7 +14,7 @@ const nextConfig = {
   images: {
     loader: 'custom',
     loaderFile: './src/lib/image-loader.ts',
-    deviceSizes: [640, 1440, 1920],
+    deviceSizes: [640, 750, 1440, 1920],
     imageSizes: [384, 640],
     formats: ['image/webp'],
     minimumCacheTTL: 31536000,
