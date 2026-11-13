@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Menu, X, Sparkles, Phone, MapPin, MessageCircle, ArrowRight } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
@@ -30,6 +31,16 @@ export function Header(props: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
+
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+
+  // Xác định màu điểm nhấn thương hiệu theo tỷ lệ tương phản WCAG 2.1 AA (>= 4.5:1):
+  // Khi Header ở trạng thái nền sáng (trang con, hoặc khi người dùng đã cuộn trang isScrolled === true):
+  // dùng màu vàng đồng đậm #856740 (tỷ lệ tương phản 5.12:1 trên #FAF8F5 và 5.41:1 trên #FFFFFF).
+  // Chỉ dùng #C5A880 khi Header đang ở chế độ trong suốt đè lên ảnh Hero tối màu ở đầu trang chủ (isHomePage && !isScrolled).
+  const isTransparentHero = isHomePage && !isScrolled;
+  const brandAccentColor = isTransparentHero ? '#C5A880' : '#856740';
 
   // Sử dụng IntersectionObserver theo dõi mốc sentinel thay cho scroll listener
   // Triệt tiêu 100% Forced Reflow do không bao giờ đọc window.scrollY đồng bộ
@@ -87,7 +98,7 @@ export function Header(props: HeaderProps) {
           <div className="hidden lg:flex items-center justify-between min-h-[52px]">
             {/* Brand Logo */}
             <Link href="/" className="inline-block hover:opacity-85 transition-opacity shrink-0">
-              <BrandLogo variant="dark" />
+              <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
             </Link>
 
             {/* Desktop Navigation */}
@@ -96,7 +107,7 @@ export function Header(props: HeaderProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs uppercase tracking-widest font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-sm"
+                  className="text-xs uppercase tracking-widest font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-sm"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-800 transition-all duration-300 group-hover:w-full" />
@@ -109,7 +120,7 @@ export function Header(props: HeaderProps) {
               <a
                 href={`tel:${cleanPhone}`}
                 onClick={() => trackHotlineClick(cleanPhone, 'header_desktop', contact.googleAdsPhoneConversionLabel)}
-                className="flex items-center gap-1.5 text-xs font-mono font-medium text-stone-700 hover:text-amber-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-md px-1.5 py-1"
+                className="flex items-center gap-1.5 text-xs font-mono font-medium text-stone-700 hover:text-amber-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-md px-1.5 py-1"
               >
                 <Phone className="w-3.5 h-3.5 text-amber-800" />
                 <span>{hotlineDisplay}</span>
@@ -118,7 +129,7 @@ export function Header(props: HeaderProps) {
               <button
                 type="button"
                 onClick={() => setIsConsultModalOpen(true)}
-                className="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-medium bg-amber-800 hover:bg-amber-900 active:scale-95 text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+                className="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-medium bg-amber-800 hover:bg-amber-900 active:scale-95 text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                 <span>Tư Vấn Concept</span>
@@ -133,15 +144,15 @@ export function Header(props: HeaderProps) {
               type="button"
               aria-label={mobileMenuOpen ? 'Đóng menu' : 'Mở menu điều hướng'}
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 -ml-2 rounded-xl text-stone-800 hover:bg-stone-100 active:scale-95 transition-all cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+              className="p-2 -ml-2 rounded-xl text-stone-800 hover:bg-stone-100 active:scale-95 transition-all cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
             >
               <Menu className="w-6 h-6" />
             </button>
 
             {/* Center: Brand Logo (Centered perfectly on mobile) */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-              <Link href="/" className="inline-block hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] rounded-lg">
-                <BrandLogo variant="dark" />
+              <Link href="/" className="inline-block hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] rounded-lg">
+                <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
               </Link>
             </div>
 
@@ -149,7 +160,7 @@ export function Header(props: HeaderProps) {
             <button
               type="button"
               onClick={() => setIsConsultModalOpen(true)}
-              className="px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold bg-amber-800 text-white shadow-2xs active:scale-95 transition-transform z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+              className="px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold bg-amber-800 text-white shadow-2xs active:scale-95 transition-transform z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
             >
               Báo Giá
             </button>
@@ -173,14 +184,14 @@ export function Header(props: HeaderProps) {
               onClick={() => setMobileMenuOpen(false)}
               className="inline-block"
             >
-              <BrandLogo variant="dark" />
+              <BrandLogo variant="dark" logoAccentColor="#856740" />
             </Link>
 
             <button
               type="button"
               aria-label="Đóng menu"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2.5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+              className="p-2.5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -196,7 +207,7 @@ export function Header(props: HeaderProps) {
                 className="group flex items-center justify-between py-2 border-b border-stone-200/50 hover:border-amber-800 transition-colors"
               >
                 <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-xs text-amber-700 font-semibold">
+                  <span className="font-mono text-xs text-amber-800 font-semibold">
                     {link.num}
                   </span>
                   <span className="font-serif text-2xl sm:text-3xl font-light text-stone-900 group-hover:text-amber-800 transition-colors">

@@ -44,7 +44,7 @@ export function MaintenanceView({
             {brandNamePart1}
             <span className="text-luxury-600 font-normal"> {brandNamePart2}</span>
           </span>
-          <span className="text-[9px] uppercase tracking-[0.3em] text-charcoal-400 font-light">
+          <span className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-medium">
             {brandSubtitle}
           </span>
         </div>

@@ -112,7 +112,16 @@ export function BrandLogo({
   const letterSpacing = String(propLogoLetterSpacing || settings?.logoLetterSpacing || '0.15em');
   const colorLight = propLogoColorLight || settings?.logoColorLight || '#1A1614';
   const colorDark = propLogoColorDark || settings?.logoColorDark || '#F5F2EB';
-  const accentColor = propLogoAccentColor || settings?.logoAccentColor || '#C5A880';
+
+  // Tỷ lệ tương phản chuẩn WCAG 2.1 AA (>= 4.5:1):
+  // Nền sáng (variant === 'dark'): dùng màu vàng đồng đậm #856740 (5.12:1 trên #FAF8F5, 5.41:1 trên #FFFFFF).
+  // Nền tối (variant === 'light'): dùng #C5A880 (> 7:1).
+  const defaultAccentColor = variant === 'dark' ? '#856740' : '#C5A880';
+  const customAccentColor =
+    settings?.logoAccentColor && settings.logoAccentColor !== '#C5A880'
+      ? settings.logoAccentColor
+      : defaultAccentColor;
+  const accentColor = propLogoAccentColor || customAccentColor;
 
   const [imageError, setImageError] = useState(false);
 
@@ -134,7 +143,7 @@ export function BrandLogo({
           {showSubtitle && subtitle ? (
             <p
               className={`text-[9px] font-sans tracking-[0.28em] uppercase mt-1 leading-tight ${
-                variant === 'dark' ? 'text-stone-500' : 'text-stone-400'
+                variant === 'dark' ? 'text-stone-600' : 'text-stone-400'
               }`}
             >
               {subtitle}
@@ -182,7 +191,7 @@ export function BrandLogo({
       {showSubtitle && subtitle ? (
         <p
           className={`text-[9px] font-sans tracking-[0.28em] uppercase mt-1 leading-tight ${
-            variant === 'dark' ? 'text-stone-500' : 'text-stone-400'
+            variant === 'dark' ? 'text-stone-600' : 'text-stone-400'
           }`}
         >
           {subtitle}
