@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
-import { AlbumCard } from '@/components/albums/AlbumCard';
+import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
@@ -57,9 +57,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BoSuuTapPage({
   searchParams,
 }: {
-  searchParams: { concept?: string; category?: string };
+  searchParams: { concept?: string; category?: string; location?: string };
 }) {
   const selectedConcept = searchParams.category || searchParams.concept;
+  const selectedLocation = searchParams.location;
 
   const [allAlbums, settings] = await Promise.all([
     getCachedAlbums(),
@@ -68,38 +69,33 @@ export default async function BoSuuTapPage({
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
-  // Trích xuất danh mục duy nhất từ chính mảng albums thực tế từ Database
-  const dynamicCategories = Array.from(
-    new Set(
-      allAlbums
-        .map((album) => (album as any).category?.trim() || album.concept?.trim())
-        .filter((cat): cat is string => Boolean(cat))
-    )
-  );
-
-  const concepts = ['Tất Cả', ...dynamicCategories];
-
-  // Lọc chuẩn hóa chuỗi theo danh mục đã chọn
-  const filteredAlbums =
-    !selectedConcept || selectedConcept === 'Tất Cả'
-      ? allAlbums
-      : allAlbums.filter((album) => {
-          const cat = ((album as any).category?.trim() || album.concept?.trim() || '').toLowerCase();
-          return cat === selectedConcept.trim().toLowerCase();
-        });
+  // Serialize albums into plain objects for Client Component
+  const serializedAlbums = allAlbums.map((a) => ({
+    id: a.id,
+    slug: a.slug,
+    title: a.title,
+    subtitle: a.subtitle,
+    description: a.description,
+    coupleNames: a.coupleNames,
+    concept: (a as any).category?.trim() || a.concept?.trim(),
+    location: a.location,
+    coverImage: a.coverImage,
+    videoUrl: (a as any).videoUrl || null,
+    blurDataUrl: (a as any).blurDataUrl || null,
+  }));
 
   // Prepare images for ImageGallery Schema.org
-  const galleryImages = filteredAlbums
+  const galleryImages = serializedAlbums
     .filter((a) => a.coverImage)
     .map((a) => ({
-      url: a.coverImage,
+      url: a.coverImage!,
       caption: `${a.title} - ${a.coupleNames} (${a.location})`,
       width: 1200,
       height: 800,
     }));
 
   return (
-    <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       {/* Schema.org BreadcrumbList & ImageGallery for Rich Snippets */}
       <BreadcrumbJsonLd
         items={[
@@ -132,65 +128,12 @@ export default async function BoSuuTapPage({
         </p>
       </div>
 
-      {/* CONCEPT FILTER CHIPS (Chỉ hiển thị khi có từ 2 danh mục thực tế trở lên để lọc) */}
-      {dynamicCategories.length > 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-          {concepts.map((concept) => {
-            const isAll = concept === 'Tất Cả';
-            const isActive = isAll
-              ? !selectedConcept || selectedConcept === 'Tất Cả'
-              : selectedConcept?.trim().toLowerCase() === concept.trim().toLowerCase();
-            const href = isAll ? '/bo-suu-tap' : `/bo-suu-tap?concept=${encodeURIComponent(concept)}`;
-
-            return (
-              <Link
-                key={concept}
-                href={href}
-                className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 ${
-                  isActive
-                    ? 'bg-charcoal-900 text-white shadow-md font-semibold'
-                    : 'bg-white text-charcoal-700 hover:bg-[#C5A880]/15 border border-stone-200/80 shadow-2xs'
-                }`}
-              >
-                {concept}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ALBUMS GRID */}
-      {filteredAlbums.length === 0 ? (
-        <div className="text-center py-24 bg-white rounded-3xl border border-stone-200/80 p-8 max-w-xl mx-auto space-y-4 shadow-sm">
-          <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-xl">
-            📷
-          </div>
-          <h2 className="font-serif text-2xl text-charcoal-800 font-light">
-            Chưa có album nào trong phân loại này
-          </h2>
-          <p className="text-xs text-charcoal-500 font-light">
-            Vui lòng chọn phân loại concept khác hoặc quay lại xem toàn bộ bộ sưu tập cưới.
-          </p>
-          <Link
-            href="/bo-suu-tap"
-            className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-full text-xs uppercase tracking-wider bg-charcoal-900 hover:bg-charcoal-800 text-white font-medium transition-colors"
-          >
-            <span>Xem Tất Cả Album</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredAlbums.map((album, idx) => (
-            <AlbumCard
-              key={album.id}
-              album={album}
-              priority={idx < 2}
-              idx={idx}
-            />
-          ))}
-        </div>
-      )}
+      {/* DUAL INTERACTIVE FILTER & GALLERY GRID */}
+      <PortfolioDualFilter
+        albums={serializedAlbums}
+        initialConcept={selectedConcept || 'Tất Cả'}
+        initialLocation={selectedLocation || 'Tất Cả'}
+      />
 
       {/* CONSULTATION CTA SECTION */}
       <div className="pt-12 border-t border-stone-200/60">

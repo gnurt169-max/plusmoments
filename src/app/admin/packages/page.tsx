@@ -23,6 +23,7 @@ import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
+import { PackageAddonManager } from '@/components/admin/PackageAddonManager';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
 
 export interface LinkedAlbumItem {
@@ -797,8 +798,13 @@ export default function AdminPackagesPage() {
         </div>
       )}
 
-      {/* SECTION QUẢN LÝ CÂU HỎI THƯỜNG GẶP (FAQ - TRANG BẢNG GIÁ) */}
+      {/* SECTION QUẢN LÝ DỊCH VỤ CỘNG THÊM (ADD-ONS DỰ TOÁN) */}
       <div className="pt-4">
+        <PackageAddonManager onSuccessNotification={(msg) => showToast(msg)} />
+      </div>
+
+      {/* SECTION QUẢN LÝ CÂU HỎI THƯỜNG GẶP (FAQ - TRANG BẢNG GIÁ) */}
+      <div className="pt-2">
         <PricingFaqManager onSuccessNotification={(msg) => showToast(msg)} />
       </div>
 

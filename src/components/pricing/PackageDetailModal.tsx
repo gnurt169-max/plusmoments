@@ -17,6 +17,10 @@ import {
   Clock,
   BookOpen,
   Images,
+  Calculator,
+  Plus,
+  Minus,
+  CheckCircle2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -76,14 +80,100 @@ export function PackageDetailModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Interactive Package Add-ons & Custom Estimate Calculator State
+  const [availableAddons, setAvailableAddons] = useState<Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+    price: number;
+    unit: string;
+    allowQuantity: boolean;
+  }>>([]);
+  const [selectedAddonQuantities, setSelectedAddonQuantities] = useState<Record<string, number>>({});
+  const [paymentMode, setPaymentMode] = useState<'deposit30' | 'full100'>('deposit30');
+  const [loadingAddons, setLoadingAddons] = useState(false);
+
+  // Fetch active add-ons from API
+  useEffect(() => {
+    if (!isOpen) return;
+    setLoadingAddons(true);
+    fetch('/api/addons')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && Array.isArray(data.addons)) {
+          setAvailableAddons(data.addons);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingAddons(false));
+  }, [isOpen]);
+
   // Reset form when modal opens or package changes
   useEffect(() => {
     if (isOpen) {
       setActiveImageIndex(0);
       setIsLightboxOpen(false);
       setErrorMessage('');
+      setSelectedAddonQuantities({});
+      setPaymentMode('deposit30');
     }
   }, [isOpen, packageData?.id]);
+
+  // Add-on Calculator Calculations
+  const basePrice = Number(packageData?.price) || 0;
+
+  const selectedAddonsList = useMemo(() => {
+    return availableAddons
+      .filter((addon) => (selectedAddonQuantities[addon.id] || 0) > 0)
+      .map((addon) => {
+        const qty = selectedAddonQuantities[addon.id] || 1;
+        return {
+          id: addon.id,
+          name: addon.name,
+          price: addon.price,
+          unit: addon.unit,
+          quantity: qty,
+          total: addon.price * qty,
+        };
+      });
+  }, [availableAddons, selectedAddonQuantities]);
+
+  const addonsTotal = useMemo(() => {
+    return selectedAddonsList.reduce((sum, item) => sum + item.total, 0);
+  }, [selectedAddonsList]);
+
+  const totalEstimatedPrice = basePrice + addonsTotal;
+
+  // 30% deposit rounded to nearest 1,000 VND
+  const depositAmount = useMemo(() => {
+    if (paymentMode === 'full100') return totalEstimatedPrice;
+    return Math.round((totalEstimatedPrice * 0.3) / 1000) * 1000;
+  }, [paymentMode, totalEstimatedPrice]);
+
+  const handleToggleAddon = (addonId: string) => {
+    setSelectedAddonQuantities((prev) => {
+      const current = prev[addonId] || 0;
+      if (current > 0) {
+        const next = { ...prev };
+        delete next[addonId];
+        return next;
+      }
+      return { ...prev, [addonId]: 1 };
+    });
+  };
+
+  const handleUpdateQuantity = (addonId: string, delta: number) => {
+    setSelectedAddonQuantities((prev) => {
+      const current = prev[addonId] || 0;
+      const nextVal = current + delta;
+      if (nextVal <= 0) {
+        const next = { ...prev };
+        delete next[addonId];
+        return next;
+      }
+      return { ...prev, [addonId]: nextVal };
+    });
+  };
 
   // Parse demo images list
   const demoImagesList: string[] = useMemo(() => {
@@ -156,7 +246,10 @@ export function PackageDetailModal({
         body: JSON.stringify({
           packageId: packageData.id,
           packageName: packageData.name,
-          price: packageData.price,
+          price: depositAmount,
+          basePrice: basePrice,
+          totalEstimatedPrice: totalEstimatedPrice,
+          selectedAddons: selectedAddonsList,
           customerName: formData.customerName.trim(),
           customerPhone: formData.customerPhone.trim(),
           customerEmail: formData.customerEmail.trim(),
@@ -185,7 +278,7 @@ export function PackageDetailModal({
         trackBeginCheckout({
           id: packageData.id,
           name: packageData.name,
-          price: packageData.price,
+          price: depositAmount,
           orderCode: data.orderCode,
         });
 
@@ -499,6 +592,143 @@ export function PackageDetailModal({
               );
             })()}
 
+            {/* KHỐI TÙY CHỌN DỊCH VỤ ADD-ONS & TỰ TÍNH DỰ TOÁN CHI PHÍ */}
+            {availableAddons.length > 0 && (
+              <div className="p-4 rounded-2xl bg-[#FBF9F5] border border-[#E8E0D5] space-y-3.5 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-charcoal-900">
+                    <Calculator className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span>TÙY CHỈNH THÊM DỊCH VỤ (ADD-ONS):</span>
+                  </div>
+                  <span className="text-[11px] text-stone-600 font-light">
+                    Tùy chọn thêm
+                  </span>
+                </div>
+
+                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+                  {availableAddons.map((addon) => {
+                    const isSelected = (selectedAddonQuantities[addon.id] || 0) > 0;
+                    const qty = selectedAddonQuantities[addon.id] || 1;
+
+                    return (
+                      <div
+                        key={addon.id}
+                        className={`p-3 rounded-xl border transition-all text-xs flex items-start justify-between gap-3 ${
+                          isSelected
+                            ? 'bg-white border-amber-400/80 shadow-2xs'
+                            : 'bg-white/60 border-stone-200/80 hover:bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                          <input
+                            type="checkbox"
+                            id={`addon-${addon.id}`}
+                            checked={isSelected}
+                            onChange={() => handleToggleAddon(addon.id)}
+                            className="mt-0.5 rounded border-stone-300 text-amber-700 focus:ring-amber-500 cursor-pointer"
+                          />
+                          <label htmlFor={`addon-${addon.id}`} className="cursor-pointer select-none">
+                            <span className="font-medium text-stone-900 block leading-tight">
+                              {addon.name}
+                            </span>
+                            {addon.description && (
+                              <span className="text-[11px] text-stone-600 font-light block mt-0.5 leading-snug">
+                                {addon.description}
+                              </span>
+                            )}
+                            <span className="text-amber-800 font-semibold font-mono text-[11px] mt-0.5 block">
+                              +{formatVND(addon.price)} <span className="text-stone-600 font-normal">/{addon.unit}</span>
+                            </span>
+                          </label>
+                        </div>
+
+                        {isSelected && addon.allowQuantity && (
+                          <div className="flex items-center gap-1.5 shrink-0 bg-stone-100 px-2 py-1 rounded-lg border border-stone-200">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(addon.id, -1)}
+                              className="p-1 hover:bg-stone-200 rounded text-stone-700 transition-colors cursor-pointer"
+                              aria-label={`Giảm số lượng ${addon.name}`}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="font-mono text-xs font-semibold px-1 text-stone-900 min-w-[16px] text-center">
+                              {qty}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(addon.id, 1)}
+                              className="p-1 hover:bg-stone-200 rounded text-stone-700 transition-colors cursor-pointer"
+                              aria-label={`Tăng số lượng ${addon.name}`}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* REAL-TIME DỰ TOÁN TỔNG CHI PHÍ & TÙY CHỌN CỌC 30% */}
+                <div className="pt-3 border-t border-stone-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-stone-600">
+                    <span>Gói chụp gốc:</span>
+                    <span className="font-mono">{formatVND(basePrice)}</span>
+                  </div>
+                  {addonsTotal > 0 && (
+                    <div className="flex items-center justify-between text-xs text-amber-800 font-medium">
+                      <span>Dịch vụ thêm ({selectedAddonsList.length} mục):</span>
+                      <span className="font-mono">+{formatVND(addonsTotal)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between text-xs font-semibold text-stone-900 pt-1 border-t border-stone-200/60">
+                    <span>Tổng Dự Toán Trọn Gói:</span>
+                    <span className="font-mono text-sm text-luxury-700">{formatVND(totalEstimatedPrice)}</span>
+                  </div>
+
+                  {/* Switch Cọc 30% vs Trọn Gói 100% */}
+                  <div className="pt-2 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMode('deposit30')}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        paymentMode === 'deposit30'
+                          ? 'bg-amber-50/90 border-amber-600 ring-1 ring-amber-500 shadow-2xs'
+                          : 'bg-white border-stone-200 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-semibold text-stone-900">Cọc Giữ Ngày (30%)</span>
+                        {paymentMode === 'deposit30' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />}
+                      </div>
+                      <span className="font-mono text-xs font-bold text-amber-900 block">
+                        {formatVND(Math.round((totalEstimatedPrice * 0.3) / 1000) * 1000)}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMode('full100')}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        paymentMode === 'full100'
+                          ? 'bg-amber-50/90 border-amber-600 ring-1 ring-amber-500 shadow-2xs'
+                          : 'bg-white border-stone-200 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-semibold text-stone-900">Trọn Gói (100%)</span>
+                        {paymentMode === 'full100' && <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />}
+                      </div>
+                      <span className="font-mono text-xs font-bold text-amber-900 block">
+                        {formatVND(totalEstimatedPrice)}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* FORM ĐẶT GÓI & THANH TOÁN VIETQR */}
             <div className="pt-2 border-t border-stone-200">
               <div className="flex items-center justify-between mb-3">
@@ -632,7 +862,11 @@ export function PackageDetailModal({
                   ) : (
                     <>
                       <QrCode className="w-4 h-4 text-amber-400" />
-                      <span>ĐẶT CỌC & THANH TOÁN VIETQR</span>
+                      <span>
+                        {paymentMode === 'deposit30'
+                          ? `ĐẶT CỌC GIỮ NGÀY (${formatVND(depositAmount)})`
+                          : `THANH TOÁN TRỌN GÓI (${formatVND(depositAmount)})`}
+                      </span>
                       <ArrowRight className="w-4 h-4 text-amber-400" />
                     </>
                   )}

@@ -7,6 +7,7 @@ import { getCachedAlbumBySlug, getCachedSystemSettings } from '@/lib/cached-quer
 import { formatDate } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
+import { AlbumVideoFacade } from '@/components/albums/AlbumVideoFacade';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { MapPin, Calendar, Heart, ArrowLeft, Sparkles, Image as ImageIcon } from 'lucide-react';
@@ -180,7 +181,27 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
           </div>
         )}
 
-        {/* 2. MASONRY GALLERY - Uncropped Portrait & Landscape Flow with Lightbox */}
+        {/* 2. CINEMATIC VIDEO HIGHLIGHT & TEASER (FACADE LAZY-LOADED) */}
+        {album.videoUrl && (
+          <div className="space-y-4 pt-6">
+            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+              <span className="text-xs uppercase tracking-widest text-charcoal-600 font-semibold flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
+                <span>Video Highlight & Teaser Cưới Điện Ảnh</span>
+              </span>
+              <span className="text-xs font-mono text-stone-600">
+                Chất lượng 4K UltraHD
+              </span>
+            </div>
+            <AlbumVideoFacade
+              videoUrl={album.videoUrl}
+              coverImage={album.coverImage}
+              albumTitle={album.title}
+            />
+          </div>
+        )}
+
+        {/* 3. MASONRY GALLERY - Uncropped Portrait & Landscape Flow with Lightbox */}
         <div className="space-y-4 pt-6">
           <div className="flex items-center justify-between border-b border-stone-200 pb-3">
             <span className="text-xs uppercase tracking-widest text-charcoal-600 font-semibold flex items-center gap-2">

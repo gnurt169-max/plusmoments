@@ -213,6 +213,9 @@ model Album {
   metaTitle       String?
   metaDescription String?
 
+  // Cinematic Highlight & Video Reels (YouTube / Vimeo)
+  videoUrl        String?
+
   packageId       String?
   package         ServicePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
 
@@ -564,6 +567,12 @@ model Order {
   transactionId   String?         // Mã giao dịch ngân hàng từ Webhook
   paidAt          DateTime?
   notes           String?         @db.Text
+
+  // Add-on Calculator Breakdown
+  basePrice           Int?        // Giá gói cơ bản ban đầu
+  totalEstimatedPrice Int?        // Tổng dự toán trọn gói (Gói + Addons)
+  selectedAddons      Json?       // Mảng chi tiết Addons [{ id, name, price, quantity, unit }]
+
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -586,4 +595,24 @@ model PricingFaq {
   @@index([order])
   @@index([isActive])
 }
+
+// -----------------------------------------------------------------------------
+// 14. PACKAGE ADDONS (Dịch Vụ Cộng Thêm & Dự Toán Gói Chụp)
+// -----------------------------------------------------------------------------
+model PackageAddon {
+  id            String   @id @default(cuid())
+  name          String   // Tên dịch vụ cộng thêm: "Quay Flycam 4K ngoại cảnh", "Thêm 1 ngày chụp tiệc"
+  description   String?  // Mô tả ngắn 1 dòng
+  price         Int      // Số tiền VNĐ
+  unit          String   @default("/ buổi") // "/ buổi", "/ ngày", "/ bộ", "/ người", "/ cuốn"
+  allowQuantity Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  orderIndex    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([orderIndex])
+}
+
 

@@ -13,6 +13,7 @@ import {
   Folder,
   Bot,
   Share2,
+  Film,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
@@ -40,6 +41,7 @@ interface AlbumItem {
   shootingDate?: string | null;
   description?: string | null;
   coverImage: string;
+  videoUrl?: string | null;
   featured: boolean;
   orderIndex: number;
   published: boolean;
@@ -241,6 +243,7 @@ export default function AdminAlbumsPage() {
     shootingDate: '',
     description: '',
     coverImage: '',
+    videoUrl: '',
     packageId: '',
     featured: false,
     orderIndex: 0,
@@ -329,6 +332,7 @@ export default function AdminAlbumsPage() {
       shootingDate: '',
       description: '',
       coverImage: '',
+      videoUrl: '',
       packageId: '',
       featured: true,
       orderIndex: albums.length + 1,
@@ -358,6 +362,7 @@ export default function AdminAlbumsPage() {
       shootingDate: album.shootingDate ? album.shootingDate.slice(0, 10) : '',
       description: album.description || '',
       coverImage: album.coverImage,
+      videoUrl: album.videoUrl || '',
       packageId: album.packageId || '',
       featured: album.featured,
       orderIndex: album.orderIndex,
@@ -626,6 +631,7 @@ export default function AdminAlbumsPage() {
 
       const payload = {
         ...cleanFormData,
+        videoUrl: cleanFormData.videoUrl?.trim() || null,
         shootingDate: shootingDate.trim() ? shootingDate : null,
         packageId: packageId.trim() ? packageId : null,
         mediaUrls: mediaUrls.length > 0 ? mediaUrls : [formData.coverImage],
@@ -721,9 +727,16 @@ export default function AdminAlbumsPage() {
                         />
                       </div>
                       <div>
-                        <p className="font-serif text-sm font-medium text-charcoal-900">
-                          {album.title}
-                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-serif text-sm font-medium text-charcoal-900">
+                            {album.title}
+                          </p>
+                          {album.videoUrl && (
+                            <span className="inline-flex items-center gap-1 text-[10px] bg-amber-100 text-amber-800 font-medium px-1.5 py-0.5 rounded-full border border-amber-300">
+                              <Film className="w-2.5 h-2.5" /> Video
+                            </span>
+                          )}
+                        </div>
                         <p className="font-mono text-[10px] text-charcoal-400">
                           /albums/{album.slug}
                         </p>
@@ -1060,6 +1073,27 @@ export default function AdminAlbumsPage() {
               modalTitle="Chọn Ảnh Bìa Đại Diện Album"
               helperText="Ảnh bìa hiển thị ngoài trang danh sách và phần đầu album cưới. Bạn có thể chọn lại tấm khác từ Kho Media bất kỳ lúc nào."
             />
+
+            {/* VIDEO HIGHLIGHT URL (CINEMATIC TEASER) */}
+            <div className="space-y-1.5 pt-2 border-t border-stone-200/60">
+              <label className="text-xs uppercase tracking-wider text-charcoal-600 font-medium flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Film className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Video Highlight / Teaser Cưới (YouTube / Vimeo)</span>
+                </span>
+                <span className="text-[11px] text-stone-600 font-normal">Tùy chọn</span>
+              </label>
+              <input
+                type="url"
+                placeholder="https://www.youtube.com/watch?v=... hoặc https://vimeo.com/..."
+                value={formData.videoUrl}
+                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono text-stone-800"
+              />
+              <p className="text-[11px] text-stone-600 font-light">
+                Dán link YouTube hoặc Vimeo để hiển thị trình phát Facade 4K điện ảnh trong trang chi tiết album mà không làm chậm tốc độ tải trang.
+              </p>
+            </div>
           </div>
 
           {/* GALLERY MEDIA PICKER */}

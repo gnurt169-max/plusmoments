@@ -20,6 +20,15 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+interface SelectedAddonItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity?: number;
+  total?: number;
+  unit?: string;
+}
+
 interface OrderData {
   orderCode: string;
   customerName: string;
@@ -27,6 +36,10 @@ interface OrderData {
   customerPhone: string;
   packageName: string;
   amount: number;
+  basePrice?: number | null;
+  totalEstimatedPrice?: number | null;
+  selectedAddons?: SelectedAddonItem[] | null;
+  notes?: string | null;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
   paidAt?: string | null;
   transactionId?: string | null;
@@ -410,6 +423,52 @@ export default function CheckoutPage({
                   </span>
                 </div>
               </div>
+
+              {/* BẢNG DỰ TOÁN & DỊCH VỤ ĐI KÈM (KHI CÓ ADD-ONS HOẶC CỌC 30%) */}
+              {((order.selectedAddons && order.selectedAddons.length > 0) || (order.totalEstimatedPrice && order.totalEstimatedPrice > order.amount)) && (
+                <div className="mt-4 p-3.5 rounded-2xl bg-stone-950/70 border border-amber-500/20 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      Chi Tiết Dự Toán Gói Chụp
+                    </span>
+                    {order.totalEstimatedPrice && order.amount < order.totalEstimatedPrice && (
+                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                        Đặt cọc giữ ngày 30%
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    {order.basePrice ? (
+                      <div className="flex items-center justify-between text-stone-300">
+                        <span>• Gói dịch vụ gốc:</span>
+                        <span className="font-mono text-stone-200">{order.basePrice.toLocaleString('vi-VN')} đ</span>
+                      </div>
+                    ) : null}
+
+                    {Array.isArray(order.selectedAddons) && order.selectedAddons.map((addon) => (
+                      <div key={addon.id} className="flex items-center justify-between text-stone-400 text-[11px]">
+                        <span className="truncate pr-2">
+                          + {addon.name} {addon.quantity && addon.quantity > 1 ? `(x${addon.quantity})` : ''}
+                        </span>
+                        <span className="font-mono text-amber-200/90 shrink-0">
+                          {(addon.total || addon.price * (addon.quantity || 1)).toLocaleString('vi-VN')} đ
+                        </span>
+                      </div>
+                    ))}
+
+                    {order.totalEstimatedPrice ? (
+                      <div className="pt-2 border-t border-stone-800 flex items-center justify-between font-medium text-xs">
+                        <span className="text-stone-300">Tổng Dự Toán Trọn Gói:</span>
+                        <span className="font-mono text-white font-semibold">
+                          {order.totalEstimatedPrice.toLocaleString('vi-VN')} đ
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              )}
 
               {/* PAYMENT DETAILS LIST */}
               <div className="mt-5 space-y-3 text-xs">

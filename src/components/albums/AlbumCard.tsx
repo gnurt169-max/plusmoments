@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Film } from 'lucide-react';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 
 export interface AlbumCardData {
@@ -15,6 +16,7 @@ export interface AlbumCardData {
   concept?: string | null;
   location?: string | null;
   coverImage?: string | null;
+  videoUrl?: string | null;
   blurDataUrl?: string | null;
   photos?: { url: string; blurDataUrl?: string | null }[];
   media?: { url: string; blurDataUrl?: string | null }[];
@@ -63,6 +65,12 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
           {album.concept && (
             <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
               {album.concept}
+            </div>
+          )}
+          {album.videoUrl && (
+            <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/75 backdrop-blur-md rounded-full text-[10px] tracking-wider uppercase font-semibold text-amber-300 flex items-center gap-1 border border-amber-500/30 shadow-md">
+              <Film className="w-2.5 h-2.5 text-amber-400" />
+              <span>Video 4K</span>
             </div>
           )}
           {album.location && (

@@ -126,6 +126,32 @@ export async function processCreateOrder(request: Request) {
       finalNotes = finalNotes ? `${finalNotes} ${utmInfo}` : utmInfo;
     }
 
+    // Process Add-ons Breakdown and Custom Estimates
+    const rawBasePrice = body.basePrice;
+    const rawTotalEstimatedPrice = body.totalEstimatedPrice;
+    const rawSelectedAddons = body.selectedAddons;
+
+    let basePrice: number | null = null;
+    if (typeof rawBasePrice === 'number') {
+      basePrice = Math.max(0, Math.floor(rawBasePrice));
+    }
+
+    let totalEstimatedPrice: number | null = null;
+    if (typeof rawTotalEstimatedPrice === 'number') {
+      totalEstimatedPrice = Math.max(0, Math.floor(rawTotalEstimatedPrice));
+    }
+
+    let selectedAddonsJson: any = null;
+    if (Array.isArray(rawSelectedAddons) && rawSelectedAddons.length > 0) {
+      selectedAddonsJson = rawSelectedAddons;
+      const addonsSummary = rawSelectedAddons
+        .map((a: any) => `${a.name || 'Dịch vụ thêm'} (x${a.quantity || 1} - ${formatVND(a.total || a.price || 0)})`)
+        .join(', ');
+      finalNotes = finalNotes
+        ? `[Dịch vụ chọn thêm: ${addonsSummary}] | ${finalNotes}`
+        : `[Dịch vụ chọn thêm: ${addonsSummary}]`;
+    }
+
     // Generate unique orderCode
     let orderCode = generateOrderCode();
     let attempts = 0;
@@ -147,6 +173,9 @@ export async function processCreateOrder(request: Request) {
         packageId: packageId && String(packageId).trim() ? String(packageId).trim() : null,
         packageName: finalPackageName,
         amount: parsedAmount,
+        basePrice,
+        totalEstimatedPrice,
+        selectedAddons: selectedAddonsJson,
         status: 'PENDING',
         paymentMethod: 'VIETQR',
         notes: finalNotes || null,
