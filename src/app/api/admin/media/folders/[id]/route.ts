@@ -28,6 +28,12 @@ async function findFolder(identifier: string) {
     },
     include: {
       files: {
+        where: {
+          AND: [
+            { url: { not: { endsWith: '-sm.webp' } } },
+            { url: { not: { endsWith: '-md.webp' } } },
+          ],
+        },
         orderBy: { createdAt: 'desc' },
       },
     },
@@ -50,9 +56,16 @@ export async function GET(request: Request, { params }: Props) {
       );
     }
 
-    const totalBytes = folder.files.reduce((sum, file) => sum + file.size, 0);
+    const validFiles = folder.files.filter(
+      (file) =>
+        !file.url.endsWith('-sm.webp') &&
+        !file.url.endsWith('-md.webp') &&
+        !path.basename(file.url).startsWith('.')
+    );
 
-    const images = folder.files.map((file) => ({
+    const totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
+
+    const images = validFiles.map((file) => ({
       id: file.id,
       filename: path.basename(file.url),
       name: file.name,

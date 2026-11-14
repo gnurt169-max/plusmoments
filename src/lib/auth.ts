@@ -137,12 +137,18 @@ export async function getAdminSession(): Promise<SessionUser | null> {
 
 /**
  * Sets the secure HTTP-Only admin session cookie
+ * Automatically sets secure: false when accessed via http://localhost or unencrypted HTTP
  */
-export function setAdminSessionCookie(token: string) {
+export function setAdminSessionCookie(token: string, forceSecure?: boolean) {
   const cookieStore = cookies();
+  const secure =
+    typeof forceSecure === 'boolean'
+      ? forceSecure
+      : process.env.NODE_ENV === 'production';
+
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: secure,
     sameSite: 'lax',
     path: '/',
     maxAge: SESSION_DURATION,
@@ -152,11 +158,16 @@ export function setAdminSessionCookie(token: string) {
 /**
  * Clears the admin session cookie on logout
  */
-export function clearAdminSessionCookie() {
+export function clearAdminSessionCookie(forceSecure?: boolean) {
   const cookieStore = cookies();
+  const secure =
+    typeof forceSecure === 'boolean'
+      ? forceSecure
+      : process.env.NODE_ENV === 'production';
+
   cookieStore.set(SESSION_COOKIE_NAME, '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: secure,
     sameSite: 'lax',
     path: '/',
     maxAge: 0,

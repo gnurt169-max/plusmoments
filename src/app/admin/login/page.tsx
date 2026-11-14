@@ -17,6 +17,7 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     if (loading) return;
 
     setErrorMessage(null);
@@ -32,19 +33,19 @@ function LoginForm() {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        setErrorMessage(data.error || 'Đăng nhập không thành công. Vui lòng kiểm tra lại.');
+      if (!res.ok || !data.success) {
+        setErrorMessage(data.error || 'Đăng nhập không thành công. Vui lòng kiểm tra lại tài khoản hoặc mật khẩu.');
         setLoading(false);
         return;
       }
 
-      // Success -> navigate to target return URL or dashboard
-      router.push(returnUrl);
-      router.refresh();
-    } catch {
-      setErrorMessage('Đã xảy ra lỗi kết nối mạng. Vui lòng thử lại sau.');
+      // Success -> navigate to target return URL or dashboard with fresh session evaluation
+      const targetUrl = returnUrl && returnUrl.startsWith('/admin') ? returnUrl : '/admin';
+      window.location.href = targetUrl;
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Đã xảy ra lỗi kết nối mạng tới máy chủ. Vui lòng thử lại sau.');
       setLoading(false);
     }
   };
@@ -85,7 +86,7 @@ function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} action="#" method="post" className="space-y-4">
             {/* Username Input */}
             <div className="space-y-1.5">
               <label

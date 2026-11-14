@@ -69,8 +69,16 @@ export async function POST(request: Request) {
       role: user.role,
     });
 
-    // 6. Set HTTP-only secure cookie
-    setAdminSessionCookie(token);
+    // 6. Set HTTP-only cookie (secure: false on localhost, secure: true on production HTTPS)
+    const host = request.headers.get('host') || '';
+    const forwardedProto = request.headers.get('x-forwarded-proto') || '';
+    const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+    const isHttps = !isLocalhost && (
+      forwardedProto === 'https' ||
+      (process.env.NODE_ENV === 'production' && forwardedProto !== 'http')
+    );
+
+    setAdminSessionCookie(token, isHttps);
 
     return NextResponse.json({
       success: true,

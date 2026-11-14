@@ -62,6 +62,11 @@ async function getMediaFiles(dirPath: string): Promise<MediaItemMetadata[]> {
       const subResults = await getMediaFiles(fullPath);
       results = results.concat(subResults);
     } else if (entry.isFile()) {
+      // Skip auto-generated responsive WebP variants (-sm.webp and -md.webp)
+      if (entry.name.endsWith('-sm.webp') || entry.name.endsWith('-md.webp')) {
+        continue;
+      }
+
       const ext = path.extname(entry.name).toLowerCase();
       if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
         try {

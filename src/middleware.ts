@@ -40,9 +40,22 @@ export async function middleware(request: NextRequest) {
   // Generate dynamic cryptographic nonce for CSP
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
 
+  const isDev = process.env.NODE_ENV !== 'production';
+  const host = request.headers.get('host') || '';
+  const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+
+  // In development or on localhost: relax CSP to allow Next.js fast refresh, eval, and unencrypted local cookies
+  const strictCspDirectives = (isDev || isLocalhost)
+    ? ''
+    : `upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default nextjs nextjs#bundler goog#html 'allow-duplicates';`;
+
+  const scriptSrcDirective = (isDev || isLocalhost)
+    ? `'self' 'unsafe-eval' 'unsafe-inline' https: http:;`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https: http:;`;
+
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https: http:;
+    script-src ${scriptSrcDirective}
     style-src 'self' 'unsafe-inline' 'nonce-${nonce}';
     img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.com.vn https://googleads.g.doubleclick.net https://lh3.googleusercontent.com https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://img.vietqr.io https://api.vietqr.io https://www.facebook.com;
     font-src 'self' data: https://fonts.gstatic.com;
@@ -52,9 +65,7 @@ export async function middleware(request: NextRequest) {
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'self';
-    upgrade-insecure-requests;
-    require-trusted-types-for 'script';
-    trusted-types default nextjs nextjs#bundler goog#html 'allow-duplicates';
+    ${strictCspDirectives}
   `.replace(/\s{2,}/g, ' ').trim();
 
   const requestHeaders = new Headers(request.headers);
@@ -68,10 +79,12 @@ export async function middleware(request: NextRequest) {
   // Helper to attach CSP and Security headers to response
   const applyCspToResponse = (response: NextResponse) => {
     response.headers.set('Content-Security-Policy', cspHeader);
-    response.headers.set(
-      'Strict-Transport-Security',
-      'max-age=63072000; includeSubDomains; preload'
-    );
+    if (!isLocalhost && !isDev) {
+      response.headers.set(
+        'Strict-Transport-Security',
+        'max-age=63072000; includeSubDomains; preload'
+      );
+    }
     response.headers.set('Cross-Origin-Opener-Policy', coopValue);
     return response;
   };

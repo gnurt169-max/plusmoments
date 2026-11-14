@@ -38,10 +38,16 @@ export async function GET() {
       await fs.promises.mkdir(foldersBaseDir, { recursive: true });
     }
 
-    // Query folders from database with files
+    // Query folders from database with files (excluding variants)
     const dbFolders = await prisma.mediaFolder.findMany({
       include: {
         files: {
+          where: {
+            AND: [
+              { url: { not: { endsWith: '-sm.webp' } } },
+              { url: { not: { endsWith: '-md.webp' } } },
+            ],
+          },
           orderBy: { createdAt: 'desc' },
         },
       },
@@ -49,16 +55,22 @@ export async function GET() {
     });
 
     const folders = dbFolders.map((f) => {
-      const totalBytes = f.files.reduce((sum, file) => sum + file.size, 0);
+      const validFiles = f.files.filter(
+        (file) =>
+          !file.url.endsWith('-sm.webp') &&
+          !file.url.endsWith('-md.webp') &&
+          !path.basename(file.url).startsWith('.')
+      );
+      const totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
       return {
         id: f.id,
         slug: f.slug,
         name: f.name,
         path: `/uploads/folders/${f.slug}`,
-        imageCount: f.files.length,
+        imageCount: validFiles.length,
         totalBytes,
         formattedSize: formatBytes(totalBytes),
-        coverImage: f.files.length > 0 ? f.files[0].url : null,
+        coverImage: validFiles.length > 0 ? validFiles[0].url : null,
         createdAt: f.createdAt.toISOString(),
         updatedAt: f.updatedAt.toISOString(),
       };
