@@ -10,7 +10,8 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   experimental: {
-    optimizeCss: true,
+    // Only optimize CSS during production builds; in development critters parses unminified CSS on every request and hangs the compiler
+    optimizeCss: process.env.NODE_ENV === 'production',
     optimizePackageImports: ['lucide-react'],
   },
   images: {
