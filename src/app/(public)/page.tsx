@@ -13,7 +13,11 @@ import {
 import { SafeImage } from '@/components/common/SafeImage';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
-import { PricingPackagesJsonLd, computeReviewStats } from '@/components/seo/JsonLdSchema';
+import {
+  PricingPackagesJsonLd,
+  computeReviewStats,
+  getValidProductImages,
+} from '@/components/seo/JsonLdSchema';
 import {
   extractPackageHighlights,
   extractPackageInclusions,
@@ -167,42 +171,41 @@ export default async function HomePage() {
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const { aggregateRating, reviews } = computeReviewStats(testimonials);
+  const studioFallbackImage =
+    heroBanner ||
+    settings.logoDarkUrl ||
+    settings.logoLightUrl ||
+    settings.defaultOgImage ||
+    '/og-image.jpg';
 
   return (
     <>
       {/* Structured Schema Data for Packages */}
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
+        siteLogoOrBanner={studioFallbackImage}
         aggregateRating={aggregateRating}
         reviews={reviews}
         packages={packages.map((pkg) => {
-          let demoImagesList: string[] = [];
-          if (pkg.demoImages) {
-            try {
-              const parsed = JSON.parse(pkg.demoImages);
-              if (Array.isArray(parsed)) {
-                demoImagesList = parsed.filter(
-                  (item): item is string => typeof item === 'string' && item.trim().length > 0
-                );
-              }
-            } catch {
-              // ignore
-            }
-          }
-          const allImages = [pkg.coverImage, ...demoImagesList].filter(
-            (img): img is string => Boolean(img && img.trim())
+          const validImages = getValidProductImages(
+            {
+              coverImage: pkg.coverImage,
+              demoImages: pkg.demoImages,
+            },
+            studioFallbackImage,
+            baseUrl
           );
-          const packageImages = allImages.length > 0 ? allImages : ['/og-image.jpg'];
 
           return {
             name: pkg.name,
+            slug: pkg.slug,
             description:
               pkg.subtitle ||
               extractPackageHighlights(pkg)?.[0] ||
               `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`,
             price: Number(pkg.price).toString(),
             url: `${baseUrl}/bang-gia#${pkg.slug}`,
-            image: packageImages,
+            image: validImages,
           };
         })}
       />

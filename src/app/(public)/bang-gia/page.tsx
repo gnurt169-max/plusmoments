@@ -11,6 +11,7 @@ import {
   FaqJsonLd,
   BreadcrumbJsonLd,
   computeReviewStats,
+  getValidProductImages,
 } from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
@@ -115,6 +116,13 @@ export default async function BangGiaPage() {
     }
   }
 
+  const studioFallbackImage =
+    (settings as any)?.heroImage ||
+    settings.logoDarkUrl ||
+    settings.logoLightUrl ||
+    settings.defaultOgImage ||
+    '/og-image.jpg';
+
   return (
     <div className="pt-32 pb-24 space-y-20">
       {/* Structured Schema Data */}
@@ -126,36 +134,29 @@ export default async function BangGiaPage() {
       />
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
+        siteLogoOrBanner={studioFallbackImage}
         aggregateRating={aggregateRating}
         reviews={reviews}
         packages={packages.map((pkg) => {
-          let demoImagesList: string[] = [];
-          if (pkg.demoImages) {
-            try {
-              const parsed = JSON.parse(pkg.demoImages);
-              if (Array.isArray(parsed)) {
-                demoImagesList = parsed.filter(
-                  (item): item is string => typeof item === 'string' && item.trim().length > 0
-                );
-              }
-            } catch {
-              // ignore
-            }
-          }
-          const allImages = [pkg.coverImage, ...demoImagesList].filter(
-            (img): img is string => Boolean(img && img.trim())
+          const validImages = getValidProductImages(
+            {
+              coverImage: pkg.coverImage,
+              demoImages: pkg.demoImages,
+            },
+            studioFallbackImage,
+            baseUrl
           );
-          const packageImages = allImages.length > 0 ? allImages : ['/og-image.jpg'];
 
           return {
             name: pkg.name,
+            slug: pkg.slug,
             description:
               pkg.subtitle ||
               pkg.coreHighlights?.[0] ||
               `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`,
             price: pkg.price.toString(),
             url: `${baseUrl}/bang-gia#${pkg.slug}`,
-            image: packageImages,
+            image: validImages,
           };
         })}
       />

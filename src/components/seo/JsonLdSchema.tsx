@@ -309,6 +309,72 @@ export function toAbsoluteImageUrl(
   return `${cleanBase}${cleanPath}`;
 }
 
+/**
+ * Chuẩn hóa danh sách URL ảnh tuyệt đối cho Product JSON-LD schema theo chuẩn Google Search Console Merchant Listings.
+ * Bảo đảm 100% đối tượng Product có ít nhất 1 URL HTTPS tuyệt đối (không bao giờ null, chuỗi rỗng hay đường dẫn tương đối).
+ */
+export function getValidProductImages(
+  pkg: {
+    coverImage?: string | null;
+    demoImages?: string[] | string | null;
+    image?: string | string[] | null;
+  },
+  siteLogoOrBanner?: string | null,
+  baseUrl: string = 'https://plusmoments.vn'
+): string[] {
+  let parsedDemo: string[] = [];
+  if (Array.isArray(pkg.demoImages)) {
+    parsedDemo = pkg.demoImages.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0
+    );
+  } else if (typeof pkg.demoImages === 'string' && pkg.demoImages.trim()) {
+    try {
+      const parsed = JSON.parse(pkg.demoImages);
+      if (Array.isArray(parsed)) {
+        parsedDemo = parsed.filter(
+          (item): item is string => typeof item === 'string' && item.trim().length > 0
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  let pkgImages: string[] = [];
+  if (Array.isArray(pkg.image)) {
+    pkgImages = pkg.image.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0
+    );
+  } else if (typeof pkg.image === 'string' && pkg.image.trim()) {
+    pkgImages = [pkg.image.trim()];
+  }
+
+  const primaryCandidates = [
+    pkg.coverImage,
+    ...pkgImages,
+    ...parsedDemo,
+  ].filter((url): url is string => typeof url === 'string' && url.trim().length > 0);
+
+  const fallbackCandidates = [
+    siteLogoOrBanner,
+    '/og-image.jpg',
+  ].filter((url): url is string => typeof url === 'string' && url.trim().length > 0);
+
+  const candidates = primaryCandidates.length > 0 ? primaryCandidates : fallbackCandidates;
+
+  const cleanBase = (baseUrl || 'https://plusmoments.vn').replace(/\/+$/, '');
+  const absoluteUrls = candidates.map((url) => {
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return `${cleanBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+  });
+
+  const uniqueUrls = Array.from(new Set(absoluteUrls));
+  return uniqueUrls.length > 0 ? uniqueUrls : [`${cleanBase}/og-image.jpg`];
+}
+
 // =========================================================================
 // 4. PRICING PACKAGES SCHEMA (ItemList of Products / Services)
 // =========================================================================
@@ -318,7 +384,11 @@ export interface PricingPackagesSchemaProps {
     description?: string;
     price: number | string;
     url: string;
+    slug?: string;
+    sku?: string;
     image?: string | string[] | null;
+    coverImage?: string | null;
+    demoImages?: string[] | string | null;
     brand?: string;
     aggregateRating?: AggregateRatingSchema;
     reviews?: ReviewSchemaItem[];
@@ -326,6 +396,7 @@ export interface PricingPackagesSchemaProps {
   aggregateRating?: AggregateRatingSchema;
   reviews?: ReviewSchemaItem[];
   baseUrl?: string;
+  siteLogoOrBanner?: string | null;
 }
 
 export function PricingPackagesJsonLd({
@@ -333,7 +404,9 @@ export function PricingPackagesJsonLd({
   aggregateRating,
   reviews,
   baseUrl = 'https://plusmoments.vn',
+  siteLogoOrBanner,
 }: PricingPackagesSchemaProps) {
+  const cleanBase = (baseUrl || 'https://plusmoments.vn').replace(/\/+$/, '');
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -344,18 +417,17 @@ export function PricingPackagesJsonLd({
       const cleanPrice = pkg.price.toString().replace(/[^0-9]/g, '');
       const itemUrl = pkg.url.startsWith('http://') || pkg.url.startsWith('https://')
         ? pkg.url
-        : `${baseUrl.replace(/\/+$/, '')}${pkg.url.startsWith('/') ? pkg.url : `/${pkg.url}`}`;
+        : `${cleanBase}${pkg.url.startsWith('/') ? pkg.url : `/${pkg.url}`}`;
 
-      let rawImages: string[] = [];
-      if (Array.isArray(pkg.image)) {
-        rawImages = pkg.image.filter((img): img is string => typeof img === 'string' && img.trim().length > 0);
-      } else if (typeof pkg.image === 'string' && pkg.image.trim().length > 0) {
-        rawImages = [pkg.image.trim()];
-      }
-
-      const absoluteImages = rawImages.length > 0
-        ? rawImages.map((img) => toAbsoluteImageUrl(img, baseUrl))
-        : [toAbsoluteImageUrl(null, baseUrl)];
+      const absoluteImages = getValidProductImages(
+        {
+          coverImage: pkg.coverImage,
+          demoImages: pkg.demoImages,
+          image: pkg.image,
+        },
+        siteLogoOrBanner,
+        cleanBase
+      );
 
       const description =
         pkg.description && pkg.description.trim()
@@ -364,6 +436,12 @@ export function PricingPackagesJsonLd({
 
       const pkgAggregateRating = pkg.aggregateRating || aggregateRating;
       const pkgReviews = pkg.reviews || reviews;
+
+      const generatedSku =
+        pkg.sku ||
+        (pkg.slug
+          ? `pm-pkg-${pkg.slug}`
+          : `pm-pkg-${pkg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || String(index + 1)}`);
 
       return {
         '@type': 'ListItem',
@@ -374,6 +452,7 @@ export function PricingPackagesJsonLd({
           description,
           url: itemUrl,
           image: absoluteImages,
+          sku: generatedSku,
           brand: {
             '@type': 'Brand',
             name: pkg.brand || 'PlusMoments',
@@ -382,8 +461,43 @@ export function PricingPackagesJsonLd({
             '@type': 'Offer',
             priceCurrency: 'VND',
             price: cleanPrice || pkg.price.toString(),
+            priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
             availability: 'https://schema.org/InStock',
             url: itemUrl,
+            itemCondition: 'https://schema.org/NewCondition',
+            hasMerchantReturnPolicy: {
+              '@type': 'MerchantReturnPolicy',
+              applicableCountry: 'VN',
+              returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+              merchantReturnDays: 0,
+            },
+            shippingDetails: {
+              '@type': 'OfferShippingDetails',
+              shippingRate: {
+                '@type': 'MonetaryAmount',
+                value: '0',
+                currency: 'VND',
+              },
+              shippingDestination: {
+                '@type': 'DefinedRegion',
+                addressCountry: 'VN',
+              },
+              deliveryTime: {
+                '@type': 'ShippingDeliveryTime',
+                handlingTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 0,
+                  maxValue: 1,
+                  unitCode: 'DAY',
+                },
+                transitTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 0,
+                  maxValue: 0,
+                  unitCode: 'DAY',
+                },
+              },
+            },
           },
           ...(pkgAggregateRating ? {
             aggregateRating: {

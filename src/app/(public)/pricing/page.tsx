@@ -6,7 +6,12 @@ import {
   getCachedPricingFaqs,
   getCachedTestimonials,
 } from '@/lib/cached-queries';
-import { PricingPackagesJsonLd, FaqJsonLd, computeReviewStats } from '@/components/seo/JsonLdSchema';
+import {
+  PricingPackagesJsonLd,
+  FaqJsonLd,
+  computeReviewStats,
+  getValidProductImages,
+} from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
@@ -111,41 +116,41 @@ export default async function PricingPage() {
     }
   }
 
+  const studioFallbackImage =
+    (settings as any)?.heroImage ||
+    settings.logoDarkUrl ||
+    settings.logoLightUrl ||
+    settings.defaultOgImage ||
+    '/og-image.jpg';
+
   return (
     <div className="pt-32 pb-24 space-y-20">
       {/* Structured Schema Data */}
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
+        siteLogoOrBanner={studioFallbackImage}
         aggregateRating={aggregateRating}
         reviews={reviews}
         packages={packages.map((pkg) => {
-          let demoImagesList: string[] = [];
-          if (pkg.demoImages) {
-            try {
-              const parsed = JSON.parse(pkg.demoImages);
-              if (Array.isArray(parsed)) {
-                demoImagesList = parsed.filter(
-                  (item): item is string => typeof item === 'string' && item.trim().length > 0
-                );
-              }
-            } catch {
-              // ignore
-            }
-          }
-          const allImages = [pkg.coverImage, ...demoImagesList].filter(
-            (img): img is string => Boolean(img && img.trim())
+          const validImages = getValidProductImages(
+            {
+              coverImage: pkg.coverImage,
+              demoImages: pkg.demoImages,
+            },
+            studioFallbackImage,
+            baseUrl
           );
-          const packageImages = allImages.length > 0 ? allImages : ['/og-image.jpg'];
 
           return {
             name: pkg.name,
+            slug: pkg.slug,
             description:
               pkg.subtitle ||
               pkg.coreHighlights?.[0] ||
               `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`,
             price: pkg.price.toString(),
             url: `${baseUrl}/pricing#${pkg.slug}`,
-            image: packageImages,
+            image: validImages,
           };
         })}
       />
