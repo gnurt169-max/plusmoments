@@ -42,16 +42,21 @@ interface FacebookPostGeneratorModalProps {
   data: FacebookPostData;
   hotline?: string;
   address?: string;
+  brandName?: string;
 }
 
 type ToneType = 'LUXURY' | 'ROMANTIC' | 'MODERN' | 'CONCISE';
+
+// Module-level in-memory cache for dynamic studio settings
+let cachedStudioContact: { hotline: string; address: string; brandName: string } | null = null;
 
 export function FacebookPostGeneratorModal({
   isOpen,
   onClose,
   data,
-  hotline = '0903.768.871',
-  address = '31 Hùng Vương, Phường An Đông',
+  hotline,
+  address,
+  brandName,
 }: FacebookPostGeneratorModalProps) {
   const [selectedTone, setSelectedTone] = useState<ToneType>('LUXURY');
   const [postContent, setPostContent] = useState('');
@@ -60,6 +65,20 @@ export function FacebookPostGeneratorModal({
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'media'>('content');
+  const [hasUserEdited, setHasUserEdited] = useState(false);
+
+  // Dynamic Studio Contact Info state
+  const [studioContact, setStudioContact] = useState<{
+    hotline: string;
+    address: string;
+    brandName: string;
+  }>(() => {
+    return {
+      hotline: hotline || cachedStudioContact?.hotline || '0903.768.871',
+      address: address || cachedStudioContact?.address || '31 Hùng Vương, Phường An Đông',
+      brandName: brandName || cachedStudioContact?.brandName || 'PLUSMOMENTS - LUXURY WEDDING STUDIO',
+    };
+  });
 
   // Normalize image list
   const allImages = useMemo(() => {
@@ -90,8 +109,46 @@ export function FacebookPostGeneratorModal({
     }
   }, [isOpen, allImages]);
 
+  // Fetch dynamic studio contact info from Database / SystemSettings
+  useEffect(() => {
+    let isMounted = true;
+    if (isOpen) {
+      fetch('/api/settings/contact')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => {
+          if (!isMounted || !json?.contact) return;
+          const c = json.contact;
+          const liveHotline = hotline || c.hotlineDisplay || c.hotline || '0903.768.871';
+          const liveAddress = address || c.address || c.studioAddress || '31 Hùng Vương, Phường An Đông';
+          const rawBrand =
+            brandName ||
+            (c.logoTextPrimary && c.logoTextSecondary
+              ? `${c.logoTextPrimary} - ${c.logoTextSecondary}`
+              : c.brandName || 'PLUSMOMENTS - LUXURY WEDDING STUDIO');
+          const liveBrand = rawBrand.toUpperCase();
+
+          const updated = {
+            hotline: liveHotline,
+            address: liveAddress,
+            brandName: liveBrand,
+          };
+          cachedStudioContact = updated;
+          setStudioContact(updated);
+        })
+        .catch((err) => {
+          console.warn('Failed to load contact settings:', err);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, hotline, address, brandName]);
+
   // Generate standard high-converting Facebook copywriting
-  const generateTemplate = (tone: ToneType = selectedTone) => {
+  const generateTemplate = (
+    tone: ToneType = selectedTone,
+    contact: { hotline: string; address: string; brandName: string } = studioContact
+  ) => {
     const isAlbum = data.type === 'ALBUM';
     const postConcept = data.concept || data.category || 'Pre-Wedding Luxury';
     const postLocation = data.location || 'Studio & Ngoại cảnh';
@@ -151,10 +208,10 @@ ${storySection}
 👉 Inbox ngay cho PlusMoments để cùng chúng mình thiết kế concept cưới độc bản dành riêng cho hai bạn trong mùa cưới này nhé! ✨
 
 ---
-💍 PLUSMOMENTS - LUXURY WEDDING STUDIO
-Hotline / Zalo: ${hotline}
+💍 ${contact.brandName}
+Hotline / Zalo: ${contact.hotline}
 Website chi tiết: ${postUrl}
-Địa chỉ: ${address}
+Địa chỉ: ${contact.address}
 
 ${hashtags}`;
   };
@@ -162,16 +219,25 @@ ${hashtags}`;
   // Initialize content on open
   useEffect(() => {
     if (isOpen) {
-      setPostContent(generateTemplate(selectedTone));
       setIsCopied(false);
       setIsCopiedLinks(false);
+      setHasUserEdited(false);
+      setPostContent(generateTemplate(selectedTone, studioContact));
     }
-  }, [isOpen, data, hotline, address]);
+  }, [isOpen]);
+
+  // Re-generate content when dynamic studioContact loads if user hasn't typed custom edits
+  useEffect(() => {
+    if (isOpen && !hasUserEdited) {
+      setPostContent(generateTemplate(selectedTone, studioContact));
+    }
+  }, [studioContact]);
 
   // Handle tone change
   const handleToneChange = (tone: ToneType) => {
     setSelectedTone(tone);
-    setPostContent(generateTemplate(tone));
+    setHasUserEdited(false);
+    setPostContent(generateTemplate(tone, studioContact));
   };
 
   // Call Gemini AI to rewrite post
@@ -194,6 +260,9 @@ ${hashtags}`;
           content: data.content,
           postUrl,
           tone: selectedTone,
+          hotline: studioContact.hotline,
+          address: studioContact.address,
+          brandName: studioContact.brandName,
         }),
       });
 
@@ -205,6 +274,7 @@ ${hashtags}`;
       const generatedText = resData.rawText || resData.result?.text || resData.result?.postContent;
       if (generatedText) {
         setPostContent(generatedText.trim());
+        setHasUserEdited(true);
       }
     } catch (err: any) {
       alert(err.message || 'Lỗi khi gọi AI viết lại bài đăng.');
@@ -385,6 +455,17 @@ ${hashtags}`;
               </div>
             </div>
 
+            {/* Live Studio Contact Info Indicator */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-stone-50 border border-stone-200/80 rounded-xl text-[11px] text-stone-600">
+              <span className="flex items-center gap-1.5 font-medium text-charcoal-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                <span>Hotline: <strong className="text-stone-900">{studioContact.hotline}</strong></span>
+              </span>
+              <span className="truncate max-w-[320px] text-stone-500" title={studioContact.address}>
+                Địa chỉ: <strong className="text-stone-800">{studioContact.address}</strong>
+              </span>
+            </div>
+
             {/* Editable Content Box */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-stone-500">
@@ -394,7 +475,10 @@ ${hashtags}`;
 
               <textarea
                 value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
+                onChange={(e) => {
+                  setPostContent(e.target.value);
+                  setHasUserEdited(true);
+                }}
                 rows={16}
                 className="w-full p-4 text-xs font-sans text-charcoal-900 bg-white border border-stone-300 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 leading-relaxed font-normal"
                 placeholder="Nội dung bài đăng Facebook..."
@@ -405,7 +489,10 @@ ${hashtags}`;
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setPostContent(generateTemplate(selectedTone))}
+                onClick={() => {
+                  setHasUserEdited(false);
+                  setPostContent(generateTemplate(selectedTone, studioContact));
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-xl transition cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

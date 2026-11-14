@@ -102,6 +102,26 @@ export async function POST(request: Request) {
 - Giọng văn thương hiệu: ${currentToneGuide}
 - Luôn sử dụng tiếng Việt chuẩn mực, giàu tính gợi hình, trau chuốt và tôn vinh tình yêu đôi lứa.`;
 
+    // Dynamic Studio Contact & Brand Name from settings/inputContext
+    const effectiveHotline =
+      inputContext.hotline?.trim() ||
+      setting?.hotlineDisplay?.trim() ||
+      setting?.hotline?.trim() ||
+      '0903.768.871';
+
+    const effectiveAddress =
+      inputContext.address?.trim() ||
+      setting?.studioAddress?.trim() ||
+      setting?.address?.trim() ||
+      '31 Hùng Vương, Phường An Đông';
+
+    const rawBrandName =
+      inputContext.brandName?.trim() ||
+      (setting?.logoTextPrimary && setting?.logoTextSecondary
+        ? `${setting.logoTextPrimary} - ${setting.logoTextSecondary}`
+        : setting?.brandName || 'PLUSMOMENTS - LUXURY WEDDING STUDIO');
+    const effectiveBrandName = rawBrandName.toUpperCase();
+
     // 2. Build contextual prompt according to taskType
     let userPrompt = '';
     let expectJson = false;
@@ -195,7 +215,7 @@ Hãy soạn một tin nhắn tư vấn gửi dâu rể qua Zalo hoặc Messenger
 - Mở đầu: Lịch thiệp, ấm áp, gọi tên dâu rể thân mật và chúc mừng hạnh phúc.
 - Thân bài: Giải đáp đúng gói họ đang quan tâm hoặc gợi ý giải pháp phù hợp với ngày cưới và ngân sách.
 - Lời mời: Nhẹ nhàng, tinh tế mời dâu rể ghé studio uống cà phê, trò chuyện trực tiếp và thử váy cưới/xem chất liệu photobook thực tế mà không hề tạo cảm giác chèo kéo.
-- Ký tên: "PlusMoments Wedding Studio - Hotline/Zalo: 0903.768.871".
+- Ký tên: "${effectiveBrandName} - Hotline/Zalo: ${effectiveHotline}".
 Chỉ trả về nội dung tin nhắn, không thêm lời giải thích nào.`;
         break;
       }
@@ -261,10 +281,10 @@ Cấu trúc bài đăng bắt buộc (Format Facebook):
 5. Lời kêu gọi hành động (Call to action): "Inbox ngay cho PlusMoments để được tư vấn thiết kế concept riêng biệt cho ngày trọng đại của bạn! ✨"
 6. Phần chữ ký studio:
    ---
-   💍 PLUSMOMENTS - LUXURY WEDDING STUDIO
-   Hotline / Zalo: 0903.768.871
+   💍 ${effectiveBrandName}
+   Hotline / Zalo: ${effectiveHotline}
    Website chi tiết: ${postUrl || 'https://plusmoments.vn'}
-   Địa chỉ: 31 Hùng Vương, Phường An Đông
+   Địa chỉ: ${effectiveAddress}
 7. Bộ hashtag tối ưu: #PlusMoments #StudioAnhCuoi #AnhCuoiLuxury #PreWeddingEditorial #ChupAnhCuoiTPHCM #PhongSuNgayCuoi và các hashtag liên quan concept/địa điểm.
 
 Chỉ trả về toàn bộ nội dung bài đăng Facebook hoàn chỉnh, sẵn sàng đăng ngay, không kèm lời dẫn của AI.`;

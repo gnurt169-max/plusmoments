@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { RotateCcw, Home, Sparkles, HelpCircle } from 'lucide-react';
+import { useContact } from '@/context/ContactContext';
 
 export default function GlobalError({
   error,
@@ -11,6 +12,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { contact } = useContact();
+  const hotlineRaw = contact?.hotline || '0903768871';
+  const hotlineText = contact?.hotlineDisplay || contact?.hotline || '0903.768.871';
+
   useEffect(() => {
     // Log exception for debugging without exposing raw details to visitors
     console.error('[PlusMoments Error Boundary]:', error);
@@ -65,10 +70,10 @@ export default function GlobalError({
           <HelpCircle className="w-3.5 h-3.5 text-stone-400" />
           <span>Cần hỗ trợ nhanh? Hotline studio: </span>
           <a
-            href="tel:0903768871"
+            href={`tel:${hotlineRaw}`}
             className="font-medium text-[#9A6436] hover:underline"
           >
-            0903.768.871
+            {hotlineText}
           </a>
         </div>
       </div>
