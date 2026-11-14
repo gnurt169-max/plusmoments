@@ -36,6 +36,7 @@ export interface MediaFileItem {
 }
 
 export interface MediaFolderItem {
+  id?: string;
   slug: string;
   name: string;
   path: string;
@@ -148,15 +149,25 @@ export function MediaLibraryPickerModal({
   // Current folder object
   const currentFolder = useMemo(() => {
     if (!activeFolderSlug) return null;
-    return folders.find((f) => f.slug === activeFolderSlug) || null;
+    return (
+      folders.find(
+        (f) =>
+          f.slug === activeFolderSlug ||
+          f.id === activeFolderSlug ||
+          f.name === activeFolderSlug
+      ) || null
+    );
   }, [activeFolderSlug, folders]);
 
   // Files in current folder (or root) matching search query & allowed extensions
   const searchedFiles = useMemo(() => {
     let files = allMedia;
     if (activeFolderSlug) {
-      files = allMedia.filter((m) =>
-        m.url.startsWith(`/uploads/folders/${activeFolderSlug}/`)
+      const canonicalSlug = currentFolder?.slug || activeFolderSlug;
+      files = allMedia.filter(
+        (m) =>
+          m.url.startsWith(`/uploads/folders/${canonicalSlug}/`) ||
+          m.url.startsWith(`/uploads/folders/${activeFolderSlug}/`)
       );
     }
 
@@ -249,8 +260,14 @@ export function MediaLibraryPickerModal({
 
   // Quick select an entire folder
   const handleSelectEntireFolder = (folderSlug: string) => {
-    const folderFiles = allMedia.filter((m) =>
-      m.url.startsWith(`/uploads/folders/${folderSlug}/`)
+    const targetFolder = folders.find(
+      (f) => f.slug === folderSlug || f.id === folderSlug || f.name === folderSlug
+    );
+    const canonicalSlug = targetFolder?.slug || folderSlug;
+    const folderFiles = allMedia.filter(
+      (m) =>
+        m.url.startsWith(`/uploads/folders/${canonicalSlug}/`) ||
+        m.url.startsWith(`/uploads/folders/${folderSlug}/`)
     );
     if (folderFiles.length === 0) return;
 

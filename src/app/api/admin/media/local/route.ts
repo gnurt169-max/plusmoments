@@ -5,6 +5,8 @@ import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
 import { getImageDimensions, ImageOrientation } from '@/lib/image-dimensions';
 
+import { resolveFolder, readFolderImages } from '@/lib/media-folder-resolver';
+
 export const dynamic = 'force-dynamic';
 
 interface LocalMediaItem {
@@ -91,11 +93,42 @@ async function getLocalMediaFiles(dirPath: string, rootDir: string): Promise<Loc
   return results;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const folderParam = searchParams.get('folder') || searchParams.get('slug') || searchParams.get('folderId');
+
+    // Nếu có tham số thư mục, sử dụng Multi-Key Folder Resolver
+    if (folderParam) {
+      const resolved = await resolveFolder(folderParam);
+      if (!resolved) {
+        return NextResponse.json(
+          { success: false, error: 'Không tìm thấy thư mục yêu cầu.' },
+          { status: 404 }
+        );
+      }
+
+      const images = await readFolderImages(resolved);
+      return NextResponse.json({
+        success: true,
+        total: images.length,
+        folder: {
+          id: resolved.canonicalId,
+          slug: resolved.canonicalSlug,
+          name: resolved.canonicalName,
+          path: resolved.canonicalPath,
+          imageCount: images.length,
+          totalBytes: resolved.totalBytes,
+          formattedSize: resolved.formattedSize,
+          coverImage: images.length > 0 ? images[0].url : resolved.coverImage,
+        },
+        media: images,
+      });
     }
 
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');

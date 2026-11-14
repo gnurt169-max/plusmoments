@@ -54,27 +54,138 @@ export async function GET() {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const folders = dbFolders.map((f) => {
+    // Scan physical directories on disk to ensure 100% synchronization
+    const diskEntries = await fs.promises.readdir(foldersBaseDir, { withFileTypes: true });
+    const diskFolderSet = new Set(
+      diskEntries.filter((e) => e.isDirectory() && !e.name.startsWith('.')).map((e) => e.name)
+    );
+
+    const ALLOWED_IMAGE_EXTENSIONS = new Set(['.webp', '.jpg', '.jpeg', '.png', '.avif', '.heic', '.svg']);
+
+    const folderMap = new Map<string, any>();
+
+    for (const f of dbFolders) {
       const validFiles = f.files.filter(
         (file) =>
           !file.url.endsWith('-sm.webp') &&
           !file.url.endsWith('-md.webp') &&
           !path.basename(file.url).startsWith('.')
       );
-      const totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
-      return {
+
+      let imageCount = validFiles.length;
+      let totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
+      let coverImage = validFiles.length > 0 ? validFiles[0].url : null;
+
+      // Check physical folder on disk (prioritizing f.slug then f.name)
+      const diskName = diskFolderSet.has(f.slug) ? f.slug : diskFolderSet.has(f.name) ? f.name : null;
+      if (diskName) {
+        diskFolderSet.delete(diskName);
+        const folderDiskPath = path.join(foldersBaseDir, diskName);
+        try {
+          const filesOnDisk = await fs.promises.readdir(folderDiskPath);
+          let diskNonVariantCount = 0;
+          let diskBytes = 0;
+          let firstDiskImage: string | null = null;
+
+          for (const fileName of filesOnDisk) {
+            if (
+              fileName.startsWith('.') ||
+              fileName.startsWith('._') ||
+              fileName.endsWith('-sm.webp') ||
+              fileName.endsWith('-md.webp')
+            ) {
+              continue;
+            }
+            const ext = path.extname(fileName).toLowerCase();
+            if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+              diskNonVariantCount++;
+              try {
+                const stat = fs.statSync(path.join(folderDiskPath, fileName));
+                diskBytes += stat.size;
+                if (!firstDiskImage) {
+                  firstDiskImage = `/uploads/folders/${f.slug}/${fileName}`;
+                }
+              } catch {}
+            }
+          }
+
+          // Use disk count if DB count was 0 or out of sync
+          if (diskNonVariantCount > imageCount || imageCount === 0) {
+            imageCount = diskNonVariantCount;
+            totalBytes = diskBytes;
+            if (firstDiskImage) coverImage = firstDiskImage;
+          }
+        } catch {}
+      }
+
+      folderMap.set(f.slug, {
         id: f.id,
         slug: f.slug,
         name: f.name,
         path: `/uploads/folders/${f.slug}`,
-        imageCount: validFiles.length,
+        imageCount,
         totalBytes,
         formattedSize: formatBytes(totalBytes),
-        coverImage: validFiles.length > 0 ? validFiles[0].url : null,
+        coverImage,
         createdAt: f.createdAt.toISOString(),
         updatedAt: f.updatedAt.toISOString(),
-      };
-    });
+      });
+    }
+
+    // Include any physical folders on disk that do not have DB records yet
+    for (const diskName of diskFolderSet) {
+      const folderDiskPath = path.join(foldersBaseDir, diskName);
+      let diskNonVariantCount = 0;
+      let diskBytes = 0;
+      let firstDiskImage: string | null = null;
+      let folderDisplayName = diskName.replace(/[-_]/g, ' ');
+
+      try {
+        const metaPath = path.join(folderDiskPath, 'metadata.json');
+        if (fs.existsSync(metaPath)) {
+          const raw = JSON.parse(await fs.promises.readFile(metaPath, 'utf-8'));
+          if (raw.name) folderDisplayName = raw.name;
+        }
+
+        const filesOnDisk = await fs.promises.readdir(folderDiskPath);
+        for (const fileName of filesOnDisk) {
+          if (
+            fileName.startsWith('.') ||
+            fileName.startsWith('._') ||
+            fileName.endsWith('-sm.webp') ||
+            fileName.endsWith('-md.webp')
+          ) {
+            continue;
+          }
+          const ext = path.extname(fileName).toLowerCase();
+          if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+            diskNonVariantCount++;
+            try {
+              const stat = fs.statSync(path.join(folderDiskPath, fileName));
+              diskBytes += stat.size;
+              if (!firstDiskImage) {
+                firstDiskImage = `/uploads/folders/${diskName}/${fileName}`;
+              }
+            } catch {}
+          }
+        }
+      } catch {}
+
+      folderMap.set(diskName, {
+        id: diskName,
+        slug: diskName,
+        name: folderDisplayName,
+        path: `/uploads/folders/${diskName}`,
+        imageCount: diskNonVariantCount,
+        totalBytes: diskBytes,
+        formattedSize: formatBytes(diskBytes),
+        coverImage: firstDiskImage,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    const folders = Array.from(folderMap.values());
 
     return NextResponse.json({
       success: true,

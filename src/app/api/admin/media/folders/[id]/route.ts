@@ -5,40 +5,12 @@ import { prisma } from '@/lib/prisma';
 import { cleanupDanglingFolderReferences, cleanupDanglingMediaReferences } from '@/lib/media-cleanup';
 import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
-import { getOrientation, getDimensionsForPublicUrl } from '@/lib/image-dimensions';
+import { resolveFolder, readFolderImages } from '@/lib/media-folder-resolver';
 
 export const dynamic = 'force-dynamic';
 
-function formatBytes(bytes: number, decimals = 1): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
 interface Props {
   params: { id: string };
-}
-
-async function findFolder(identifier: string) {
-  return await prisma.mediaFolder.findFirst({
-    where: {
-      OR: [{ id: identifier }, { slug: identifier }],
-    },
-    include: {
-      files: {
-        where: {
-          AND: [
-            { url: { not: { endsWith: '-sm.webp' } } },
-            { url: { not: { endsWith: '-md.webp' } } },
-          ],
-        },
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
 }
 
 export async function GET(request: Request, { params }: Props) {
@@ -48,7 +20,7 @@ export async function GET(request: Request, { params }: Props) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const folder = await findFolder(params.id);
+    const folder = await resolveFolder(params.id);
 
     if (!folder) {
       return NextResponse.json(
@@ -57,59 +29,21 @@ export async function GET(request: Request, { params }: Props) {
       );
     }
 
-    const validFiles = folder.files.filter(
-      (file) =>
-        !file.url.endsWith('-sm.webp') &&
-        !file.url.endsWith('-md.webp') &&
-        !path.basename(file.url).startsWith('.')
-    );
-
-    const totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
-
-    const images = await Promise.all(
-      validFiles.map(async (file) => {
-        let width = file.width ?? undefined;
-        let height = file.height ?? undefined;
-        let orientation = getOrientation(width, height);
-
-        if (!width || !height || !orientation) {
-          const dim = await getDimensionsForPublicUrl(file.url);
-          width = width || dim.width;
-          height = height || dim.height;
-          orientation = orientation || dim.orientation;
-        }
-
-        return {
-          id: file.id,
-          filename: path.basename(file.url),
-          name: file.name,
-          url: file.url,
-          size: file.size,
-          formattedSize: formatBytes(file.size),
-          format: file.format,
-          width,
-          height,
-          orientation,
-          folderId: folder.id,
-          createdAt: file.createdAt.toISOString(),
-          modifiedAt: file.updatedAt.toISOString(),
-        };
-      })
-    );
+    const images = await readFolderImages(folder);
 
     return NextResponse.json({
       success: true,
       folder: {
-        id: folder.id,
-        slug: folder.slug,
-        name: folder.name,
-        path: `/uploads/folders/${folder.slug}`,
+        id: folder.canonicalId,
+        slug: folder.canonicalSlug,
+        name: folder.canonicalName,
+        path: folder.canonicalPath,
         imageCount: images.length,
-        totalBytes,
-        formattedSize: formatBytes(totalBytes),
-        coverImage: images.length > 0 ? images[0].url : null,
-        createdAt: folder.createdAt.toISOString(),
-        updatedAt: folder.updatedAt.toISOString(),
+        totalBytes: folder.totalBytes,
+        formattedSize: folder.formattedSize,
+        coverImage: images.length > 0 ? images[0].url : folder.coverImage,
+        createdAt: folder.createdAt,
+        updatedAt: folder.updatedAt,
       },
       images,
     });
@@ -129,7 +63,7 @@ export async function PUT(request: Request, { params }: Props) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const folder = await findFolder(params.id);
+    const folder = await resolveFolder(params.id);
 
     if (!folder) {
       return NextResponse.json(
@@ -148,20 +82,27 @@ export async function PUT(request: Request, { params }: Props) {
       );
     }
 
-    const updated = await prisma.mediaFolder.update({
-      where: { id: folder.id },
-      data: { name: name.trim() },
-    });
+    let updatedFolderId = folder.canonicalId;
+    let updatedFolderName = name.trim();
 
-    // Update metadata.json on disk if directory exists
-    const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', folder.slug);
-    const metaPath = path.join(folderDir, 'metadata.json');
-    if (fs.existsSync(folderDir)) {
+    // Cập nhật tên trong Database nếu có bản ghi MediaFolder
+    if (folder.dbFolder) {
+      const updated = await prisma.mediaFolder.update({
+        where: { id: folder.dbFolder.id },
+        data: { name: updatedFolderName },
+      });
+      updatedFolderId = updated.id;
+      updatedFolderName = updated.name;
+    }
+
+    // Cập nhật file metadata.json trên đĩa nếu thư mục vật lý tồn tại
+    if (folder.physicalDir && fs.existsSync(folder.physicalDir)) {
+      const metaPath = path.join(folder.physicalDir, 'metadata.json');
       try {
-        let metaObj: any = { name: name.trim(), slug: folder.slug };
+        let metaObj: any = { name: updatedFolderName, slug: folder.canonicalSlug };
         if (fs.existsSync(metaPath)) {
           metaObj = JSON.parse(await fs.promises.readFile(metaPath, 'utf-8'));
-          metaObj.name = name.trim();
+          metaObj.name = updatedFolderName;
           metaObj.updatedAt = new Date().toISOString();
         }
         await fs.promises.writeFile(metaPath, JSON.stringify(metaObj, null, 2), 'utf-8');
@@ -170,11 +111,11 @@ export async function PUT(request: Request, { params }: Props) {
 
     return NextResponse.json({
       success: true,
-      message: `Đã đổi tên thư mục thành "${name.trim()}"!`,
+      message: `Đã đổi tên thư mục thành "${updatedFolderName}"!`,
       folder: {
-        id: updated.id,
-        slug: updated.slug,
-        name: updated.name,
+        id: updatedFolderId,
+        slug: folder.canonicalSlug,
+        name: updatedFolderName,
       },
     });
   } catch (error: any) {
@@ -193,7 +134,7 @@ export async function DELETE(request: Request, { params }: Props) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const folder = await findFolder(params.id);
+    const folder = await resolveFolder(params.id);
 
     if (!folder) {
       // Defense: Check if params.id corresponds to a MediaFile (fallback defense if frontend sent file ID)
@@ -232,21 +173,20 @@ export async function DELETE(request: Request, { params }: Props) {
     }
 
     // 1. Delete physical directory and files on disk safely
-    try {
-      const folderDir = path.join(process.cwd(), 'public', 'uploads', 'folders', folder.slug);
-      if (fs.existsSync(folderDir)) {
-        await fs.promises.rm(folderDir, { recursive: true, force: true }).catch(() => {});
+    if (folder.physicalDir && fs.existsSync(folder.physicalDir)) {
+      try {
+        await fs.promises.rm(folder.physicalDir, { recursive: true, force: true }).catch(() => {});
+      } catch (fsErr) {
+        console.warn('[WARN] Lỗi xóa thư mục vật lý, tiếp tục dọn DB:', fsErr);
       }
-    } catch (fsErr) {
-      console.warn('[WARN] Lỗi xóa thư mục vật lý, tiếp tục dọn DB:', fsErr);
     }
 
     // 2. Atomically delete from database and cleanup all dangling references across the website
-    await cleanupDanglingFolderReferences(folder.slug, folder.id);
+    await cleanupDanglingFolderReferences(folder.canonicalSlug, folder.canonicalId);
 
     return NextResponse.json({
       success: true,
-      message: `Đã xóa toàn bộ thư mục "${folder.name}", tệp vật lý và dọn sạch các liên kết liên quan!`,
+      message: `Đã xóa toàn bộ thư mục "${folder.canonicalName}", tệp vật lý và dọn sạch các liên kết liên quan!`,
     });
   } catch (error: any) {
     console.error('Delete folder error:', error);
@@ -256,4 +196,5 @@ export async function DELETE(request: Request, { params }: Props) {
     );
   }
 }
+
 

@@ -564,7 +564,7 @@ export default function AdminMediaPage() {
     setSelectedFolderIds([]);
     setCurrentFolder(folder);
     setSearchQuery('');
-    fetchFolderContent(folder.slug);
+    fetchFolderContent(folder.slug || folder.id || folder.name);
   };
 
   // Navigate back to Root

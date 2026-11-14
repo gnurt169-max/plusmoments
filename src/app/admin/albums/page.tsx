@@ -116,13 +116,15 @@ export default function AdminAlbumsPage() {
     slug: string;
     name: string;
     imageCount: number;
+    id?: string;
   }) => {
     try {
       setIsCuratingFolder(true);
       setCuratingStep(`Đang nạp toàn bộ ảnh từ thư mục "${folder.name}"...`);
       setIsFolderPickerOpen(false);
 
-      const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(folder.slug)}`);
+      const folderIdentifier = folder.slug || folder.id || folder.name;
+      const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(folderIdentifier)}`);
       const data = await res.json();
       if (!data.success || !data.images || data.images.length === 0) {
         throw new Error(`Thư mục "${folder.name}" chưa có ảnh nào.`);
