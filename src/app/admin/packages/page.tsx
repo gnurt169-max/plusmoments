@@ -14,6 +14,7 @@ import {
   Image as ImageIcon,
   Bot,
   BookOpen,
+  Images,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -21,6 +22,16 @@ import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
+
+export interface LinkedAlbumItem {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage?: string;
+  concept?: string;
+  location?: string;
+  packageId?: string | null;
+}
 
 export interface LinkedBlogItem {
   id: string;
@@ -49,6 +60,7 @@ interface PackageItem {
   published: boolean;
   inclusions: string;
   deliverables?: string | null;
+  albums?: LinkedAlbumItem[];
   blogPosts?: LinkedBlogItem[];
 }
 
@@ -61,6 +73,10 @@ export default function AdminPackagesPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [generatingAI, setGeneratingAI] = useState(false);
+
+  // Available Albums for Package linking
+  const [availableAlbums, setAvailableAlbums] = useState<LinkedAlbumItem[]>([]);
+  const [albumSearchTerm, setAlbumSearchTerm] = useState('');
 
   // Available Blog Posts for Package linking
   const [availableBlogPosts, setAvailableBlogPosts] = useState<LinkedBlogItem[]>([]);
@@ -111,6 +127,7 @@ export default function AdminPackagesPage() {
     published: true,
     inclusionsList: [] as string[],
     deliverables: '',
+    albumIds: [] as string[],
     blogPostIds: [] as string[],
   });
 
@@ -144,6 +161,28 @@ export default function AdminPackagesPage() {
     }
   };
 
+  const fetchAlbums = async () => {
+    try {
+      const res = await fetch('/api/admin/albums');
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.albums)) {
+        setAvailableAlbums(
+          data.albums.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            slug: a.slug,
+            coverImage: a.coverImage,
+            concept: a.concept,
+            location: a.location,
+            packageId: a.packageId,
+          }))
+        );
+      }
+    } catch (err) {
+      console.warn('Failed to load albums for package linking:', err);
+    }
+  };
+
   const fetchBlogPosts = async () => {
     try {
       const res = await fetch('/api/admin/blog');
@@ -167,11 +206,13 @@ export default function AdminPackagesPage() {
 
   useEffect(() => {
     fetchPackages();
+    fetchAlbums();
     fetchBlogPosts();
   }, []);
 
   const openCreateModal = () => {
     setEditingId(null);
+    setAlbumSearchTerm('');
     setBlogSearchTerm('');
     setFormData({
       name: '',
@@ -190,6 +231,7 @@ export default function AdminPackagesPage() {
       published: true,
       inclusionsList: [],
       deliverables: '',
+      albumIds: [],
       blogPostIds: [],
     });
     setIsModalOpen(true);
@@ -197,6 +239,7 @@ export default function AdminPackagesPage() {
 
   const openEditModal = (pkg: PackageItem) => {
     setEditingId(pkg.id);
+    setAlbumSearchTerm('');
     setBlogSearchTerm('');
 
     let parsedInclusions: string[] = [];
@@ -223,6 +266,10 @@ export default function AdminPackagesPage() {
       parsedDemoImages = pkg.demoImages ? [pkg.demoImages] : [];
     }
 
+    const linkedAlbumIds = Array.isArray(pkg.albums) && pkg.albums.length > 0
+      ? pkg.albums.map((a) => a.id)
+      : availableAlbums.filter((a) => a.packageId === pkg.id).map((a) => a.id);
+
     const linkedPostIds = Array.isArray(pkg.blogPosts) && pkg.blogPosts.length > 0
       ? pkg.blogPosts.map((b) => b.id)
       : availableBlogPosts.filter((b) => b.packageId === pkg.id).map((b) => b.id);
@@ -244,6 +291,7 @@ export default function AdminPackagesPage() {
       published: pkg.published,
       inclusionsList: parsedInclusions,
       deliverables: pkg.deliverables || '',
+      albumIds: linkedAlbumIds,
       blogPostIds: linkedPostIds,
     });
     setIsModalOpen(true);
@@ -401,6 +449,7 @@ export default function AdminPackagesPage() {
         published: formData.published,
         inclusions: formData.inclusionsList.filter((x) => x.trim().length > 0),
         deliverables: formData.deliverables,
+        albumIds: formData.albumIds,
         blogPostIds: formData.blogPostIds,
       };
 
@@ -903,6 +952,131 @@ export default function AdminPackagesPage() {
               }
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
             />
+          </div>
+
+          {/* LINKED WEDDING ALBUMS */}
+          <div className="bg-stone-50/70 p-4 rounded-2xl border border-stone-200 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <label className="text-xs uppercase tracking-wider text-charcoal-700 font-semibold flex items-center gap-1.5">
+                  <Images className="w-3.5 h-3.5 text-luxury-600" />
+                  <span>Album Ảnh Cưới Thực Tế Gắn Kèm ({formData.albumIds.length} album đã chọn)</span>
+                </label>
+                <p className="text-[11px] text-charcoal-400 font-light">
+                  Hiển thị ở cột trái Popup Modal chi tiết gói để khách hàng xem trọn bộ ảnh thực tế được chụp từ gói này.
+                </p>
+              </div>
+
+              {availableAlbums.length > 4 && (
+                <input
+                  type="text"
+                  placeholder="Tìm theo tên album..."
+                  value={albumSearchTerm}
+                  onChange={(e) => setAlbumSearchTerm(e.target.value)}
+                  className="px-3 py-1 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-luxury-400 w-full sm:w-48"
+                />
+              )}
+            </div>
+
+            {availableAlbums.length === 0 ? (
+              <div className="text-center py-3 bg-white/70 rounded-xl border border-dashed border-stone-300 text-stone-400 text-xs font-light">
+                Chưa có album ảnh cưới nào trong hệ thống.
+              </div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                {availableAlbums
+                  .filter((a) =>
+                    albumSearchTerm
+                      ? a.title.toLowerCase().includes(albumSearchTerm.toLowerCase()) ||
+                        (a.concept && a.concept.toLowerCase().includes(albumSearchTerm.toLowerCase()))
+                      : true
+                  )
+                  .map((album) => {
+                    const isSelected = formData.albumIds.includes(album.id);
+                    const isLinkedToAnotherPkg =
+                      Boolean(album.packageId) && album.packageId !== editingId;
+                    const otherPkgName = isLinkedToAnotherPkg
+                      ? packages.find((p) => p.id === album.packageId)?.name
+                      : null;
+
+                    const thumbUrl = album.coverImage
+                      ? album.coverImage.endsWith('.webp')
+                        ? album.coverImage.replace(/\.webp$/, '-sm.webp')
+                        : album.coverImage
+                      : '';
+
+                    return (
+                      <label
+                        key={album.id}
+                        className={`flex items-center justify-between p-2 rounded-xl text-xs border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-50/80 border-amber-300 text-stone-900 font-medium shadow-2xs'
+                            : 'bg-white border-stone-200/80 text-stone-600 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  albumIds: [...prev.albumIds, album.id],
+                                }));
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  albumIds: prev.albumIds.filter((id) => id !== album.id),
+                                }));
+                              }
+                            }}
+                            className="w-4 h-4 text-luxury-600 rounded shrink-0 cursor-pointer"
+                          />
+
+                          {/* Thumbnail bìa album */}
+                          <div className="w-8 h-8 rounded-lg overflow-hidden bg-stone-100 border border-stone-200 shrink-0 flex items-center justify-center">
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt={album.title}
+                                className="w-full h-full object-cover select-none"
+                                onError={(e) => {
+                                  if (album.coverImage && e.currentTarget.src !== album.coverImage) {
+                                    e.currentTarget.src = album.coverImage;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <Images className="w-3.5 h-3.5 text-stone-400" />
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <span className="truncate block font-medium">{album.title}</span>
+                            {album.concept && (
+                              <span className="text-[10px] text-stone-400 block truncate font-light">
+                                {album.concept}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {isLinkedToAnotherPkg && !isSelected && (
+                          <span className="text-[10px] text-stone-400 shrink-0 italic">
+                            (Đang gắn: {otherPkgName || 'Gói khác'})
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span className="text-[10px] text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full shrink-0 font-medium">
+                            Đã gắn
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+              </div>
+            )}
           </div>
 
           {/* LINKED BLOG POSTS / GUIDES */}

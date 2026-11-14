@@ -33,6 +33,16 @@ const ConsultationModal = dynamic(
   { ssr: false }
 );
 
+export interface LinkedAlbum {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage?: string | null;
+  concept?: string | null;
+  location?: string | null;
+  coupleNames?: string | null;
+}
+
 export interface LinkedBlogPost {
   id: string;
   title: string;
@@ -68,6 +78,7 @@ export interface PricingPackageData {
   inclusionsList?: string[];
   deliveryProcess?: string | null;
   blurDataUrl?: string | null;
+  albums?: LinkedAlbum[];
   blogPosts?: LinkedBlogPost[];
 }
 

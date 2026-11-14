@@ -27,6 +27,21 @@ export async function GET(request: Request) {
     const packages = await prisma.servicePackage.findMany({
       orderBy: { orderIndex: 'asc' },
       include: {
+        albums: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverImage: true,
+            concept: true,
+            location: true,
+            coupleNames: true,
+            published: true,
+            orderIndex: true,
+            createdAt: true,
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
         blogPosts: {
           select: {
             id: true,
@@ -34,6 +49,7 @@ export async function GET(request: Request) {
             slug: true,
             coverImage: true,
             summary: true,
+            category: true,
             readingMinutes: true,
             published: true,
             publishedAt: true,
@@ -134,6 +150,14 @@ export async function POST(request: Request) {
       },
     });
 
+    // Liên kết các album ảnh cưới được chọn vào gói mới tạo
+    if (Array.isArray(body.albumIds) && body.albumIds.length > 0) {
+      await prisma.album.updateMany({
+        where: { id: { in: body.albumIds } },
+        data: { packageId: newPkg.id },
+      });
+    }
+
     // Liên kết các bài viết blog được chọn vào gói mới tạo
     if (Array.isArray(body.blogPostIds) && body.blogPostIds.length > 0) {
       await prisma.blogPost.updateMany({
@@ -144,10 +168,12 @@ export async function POST(request: Request) {
 
     // Cập nhật bộ nhớ cache Next.js
     revalidateTag('packages');
+    revalidateTag('albums');
     revalidateTag('blog');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
+    revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/blog', 'page');
 
     // Đồng bộ snapshot tĩnh vào prisma/seed.ts & prisma/seed.js
@@ -241,6 +267,22 @@ export async function PUT(request: Request) {
       data: updateData,
     });
 
+    // Cập nhật liên kết album ảnh cưới (Album.packageId)
+    if (Array.isArray(body.albumIds)) {
+      // Gỡ liên kết các album trước đó thuộc gói này nhưng không còn nằm trong albumIds
+      await prisma.album.updateMany({
+        where: { packageId: id, id: { notIn: body.albumIds } },
+        data: { packageId: null },
+      });
+      // Gắn gói này vào các album mới chọn
+      if (body.albumIds.length > 0) {
+        await prisma.album.updateMany({
+          where: { id: { in: body.albumIds } },
+          data: { packageId: id },
+        });
+      }
+    }
+
     // Cập nhật liên kết bài viết blog (BlogPost.packageId)
     if (Array.isArray(body.blogPostIds)) {
       // Gỡ liên kết các bài viết trước đó thuộc gói này nhưng không còn nằm trong blogPostIds
@@ -258,10 +300,12 @@ export async function PUT(request: Request) {
     }
 
     revalidateTag('packages');
+    revalidateTag('albums');
     revalidateTag('blog');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
+    revalidatePath('/bo-suu-tap', 'page');
     revalidatePath('/blog', 'page');
 
     // Đồng bộ snapshot tĩnh vào prisma/seed.ts & prisma/seed.js

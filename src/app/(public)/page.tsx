@@ -160,6 +160,8 @@ export default async function HomePage() {
       shortFeatures: coreHighlights,
       deliveryProcess: pkg.deliverables,
       blurDataUrl: (pkg as any).blurDataUrl || null,
+      albums: (pkg as any).albums || [],
+      blogPosts: (pkg as any).blogPosts || [],
     };
   });
 

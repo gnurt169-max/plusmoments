@@ -101,6 +101,14 @@ export function serializePackage<T extends Record<string, any>>(pkg: T | null | 
     originalPrice: pkg.originalPrice != null ? Number(pkg.originalPrice) : null,
     createdAt: pkg.createdAt instanceof Date ? pkg.createdAt.toISOString() : pkg.createdAt,
     updatedAt: pkg.updatedAt instanceof Date ? pkg.updatedAt.toISOString() : pkg.updatedAt,
+    albums: Array.isArray(pkg.albums)
+      ? pkg.albums.map((a: any) => ({
+          ...a,
+          createdAt: a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
+          updatedAt: a.updatedAt instanceof Date ? a.updatedAt.toISOString() : a.updatedAt,
+          shootingDate: a.shootingDate instanceof Date ? a.shootingDate.toISOString() : a.shootingDate,
+        }))
+      : [],
     blogPosts: Array.isArray(pkg.blogPosts)
       ? pkg.blogPosts.map((b: any) => ({
           ...b,
@@ -151,6 +159,20 @@ const fetchPackagesCached = unstable_cache(
       const pkgs = await prisma.servicePackage.findMany({
         where: { published: true },
         include: {
+          albums: {
+            where: { published: true },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              coverImage: true,
+              concept: true,
+              location: true,
+              coupleNames: true,
+              createdAt: true,
+            },
+            orderBy: [{ featured: 'desc' }, { orderIndex: 'asc' }, { createdAt: 'desc' }],
+          },
           blogPosts: {
             where: { published: true },
             select: {
@@ -159,6 +181,7 @@ const fetchPackagesCached = unstable_cache(
               slug: true,
               coverImage: true,
               summary: true,
+              category: true,
               readingMinutes: true,
               publishedAt: true,
               createdAt: true,

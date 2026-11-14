@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Clock,
   BookOpen,
+  Images,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -283,68 +284,135 @@ export function PackageDetailModal({
               </div>
             )}
 
-            {/* KHỐI CẨM NANG & BÀI VIẾT THAM KHẢO CHO GÓI NÀY (CỘT TRÁI) */}
-            {Array.isArray(packageData.blogPosts) && packageData.blogPosts.length > 0 && (
-              <div className="pt-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
-                    <BookOpen className="w-4 h-4 text-[#C5A880] shrink-0" />
-                    <span>CẨM NANG & KINH NGHIỆM THAM KHẢO:</span>
+            {/* KHỐI ALBUM THỰC TẾ & CẨM NANG THAM KHẢO CHO GÓI NÀY (CỘT TRÁI) */}
+            {(() => {
+              const linkedAlbums = Array.isArray(packageData.albums) ? packageData.albums : [];
+              const linkedBlogs = Array.isArray(packageData.blogPosts) ? packageData.blogPosts : [];
+              const hasLinkedContent = linkedAlbums.length > 0 || linkedBlogs.length > 0;
+
+              if (!hasLinkedContent) return null;
+
+              return (
+                <div className="pt-2 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
+                      <Sparkles className="w-4 h-4 text-[#C5A880] shrink-0" />
+                      <span>ALBUM THỰC TẾ & CẨM NANG THAM KHẢO:</span>
+                    </div>
+                    <span className="text-[11px] text-stone-500 font-light">
+                      {linkedAlbums.length + linkedBlogs.length} mục
+                    </span>
                   </div>
-                  <span className="text-[11px] text-stone-500 font-light">
-                    {packageData.blogPosts.length} bài viết
-                  </span>
-                </div>
 
-                <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
-                  {packageData.blogPosts.map((post) => {
-                    const postThumb = post.coverImage ? getSmallThumbnailUrl(post.coverImage) : '';
-                    return (
-                      <a
-                        key={post.id || post.slug}
-                        href={`/blog/${post.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F5EFE6] border border-[#E8E0D5] hover:border-[#C5A880]/60 transition-all duration-200 shadow-2xs block"
-                        title={post.title}
-                      >
-                        {/* Thumbnail nhỏ 72x56px */}
-                        <div className="relative w-[72px] h-[56px] shrink-0 rounded-lg overflow-hidden bg-stone-200 border border-stone-200/60">
-                          {postThumb ? (
-                            <img
-                              src={postThumb}
-                              alt={post.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
-                              <BookOpen className="w-4 h-4 text-stone-300" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Tiêu đề & CTA */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-xs font-medium text-charcoal-900 group-hover:text-[#855328] transition-colors line-clamp-2 leading-snug">
-                            {post.title}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500 font-light">
-                            {post.readingMinutes ? (
-                              <span>{post.readingMinutes} phút đọc</span>
-                            ) : null}
-                            {post.readingMinutes ? <span>•</span> : null}
-                            <span className="text-[#9A6436] font-medium group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5">
-                              Đọc bài viết <ArrowRight className="w-3 h-3 inline" />
-                            </span>
+                  <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                    {/* Danh sách Album thực tế */}
+                    {linkedAlbums.map((album) => {
+                      const albumThumb = album.coverImage ? getSmallThumbnailUrl(album.coverImage) : '';
+                      return (
+                        <a
+                          key={`album-${album.id || album.slug}`}
+                          href={`/bo-suu-tap/${album.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F5EFE6] border border-[#E8E0D5] hover:border-[#C5A880]/60 transition-all duration-200 shadow-2xs block"
+                          title={album.title}
+                        >
+                          {/* Thumbnail nhỏ 72x56px */}
+                          <div className="relative w-[72px] h-[56px] shrink-0 rounded-lg overflow-hidden bg-stone-200 border border-stone-200/60">
+                            {albumThumb ? (
+                              <img
+                                src={albumThumb}
+                                alt={album.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
+                                <Images className="w-4 h-4 text-stone-300" />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </a>
-                    );
-                  })}
+
+                          {/* Tiêu đề & Tag phân loại */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                <Images className="w-2.5 h-2.5" />
+                                Album Ảnh Cưới
+                              </span>
+                              {album.concept && (
+                                <span className="text-[10px] text-stone-500 truncate">
+                                  {album.concept}
+                                </span>
+                              )}
+                            </div>
+                            <h4 className="text-xs font-medium text-charcoal-900 group-hover:text-[#855328] transition-colors line-clamp-2 leading-snug">
+                              {album.title}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500 font-light">
+                              {album.location ? <span>{album.location} •</span> : null}
+                              <span className="text-[#9A6436] font-medium group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5">
+                                Xem trọn bộ album <ArrowRight className="w-3 h-3 inline" />
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                      );
+                    })}
+
+                    {/* Danh sách Cẩm nang & Kinh nghiệm */}
+                    {linkedBlogs.map((post) => {
+                      const postThumb = post.coverImage ? getSmallThumbnailUrl(post.coverImage) : '';
+                      return (
+                        <a
+                          key={`post-${post.id || post.slug}`}
+                          href={`/blog/${post.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F5EFE6] border border-[#E8E0D5] hover:border-[#C5A880]/60 transition-all duration-200 shadow-2xs block"
+                          title={post.title}
+                        >
+                          {/* Thumbnail nhỏ 72x56px */}
+                          <div className="relative w-[72px] h-[56px] shrink-0 rounded-lg overflow-hidden bg-stone-200 border border-stone-200/60">
+                            {postThumb ? (
+                              <img
+                                src={postThumb}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
+                                <BookOpen className="w-4 h-4 text-stone-300" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Tiêu đề & Tag phân loại */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-700 bg-stone-200/80 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                <BookOpen className="w-2.5 h-2.5 text-[#C5A880]" />
+                                Cẩm Nang Cưới
+                              </span>
+                            </div>
+                            <h4 className="text-xs font-medium text-charcoal-900 group-hover:text-[#855328] transition-colors line-clamp-2 leading-snug">
+                              {post.title}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500 font-light">
+                              {post.readingMinutes ? <span>{post.readingMinutes} phút đọc •</span> : null}
+                              <span className="text-[#9A6436] font-medium group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5">
+                                Đọc bài viết <ArrowRight className="w-3 h-3 inline" />
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
           </div>
 
