@@ -93,6 +93,8 @@ export async function POST(request: Request) {
       published,
       inclusions,
       deliverables,
+      albumIds,
+      blogPostIds,
     } = body;
 
     const rawPrice = price !== undefined ? price : discountPrice;
@@ -147,24 +149,27 @@ export async function POST(request: Request) {
         published: published ?? true,
         inclusions: inclusionsStr,
         deliverables: deliverables || null,
+        // Sử dụng cú pháp connect của Prisma cho quan hệ albums & blogPosts
+        ...(Array.isArray(albumIds) && albumIds.length > 0
+          ? {
+              albums: {
+                connect: albumIds.map((id: string) => ({ id })),
+              },
+            }
+          : {}),
+        ...(Array.isArray(blogPostIds) && blogPostIds.length > 0
+          ? {
+              blogPosts: {
+                connect: blogPostIds.map((id: string) => ({ id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        albums: true,
+        blogPosts: true,
       },
     });
-
-    // Liên kết các album ảnh cưới được chọn vào gói mới tạo
-    if (Array.isArray(body.albumIds) && body.albumIds.length > 0) {
-      await prisma.album.updateMany({
-        where: { id: { in: body.albumIds } },
-        data: { packageId: newPkg.id },
-      });
-    }
-
-    // Liên kết các bài viết blog được chọn vào gói mới tạo
-    if (Array.isArray(body.blogPostIds) && body.blogPostIds.length > 0) {
-      await prisma.blogPost.updateMany({
-        where: { id: { in: body.blogPostIds } },
-        data: { packageId: newPkg.id },
-      });
-    }
 
     // Cập nhật bộ nhớ cache Next.js
     revalidateTag('packages');
@@ -215,6 +220,8 @@ export async function PUT(request: Request) {
       originalPrice,
       orderIndex,
       slug,
+      albumIds,
+      blogPostIds,
       ...fields
     } = body;
 
@@ -225,7 +232,24 @@ export async function PUT(request: Request) {
       );
     }
 
-    const updateData: any = { ...fields };
+    const updateData: any = {
+      ...fields,
+      // Sử dụng cú pháp nested relation set của Prisma để đồng bộ chính xác danh sách Album & Blog gắn kèm
+      ...(Array.isArray(albumIds)
+        ? {
+            albums: {
+              set: albumIds.map((id: string) => ({ id })),
+            },
+          }
+        : {}),
+      ...(Array.isArray(blogPostIds)
+        ? {
+            blogPosts: {
+              set: blogPostIds.map((id: string) => ({ id })),
+            },
+          }
+        : {}),
+    };
 
     // Chuẩn hóa giá tiền an toàn
     const rawPrice = price !== undefined ? price : discountPrice;
@@ -262,42 +286,18 @@ export async function PUT(request: Request) {
         : demoImages;
     }
 
+    // Đảm bảo tuyệt đối không có albumIds hoặc blogPostIds nằm trong scalar updateData
+    delete updateData.albumIds;
+    delete updateData.blogPostIds;
+
     const updated = await prisma.servicePackage.update({
       where: { id },
       data: updateData,
+      include: {
+        albums: true,
+        blogPosts: true,
+      },
     });
-
-    // Cập nhật liên kết album ảnh cưới (Album.packageId)
-    if (Array.isArray(body.albumIds)) {
-      // Gỡ liên kết các album trước đó thuộc gói này nhưng không còn nằm trong albumIds
-      await prisma.album.updateMany({
-        where: { packageId: id, id: { notIn: body.albumIds } },
-        data: { packageId: null },
-      });
-      // Gắn gói này vào các album mới chọn
-      if (body.albumIds.length > 0) {
-        await prisma.album.updateMany({
-          where: { id: { in: body.albumIds } },
-          data: { packageId: id },
-        });
-      }
-    }
-
-    // Cập nhật liên kết bài viết blog (BlogPost.packageId)
-    if (Array.isArray(body.blogPostIds)) {
-      // Gỡ liên kết các bài viết trước đó thuộc gói này nhưng không còn nằm trong blogPostIds
-      await prisma.blogPost.updateMany({
-        where: { packageId: id, id: { notIn: body.blogPostIds } },
-        data: { packageId: null },
-      });
-      // Gắn gói này vào các bài viết mới chọn
-      if (body.blogPostIds.length > 0) {
-        await prisma.blogPost.updateMany({
-          where: { id: { in: body.blogPostIds } },
-          data: { packageId: id },
-        });
-      }
-    }
 
     revalidateTag('packages');
     revalidateTag('albums');
