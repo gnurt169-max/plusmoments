@@ -29,6 +29,22 @@ export default async function GoogleAdsLandingPage() {
     prisma.servicePackage
       .findMany({
         where: { published: true },
+        include: {
+          blogPosts: {
+            where: { published: true },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              coverImage: true,
+              summary: true,
+              readingMinutes: true,
+              publishedAt: true,
+              createdAt: true,
+            },
+            orderBy: { publishedAt: 'desc' },
+          },
+        },
         orderBy: [{ isFeatured: 'desc' }, { orderIndex: 'asc' }],
         take: 3,
       })

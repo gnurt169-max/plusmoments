@@ -15,6 +15,7 @@ import {
   QrCode,
   ShieldCheck,
   Clock,
+  BookOpen,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -25,6 +26,15 @@ import {
   isMockString,
 } from '@/lib/package-features';
 import type { PricingPackageData } from './LuxuryPricingSection';
+
+function getSmallThumbnailUrl(url: string): string {
+  if (!url) return '';
+  if (url.includes('-sm.webp') || url.includes('-md.webp')) return url;
+  if (url.endsWith('.webp')) {
+    return url.replace(/\.webp$/, '-sm.webp');
+  }
+  return url;
+}
 
 export interface PackageDetailModalProps {
   packageData: PricingPackageData | null;
@@ -270,6 +280,69 @@ export function PackageDetailModal({
                     />
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* KHỐI CẨM NANG & BÀI VIẾT THAM KHẢO CHO GÓI NÀY (CỘT TRÁI) */}
+            {Array.isArray(packageData.blogPosts) && packageData.blogPosts.length > 0 && (
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
+                    <BookOpen className="w-4 h-4 text-[#C5A880] shrink-0" />
+                    <span>CẨM NANG & KINH NGHIỆM THAM KHẢO:</span>
+                  </div>
+                  <span className="text-[11px] text-stone-500 font-light">
+                    {packageData.blogPosts.length} bài viết
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+                  {packageData.blogPosts.map((post) => {
+                    const postThumb = post.coverImage ? getSmallThumbnailUrl(post.coverImage) : '';
+                    return (
+                      <a
+                        key={post.id || post.slug}
+                        href={`/blog/${post.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F5EFE6] border border-[#E8E0D5] hover:border-[#C5A880]/60 transition-all duration-200 shadow-2xs block"
+                        title={post.title}
+                      >
+                        {/* Thumbnail nhỏ 72x56px */}
+                        <div className="relative w-[72px] h-[56px] shrink-0 rounded-lg overflow-hidden bg-stone-200 border border-stone-200/60">
+                          {postThumb ? (
+                            <img
+                              src={postThumb}
+                              alt={post.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
+                              <BookOpen className="w-4 h-4 text-stone-300" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Tiêu đề & CTA */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-medium text-charcoal-900 group-hover:text-[#855328] transition-colors line-clamp-2 leading-snug">
+                            {post.title}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500 font-light">
+                            {post.readingMinutes ? (
+                              <span>{post.readingMinutes} phút đọc</span>
+                            ) : null}
+                            {post.readingMinutes ? <span>•</span> : null}
+                            <span className="text-[#9A6436] font-medium group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5">
+                              Đọc bài viết <ArrowRight className="w-3 h-3 inline" />
+                            </span>
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

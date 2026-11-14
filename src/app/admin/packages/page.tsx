@@ -13,6 +13,7 @@ import {
   X,
   Image as ImageIcon,
   Bot,
+  BookOpen,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -20,6 +21,15 @@ import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
+
+export interface LinkedBlogItem {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage?: string;
+  category?: string;
+  packageId?: string | null;
+}
 
 interface PackageItem {
   id: string;
@@ -39,6 +49,7 @@ interface PackageItem {
   published: boolean;
   inclusions: string;
   deliverables?: string | null;
+  blogPosts?: LinkedBlogItem[];
 }
 
 export default function AdminPackagesPage() {
@@ -50,6 +61,10 @@ export default function AdminPackagesPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [generatingAI, setGeneratingAI] = useState(false);
+
+  // Available Blog Posts for Package linking
+  const [availableBlogPosts, setAvailableBlogPosts] = useState<LinkedBlogItem[]>([]);
+  const [blogSearchTerm, setBlogSearchTerm] = useState('');
 
   // Google Drive Media Picker Modal State
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
@@ -96,6 +111,7 @@ export default function AdminPackagesPage() {
     published: true,
     inclusionsList: [] as string[],
     deliverables: '',
+    blogPostIds: [] as string[],
   });
 
   const existingCategories = React.useMemo(() => {
@@ -128,12 +144,35 @@ export default function AdminPackagesPage() {
     }
   };
 
+  const fetchBlogPosts = async () => {
+    try {
+      const res = await fetch('/api/admin/blog');
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.posts)) {
+        setAvailableBlogPosts(
+          data.posts.map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            coverImage: p.coverImage,
+            category: p.category,
+            packageId: p.packageId,
+          }))
+        );
+      }
+    } catch (err) {
+      console.warn('Failed to load blog posts for package linking:', err);
+    }
+  };
+
   useEffect(() => {
     fetchPackages();
+    fetchBlogPosts();
   }, []);
 
   const openCreateModal = () => {
     setEditingId(null);
+    setBlogSearchTerm('');
     setFormData({
       name: '',
       slug: '',
@@ -151,12 +190,14 @@ export default function AdminPackagesPage() {
       published: true,
       inclusionsList: [],
       deliverables: '',
+      blogPostIds: [],
     });
     setIsModalOpen(true);
   };
 
   const openEditModal = (pkg: PackageItem) => {
     setEditingId(pkg.id);
+    setBlogSearchTerm('');
 
     let parsedInclusions: string[] = [];
     try {
@@ -182,6 +223,10 @@ export default function AdminPackagesPage() {
       parsedDemoImages = pkg.demoImages ? [pkg.demoImages] : [];
     }
 
+    const linkedPostIds = Array.isArray(pkg.blogPosts) && pkg.blogPosts.length > 0
+      ? pkg.blogPosts.map((b) => b.id)
+      : availableBlogPosts.filter((b) => b.packageId === pkg.id).map((b) => b.id);
+
     setFormData({
       name: pkg.name,
       slug: pkg.slug,
@@ -199,6 +244,7 @@ export default function AdminPackagesPage() {
       published: pkg.published,
       inclusionsList: parsedInclusions,
       deliverables: pkg.deliverables || '',
+      blogPostIds: linkedPostIds,
     });
     setIsModalOpen(true);
   };
@@ -355,6 +401,7 @@ export default function AdminPackagesPage() {
         published: formData.published,
         inclusions: formData.inclusionsList.filter((x) => x.trim().length > 0),
         deliverables: formData.deliverables,
+        blogPostIds: formData.blogPostIds,
       };
 
       const url = '/api/admin/packages';
@@ -373,6 +420,7 @@ export default function AdminPackagesPage() {
       showToast(data.message || 'Lưu gói dịch vụ thành công!');
       setIsModalOpen(false);
       fetchPackages();
+      fetchBlogPosts();
     } catch (err: any) {
       setErrorMessage(err.message || 'Lỗi kết nối.');
     } finally {
@@ -477,6 +525,15 @@ export default function AdminPackagesPage() {
                               <span className="text-[10px] text-stone-400 font-mono">
                                 {demoCount > 0 ? `${demoCount} ảnh demo thực tế` : 'Chưa có ảnh demo'}
                               </span>
+                              {Array.isArray(pkg.blogPosts) && pkg.blogPosts.length > 0 && (
+                                <>
+                                  <span className="text-stone-300">•</span>
+                                  <span className="text-[10px] text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
+                                    <BookOpen className="w-2.5 h-2.5" />
+                                    {pkg.blogPosts.length} bài viết
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -846,6 +903,98 @@ export default function AdminPackagesPage() {
               }
               className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
             />
+          </div>
+
+          {/* LINKED BLOG POSTS / GUIDES */}
+          <div className="bg-stone-50/70 p-4 rounded-2xl border border-stone-200 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <label className="text-xs uppercase tracking-wider text-charcoal-700 font-semibold flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-luxury-600" />
+                  <span>Bài Viết Cẩm Nang Gắn Kèm ({formData.blogPostIds.length} bài đã chọn)</span>
+                </label>
+                <p className="text-[11px] text-charcoal-400 font-light">
+                  Hiển thị ở cột trái Popup Modal chi tiết gói để khách hàng tham khảo kinh nghiệm trước khi đặt gói.
+                </p>
+              </div>
+
+              {availableBlogPosts.length > 4 && (
+                <input
+                  type="text"
+                  placeholder="Tìm theo tên bài..."
+                  value={blogSearchTerm}
+                  onChange={(e) => setBlogSearchTerm(e.target.value)}
+                  className="px-3 py-1 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-luxury-400 w-full sm:w-48"
+                />
+              )}
+            </div>
+
+            {availableBlogPosts.length === 0 ? (
+              <div className="text-center py-3 bg-white/70 rounded-xl border border-dashed border-stone-300 text-stone-400 text-xs font-light">
+                Chưa có bài viết blog nào trong hệ thống.
+              </div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                {availableBlogPosts
+                  .filter((b) =>
+                    blogSearchTerm
+                      ? b.title.toLowerCase().includes(blogSearchTerm.toLowerCase())
+                      : true
+                  )
+                  .map((post) => {
+                    const isSelected = formData.blogPostIds.includes(post.id);
+                    const isLinkedToAnotherPkg =
+                      Boolean(post.packageId) && post.packageId !== editingId;
+                    const otherPkgName = isLinkedToAnotherPkg
+                      ? packages.find((p) => p.id === post.packageId)?.name
+                      : null;
+
+                    return (
+                      <label
+                        key={post.id}
+                        className={`flex items-center justify-between p-2 rounded-xl text-xs border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-50/80 border-amber-300 text-stone-900 font-medium shadow-2xs'
+                            : 'bg-white border-stone-200/80 text-stone-600 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  blogPostIds: [...prev.blogPostIds, post.id],
+                                }));
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  blogPostIds: prev.blogPostIds.filter((id) => id !== post.id),
+                                }));
+                              }
+                            }}
+                            className="w-4 h-4 text-luxury-600 rounded shrink-0 cursor-pointer"
+                          />
+                          <span className="truncate">{post.title}</span>
+                        </div>
+
+                        {isLinkedToAnotherPkg && !isSelected && (
+                          <span className="text-[10px] text-stone-400 shrink-0 italic">
+                            (Đang gắn: {otherPkgName || 'Gói khác'})
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span className="text-[10px] text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full shrink-0 font-medium">
+                            Đã gắn
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-6 pt-2">

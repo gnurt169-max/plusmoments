@@ -33,6 +33,17 @@ const ConsultationModal = dynamic(
   { ssr: false }
 );
 
+export interface LinkedBlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  coverImage?: string;
+  summary?: string;
+  readingMinutes?: number;
+  publishedAt?: string;
+  createdAt?: string;
+}
+
 export interface PricingPackageData {
   id: string;
   name: string;
@@ -57,6 +68,7 @@ export interface PricingPackageData {
   inclusionsList?: string[];
   deliveryProcess?: string | null;
   blurDataUrl?: string | null;
+  blogPosts?: LinkedBlogPost[];
 }
 
 interface LuxuryPricingSectionProps {

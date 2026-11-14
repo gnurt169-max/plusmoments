@@ -26,6 +26,22 @@ export async function GET(request: Request) {
   try {
     const packages = await prisma.servicePackage.findMany({
       orderBy: { orderIndex: 'asc' },
+      include: {
+        blogPosts: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverImage: true,
+            summary: true,
+            readingMinutes: true,
+            published: true,
+            publishedAt: true,
+            createdAt: true,
+          },
+          orderBy: { publishedAt: 'desc' },
+        },
+      },
     });
     return NextResponse.json({ success: true, packages });
   } catch (error: any) {
@@ -118,11 +134,21 @@ export async function POST(request: Request) {
       },
     });
 
+    // Liên kết các bài viết blog được chọn vào gói mới tạo
+    if (Array.isArray(body.blogPostIds) && body.blogPostIds.length > 0) {
+      await prisma.blogPost.updateMany({
+        where: { id: { in: body.blogPostIds } },
+        data: { packageId: newPkg.id },
+      });
+    }
+
     // Cập nhật bộ nhớ cache Next.js
     revalidateTag('packages');
+    revalidateTag('blog');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
+    revalidatePath('/blog', 'page');
 
     // Đồng bộ snapshot tĩnh vào prisma/seed.ts & prisma/seed.js
     exportDatabaseToSeedFiles().catch((err) => {
@@ -215,10 +241,28 @@ export async function PUT(request: Request) {
       data: updateData,
     });
 
+    // Cập nhật liên kết bài viết blog (BlogPost.packageId)
+    if (Array.isArray(body.blogPostIds)) {
+      // Gỡ liên kết các bài viết trước đó thuộc gói này nhưng không còn nằm trong blogPostIds
+      await prisma.blogPost.updateMany({
+        where: { packageId: id, id: { notIn: body.blogPostIds } },
+        data: { packageId: null },
+      });
+      // Gắn gói này vào các bài viết mới chọn
+      if (body.blogPostIds.length > 0) {
+        await prisma.blogPost.updateMany({
+          where: { id: { in: body.blogPostIds } },
+          data: { packageId: id },
+        });
+      }
+    }
+
     revalidateTag('packages');
+    revalidateTag('blog');
     revalidatePath('/', 'page');
     revalidatePath('/pricing', 'page');
     revalidatePath('/bang-gia', 'page');
+    revalidatePath('/blog', 'page');
 
     // Đồng bộ snapshot tĩnh vào prisma/seed.ts & prisma/seed.js
     exportDatabaseToSeedFiles().catch((err) => {

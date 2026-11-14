@@ -97,6 +97,14 @@ export function serializePackage<T extends Record<string, any>>(pkg: T | null | 
     originalPrice: pkg.originalPrice != null ? Number(pkg.originalPrice) : null,
     createdAt: pkg.createdAt instanceof Date ? pkg.createdAt.toISOString() : pkg.createdAt,
     updatedAt: pkg.updatedAt instanceof Date ? pkg.updatedAt.toISOString() : pkg.updatedAt,
+    blogPosts: Array.isArray(pkg.blogPosts)
+      ? pkg.blogPosts.map((b: any) => ({
+          ...b,
+          createdAt: b.createdAt instanceof Date ? b.createdAt.toISOString() : b.createdAt,
+          updatedAt: b.updatedAt instanceof Date ? b.updatedAt.toISOString() : b.updatedAt,
+          publishedAt: b.publishedAt instanceof Date ? b.publishedAt.toISOString() : b.publishedAt,
+        }))
+      : [],
   };
 }
 
@@ -138,6 +146,22 @@ const fetchPackagesCached = unstable_cache(
     try {
       const pkgs = await prisma.servicePackage.findMany({
         where: { published: true },
+        include: {
+          blogPosts: {
+            where: { published: true },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              coverImage: true,
+              summary: true,
+              readingMinutes: true,
+              publishedAt: true,
+              createdAt: true,
+            },
+            orderBy: { publishedAt: 'desc' },
+          },
+        },
         orderBy: [
           { isPopular: 'desc' },
           { isFeatured: 'desc' },

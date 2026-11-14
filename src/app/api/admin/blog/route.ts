@@ -135,7 +135,10 @@ export async function POST(request: Request) {
     });
 
     revalidateTag('blogs');
+    revalidateTag('packages');
     revalidatePath('/', 'page');
+    revalidatePath('/pricing', 'page');
+    revalidatePath('/bang-gia', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath('/cam-nang', 'page');
     if (post.slug) {
@@ -270,7 +273,10 @@ export async function PUT(request: Request) {
     });
 
     revalidateTag('blogs');
+    revalidateTag('packages');
     revalidatePath('/', 'page');
+    revalidatePath('/pricing', 'page');
+    revalidatePath('/bang-gia', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath(`/blog/${updated.slug}`, 'page');
     revalidatePath('/cam-nang', 'page');
@@ -335,7 +341,10 @@ export async function DELETE(request: Request) {
     });
 
     revalidateTag('blogs');
+    revalidateTag('packages');
     revalidatePath('/', 'page');
+    revalidatePath('/pricing', 'page');
+    revalidatePath('/bang-gia', 'page');
     revalidatePath('/blog', 'page');
     revalidatePath('/cam-nang', 'page');
     if (deleted.slug) {
