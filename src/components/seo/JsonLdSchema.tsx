@@ -468,8 +468,10 @@ export function PricingPackagesJsonLd({
             hasMerchantReturnPolicy: {
               '@type': 'MerchantReturnPolicy',
               applicableCountry: 'VN',
-              returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
-              merchantReturnDays: 0,
+              returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+              merchantReturnDays: 7,
+              returnMethod: 'https://schema.org/ReturnAtKiosk',
+              returnFees: 'https://schema.org/FreeReturn',
             },
             shippingDetails: {
               '@type': 'OfferShippingDetails',
