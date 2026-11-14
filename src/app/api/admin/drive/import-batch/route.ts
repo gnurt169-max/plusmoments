@@ -12,6 +12,7 @@ import {
   ScannedFolderItem,
 } from '@/lib/drive';
 import { analyzeAndCacheImageChunk } from '@/lib/vision-ai';
+import { createMediaJob, startGoogleDriveImportJob } from '@/lib/media-job-queue';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,37 @@ export async function POST(request: Request) {
       where: { id: 'default' },
     });
     const apiKey = settings?.googleDriveApiKey || process.env.GOOGLE_DRIVE_API_KEY || '';
+
+    // SERVER-SIDE BACKGROUND IMPORT JOB ON VPS
+    if (body.background === true) {
+      const folderName =
+        targetFolders.length === 1
+          ? targetFolders[0].name || 'Thư mục Drive'
+          : `${targetFolders[0].name || 'Drive'} (+${targetFolders.length - 1} thư mục khác)`;
+
+      const job = await createMediaJob({
+        type: 'google-drive',
+        folderName,
+        totalFiles: 0,
+        userId: session?.userId,
+      });
+
+      startGoogleDriveImportJob(job.id, {
+        folders: targetFolders,
+        apiKey,
+        userId: session?.userId,
+      });
+
+      return NextResponse.json(
+        {
+          success: true,
+          jobId: job.id,
+          job,
+          message: 'Đã khởi tạo tiến trình import ngầm trên VPS. Bạn có thể đóng trình duyệt.',
+        },
+        { status: 202 }
+      );
+    }
 
     // STREAMING RESPONSE (SSE / NDJSON)
     if (wantStream) {

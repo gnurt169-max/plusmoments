@@ -345,7 +345,29 @@ export function MediaImportProvider({ children }: { children: React.ReactNode })
       setTotalFolders(folders.length);
       setCurrentFolderIndex(0);
 
-      runQueueWorker();
+      // Trigger true server-side background job on VPS (continues even if browser is closed)
+      fetch('/api/admin/media/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'google-drive',
+          folders: folders.map((f) => ({ id: f.id, name: f.name })),
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('media-job-started'));
+            }
+          } else {
+            // Fallback to client streaming worker if server job creation fails
+            runQueueWorker();
+          }
+        })
+        .catch(() => {
+          runQueueWorker();
+        });
     },
     [runQueueWorker]
   );

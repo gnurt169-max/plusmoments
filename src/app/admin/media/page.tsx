@@ -266,8 +266,10 @@ export default function AdminMediaPage() {
     };
 
     window.addEventListener('media-library-updated', handleBackgroundImportComplete);
+    window.addEventListener('media-job-completed', handleBackgroundImportComplete);
     return () => {
       window.removeEventListener('media-library-updated', handleBackgroundImportComplete);
+      window.removeEventListener('media-job-completed', handleBackgroundImportComplete);
     };
   }, [fetchMedia, fetchFolderContent, currentFolder]);
 
@@ -325,6 +327,36 @@ export default function AdminMediaPage() {
       if (fileArray.length === 0) {
         showToast('Vui lòng chọn các tệp hình ảnh hợp lệ (JPG, PNG, WebP, AVIF, GIF).');
         return;
+      }
+
+      // For batches of more than 2 files: offload to VPS server-side background job
+      if (fileArray.length > 2) {
+        showToast(`Đang chuyển ${fileArray.length} ảnh lên VPS để xử lý ngầm...`);
+        const batchFormData = new FormData();
+        fileArray.forEach((file) => {
+          batchFormData.append('files', file);
+        });
+        if (targetFolderSlug) {
+          batchFormData.append('folderSlug', targetFolderSlug);
+        }
+        if (targetFolderName) {
+          batchFormData.append('folderName', targetFolderName);
+        }
+
+        try {
+          const res = await fetch('/api/admin/media/upload-batch', {
+            method: 'POST',
+            body: batchFormData,
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast(`Đã tạo tiến trình ngầm trên VPS cho ${fileArray.length} ảnh. Bạn có thể tắt trình duyệt.`);
+            window.dispatchEvent(new CustomEvent('media-job-started'));
+            return;
+          }
+        } catch (err) {
+          console.warn('Batch upload API fallback to sequential queue:', err);
+        }
       }
 
       const newItems: UploadQueueItem[] = fileArray.map((f, i) => ({

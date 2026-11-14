@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { MediaImportProvider } from '@/context/MediaImportContext';
 import { AdminNavProvider } from '@/context/AdminNavContext';
 import { BackgroundImportWidget } from '@/components/admin/BackgroundImportWidget';
+import { AdminMediaJobBanner } from '@/components/admin/AdminMediaJobBanner';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 
@@ -38,6 +39,7 @@ export default function AdminLayout({
           </div>
         </div>
         <BackgroundImportWidget />
+        <AdminMediaJobBanner />
       </AdminNavProvider>
     </MediaImportProvider>
   );

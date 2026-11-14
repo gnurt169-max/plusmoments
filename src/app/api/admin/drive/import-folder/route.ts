@@ -11,6 +11,7 @@ import {
   parseGoogleDriveFolderId,
   ScannedFolderItem,
 } from '@/lib/drive';
+import { createMediaJob, startGoogleDriveImportJob } from '@/lib/media-job-queue';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,33 @@ export async function POST(request: Request) {
       where: { id: 'default' },
     });
     const apiKey = settings?.googleDriveApiKey || process.env.GOOGLE_DRIVE_API_KEY || '';
+
+    // SERVER-SIDE BACKGROUND IMPORT JOB ON VPS
+    if (body.background === true) {
+      const targetName = folderName || 'Thư mục Drive';
+      const job = await createMediaJob({
+        type: 'google-drive',
+        folderName: targetName,
+        totalFiles: 0,
+        userId: session?.userId,
+      });
+
+      startGoogleDriveImportJob(job.id, {
+        folders: [{ id: cleanFolderId, name: targetName }],
+        apiKey,
+        userId: session?.userId,
+      });
+
+      return NextResponse.json(
+        {
+          success: true,
+          jobId: job.id,
+          job,
+          message: 'Đã khởi tạo tiến trình import ngầm trên VPS. Bạn có thể đóng trình duyệt.',
+        },
+        { status: 202 }
+      );
+    }
 
     // 1. Recursive scan: finds all subfolders and all images at every depth level
     const scanResult = await getAllFilesRecursively(cleanFolderId, '', apiKey);
