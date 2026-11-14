@@ -45,6 +45,15 @@ export interface MediaFolderItem {
   modifiedAt: string;
 }
 
+function getThumbnailUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.includes('-sm.webp') || url.includes('-md.webp')) return url;
+  if (url.endsWith('.webp')) {
+    return url.replace(/\.webp$/, '-sm.webp');
+  }
+  return url;
+}
+
 export interface MediaLibraryPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -328,10 +337,16 @@ export function MediaLibraryPickerModal({
                           <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-stone-100 border border-stone-100 mb-2.5 flex items-center justify-center">
                             {folder.coverImage ? (
                               <img
-                                src={folder.coverImage}
+                                src={getThumbnailUrl(folder.coverImage)}
                                 alt={folder.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 loading="lazy"
+                                decoding="async"
+                                onError={(e) => {
+                                  if (folder.coverImage && e.currentTarget.src !== folder.coverImage) {
+                                    e.currentTarget.src = folder.coverImage;
+                                  }
+                                }}
                               />
                             ) : (
                               <Folder className="w-8 h-8 fill-amber-200 text-amber-500" />
@@ -474,10 +489,16 @@ export function MediaLibraryPickerModal({
                             {/* Thumbnail */}
                             <div className="relative aspect-square w-full bg-stone-100 overflow-hidden">
                               <img
-                                src={file.url}
+                                src={getThumbnailUrl(file.url)}
                                 alt={file.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 loading="lazy"
+                                decoding="async"
+                                onError={(e) => {
+                                  if (e.currentTarget.src !== file.url) {
+                                    e.currentTarget.src = file.url;
+                                  }
+                                }}
                               />
                             </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   FolderArchive,
   HardDrive,
@@ -26,6 +26,7 @@ import {
   Edit2,
   Image as ImageIcon,
   Download,
+  Upload,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
@@ -68,6 +69,27 @@ function formatBytes(bytes: number, decimals = 1): string {
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Convert high-res WebP URL to 540w -sm.webp thumbnail variant
+function getThumbnailUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.includes('-sm.webp') || url.includes('-md.webp')) return url;
+  if (url.endsWith('.webp')) {
+    return url.replace(/\.webp$/, '-sm.webp');
+  }
+  return url;
+}
+
+interface UploadQueueItem {
+  id: string;
+  name: string;
+  size: number;
+  formattedSize: string;
+  folderSlug?: string;
+  folderName?: string;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  errorMessage?: string;
 }
 
 interface MediaStats {
@@ -140,6 +162,18 @@ export default function AdminMediaPage() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [downloadingBatch, setDownloadingBatch] = useState(false);
   const [downloadingFolderId, setDownloadingFolderId] = useState<string | null>(null);
+
+  // Upload Queue & Drag-and-Drop state
+  const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([]);
+  const [isUploadDrawerOpen, setIsUploadDrawerOpen] = useState(false);
+  const [isDraggingOverPage, setIsDraggingOverPage] = useState(false);
+  const [dragOverFolderSlug, setDragOverFolderSlug] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragCounter = useRef<number>(0);
+
+  // Progressive Rendering & Infinite Scroll
+  const [visibleCount, setVisibleCount] = useState(24);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Show Toast
   const showToast = (msg: string) => {
@@ -231,6 +265,238 @@ export default function AdminMediaPage() {
       window.removeEventListener('media-library-updated', handleBackgroundImportComplete);
     };
   }, [fetchMedia, fetchFolderContent, currentFolder]);
+
+  // Reset visibleCount whenever currentFolder, searchQuery, selectedFormat, or sortBy changes
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [currentFolder, searchQuery, selectedFormat, sortBy]);
+
+  // Infinite Scroll / Progressive Loading Intersection Observer
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((prev) => prev + 24);
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Upload Files with Concurrency Queue (max 3 concurrent uploads)
+  const uploadFilesWithQueue = useCallback(
+    async (files: FileList | File[], targetFolderSlug?: string, targetFolderName?: string) => {
+      const fileArray = Array.from(files).filter((file) =>
+        file.type.startsWith('image/') || /\.(jpe?g|png|webp|avif|gif|svg)$/i.test(file.name)
+      );
+
+      if (fileArray.length === 0) {
+        showToast('Vui lòng chọn các tệp hình ảnh hợp lệ (JPG, PNG, WebP, AVIF, GIF).');
+        return;
+      }
+
+      const newItems: UploadQueueItem[] = fileArray.map((f, i) => ({
+        id: `${Date.now()}-${i}-${Math.random().toString(36).substring(2, 7)}`,
+        name: f.name,
+        size: f.size,
+        formattedSize: formatBytes(f.size),
+        folderSlug: targetFolderSlug,
+        folderName: targetFolderName || (targetFolderSlug ? `Thư mục ${targetFolderSlug}` : 'Kho Media Gốc'),
+        status: 'pending',
+      }));
+
+      setUploadQueue((prev) => [...prev, ...newItems]);
+      setIsUploadDrawerOpen(true);
+      showToast(`Bắt đầu tải lên ${fileArray.length} ảnh (tối đa 3 luồng đồng thời)...`);
+
+      const CONCURRENCY = 3;
+      let currentIndex = 0;
+      const total = fileArray.length;
+
+      const runWorker = async () => {
+        while (currentIndex < total) {
+          const fileIdx = currentIndex++;
+          const file = fileArray[fileIdx];
+          const queueItem = newItems[fileIdx];
+
+          setUploadQueue((prev) =>
+            prev.map((item) =>
+              item.id === queueItem.id ? { ...item, status: 'uploading' } : item
+            )
+          );
+
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (targetFolderSlug) {
+              formData.append('folderSlug', targetFolderSlug);
+            }
+
+            const res = await fetch('/api/admin/media/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+              throw new Error(data.error || 'Lỗi khi tải ảnh lên');
+            }
+
+            setUploadQueue((prev) =>
+              prev.map((item) =>
+                item.id === queueItem.id ? { ...item, status: 'completed' } : item
+              )
+            );
+
+            const newMediaItem: MediaItem = {
+              id: data.file?.id || data.id,
+              filename: data.file?.url ? data.file.url.split('/').pop()! : data.url.split('/').pop()!,
+              name: data.file?.name || data.name || file.name,
+              url: data.file?.url || data.url,
+              size: data.file?.size || file.size,
+              formattedSize: formatBytes(data.file?.size || file.size),
+              format: data.file?.format || 'WEBP',
+              width: data.file?.width,
+              height: data.file?.height,
+              createdAt: data.file?.createdAt || new Date().toISOString(),
+              modifiedAt: data.file?.updatedAt || data.file?.createdAt || new Date().toISOString(),
+              uploadedById: currentUser?.id,
+              uploaderName: 'Bạn',
+            };
+
+            setAllMedia((prev) => [newMediaItem, ...prev]);
+
+            if (targetFolderSlug && currentFolder && targetFolderSlug === currentFolder.slug) {
+              setFolderImages((prev) => [newMediaItem, ...prev]);
+            } else if (!targetFolderSlug && !currentFolder) {
+              setRootMedia((prev) => [newMediaItem, ...prev]);
+            }
+
+            if (targetFolderSlug) {
+              setFolders((prev) =>
+                prev.map((f) => {
+                  if (f.slug === targetFolderSlug) {
+                    const updatedCount = f.imageCount + 1;
+                    const updatedBytes = f.totalBytes + (data.file?.size || file.size);
+                    return {
+                      ...f,
+                      imageCount: updatedCount,
+                      totalBytes: updatedBytes,
+                      formattedSize: formatBytes(updatedBytes),
+                      coverImage: f.coverImage || newMediaItem.url,
+                    };
+                  }
+                  return f;
+                })
+              );
+            }
+
+            setStats((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    totalFiles: prev.totalFiles + 1,
+                    totalBytes: prev.totalBytes + (data.file?.size || file.size),
+                    formattedTotalSize: formatBytes(prev.totalBytes + (data.file?.size || file.size)),
+                  }
+                : null
+            );
+          } catch (err: any) {
+            setUploadQueue((prev) =>
+              prev.map((item) =>
+                item.id === queueItem.id
+                  ? { ...item, status: 'error', errorMessage: err.message || 'Lỗi khi tải ảnh' }
+                  : item
+              )
+            );
+          }
+        }
+      };
+
+      const workers = [];
+      for (let i = 0; i < Math.min(CONCURRENCY, total); i++) {
+        workers.push(runWorker());
+      }
+      await Promise.all(workers);
+
+      showToast(`Đã hoàn tất xử lý ${total} tệp tải lên!`);
+    },
+    [currentUser, currentFolder]
+  );
+
+  // Drag-and-Drop Page Level Handlers
+  const handlePageDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDraggingOverPage(true);
+    }
+  };
+
+  const handlePageDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      setIsDraggingOverPage(false);
+      dragCounter.current = 0;
+    }
+  };
+
+  const handlePageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handlePageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOverPage(false);
+    dragCounter.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const targetSlug = currentFolder ? currentFolder.slug : undefined;
+      const targetName = currentFolder ? currentFolder.name : 'Kho Media Gốc';
+      uploadFilesWithQueue(e.dataTransfer.files, targetSlug, targetName);
+    }
+  };
+
+  // Drag-and-Drop Individual Folder Card Handlers
+  const handleFolderDragOver = (e: React.DragEvent, slug: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    if (dragOverFolderSlug !== slug) {
+      setDragOverFolderSlug(slug);
+    }
+  };
+
+  const handleFolderDragLeave = (e: React.DragEvent, slug: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragOverFolderSlug === slug) {
+      setDragOverFolderSlug(null);
+    }
+  };
+
+  const handleFolderDrop = (e: React.DragEvent, folder: FolderItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverFolderSlug(null);
+    setIsDraggingOverPage(false);
+    dragCounter.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFilesWithQueue(e.dataTransfer.files, folder.slug, folder.name);
+    }
+  };
 
   // Navigate into a folder
   const handleOpenFolder = (folder: FolderItem) => {
@@ -640,6 +906,11 @@ export default function AdminMediaPage() {
     return result;
   }, [displayImages, searchQuery, selectedFormat, sortBy]);
 
+  // Progressive rendering slice for high performance with 764+ images
+  const visibleMedia = useMemo(() => {
+    return filteredAndSortedMedia.slice(0, visibleCount);
+  }, [filteredAndSortedMedia, visibleCount]);
+
   // Selected Media Statistics
   const selectedStats = useMemo(() => {
     const selectedMedia = displayImages.filter((m) =>
@@ -731,7 +1002,13 @@ export default function AdminMediaPage() {
   }, [allMedia]);
 
   return (
-    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div
+      onDragEnter={handlePageDragEnter}
+      onDragLeave={handlePageDragLeave}
+      onDragOver={handlePageDragOver}
+      onDrop={handlePageDrop}
+      className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto relative min-h-screen"
+    >
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-charcoal-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-luxury-500/30 animate-fade-in text-xs font-medium">
@@ -751,7 +1028,7 @@ export default function AdminMediaPage() {
             Kho Lưu Trữ Media & Quản Lý Thư Mục
           </h1>
           <p className="text-xs text-charcoal-500 font-light mt-1">
-            Quản lý tập trung toàn bộ album và hình ảnh WebP theo thư mục. Cho phép import nguyên thư mục từ Google Drive hoặc gán nhanh vào Album cưới.
+            Quản lý tập trung toàn bộ album và hình ảnh WebP theo thư mục. Hỗ trợ kéo thả tải nhiều ảnh trực tiếp và đồng bộ Google Drive.
           </p>
         </div>
 
@@ -784,6 +1061,16 @@ export default function AdminMediaPage() {
               <Sparkles className="w-4 h-4 text-amber-600" />
             )}
             <span>{isDeduplicating ? 'Đang Quét Dọn...' : 'Dọn Dẹp Trùng Lặp'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-4 py-2.5 bg-luxury-100 hover:bg-luxury-200 text-luxury-900 border border-luxury-300/80 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs"
+            title="Tải ảnh lên từ máy tính"
+          >
+            <Upload className="w-4 h-4 text-luxury-700" />
+            <span>Tải Ảnh Lên</span>
           </button>
 
           <button
@@ -1040,17 +1327,33 @@ export default function AdminMediaPage() {
                 {filteredFolders.map((f) => {
                   const folderKey = f.id || f.slug;
                   const isSelected = selectedFolderIds.includes(folderKey);
+                  const isDragTarget = dragOverFolderSlug === f.slug;
 
                   return (
                     <div
                       key={f.slug}
                       onClick={() => handleOpenFolder(f)}
+                      onDragOver={(e) => handleFolderDragOver(e, f.slug)}
+                      onDragLeave={(e) => handleFolderDragLeave(e, f.slug)}
+                      onDrop={(e) => handleFolderDrop(e, f)}
                       className={`group rounded-2xl border transition-all duration-300 p-4 cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden ${
-                        isSelected
+                        isDragTarget
+                          ? 'border-[#B8860B] ring-4 ring-[#B8860B]/40 bg-amber-50/70 scale-[1.02] shadow-xl'
+                          : isSelected
                           ? 'border-[#C5A880] ring-2 ring-[#C5A880]/30 shadow-md bg-amber-50/15'
                           : 'border-stone-200 bg-white hover:border-luxury-400 hover:shadow-lg'
                       }`}
                     >
+                      {/* Drag target overlay badge */}
+                      {isDragTarget && (
+                        <div className="absolute inset-0 z-30 bg-amber-950/20 backdrop-blur-xs border-2 border-dashed border-[#B8860B] rounded-2xl flex flex-col items-center justify-center p-3 text-center pointer-events-none">
+                          <Upload className="w-8 h-8 text-[#B8860B] animate-bounce mb-1" />
+                          <span className="text-xs font-semibold text-charcoal-900 bg-white/95 px-3 py-1 rounded-xl shadow-md border border-amber-300">
+                            Thả vào "{f.name}"
+                          </span>
+                        </div>
+                      )}
+
                       {/* Selection Checkbox with stopPropagation */}
                       <div
                         onClick={(e) => {
@@ -1072,8 +1375,15 @@ export default function AdminMediaPage() {
                     <div className="relative w-full h-32 rounded-xl overflow-hidden bg-stone-100 border border-stone-200/80 flex items-center justify-center">
                       {f.coverImage ? (
                         <img
-                          src={f.coverImage}
+                          src={getThumbnailUrl(f.coverImage)}
                           alt={f.name}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            if (f.coverImage && e.currentTarget.src !== f.coverImage) {
+                              e.currentTarget.src = f.coverImage;
+                            }
+                          }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
@@ -1245,6 +1555,72 @@ export default function AdminMediaPage() {
           )}
         </div>
 
+        {/* DRAG-AND-DROP UPLOAD ZONE */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+              const targetSlug = currentFolder ? currentFolder.slug : undefined;
+              const targetName = currentFolder ? currentFolder.name : 'Kho Media Gốc';
+              uploadFilesWithQueue(e.dataTransfer.files, targetSlug, targetName);
+            }
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          className="relative border-2 border-dashed border-amber-300 hover:border-[#B8860B] bg-gradient-to-b from-amber-50/40 via-white to-amber-50/20 rounded-3xl p-6 sm:p-7 text-center cursor-pointer transition-all duration-300 hover:shadow-sm group"
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                const targetSlug = currentFolder ? currentFolder.slug : undefined;
+                const targetName = currentFolder ? currentFolder.name : 'Kho Media Gốc';
+                uploadFilesWithQueue(e.target.files, targetSlug, targetName);
+                e.target.value = '';
+              }
+            }}
+          />
+
+          <div className="flex flex-col items-center justify-center space-y-2.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100/90 text-amber-800 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#B8860B] group-hover:text-white transition-all duration-300 shadow-2xs">
+              <Upload className="w-5 h-5 stroke-[2.2]" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="font-serif text-sm sm:text-base font-medium text-charcoal-900">
+                Kéo thả nhiều ảnh vào đây hoặc <span className="text-[#B8860B] underline underline-offset-4 font-semibold">chọn tệp từ máy tính</span>
+              </h3>
+              <p className="text-xs text-charcoal-500 font-light max-w-lg mx-auto">
+                {currentFolder ? (
+                  <>
+                    Tải trực tiếp vào thư mục{' '}
+                    <strong className="text-charcoal-900 font-semibold font-serif">"{currentFolder.name}"</strong>
+                  </>
+                ) : (
+                  'Tải ảnh vào Kho Media Gốc (hoặc kéo thả thẳng vào từng thẻ thư mục bên trên để gom nhóm)'
+                )}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] text-stone-500 font-mono">
+              <span className="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200">
+                ✓ Tự động nén WebP & biến thể (-sm, -md)
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-900 font-medium">
+                ⚡ Hàng đợi xử lý tối đa 3 luồng đồng thời
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* SEARCH & FILTER TOOLBAR */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
           {/* Search Box */}
@@ -1349,40 +1725,47 @@ export default function AdminMediaPage() {
           </div>
         ) : (
           /* IMAGES GRID */
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {filteredAndSortedMedia.map((item) => {
-              const itemKey = item.id || item.url;
-              const isSelected =
-                selectedFileIds.includes(itemKey) ||
-                selectedFileIds.includes(item.url) ||
-                selectedFileIds.includes(item.id);
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+              {visibleMedia.map((item) => {
+                const itemKey = item.id || item.url;
+                const isSelected =
+                  selectedFileIds.includes(itemKey) ||
+                  selectedFileIds.includes(item.url) ||
+                  selectedFileIds.includes(item.id);
 
-              return (
-                <div
-                  key={item.id || item.url}
-                  className={`group bg-white rounded-2xl border overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between ${
-                    isSelected
-                      ? 'border-luxury-500 ring-2 ring-luxury-400/60 shadow-md'
-                      : 'border-stone-200'
-                  }`}
-                >
-                  {/* Image Container with Preview */}
+                return (
                   <div
-                    onClick={(e) => {
-                      if (selectedFileIds.length > 0) {
-                        toggleSelectImage(itemKey, e);
-                      } else {
-                        setLightboxItem(item);
-                      }
-                    }}
-                    className="relative aspect-4/3 bg-stone-100 overflow-hidden cursor-pointer"
+                    key={item.id || item.url}
+                    className={`group bg-white rounded-2xl border overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between ${
+                      isSelected
+                        ? 'border-luxury-500 ring-2 ring-luxury-400/60 shadow-md'
+                        : 'border-stone-200'
+                    }`}
                   >
-                    <img
-                      src={item.url}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    {/* Image Container with Preview */}
+                    <div
+                      onClick={(e) => {
+                        if (selectedFileIds.length > 0) {
+                          toggleSelectImage(itemKey, e);
+                        } else {
+                          setLightboxItem(item);
+                        }
+                      }}
+                      className="relative aspect-4/3 bg-stone-100 overflow-hidden cursor-pointer"
+                    >
+                      <img
+                        src={getThumbnailUrl(item.url)}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          if (e.currentTarget.src !== item.url) {
+                            e.currentTarget.src = item.url;
+                          }
+                        }}
+                      />
 
                     {/* Selection Checkbox */}
                     <button
@@ -1508,8 +1891,28 @@ export default function AdminMediaPage() {
             );
           })}
         </div>
+
+        {/* INFINITE SCROLL SENTINEL & LOAD MORE BUTTON */}
+        {visibleCount < filteredAndSortedMedia.length && (
+          <div ref={sentinelRef} className="py-6 flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center gap-2 text-xs text-stone-500 font-mono">
+              <Loader2 className="w-4 h-4 animate-spin text-luxury-600" />
+              <span>
+                Đang hiển thị {visibleMedia.length} / {filteredAndSortedMedia.length} ảnh...
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => Math.min(prev + 24, filteredAndSortedMedia.length))}
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-xs text-charcoal-700 font-medium transition-colors shadow-2xs cursor-pointer"
+            >
+              Tải thêm 24 ảnh ({filteredAndSortedMedia.length - visibleMedia.length} ảnh còn lại)
+            </button>
+          </div>
         )}
-      </div>
+      </>
+      )}
+    </div>
 
       {/* MODAL 1: CREATE FOLDER */}
       <Modal
@@ -2090,6 +2493,133 @@ export default function AdminMediaPage() {
         mode="multiple"
         title="Chọn Ảnh Hoặc Import Cả Thư Mục Từ Google Drive"
       />
+
+      {/* FULL-PAGE DRAG-AND-DROP OVERLAY */}
+      {isDraggingOverPage && (
+        <div className="fixed inset-0 z-50 bg-charcoal-900/60 backdrop-blur-xs flex items-center justify-center p-6 animate-fade-in pointer-events-none">
+          <div className="bg-white border-3 border-dashed border-[#B8860B] rounded-3xl p-10 max-w-lg w-full text-center space-y-4 shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-amber-100 text-[#B8860B] flex items-center justify-center mx-auto shadow-inner">
+              <Upload className="w-10 h-10 stroke-[2.2] animate-bounce" />
+            </div>
+            <div>
+              <h3 className="text-xl font-serif font-medium text-charcoal-900">
+                Thả ảnh vào đây để tải lên
+              </h3>
+              <p className="text-xs text-stone-500 mt-1">
+                {currentFolder ? (
+                  <>
+                    Tải thẳng vào thư mục <strong className="text-luxury-800 font-semibold font-serif">"{currentFolder.name}"</strong>
+                  </>
+                ) : (
+                  'Tải trực tiếp vào Kho Media Gốc'
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MINIMIZED UPLOAD PROGRESS BUTTON */}
+      {uploadQueue.length > 0 && !isUploadDrawerOpen && (
+        <button
+          type="button"
+          onClick={() => setIsUploadDrawerOpen(true)}
+          className="fixed bottom-6 right-6 z-40 bg-charcoal-900 text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2.5 border border-amber-500/40 hover:bg-black transition-all cursor-pointer text-xs"
+        >
+          <Upload className="w-4 h-4 text-amber-400 animate-pulse" />
+          <span>
+            Tiến trình tải ({uploadQueue.filter((i) => i.status === 'completed').length}/{uploadQueue.length})
+          </span>
+        </button>
+      )}
+
+      {/* FLOATING UPLOAD QUEUE DRAWER */}
+      {uploadQueue.length > 0 && isUploadDrawerOpen && (
+        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-slide-up flex flex-col max-h-[420px]">
+          {/* Header */}
+          <div className="p-4 bg-charcoal-900 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Upload className="w-4 h-4 text-luxury-400" />
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider">
+                  Tiến Trình Tải Lên Media
+                </h4>
+                <span className="text-[10px] text-stone-300 font-mono">
+                  {uploadQueue.filter((i) => i.status === 'completed').length} / {uploadQueue.length} tệp thành công
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setUploadQueue([])}
+                className="px-2 py-1 text-stone-400 hover:text-white rounded-lg text-[10px] font-mono cursor-pointer"
+                title="Xóa danh sách hoàn tất"
+              >
+                Xóa hết
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsUploadDrawerOpen(false)}
+                className="p-1 text-stone-400 hover:text-white rounded-lg cursor-pointer"
+                title="Thu nhỏ"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-stone-100 h-1.5">
+            <div
+              className="bg-amber-500 h-1.5 transition-all duration-300"
+              style={{
+                width: `${(uploadQueue.filter((i) => i.status === 'completed' || i.status === 'error').length / uploadQueue.length) * 100}%`,
+              }}
+            />
+          </div>
+
+          {/* Items List */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs divide-y divide-stone-100">
+            {uploadQueue.map((item) => (
+              <div key={item.id} className="pt-2 first:pt-0 flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-charcoal-900 truncate" title={item.name}>
+                    {item.name}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] text-stone-400 font-mono">
+                    <span>{item.formattedSize}</span>
+                    <span>•</span>
+                    <span className="truncate">{item.folderName}</span>
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex items-center gap-1.5">
+                  {item.status === 'pending' && (
+                    <span className="text-[10px] text-stone-400 font-mono">Chờ lượt...</span>
+                  )}
+                  {item.status === 'uploading' && (
+                    <div className="flex items-center gap-1 text-[11px] text-amber-700 font-medium font-mono">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                      <span>Nén WebP...</span>
+                    </div>
+                  )}
+                  {item.status === 'completed' && (
+                    <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-0.5 font-mono">
+                      <Check className="w-3.5 h-3.5" /> Xong
+                    </span>
+                  )}
+                  {item.status === 'error' && (
+                    <span className="text-[11px] text-red-500 font-medium font-mono" title={item.errorMessage}>
+                      ✕ Lỗi
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
