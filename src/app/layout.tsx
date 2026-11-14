@@ -125,24 +125,6 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
 
-        {/* Trusted Types Default Policy Registration - Synchronous & Immediate before any chunk executes */}
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy && !window.trustedTypes.defaultPolicy) {
-                try {
-                  window.trustedTypes.createPolicy('default', {
-                    createHTML: function (s) { return s; },
-                    createScript: function (s) { return s; },
-                    createScriptURL: function (s) { return s; }
-                  });
-                } catch (e) {}
-              }
-            `,
-          }}
-        />
-
         {/* Dynamic Theme Colors & Logo Typography Variables */}
         <style
           id="system-theme-variables"

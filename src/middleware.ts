@@ -45,27 +45,25 @@ export async function middleware(request: NextRequest) {
   const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
 
   // In development or on localhost: relax CSP to allow Next.js fast refresh, eval, and unencrypted local cookies
-  const strictCspDirectives = (isDev || isLocalhost)
-    ? ''
-    : `upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default nextjs nextjs#bundler goog#html 'allow-duplicates';`;
+  const upgradeInsecureRequests = (isDev || isLocalhost) ? '' : 'upgrade-insecure-requests;';
 
   const scriptSrcDirective = (isDev || isLocalhost)
     ? `'self' 'unsafe-eval' 'unsafe-inline' https: http:;`
-    : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https: http:;`;
+    : `'self' 'nonce-${nonce}' 'strict-dynamic' https: http:;`;
 
   const cspHeader = `
     default-src 'self';
     script-src ${scriptSrcDirective}
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.com.vn https://googleads.g.doubleclick.net https://lh3.googleusercontent.com https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://img.vietqr.io https://api.vietqr.io https://www.facebook.com;
+    img-src 'self' data: blob: https:;
     font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://www.googleadservices.com https://www.googleapis.com https://api.vietqr.io https://connect.facebook.net https://analytics.tiktok.com;
-    frame-src 'self' https://www.googletagmanager.com https://bid.g.doubleclick.net https://docs.google.com https://drive.google.com https://www.google.com https://maps.google.com;
+    connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googleadservices.com https://*.google.com https://*.google.com.vn https:;
+    frame-src 'self' https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net https://docs.google.com https://drive.google.com https://www.google.com https://maps.google.com https://www.youtube.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'self';
-    ${strictCspDirectives}
+    ${upgradeInsecureRequests}
   `.replace(/\s{2,}/g, ' ').trim();
 
   const requestHeaders = new Headers(request.headers);
