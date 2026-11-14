@@ -7,6 +7,7 @@ import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 
 import { cleanupDanglingMediaReferences, revalidateMediaRelatedPaths } from '@/lib/media-cleanup';
+import { getImageDimensions, ImageOrientation } from '@/lib/image-dimensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,7 @@ export interface MediaItemMetadata {
   format: string;
   width?: number;
   height?: number;
+  orientation?: ImageOrientation;
   createdAt: string;
   modifiedAt: string;
   uploadedById?: string | null;
@@ -82,16 +84,8 @@ async function getMediaFiles(dirPath: string): Promise<MediaItemMetadata[]> {
               .replace(/[-_]/g, ' ')
               .trim();
 
-            let width: number | undefined;
-            let height: number | undefined;
-
-            try {
-              const meta = await sharp(fullPath).metadata();
-              width = meta.width;
-              height = meta.height;
-            } catch {
-              // Gracefully handle if sharp cannot read image dimensions
-            }
+            // Read dimensions & orientation with fast memory cache
+            const { width, height, orientation } = await getImageDimensions(fullPath, stats.mtimeMs);
 
             results.push({
               id: publicUrl,
@@ -103,6 +97,7 @@ async function getMediaFiles(dirPath: string): Promise<MediaItemMetadata[]> {
               format: ext.replace('.', '').toUpperCase(),
               width,
               height,
+              orientation,
               createdAt: stats.birthtime.toISOString(),
               modifiedAt: stats.mtime.toISOString(),
             });

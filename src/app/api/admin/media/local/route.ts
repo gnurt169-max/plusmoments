@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
+import { getImageDimensions, ImageOrientation } from '@/lib/image-dimensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,20 +13,23 @@ interface LocalMediaItem {
   name: string;
   url: string;
   size: number;
+  width?: number;
+  height?: number;
+  orientation?: ImageOrientation;
   createdAt: string;
   modifiedAt: string;
 }
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(['.webp', '.jpg', '.jpeg', '.png', '.avif', '.heic', '.svg']);
 
-function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] {
+async function getLocalMediaFiles(dirPath: string, rootDir: string): Promise<LocalMediaItem[]> {
   let results: LocalMediaItem[] = [];
 
   if (!fs.existsSync(dirPath)) {
     return results;
   }
 
-  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
@@ -40,7 +44,7 @@ function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] 
     }
 
     if (entry.isDirectory()) {
-      results = results.concat(getLocalMediaFiles(fullPath, rootDir));
+      results = results.concat(await getLocalMediaFiles(fullPath, rootDir));
     } else if (entry.isFile()) {
       // Skip auto-generated responsive WebP variants (-sm.webp and -md.webp)
       if (entry.name.endsWith('-sm.webp') || entry.name.endsWith('-md.webp')) {
@@ -50,7 +54,7 @@ function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] 
       const ext = path.extname(entry.name).toLowerCase();
       if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
         try {
-          const stats = fs.statSync(fullPath);
+          const stats = await fs.promises.stat(fullPath);
           if (stats.size > 0) {
             const relativeToPublic = path.relative(path.join(process.cwd(), 'public'), fullPath);
             const publicUrl = `/${relativeToPublic.replace(/\\/g, '/')}`;
@@ -62,12 +66,17 @@ function getLocalMediaFiles(dirPath: string, rootDir: string): LocalMediaItem[] 
               .replace(/[-_]/g, ' ')
               .trim();
 
+            const { width, height, orientation } = await getImageDimensions(fullPath, stats.mtimeMs);
+
             results.push({
               id: publicUrl,
               filename: entry.name,
               name: displayName || entry.name,
               url: publicUrl,
               size: stats.size,
+              width,
+              height,
+              orientation,
               createdAt: stats.birthtime.toISOString(),
               modifiedAt: stats.mtime.toISOString(),
             });
@@ -95,7 +104,7 @@ export async function GET() {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    const items = getLocalMediaFiles(uploadsDir, uploadsDir);
+    const items = await getLocalMediaFiles(uploadsDir, uploadsDir);
 
     // Sort by modifiedAt descending (newest uploaded images first)
     items.sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime());

@@ -9,6 +9,7 @@ import {
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { analyzeAndCacheImageChunk, getOrAnalyzeImageChunk } from '@/lib/vision-ai';
+import { getOrientation } from '@/lib/image-dimensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,13 +131,18 @@ export async function POST(request: Request) {
     // Trigger Vision AI chunk analysis in the background
     analyzeAndCacheImageChunk(mediaFile.id, publicUrl);
 
+    const orientation = getOrientation(imageWidth, imageHeight);
+
     return NextResponse.json({
       success: true,
-      file: mediaFile,
+      file: { ...mediaFile, orientation },
       id: mediaFile.id,
       url: publicUrl,
       name: displayName,
       blurDataUrl,
+      width: imageWidth,
+      height: imageHeight,
+      orientation,
     });
   } catch (error: any) {
     console.error('[MEDIA_UPLOAD_ERROR]:', error);

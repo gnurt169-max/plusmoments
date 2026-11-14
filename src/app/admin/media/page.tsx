@@ -27,6 +27,8 @@ import {
   Image as ImageIcon,
   Download,
   Upload,
+  RectangleHorizontal,
+  RectangleVertical,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
@@ -41,6 +43,7 @@ interface MediaItem {
   format: string;
   width?: number;
   height?: number;
+  orientation?: 'landscape' | 'portrait' | 'square';
   createdAt: string;
   modifiedAt: string;
   uploadedById?: string | null;
@@ -115,9 +118,11 @@ export default function AdminMediaPage() {
   const [folderImages, setFolderImages] = useState<MediaItem[]>([]);
   const [folderLoading, setFolderLoading] = useState(false);
 
-  // Search & Filter & Sort state
+  // Search & Filter & Sort & Orientation state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<string>('ALL');
+  const [selectedOrientation, setSelectedOrientation] = useState<'all' | 'landscape' | 'portrait'>('all');
+  const [loadedDimensions, setLoadedDimensions] = useState<Record<string, { width: number; height: number; orientation: 'landscape' | 'portrait' | 'square' }>>({});
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'size_desc' | 'size_asc' | 'name_asc'>('newest');
 
   // Copy URL visual state per card
@@ -266,10 +271,33 @@ export default function AdminMediaPage() {
     };
   }, [fetchMedia, fetchFolderContent, currentFolder]);
 
-  // Reset visibleCount whenever currentFolder, searchQuery, selectedFormat, or sortBy changes
+  // Reset visibleCount whenever currentFolder, searchQuery, selectedFormat, selectedOrientation, or sortBy changes
   useEffect(() => {
     setVisibleCount(24);
-  }, [currentFolder, searchQuery, selectedFormat, sortBy]);
+  }, [currentFolder, searchQuery, selectedFormat, selectedOrientation, sortBy]);
+
+  // Client-side fallback for dimensions & orientation
+  const handleImageLoad = (url: string, naturalWidth: number, naturalHeight: number) => {
+    if (!naturalWidth || !naturalHeight) return;
+    setLoadedDimensions((prev) => {
+      if (prev[url]) return prev;
+      const orientation = naturalWidth > naturalHeight ? 'landscape' : naturalHeight > naturalWidth ? 'portrait' : 'square';
+      return {
+        ...prev,
+        [url]: { width: naturalWidth, height: naturalHeight, orientation },
+      };
+    });
+  };
+
+  const getItemOrientation = useCallback((item: MediaItem) => {
+    if (item.orientation) return item.orientation;
+    if (item.width && item.height) {
+      return item.width > item.height ? 'landscape' : item.height > item.width ? 'portrait' : 'square';
+    }
+    const loaded = loadedDimensions[item.url];
+    if (loaded) return loaded.orientation;
+    return undefined;
+  }, [loadedDimensions]);
 
   // Infinite Scroll / Progressive Loading Intersection Observer
   useEffect(() => {
@@ -866,10 +894,10 @@ export default function AdminMediaPage() {
   // Filtered & Sorted Images (either current folder images or root media)
   const displayImages = currentFolder ? folderImages : rootMedia;
 
-  const filteredAndSortedMedia = useMemo(() => {
+  // Base filtered images before orientation filter (to count all / landscape / portrait)
+  const baseFilteredMedia = useMemo(() => {
     let result = [...displayImages];
 
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -880,9 +908,35 @@ export default function AdminMediaPage() {
       );
     }
 
-    // Format filter
     if (selectedFormat !== 'ALL') {
       result = result.filter((m) => m.format === selectedFormat);
+    }
+
+    return result;
+  }, [displayImages, searchQuery, selectedFormat]);
+
+  // Compute orientation counts based on baseFilteredMedia
+  const orientationCounts = useMemo(() => {
+    let landscape = 0;
+    let portrait = 0;
+    for (const m of baseFilteredMedia) {
+      const ori = getItemOrientation(m);
+      if (ori === 'landscape') landscape++;
+      else if (ori === 'portrait') portrait++;
+    }
+    return {
+      all: baseFilteredMedia.length,
+      landscape,
+      portrait,
+    };
+  }, [baseFilteredMedia, getItemOrientation]);
+
+  const filteredAndSortedMedia = useMemo(() => {
+    let result = [...baseFilteredMedia];
+
+    // Orientation filter
+    if (selectedOrientation !== 'all') {
+      result = result.filter((m) => getItemOrientation(m) === selectedOrientation);
     }
 
     // Sorting
@@ -904,7 +958,7 @@ export default function AdminMediaPage() {
     });
 
     return result;
-  }, [displayImages, searchQuery, selectedFormat, sortBy]);
+  }, [baseFilteredMedia, selectedOrientation, sortBy, getItemOrientation]);
 
   // Progressive rendering slice for high performance with 764+ images
   const visibleMedia = useMemo(() => {
@@ -1645,6 +1699,53 @@ export default function AdminMediaPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {/* Orientation Segmented Control */}
+            <div className="flex items-center bg-stone-200/60 p-0.5 rounded-xl text-xs border border-stone-200/80">
+              <button
+                type="button"
+                onClick={() => setSelectedOrientation('all')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                  selectedOrientation === 'all'
+                    ? 'bg-white text-charcoal-900 shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+                title="Tất cả định hướng ảnh"
+              >
+                <span>Tất cả</span>
+                <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.all})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedOrientation('landscape')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                  selectedOrientation === 'landscape'
+                    ? 'bg-white text-luxury-900 shadow-2xs font-semibold ring-1 ring-luxury-400'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+                title="Chỉ lọc ảnh ngang (Landscape)"
+              >
+                <RectangleHorizontal className="w-3.5 h-3.5 text-luxury-600" />
+                <span>Ảnh ngang</span>
+                <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.landscape})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedOrientation('portrait')}
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                  selectedOrientation === 'portrait'
+                    ? 'bg-white text-luxury-900 shadow-2xs font-semibold ring-1 ring-luxury-400'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+                title="Chỉ lọc ảnh dọc (Portrait)"
+              >
+                <RectangleVertical className="w-3.5 h-3.5 text-luxury-600" />
+                <span>Ảnh dọc</span>
+                <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.portrait})</span>
+              </button>
+            </div>
+
             {/* Format Filter */}
             <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-stone-200 shadow-2xs">
               <Layers className="w-3.5 h-3.5 text-stone-400" />
@@ -1714,14 +1815,29 @@ export default function AdminMediaPage() {
             <ImageIcon className="w-10 h-10 text-stone-300 mx-auto" />
             <div className="space-y-1">
               <h4 className="font-serif text-base font-light text-charcoal-900">
-                {searchQuery ? 'Không tìm thấy ảnh phù hợp' : 'Chưa có ảnh nào'}
+                {searchQuery
+                  ? 'Không tìm thấy ảnh phù hợp'
+                  : selectedOrientation !== 'all'
+                  ? `Không có ${selectedOrientation === 'landscape' ? 'ảnh ngang' : 'ảnh dọc'} nào`
+                  : 'Chưa có ảnh nào'}
               </h4>
               <p className="text-xs text-stone-500 max-w-md mx-auto">
                 {searchQuery
-                  ? 'Thử tìm với từ khóa khác hoặc xóa bộ lọc định dạng.'
-                  : 'Sử dụng nút "Import Từ Google Drive" để đồng bộ ảnh WebP lên hệ thống.'}
+                  ? 'Thử tìm với từ khóa khác hoặc xóa bộ lọc định dạng / hướng ảnh.'
+                  : selectedOrientation !== 'all'
+                  ? `Thử chuyển sang "Tất cả" để xem toàn bộ ${baseFilteredMedia.length} ảnh.`
+                  : 'Sử dụng nút "Import Từ Google Drive" hoặc kéo thả ảnh để tải lên hệ thống.'}
               </p>
             </div>
+            {selectedOrientation !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setSelectedOrientation('all')}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-charcoal-800 text-xs font-medium transition-colors cursor-pointer"
+              >
+                Bỏ lọc hướng ảnh (xem {baseFilteredMedia.length} ảnh)
+              </button>
+            )}
           </div>
         ) : (
           /* IMAGES GRID */
@@ -1733,6 +1849,10 @@ export default function AdminMediaPage() {
                   selectedFileIds.includes(itemKey) ||
                   selectedFileIds.includes(item.url) ||
                   selectedFileIds.includes(item.id);
+
+                const itemOri = getItemOrientation(item);
+                const itemWidth = item.width || loadedDimensions[item.url]?.width;
+                const itemHeight = item.height || loadedDimensions[item.url]?.height;
 
                 return (
                   <div
@@ -1760,6 +1880,7 @@ export default function AdminMediaPage() {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
+                        onLoad={(e) => handleImageLoad(item.url, e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
                         onError={(e) => {
                           if (e.currentTarget.src !== item.url) {
                             e.currentTarget.src = item.url;
@@ -1790,11 +1911,36 @@ export default function AdminMediaPage() {
                       <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono uppercase font-medium">
                         {item.format}
                       </span>
-                      {item.width && item.height && (
+                      {itemWidth && itemHeight && (
                         <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-xs text-stone-200 text-[9px] font-mono">
-                          {item.width}×{item.height}
+                          {itemWidth}×{itemHeight}
                         </span>
                       )}
+                    </div>
+
+                    {/* Hover Orientation & Dimensions Badge */}
+                    <div className="absolute bottom-2 left-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      <div className="px-2 py-0.5 rounded-md bg-stone-900/90 backdrop-blur-xs text-white text-[9px] font-mono flex items-center justify-center gap-1 shadow-md">
+                        {itemOri === 'landscape' ? (
+                          <>
+                            <RectangleHorizontal className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                            <span>Ngang</span>
+                          </>
+                        ) : itemOri === 'portrait' ? (
+                          <>
+                            <RectangleVertical className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                            <span>Dọc</span>
+                          </>
+                        ) : itemOri === 'square' ? (
+                          <span>Vuông</span>
+                        ) : null}
+                        {itemWidth && itemHeight && (
+                          <>
+                            <span className="text-stone-400">•</span>
+                            <span>{itemWidth}×{itemHeight}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
 
                     {/* Hover Overlay Hint for Lightbox */}
@@ -1831,7 +1977,19 @@ export default function AdminMediaPage() {
                   </div>
 
                   <div className="flex items-center justify-between text-[10px] text-stone-500 pt-2 border-t border-stone-100 font-mono">
-                    <span className="font-medium text-luxury-700">{item.formattedSize}</span>
+                    <span className="font-medium text-luxury-700 flex items-center gap-1">
+                      {itemOri === 'landscape' && (
+                        <span title="Ảnh ngang">
+                          <RectangleHorizontal className="w-2.5 h-2.5 text-amber-600" />
+                        </span>
+                      )}
+                      {itemOri === 'portrait' && (
+                        <span title="Ảnh dọc">
+                          <RectangleVertical className="w-2.5 h-2.5 text-amber-600" />
+                        </span>
+                      )}
+                      <span>{item.formattedSize}</span>
+                    </span>
                     <span className="text-stone-400">{new Date(item.modifiedAt).toLocaleDateString('vi-VN')}</span>
                   </div>
 

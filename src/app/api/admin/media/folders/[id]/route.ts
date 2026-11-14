@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { cleanupDanglingFolderReferences, cleanupDanglingMediaReferences } from '@/lib/media-cleanup';
 import { deleteImageWithVariants } from '@/lib/image-variants';
 import { getAdminSession } from '@/lib/auth';
+import { getOrientation, getDimensionsForPublicUrl } from '@/lib/image-dimensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,20 +66,36 @@ export async function GET(request: Request, { params }: Props) {
 
     const totalBytes = validFiles.reduce((sum, file) => sum + file.size, 0);
 
-    const images = validFiles.map((file) => ({
-      id: file.id,
-      filename: path.basename(file.url),
-      name: file.name,
-      url: file.url,
-      size: file.size,
-      formattedSize: formatBytes(file.size),
-      format: file.format,
-      width: file.width,
-      height: file.height,
-      folderId: folder.id,
-      createdAt: file.createdAt.toISOString(),
-      modifiedAt: file.updatedAt.toISOString(),
-    }));
+    const images = await Promise.all(
+      validFiles.map(async (file) => {
+        let width = file.width ?? undefined;
+        let height = file.height ?? undefined;
+        let orientation = getOrientation(width, height);
+
+        if (!width || !height || !orientation) {
+          const dim = await getDimensionsForPublicUrl(file.url);
+          width = width || dim.width;
+          height = height || dim.height;
+          orientation = orientation || dim.orientation;
+        }
+
+        return {
+          id: file.id,
+          filename: path.basename(file.url),
+          name: file.name,
+          url: file.url,
+          size: file.size,
+          formattedSize: formatBytes(file.size),
+          format: file.format,
+          width,
+          height,
+          orientation,
+          folderId: folder.id,
+          createdAt: file.createdAt.toISOString(),
+          modifiedAt: file.updatedAt.toISOString(),
+        };
+      })
+    );
 
     return NextResponse.json({
       success: true,

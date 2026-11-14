@@ -30,6 +30,7 @@ export interface SingleImagePickerProps {
   allowDirectUpload?: boolean;
   uploadEndpoint?: string;
   isLogo?: boolean;
+  defaultOrientation?: 'all' | 'landscape' | 'portrait';
 }
 
 export function SingleImagePicker({
@@ -45,6 +46,7 @@ export function SingleImagePicker({
   allowDirectUpload = false,
   uploadEndpoint = '/api/admin/settings/upload-logo',
   isLogo = false,
+  defaultOrientation,
 }: SingleImagePickerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -98,6 +100,19 @@ export function SingleImagePicker({
       setIsUploading(false);
     }
   };
+
+  // Auto infer default orientation if not explicitly provided
+  const effectiveOrientation =
+    defaultOrientation ||
+    (aspectRatio === 'video' ||
+    modalTitle.toLowerCase().includes('banner') ||
+    modalTitle.toLowerCase().includes('hero') ||
+    label?.toLowerCase().includes('banner') ||
+    label?.toLowerCase().includes('hero')
+      ? 'landscape'
+      : aspectRatio === 'portrait'
+      ? 'portrait'
+      : 'all');
 
   return (
     <div className="space-y-1.5">
@@ -269,6 +284,7 @@ export function SingleImagePicker({
           title={modalTitle}
           allowedExtensions={effectiveAllowedExts}
           isLogo={isLogo}
+          defaultOrientation={effectiveOrientation}
         />
       )}
     </div>
@@ -284,6 +300,7 @@ export interface MultiImagePickerProps {
   label?: string;
   helperText?: string;
   modalTitle?: string;
+  defaultOrientation?: 'all' | 'landscape' | 'portrait';
 }
 
 export function MultiImagePicker({
@@ -292,6 +309,7 @@ export function MultiImagePicker({
   label = 'Bộ Sưu Tập Hình Ảnh',
   helperText,
   modalTitle = 'Chọn Ảnh Cho Bộ Sưu Tập',
+  defaultOrientation = 'all',
 }: MultiImagePickerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -407,6 +425,7 @@ export function MultiImagePicker({
           }}
           multiple={true}
           title={modalTitle}
+          defaultOrientation={defaultOrientation}
         />
       )}
     </div>

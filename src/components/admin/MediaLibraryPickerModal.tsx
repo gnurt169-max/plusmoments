@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Folder,
   FolderOpen,
@@ -14,6 +14,8 @@ import {
   X,
   ChevronRight,
   HardDrive,
+  RectangleHorizontal,
+  RectangleVertical,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
@@ -28,6 +30,7 @@ export interface MediaFileItem {
   format: string;
   width?: number;
   height?: number;
+  orientation?: 'landscape' | 'portrait' | 'square';
   createdAt: string;
   modifiedAt: string;
 }
@@ -63,6 +66,7 @@ export interface MediaLibraryPickerModalProps {
   subtitle?: string;
   allowedExtensions?: string[];
   isLogo?: boolean;
+  defaultOrientation?: 'all' | 'landscape' | 'portrait';
 }
 
 export function MediaLibraryPickerModal({
@@ -74,12 +78,15 @@ export function MediaLibraryPickerModal({
   subtitle = 'Duyệt các thư mục và chọn ảnh WebP đã đồng bộ từ máy chủ.',
   allowedExtensions,
   isLogo,
+  defaultOrientation = 'all',
 }: MediaLibraryPickerModalProps) {
   const [loading, setLoading] = useState(false);
   const [folders, setFolders] = useState<MediaFolderItem[]>([]);
   const [allMedia, setAllMedia] = useState<MediaFileItem[]>([]);
   const [activeFolderSlug, setActiveFolderSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedOrientation, setSelectedOrientation] = useState<'all' | 'landscape' | 'portrait'>(defaultOrientation);
+  const [loadedDimensions, setLoadedDimensions] = useState<Record<string, { width: number; height: number; orientation: 'landscape' | 'portrait' | 'square' }>>({});
 
   // Selected state
   const [singleSelected, setSingleSelected] = useState<string | null>(null);
@@ -87,6 +94,29 @@ export function MediaLibraryPickerModal({
 
   // Google Drive secondary picker modal
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
+
+  // Client-side fallback for dimensions & orientation
+  const handleImageLoad = (url: string, naturalWidth: number, naturalHeight: number) => {
+    if (!naturalWidth || !naturalHeight) return;
+    setLoadedDimensions((prev) => {
+      if (prev[url]) return prev;
+      const orientation = naturalWidth > naturalHeight ? 'landscape' : naturalHeight > naturalWidth ? 'portrait' : 'square';
+      return {
+        ...prev,
+        [url]: { width: naturalWidth, height: naturalHeight, orientation },
+      };
+    });
+  };
+
+  const getItemOrientation = useCallback((item: MediaFileItem) => {
+    if (item.orientation) return item.orientation;
+    if (item.width && item.height) {
+      return item.width > item.height ? 'landscape' : item.height > item.width ? 'portrait' : 'square';
+    }
+    const loaded = loadedDimensions[item.url];
+    if (loaded) return loaded.orientation;
+    return undefined;
+  }, [loadedDimensions]);
 
   // Fetch media library data
   const fetchLibrary = async () => {
@@ -111,8 +141,9 @@ export function MediaLibraryPickerModal({
       setSingleSelected(null);
       setMultiSelected(new Set());
       setSearchQuery('');
+      setSelectedOrientation(defaultOrientation || 'all');
     }
-  }, [isOpen]);
+  }, [isOpen, defaultOrientation]);
 
   // Current folder object
   const currentFolder = useMemo(() => {
@@ -120,8 +151,8 @@ export function MediaLibraryPickerModal({
     return folders.find((f) => f.slug === activeFolderSlug) || null;
   }, [activeFolderSlug, folders]);
 
-  // Files to display in the current view
-  const currentFiles = useMemo(() => {
+  // Files in current folder (or root) matching search query & allowed extensions
+  const searchedFiles = useMemo(() => {
     let files = allMedia;
     if (activeFolderSlug) {
       files = allMedia.filter((m) =>
@@ -151,6 +182,28 @@ export function MediaLibraryPickerModal({
 
     return files;
   }, [allMedia, activeFolderSlug, searchQuery, allowedExtensions]);
+
+  // Compute orientation counts based on searchedFiles
+  const orientationCounts = useMemo(() => {
+    let landscape = 0;
+    let portrait = 0;
+    for (const f of searchedFiles) {
+      const ori = getItemOrientation(f);
+      if (ori === 'landscape') landscape++;
+      else if (ori === 'portrait') portrait++;
+    }
+    return {
+      all: searchedFiles.length,
+      landscape,
+      portrait,
+    };
+  }, [searchedFiles, getItemOrientation]);
+
+  // Filtered files by selected orientation for display
+  const currentFiles = useMemo(() => {
+    if (selectedOrientation === 'all') return searchedFiles;
+    return searchedFiles.filter((f) => getItemOrientation(f) === selectedOrientation);
+  }, [searchedFiles, selectedOrientation, getItemOrientation]);
 
   // Handle single selection toggle
   const handleItemClick = (url: string) => {
@@ -266,8 +319,9 @@ export function MediaLibraryPickerModal({
               )}
             </div>
 
-            {/* Right Tools: Search & Google Drive Sync */}
-            <div className="flex items-center gap-2.5">
+            {/* Right Tools: Search, Orientation Segmented Filter & Google Drive Sync */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              {/* Search Box */}
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -275,7 +329,7 @@ export function MediaLibraryPickerModal({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Tìm theo tên file..."
-                  className="pl-8 pr-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400 w-48 sm:w-56"
+                  className="pl-8 pr-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400 w-36 sm:w-44"
                 />
                 {searchQuery && (
                   <button
@@ -286,6 +340,53 @@ export function MediaLibraryPickerModal({
                     <X className="w-3 h-3" />
                   </button>
                 )}
+              </div>
+
+              {/* Segmented Control Orientation Filter */}
+              <div className="flex items-center bg-stone-200/60 p-0.5 rounded-xl text-xs border border-stone-200/80">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrientation('all')}
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1 ${
+                    selectedOrientation === 'all'
+                      ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                  title="Hiển thị tất cả ảnh"
+                >
+                  <span>Tất cả</span>
+                  <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.all})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrientation('landscape')}
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedOrientation === 'landscape'
+                      ? 'bg-white text-amber-900 shadow-2xs font-semibold ring-1 ring-amber-300'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                  title="Chỉ lọc ảnh ngang (Landscape)"
+                >
+                  <RectangleHorizontal className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Ảnh ngang</span>
+                  <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.landscape})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrientation('portrait')}
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedOrientation === 'portrait'
+                      ? 'bg-white text-amber-900 shadow-2xs font-semibold ring-1 ring-amber-300'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                  title="Chỉ lọc ảnh dọc (Portrait)"
+                >
+                  <RectangleVertical className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Ảnh dọc</span>
+                  <span className="text-[10px] text-stone-400 font-mono">({orientationCounts.portrait})</span>
+                </button>
               </div>
 
               <button
@@ -304,8 +405,8 @@ export function MediaLibraryPickerModal({
                 className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-medium transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
               >
                 <HardDrive className="w-3.5 h-3.5 text-amber-700" />
-                <span className="hidden sm:inline">Đồng Bộ Từ Google Drive</span>
-                <span className="sm:hidden">Drive</span>
+                <span className="hidden md:inline">Đồng Bộ Từ Google Drive</span>
+                <span className="md:hidden">Drive</span>
               </button>
             </div>
           </div>
@@ -433,16 +534,29 @@ export function MediaLibraryPickerModal({
                       <p className="text-xs font-light">
                         {searchQuery
                           ? 'Không tìm thấy ảnh nào khớp với từ khóa.'
+                          : selectedOrientation !== 'all'
+                          ? `Không có ${selectedOrientation === 'landscape' ? 'ảnh ngang' : 'ảnh dọc'} nào trong danh sách.`
                           : 'Thư mục này hiện chưa có ảnh nào.'}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsDrivePickerOpen(true)}
-                        className="text-xs text-amber-800 hover:underline inline-flex items-center gap-1 pt-1 font-medium cursor-pointer"
-                      >
-                        <span>Nhập ảnh từ Google Drive ngay</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </button>
+                      {selectedOrientation !== 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrientation('all')}
+                          className="text-xs text-amber-800 hover:underline inline-flex items-center gap-1 pt-1 font-medium cursor-pointer"
+                        >
+                          <span>Bỏ lọc để xem tất cả ({searchedFiles.length} ảnh)</span>
+                        </button>
+                      )}
+                      {selectedOrientation === 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => setIsDrivePickerOpen(true)}
+                          className="text-xs text-amber-800 hover:underline inline-flex items-center gap-1 pt-1 font-medium cursor-pointer"
+                        >
+                          <span>Nhập ảnh từ Google Drive ngay</span>
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -450,6 +564,10 @@ export function MediaLibraryPickerModal({
                         const isSelected = multiple
                           ? multiSelected.has(file.url)
                           : singleSelected === file.url;
+
+                        const itemOri = getItemOrientation(file);
+                        const itemWidth = file.width || loadedDimensions[file.url]?.width;
+                        const itemHeight = file.height || loadedDimensions[file.url]?.height;
 
                         return (
                           <div
@@ -494,6 +612,7 @@ export function MediaLibraryPickerModal({
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 loading="lazy"
                                 decoding="async"
+                                onLoad={(e) => handleImageLoad(file.url, e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
                                 onError={(e) => {
                                   if (e.currentTarget.src !== file.url) {
                                     e.currentTarget.src = file.url;
@@ -502,15 +621,54 @@ export function MediaLibraryPickerModal({
                               />
                             </div>
 
+                            {/* Hover Orientation & Dimensions Badge */}
+                            <div className="absolute bottom-11 left-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              <div className="px-2 py-0.5 rounded-md bg-stone-900/90 backdrop-blur-xs text-white text-[9px] font-mono flex items-center justify-center gap-1 shadow-md">
+                                {itemOri === 'landscape' ? (
+                                  <>
+                                    <RectangleHorizontal className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                    <span>Ngang</span>
+                                  </>
+                                ) : itemOri === 'portrait' ? (
+                                  <>
+                                    <RectangleVertical className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                    <span>Dọc</span>
+                                  </>
+                                ) : itemOri === 'square' ? (
+                                  <span>Vuông</span>
+                                ) : null}
+                                {itemWidth && itemHeight && (
+                                  <>
+                                    <span className="text-stone-400">•</span>
+                                    <span>{itemWidth}×{itemHeight}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
                             {/* File info */}
                             <div className="p-2 min-w-0 bg-white">
                               <p className="text-[11px] font-medium text-stone-800 truncate" title={file.name}>
                                 {file.name}
                               </p>
-                              <div className="flex items-center justify-between text-[9px] text-stone-400 mt-0.5">
-                                <span>{file.format}</span>
-                                {file.width && file.height && (
-                                  <span>{file.width}x{file.height}</span>
+                              <div className="flex items-center justify-between text-[9px] text-stone-400 mt-0.5 font-mono">
+                                <span className="flex items-center gap-1">
+                                  {itemOri === 'landscape' && (
+                                    <span title="Ảnh ngang">
+                                      <RectangleHorizontal className="w-2.5 h-2.5 text-amber-600" />
+                                    </span>
+                                  )}
+                                  {itemOri === 'portrait' && (
+                                    <span title="Ảnh dọc">
+                                      <RectangleVertical className="w-2.5 h-2.5 text-amber-600" />
+                                    </span>
+                                  )}
+                                  <span>{itemOri === 'landscape' ? 'Ngang' : itemOri === 'portrait' ? 'Dọc' : file.format}</span>
+                                </span>
+                                {itemWidth && itemHeight ? (
+                                  <span>{itemWidth}×{itemHeight}</span>
+                                ) : (
+                                  <span>{file.formattedSize}</span>
                                 )}
                               </div>
                             </div>

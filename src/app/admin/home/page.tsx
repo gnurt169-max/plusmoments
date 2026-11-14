@@ -277,6 +277,7 @@ export default function AdminHomePageConfig() {
                     value={formData.heroBannerImage}
                     onChange={(url) => setFormData({ ...formData, heroBannerImage: url })}
                     aspectRatio="video"
+                    defaultOrientation="landscape"
                     required
                     modalTitle="Chọn Ảnh Banner Hero Trang Chủ"
                     helperText="Ảnh bìa lớn toàn màn hình xuất hiện ngay khi người dùng truy cập trang chủ."
