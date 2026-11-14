@@ -158,14 +158,12 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         {/* 1. ALBUM COVER HERO - Full Aspect Ratio Preservation (Zero Cropping) */}
         {album.coverImage && (
           <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center overflow-hidden rounded-3xl bg-stone-100/70 p-2 sm:p-4 border border-stone-200/80 shadow-2xl">
-            {/* Ambient backdrop glow (pure Tailwind + responsive -sm.webp via ProtectedImage, zero inline style) */}
-            <ProtectedImage
+            {/* Ambient backdrop glow */}
+            <img
               src={album.coverImage}
               alt=""
               aria-hidden="true"
-              sizes="100vw"
-              wrapperClassName="absolute inset-0 pointer-events-none"
-              imageClassName="w-full h-full object-cover blur-2xl scale-110 opacity-30"
+              className="absolute inset-0 -z-10 w-full h-full object-cover blur-2xl scale-110 opacity-25 pointer-events-none select-none"
             />
 
             {/* Pristine uncropped cover photo with Multi-Layer Copyright Defense */}

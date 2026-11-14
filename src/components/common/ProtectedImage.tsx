@@ -43,6 +43,11 @@ export function ProtectedImage({
   const cleanSrc = src.trim();
   const displaySrc = hasError ? '/placeholder.jpg' : cleanSrc;
 
+  const positionClass =
+    wrapperClassName.includes('absolute') || wrapperClassName.includes('fixed')
+      ? ''
+      : 'relative';
+
   return (
     <div
       onClick={onClick}
@@ -58,7 +63,7 @@ export function ProtectedImage({
             }
           : undefined
       }
-      className={`relative select-none overflow-hidden bg-[#F3EFEA] group ${
+      className={`${positionClass} select-none overflow-hidden bg-[#F3EFEA] group ${
         onClick
           ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2'
           : ''
