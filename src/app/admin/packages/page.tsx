@@ -15,6 +15,7 @@ import {
   Bot,
   BookOpen,
   Images,
+  Share2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -22,6 +23,7 @@ import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
+import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
 
 export interface LinkedAlbumItem {
   id: string;
@@ -31,6 +33,7 @@ export interface LinkedAlbumItem {
   concept?: string;
   location?: string;
   packageId?: string | null;
+  published?: boolean;
 }
 
 export interface LinkedBlogItem {
@@ -85,6 +88,10 @@ export default function AdminPackagesPage() {
   // Google Drive Media Picker Modal State
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
   const [drivePickerMode, setDrivePickerMode] = useState<'single' | 'multiple'>('single');
+
+  // Facebook Fanpage Post Generator State
+  const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
+  const [facebookModalData, setFacebookModalData] = useState<FacebookPostData | null>(null);
 
   const handleDriveImportSuccess = (urls: string[]) => {
     if (urls.length === 0) return;
@@ -175,6 +182,7 @@ export default function AdminPackagesPage() {
             concept: a.concept,
             location: a.location,
             packageId: a.packageId,
+            published: a.published,
           }))
         );
       }
@@ -483,6 +491,119 @@ export default function AdminPackagesPage() {
     .map((s) => s.trim())
     .filter((s) => s.startsWith('http://') || s.startsWith('https://'));
 
+  // Open Facebook Post Generator for a Package (from table row)
+  const handleOpenFacebookModalForPackage = (pkg: PackageItem) => {
+    // 1. Parse demo images
+    let parsedDemoImages: string[] = [];
+    try {
+      parsedDemoImages = JSON.parse(pkg.demoImages || '[]');
+      if (!Array.isArray(parsedDemoImages)) parsedDemoImages = [];
+    } catch {
+      parsedDemoImages = pkg.demoImages
+        ? pkg.demoImages.split('\n').map((s) => s.trim()).filter(Boolean)
+        : [];
+    }
+
+    // 2. Parse highlights & inclusions
+    let parsedHighlights: string[] = [];
+    try {
+      parsedHighlights = JSON.parse(pkg.highlightPoints || '[]');
+      if (!Array.isArray(parsedHighlights)) parsedHighlights = [];
+    } catch {
+      parsedHighlights = pkg.highlightPoints ? [pkg.highlightPoints] : [];
+    }
+
+    let parsedInclusions: string[] = [];
+    try {
+      parsedInclusions = JSON.parse(pkg.inclusions || '[]');
+      if (!Array.isArray(parsedInclusions)) parsedInclusions = [];
+    } catch {
+      parsedInclusions = pkg.inclusions ? [pkg.inclusions] : [];
+    }
+
+    // 3. Find linked published albums
+    const linkedFromPkg = Array.isArray(pkg.albums) && pkg.albums.length > 0 ? pkg.albums : [];
+    const linkedFromAvailable = availableAlbums.filter((a) => a.packageId === pkg.id);
+    const allLinked = linkedFromPkg.length > 0 ? linkedFromPkg : linkedFromAvailable;
+    const publishedLinked = allLinked
+      .filter((a: any) => a.published !== false && a.title && a.slug)
+      .map((a: any) => ({
+        title: a.title,
+        slug: a.slug,
+      }));
+
+    // 4. Combine images: cover image first, followed by demo images
+    const combinedImages = [
+      pkg.coverImage?.trim(),
+      ...parsedDemoImages.map((u) => u.trim()),
+    ].filter((u): u is string => Boolean(u));
+
+    const uniqueImages = Array.from(new Set(combinedImages));
+
+    setFacebookModalData({
+      title: pkg.name,
+      slug: pkg.slug,
+      type: 'PACKAGE',
+      category: pkg.category,
+      subtitle: pkg.subtitle || '',
+      summary: pkg.subtitle || '',
+      price: pkg.price,
+      originalPrice: pkg.originalPrice,
+      unit: pkg.unit || 'trọn gói',
+      highlights: parsedHighlights,
+      features: parsedInclusions,
+      deliverables: pkg.deliverables || '',
+      deliveryTime: pkg.deliverables || '07 - 10 ngày làm việc (trả file gốc trong 24h)',
+      coverImage: pkg.coverImage || '',
+      images: uniqueImages,
+      linkedAlbums: publishedLinked,
+    });
+    setIsFacebookModalOpen(true);
+  };
+
+  // Open Facebook Post Generator from Form (when editing package)
+  const handleOpenFacebookModalFromForm = () => {
+    if (!editingId) return;
+    const currentPkg = packages.find((p) => p.id === editingId);
+    if (!currentPkg) return;
+
+    const demoImages = formData.demoImagesText
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const linkedAlbums = availableAlbums
+      .filter((a) => formData.albumIds.includes(a.id) && a.published !== false && a.title && a.slug)
+      .map((a) => ({
+        title: a.title,
+        slug: a.slug,
+      }));
+
+    const combinedImages = Array.from(
+      new Set([formData.coverImage?.trim(), ...demoImages].filter((u): u is string => Boolean(u)))
+    );
+
+    setFacebookModalData({
+      title: formData.name || currentPkg.name,
+      slug: formData.slug || currentPkg.slug,
+      type: 'PACKAGE',
+      category: formData.category || currentPkg.category,
+      subtitle: formData.subtitle || currentPkg.subtitle || '',
+      summary: formData.subtitle || currentPkg.subtitle || '',
+      price: formData.price || currentPkg.price,
+      originalPrice: formData.originalPrice || currentPkg.originalPrice,
+      unit: formData.unit || currentPkg.unit || 'trọn gói',
+      highlights: formData.highlightPointsList.length > 0 ? formData.highlightPointsList : [],
+      features: formData.inclusionsList.length > 0 ? formData.inclusionsList : [],
+      deliverables: formData.deliverables || currentPkg.deliverables || '',
+      deliveryTime: formData.deliverables || currentPkg.deliverables || '07 - 10 ngày làm việc (trả file gốc trong 24h)',
+      coverImage: formData.coverImage || currentPkg.coverImage || '',
+      images: combinedImages,
+      linkedAlbums,
+    });
+    setIsFacebookModalOpen(true);
+  };
+
   return (
     <div className="space-y-8 relative">
       {toastMessage && (
@@ -574,6 +695,15 @@ export default function AdminPackagesPage() {
                               <span className="text-[10px] text-stone-400 font-mono">
                                 {demoCount > 0 ? `${demoCount} ảnh demo thực tế` : 'Chưa có ảnh demo'}
                               </span>
+                              {Array.isArray(pkg.albums) && pkg.albums.length > 0 && (
+                                <>
+                                  <span className="text-stone-300">•</span>
+                                  <span className="text-[10px] text-indigo-800 bg-indigo-100/70 px-1.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
+                                    <Images className="w-2.5 h-2.5" />
+                                    {pkg.albums.length} album
+                                  </span>
+                                </>
+                              )}
                               {Array.isArray(pkg.blogPosts) && pkg.blogPosts.length > 0 && (
                                 <>
                                   <span className="text-stone-300">•</span>
@@ -632,6 +762,14 @@ export default function AdminPackagesPage() {
 
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenFacebookModalForPackage(pkg)}
+                            className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                            title="Tạo bài đăng Fanpage Facebook cho gói này"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
                           <button
                             type="button"
                             onClick={() => openEditModal(pkg)}
@@ -1199,28 +1337,44 @@ export default function AdminPackagesPage() {
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl cursor-pointer"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Đang Lưu...</span>
-                </>
-              ) : (
-                <span>{editingId ? 'Cập Nhật Gói' : 'Tạo Gói Mới'}</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-200">
+            <div>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleOpenFacebookModalFromForm}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                  title="Soạn nội dung và bố cục hình ảnh để đăng Fanpage Facebook cho gói này"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-blue-200" />
+                  <span>📱 Tạo bài đăng Facebook</span>
+                </button>
               )}
-            </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2 text-xs font-medium text-charcoal-600 hover:bg-stone-100 rounded-xl cursor-pointer"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2.5 bg-charcoal-900 hover:bg-charcoal-800 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 shadow disabled:opacity-60 cursor-pointer"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang Lưu...</span>
+                  </>
+                ) : (
+                  <span>{editingId ? 'Cập Nhật Gói' : 'Tạo Gói Mới'}</span>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>
@@ -1237,6 +1391,15 @@ export default function AdminPackagesPage() {
             : 'Chọn Bộ Ảnh Demo Sản Phẩm Từ Google Drive'
         }
       />
+
+      {/* FACEBOOK POST GENERATOR MODAL */}
+      {facebookModalData && (
+        <FacebookPostGeneratorModal
+          isOpen={isFacebookModalOpen}
+          onClose={() => setIsFacebookModalOpen(false)}
+          data={facebookModalData}
+        />
+      )}
     </div>
   );
 }

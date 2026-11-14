@@ -107,13 +107,13 @@ export async function POST(request: Request) {
       inputContext.hotline?.trim() ||
       setting?.hotlineDisplay?.trim() ||
       setting?.hotline?.trim() ||
-      '0903.768.871';
+      '0901577993';
 
     const effectiveAddress =
       inputContext.address?.trim() ||
       setting?.studioAddress?.trim() ||
       setting?.address?.trim() ||
-      '31 Hùng Vương, Phường An Đông';
+      '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh';
 
     const rawBrandName =
       inputContext.brandName?.trim() ||
@@ -248,14 +248,100 @@ Trả về định dạng JSON thuần túy (không kèm bất kỳ văn bản n
       }
 
       case 'FACEBOOK_POST': {
-        const { title, type = 'ALBUM', concept, category, coupleNames, location, summary, description, content, postUrl, tone = 'LUXURY' } = inputContext;
-        
-        let toneInstruction = 'Sang trọng, đẳng cấp, mang hơi thở điện ảnh và nghệ thuật cao cấp.';
-        if (tone === 'ROMANTIC') toneInstruction = 'Lãng mạn, ngọt ngào, bay bổng, chạm đến trái tim đôi lứa.';
-        if (tone === 'HUMOROUS' || tone === 'MODERN') toneInstruction = 'Trẻ trung, tươi vui, hóm hỉnh nhẹ nhàng, bắt trend giới trẻ.';
-        if (tone === 'CONCISE') toneInstruction = 'Ngắn gọn, súc tích, dứt khoát, tập trung vào ưu đãi và lời kêu gọi hành động (CTA).';
+        const {
+          title,
+          type = 'ALBUM',
+          concept,
+          category,
+          coupleNames,
+          location,
+          summary,
+          description,
+          content,
+          postUrl,
+          tone = 'LUXURY',
+          price,
+          originalPrice,
+          unit,
+          highlights,
+          features,
+          deliverables,
+          deliveryTime,
+          linkedAlbums,
+        } = inputContext;
 
-        userPrompt = `Bạn là Chuyên gia Sáng tạo Nội dung Fanpage Facebook (Facebook Content Creator) cho PlusMoments Wedding Studio.
+        if (type === 'PACKAGE') {
+          let toneInstruction =
+            'Sang trọng (Editorial & Chuyên nghiệp): Nhấn mạnh trải nghiệm trọn gói đẳng cấp, đội ngũ ekip tận tâm, cam kết chất lượng hình ảnh/phim cưới và thời gian bàn giao chuẩn chỉnh.';
+          if (tone === 'ROMANTIC') {
+            toneInstruction =
+              'Lãng mạn (Cảm xúc & Tinh tế): Gợi mở hành trình lưu giữ ngày trọng đại nhẹ nhàng, trọn vẹn từng khoảnh khắc mà dâu rể không phải lo toan khâu hậu cần.';
+          } else if (tone === 'HUMOROUS' || tone === 'MODERN') {
+            toneInstruction =
+              'Trẻ trung (Bắt trend & Năng động): Giọng văn gần gũi, hào hứng, đánh trúng tâm lý các cặp đôi gen Z/hiện đại thích sự chỉn chu, rõ ràng, không phát sinh chi phí.';
+          } else if (tone === 'CONCISE') {
+            toneInstruction =
+              'Súc tích (Ngắn gọn & Chốt sale trực diện): Liệt kê mạch lạc các quyền lợi đắt giá nhất của gói, cam kết bàn giao file nhanh và lời kêu gọi inbox nhận ưu đãi mùa cưới.';
+          }
+
+          let albumLines = '';
+          if (Array.isArray(linkedAlbums) && linkedAlbums.length > 0) {
+            const list = linkedAlbums
+              .filter((a: any) => a && a.slug)
+              .map(
+                (a: any) => `• ${a.title || 'Bộ ảnh cưới thực tế'}: https://plusmoments.vn/bo-suu-tap/${a.slug}`
+              );
+            if (list.length > 0) {
+              albumLines = `📸 Xem bộ ảnh thực tế khách hàng đã thực hiện với gói này:\n${list.join('\n')}`;
+            }
+          }
+
+          const rawHighlights = Array.isArray(highlights) ? highlights.join('; ') : highlights || '';
+          const rawFeatures = Array.isArray(features) ? features.join('; ') : features || '';
+
+          userPrompt = `Bạn là Chuyên gia Sáng tạo Nội dung Fanpage Facebook (Facebook Content Creator) chuyên ngành cưới cao cấp cho PlusMoments Wedding Studio.
+Hãy viết một bài đăng Facebook Fanpage hoàn chỉnh, cực kỳ thu hút, khơi gợi nhu cầu và tối ưu tỷ lệ nhắn tin (inbox) nhận báo giá cho Gói Dịch Vụ Cưới này.
+
+Thông tin gói dịch vụ cưới:
+- Tên gói cưới: "${title || 'Gói Dịch Vụ Cưới Trọn Gói'}"
+${category ? `- Phân loại gói: "${category}"` : ''}
+${summary || description ? `- Mô tả ngắn / Định vị: "${summary || description}"` : ''}
+${price ? `- Giá gói dịch vụ: ${price} ${unit || 'trọn gói'}` : ''}
+${originalPrice ? `- Giá niêm yết gốc: ${originalPrice}` : ''}
+${rawHighlights ? `- Điểm nhấn quyền lợi cốt lõi: ${rawHighlights}` : ''}
+${rawFeatures ? `- Quyền lợi & sản phẩm bàn giao chi tiết: ${rawFeatures}` : ''}
+${deliverables ? `- Sản phẩm & file hoàn thiện: ${deliverables}` : ''}
+${deliveryTime ? `- Thời gian cam kết bàn giao: ${deliveryTime}` : ''}
+${albumLines ? `- Danh sách link Album thực tế đã thực hiện:\n${albumLines}` : ''}
+- Phong cách giọng văn yêu cầu: ${toneInstruction}
+- Link bảng giá: https://plusmoments.vn/bang-gia
+
+Cấu trúc bài đăng bắt buộc (Format Facebook Fanpage):
+1. Icon thu hút (💎 / 💍 / ✨) + Tiêu đề giật tít truyền cảm hứng / bảng giá gói cưới IN HOA (dưới 15 từ).
+2. Đoạn mở đầu (Hook) 2-3 câu thể hiện đúng phong cách giọng văn đã chọn, chạm đúng tâm lý dâu rể đang tìm hiểu bảng giá cưới.
+3. Chi phí đầu tư trọn gói: Nêu rõ mức giá, nhấn mạnh cam kết trọn gói 100% không phát sinh chi phí phụ.
+4. Tóm tắt quyền lợi & sản phẩm bàn giao nổi bật (3-5 gạch đầu dòng ngắn gọn, đắt giá nhất về trang phục, makeup, album photobook, ảnh cổng, file gốc).
+5. Cam kết tiến độ bàn giao đúng hẹn (${deliveryTime || deliverables || '07 - 10 ngày làm việc'}).
+6. ${albumLines ? `Chèn phần link xem Album thực tế:\n${albumLines}\n` : 'Nếu không có link album thì tuyệt đối không tạo dòng trống.'}
+7. Link xem chi tiết bảng giá: https://plusmoments.vn/bang-gia
+8. Lời kêu gọi hành động (Call To Action): "👉 Inbox ngay cho PlusMoments để nhận bảng tư vấn chi tiết và giữ slot ưu đãi cho ngày trọng đại của hai bạn nhé! ✨"
+9. Phần chữ ký studio:
+   ---
+   💍 ${effectiveBrandName}
+   Hotline / Zalo: ${effectiveHotline}
+   Địa chỉ: ${effectiveAddress}
+10. Bộ hashtag chuyên ngành cưới & bảng giá: #PlusMoments #BangGiaChupAnhCuoi #PhongSuCuoi #PreWeddingTPHCM #StudioAnhCuoiTPHCM #ChupAnhCuoiTronGoi #AnhCuoiLuxury
+
+Chỉ trả về toàn bộ nội dung bài đăng Facebook hoàn chỉnh, sẵn sàng copy đăng ngay, không kèm lời dẫn của AI.`;
+        } else {
+          let toneInstruction = 'Sang trọng, đẳng cấp, mang hơi thở điện ảnh và nghệ thuật cao cấp.';
+          if (tone === 'ROMANTIC') toneInstruction = 'Lãng mạn, ngọt ngào, bay bổng, chạm đến trái tim đôi lứa.';
+          if (tone === 'HUMOROUS' || tone === 'MODERN')
+            toneInstruction = 'Trẻ trung, tươi vui, hóm hỉnh nhẹ nhàng, bắt trend giới trẻ.';
+          if (tone === 'CONCISE')
+            toneInstruction = 'Ngắn gọn, súc tích, dứt khoát, tập trung vào ưu đãi và lời kêu gọi hành động (CTA).';
+
+          userPrompt = `Bạn là Chuyên gia Sáng tạo Nội dung Fanpage Facebook (Facebook Content Creator) cho PlusMoments Wedding Studio.
 Hãy viết một bài đăng Facebook Fanpage hoàn chỉnh, cực kỳ thu hút và tối ưu tỷ lệ tương tác & nhắn tin (inbox) cho ${type === 'ALBUM' ? 'bộ ảnh cưới' : 'bài viết cẩm nang cưới'} này.
 
 Thông tin đầu vào:
@@ -288,6 +374,7 @@ Cấu trúc bài đăng bắt buộc (Format Facebook):
 7. Bộ hashtag tối ưu: #PlusMoments #StudioAnhCuoi #AnhCuoiLuxury #PreWeddingEditorial #ChupAnhCuoiTPHCM #PhongSuNgayCuoi và các hashtag liên quan concept/địa điểm.
 
 Chỉ trả về toàn bộ nội dung bài đăng Facebook hoàn chỉnh, sẵn sàng đăng ngay, không kèm lời dẫn của AI.`;
+        }
         break;
       }
 

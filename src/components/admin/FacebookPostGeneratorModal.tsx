@@ -23,7 +23,7 @@ import { Modal } from '@/components/ui/Modal';
 export interface FacebookPostData {
   title: string;
   slug?: string;
-  type: 'ALBUM' | 'BLOG';
+  type: 'ALBUM' | 'BLOG' | 'PACKAGE';
   concept?: string;
   category?: string;
   coupleNames?: string;
@@ -34,6 +34,23 @@ export interface FacebookPostData {
   coverImage?: string;
   author?: string;
   images?: Array<string | { url: string; alt?: string; caption?: string }>;
+  // Package-specific fields
+  subtitle?: string;
+  price?: number | string | null;
+  originalPrice?: number | string | null;
+  unit?: string;
+  highlights?: string[] | string | null;
+  features?: string[] | string | null;
+  deliverables?: string | null;
+  deliveryTime?: string | null;
+  linkedAlbums?: Array<{ title: string; slug: string }>;
+}
+
+function formatPriceVND(val: any): string {
+  if (val === undefined || val === null || val === '') return '';
+  const num = typeof val === 'number' ? val : parseInt(String(val).replace(/[^0-9]/g, ''), 10);
+  if (isNaN(num)) return String(val);
+  return new Intl.NumberFormat('vi-VN').format(num) + ' VNĐ';
 }
 
 interface FacebookPostGeneratorModalProps {
@@ -74,8 +91,8 @@ export function FacebookPostGeneratorModal({
     brandName: string;
   }>(() => {
     return {
-      hotline: hotline || cachedStudioContact?.hotline || '0903.768.871',
-      address: address || cachedStudioContact?.address || '31 Hùng Vương, Phường An Đông',
+      hotline: hotline || cachedStudioContact?.hotline || '0901577993',
+      address: address || cachedStudioContact?.address || '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh',
       brandName: brandName || cachedStudioContact?.brandName || 'PLUSMOMENTS - LUXURY WEDDING STUDIO',
     };
   });
@@ -118,8 +135,8 @@ export function FacebookPostGeneratorModal({
         .then((json) => {
           if (!isMounted || !json?.contact) return;
           const c = json.contact;
-          const liveHotline = hotline || c.hotlineDisplay || c.hotline || '0903.768.871';
-          const liveAddress = address || c.address || c.studioAddress || '31 Hùng Vương, Phường An Đông';
+          const liveHotline = hotline || c.hotlineDisplay || c.hotline || '0901577993';
+          const liveAddress = address || c.address || c.studioAddress || '32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh';
           const rawBrand =
             brandName ||
             (c.logoTextPrimary && c.logoTextSecondary
@@ -149,6 +166,83 @@ export function FacebookPostGeneratorModal({
     tone: ToneType = selectedTone,
     contact: { hotline: string; address: string; brandName: string } = studioContact
   ) => {
+    // 1. SPECIFIC TEMPLATE FOR WEDDING SERVICE PACKAGES
+    if (data.type === 'PACKAGE') {
+      const cleanTitle = (data.title || 'Gói Dịch Vụ Cưới Trọn Gói').toUpperCase();
+      const headline = `💎 BẢNG GIÁ DỊCH VỤ CƯỚI: ${cleanTitle}`;
+
+      let openingHook = '';
+      if (tone === 'ROMANTIC') {
+        openingHook = `“Hạnh phúc giản đơn là khi nhìn lại ngày trọng đại, hai bạn vẫn thấy ánh mắt đong đầy yêu thương thuở ban đầu.”\n\nVới ${data.title}, hành trình chuẩn bị ngày vui của hai bạn sẽ trở nên nhẹ nhàng, thảnh thơi hơn bao giờ hết. PlusMoments nâng niu từng nhịp đập cảm xúc, ghi lại trọn vẹn những cái nắm tay, nụ cười hạnh phúc mà không hề có sự gượng gạo hay âu lo khâu hậu cần.`;
+      } else if (tone === 'MODERN') {
+        openingHook = `Mùa cưới này, dâu rể thế hệ mới ưu tiên điều gì nhất? Concept độc bản, phong cách tự nhiên và bảng giá minh bạch, trọn gói 100% không lo phát sinh chi phí!\n\nGói ${data.title} chính là lựa chọn "chân ái" cho các cặp đôi thích sự hiện đại, tinh gọn nhưng vẫn cực kỳ thời thượng. Từ trang phục bắt trend đến màu ảnh sang xịn mịn, PlusMoments lo từ A-Z để hai bạn chỉ việc tỏa sáng rực rỡ nhất!`;
+      } else if (tone === 'CONCISE') {
+        openingHook = `CÔNG BỐ BẢNG GIÁ ƯU ĐÃI: ${cleanTitle} - GIẢI PHÁP TRỌN GÓI HOÀN HẢO CHO NGÀY CƯỚI!\n\nTối ưu chi phí - Trọn vẹn quyền lợi - Cam kết chất lượng hình ảnh & thời gian bàn giao chuẩn chỉnh 100%. Dành riêng cho các cặp đôi đặt lịch sớm trong mùa cưới này.`;
+      } else {
+        // LUXURY (Default)
+        openingHook = `“Đám cưới là sự kiện chỉ diễn ra một lần trong đời, và từng khoảnh khắc xứng đáng được lưu giữ bằng những chuẩn mực hoàn mỹ nhất.”\n\nGói dịch vụ ${data.title} tại PlusMoments được thiết kế riêng dành cho các cặp đôi tìm kiếm trải nghiệm cưới cao cấp, chỉn chu từ khâu lên concept nghệ thuật, trang phục thiết kế đến từng khung hình điện ảnh tráng lệ. Ekip tận tâm, giàu kinh nghiệm cam kết mang đến những tác phẩm nghệ thuật vượt thời gian.`;
+      }
+
+      // Price section
+      let priceSection = '';
+      if (data.price) {
+        const formattedPrice = formatPriceVND(data.price);
+        const unit = data.unit || 'trọn gói';
+        if (data.originalPrice) {
+          const formattedOriginal = formatPriceVND(data.originalPrice);
+          priceSection = `💰 Chi phí đầu tư: ${formattedPrice} / ${unit} (Giá niêm yết: ${formattedOriginal} - Tiết kiệm ngay ưu đãi mùa cưới!)\nCam kết 100% chi phí minh bạch, không phát sinh trong suốt quá trình thực hiện.\n\n`;
+        } else {
+          priceSection = `💰 Chi phí đầu tư: ${formattedPrice} / ${unit}\nCam kết 100% chi phí minh bạch, trọn gói không phát sinh.\n\n`;
+        }
+      }
+
+      // Highlights & Features section
+      const rawHighlights = Array.isArray(data.highlights)
+        ? data.highlights
+        : data.highlights ? [data.highlights] : [];
+      const rawFeatures = Array.isArray(data.features)
+        ? data.features
+        : data.features ? [data.features] : [];
+      const combinedHighlights = Array.from(new Set([...rawHighlights, ...rawFeatures].filter(Boolean)));
+
+      let highlightsSection = '';
+      if (combinedHighlights.length > 0) {
+        highlightsSection = `✨ QUYỀN LỢI & SẢN PHẨM BÀN GIAO NỔI BẬT:\n${combinedHighlights.slice(0, 5).map((h) => `• ${h}`).join('\n')}\n\n`;
+      }
+
+      // Delivery section
+      const deliveryText = data.deliveryTime || data.deliverables || 'Cam kết bàn giao đúng tiến độ: 07 - 10 ngày làm việc (trả toàn bộ file gốc trong vòng 24h)';
+      const deliverySection = `⏱️ Cam kết tiến độ bàn giao:\n• ${deliveryText}\n\n`;
+
+      // Linked Albums section (auto insert only if linkedAlbums.length > 0)
+      let linkedAlbumsSection = '';
+      if (Array.isArray(data.linkedAlbums) && data.linkedAlbums.length > 0) {
+        const valid = data.linkedAlbums.filter((a) => a && a.slug);
+        if (valid.length > 0) {
+          linkedAlbumsSection = `📸 Xem bộ ảnh thực tế khách hàng đã thực hiện với gói này:\n${valid.map((a) => `• ${a.title || 'Bộ ảnh thực tế'}: https://plusmoments.vn/bo-suu-tap/${a.slug}`).join('\n')}\n\n`;
+        }
+      }
+
+      const websiteSection = `🌐 Chi tiết toàn bộ bảng giá và ưu đãi mùa cưới: https://plusmoments.vn/bang-gia\n\n`;
+      const ctaSection = `👉 Nhắn tin ngay cho PlusMoments để nhận bảng tư vấn chi tiết và giữ slot ưu đãi cho ngày trọng đại của hai bạn nhé! ✨`;
+
+      const hashtags = `#PlusMoments #BangGiaChupAnhCuoi #PhongSuCuoi #PreWeddingTPHCM #StudioAnhCuoiTPHCM #ChupAnhCuoiTronGoi #AnhCuoiLuxury`;
+
+      return `${headline}
+
+${openingHook}
+
+${priceSection}${highlightsSection}${deliverySection}${linkedAlbumsSection}${websiteSection}${ctaSection}
+
+---
+💍 ${contact.brandName}
+Hotline / Zalo: ${contact.hotline}
+Địa chỉ: ${contact.address}
+
+${hashtags}`;
+    }
+
+    // 2. TEMPLATE FOR ALBUM OR BLOG
     const isAlbum = data.type === 'ALBUM';
     const postConcept = data.concept || data.category || 'Pre-Wedding Luxury';
     const postLocation = data.location || 'Studio & Ngoại cảnh';
@@ -244,7 +338,9 @@ ${hashtags}`;
   const handleAIRewrite = async () => {
     try {
       setIsGeneratingAI(true);
-      const postUrl = `https://plusmoments.vn/${data.type === 'ALBUM' ? 'bo-suu-tap' : 'blog'}/${data.slug || ''}`;
+      const postUrl = data.type === 'PACKAGE'
+        ? 'https://plusmoments.vn/bang-gia'
+        : `https://plusmoments.vn/${data.type === 'ALBUM' ? 'bo-suu-tap' : 'blog'}/${data.slug || ''}`;
 
       const res = await fetch('/api/admin/gemini/generate', {
         method: 'POST',
@@ -254,15 +350,26 @@ ${hashtags}`;
           title: data.title,
           type: data.type,
           concept: data.concept || data.category,
+          category: data.category,
           coupleNames: data.coupleNames,
           location: data.location,
           summary: data.summary || data.description,
+          description: data.description,
           content: data.content,
           postUrl,
           tone: selectedTone,
           hotline: studioContact.hotline,
           address: studioContact.address,
           brandName: studioContact.brandName,
+          // Package specific fields
+          price: data.price,
+          originalPrice: data.originalPrice,
+          unit: data.unit,
+          highlights: data.highlights,
+          features: data.features,
+          deliverables: data.deliverables,
+          deliveryTime: data.deliveryTime,
+          linkedAlbums: data.linkedAlbums,
         }),
       });
 
@@ -361,8 +468,18 @@ ${hashtags}`;
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="max-w-5xl"
-      title="📱 Trợ Lý Đăng Bài Fanpage Facebook PlusMoments"
-      subtitle="Tự động tối ưu nội dung copywriting, bố cục hình ảnh và bộ hashtag sẵn sàng đăng Fanpage."
+      title={
+        data.type === 'PACKAGE'
+          ? '📱 Trợ Lý Đăng Bài Fanpage - Gói Dịch Vụ Cưới'
+          : data.type === 'BLOG'
+          ? '📱 Trợ Lý Đăng Bài Fanpage - Bài Viết Cẩm Nang'
+          : '📱 Trợ Lý Đăng Bài Fanpage Facebook PlusMoments'
+      }
+      subtitle={
+        data.type === 'PACKAGE'
+          ? 'Tự động tạo bài đăng tư vấn gói cưới, chèn link album thực tế, tối ưu quyền lợi và giá gói sẵn sàng đăng Fanpage.'
+          : 'Tự động tối ưu nội dung copywriting, bố cục hình ảnh và bộ hashtag sẵn sàng đăng Fanpage.'
+      }
     >
       <div className="space-y-6">
         {/* TABS SELECTOR FOR MOBILE / DESKTOP SWITCH */}
@@ -531,7 +648,11 @@ ${hashtags}`;
             <div className="p-4 bg-stone-900 text-stone-200 rounded-2xl space-y-3 shadow-sm border border-stone-800">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-amber-300 flex items-center gap-2">
                 <Layers className="w-3.5 h-3.5 text-amber-400" />
-                <span>Quy tắc bố cục ảnh Facebook (4 Photos Grid)</span>
+                <span>
+                  {data.type === 'PACKAGE'
+                    ? 'Bố cục ảnh Facebook cho Gói Dịch Vụ Cưới'
+                    : 'Quy tắc bố cục ảnh Facebook (4 Photos Grid)'}
+                </span>
               </h4>
 
               <div className="space-y-2 text-[11px] leading-relaxed text-stone-300">
@@ -540,7 +661,12 @@ ${hashtags}`;
                     Ảnh 1
                   </span>
                   <span>
-                    <strong className="text-white">Ảnh bìa chính (Góc rộng):</strong> Khung hình toàn cảnh bắt mắt nhất, tỉ lệ 3:2, 16:9 ngang hoặc 3:4 dọc.
+                    <strong className="text-white">
+                      {data.type === 'PACKAGE' ? 'Ảnh bìa đại diện gói:' : 'Ảnh bìa chính (Góc rộng):'}
+                    </strong>{' '}
+                    {data.type === 'PACKAGE'
+                      ? 'Hình ảnh đại diện bắt mắt nhất của gói cưới hoặc card báo giá sang trọng.'
+                      : 'Khung hình toàn cảnh bắt mắt nhất, tỉ lệ 3:2, 16:9 ngang hoặc 3:4 dọc.'}
                   </span>
                 </div>
 
@@ -549,7 +675,12 @@ ${hashtags}`;
                     Ảnh 2, 3, 4
                   </span>
                   <span>
-                    <strong className="text-white">Cận cảnh cảm xúc:</strong> Khoảnh khắc trao nhẫn, ánh mắt, nụ cười hạnh phúc hoặc chi tiết váy cưới.
+                    <strong className="text-white">
+                      {data.type === 'PACKAGE' ? 'Ảnh demo thực tế & sản phẩm:' : 'Cận cảnh cảm xúc:'}
+                    </strong>{' '}
+                    {data.type === 'PACKAGE'
+                      ? 'Bộ ảnh mẫu chụp thực tế với gói này, photobook fine art hoặc ảnh cổng tráng gương.'
+                      : 'Khoảnh khắc trao nhẫn, ánh mắt, nụ cười hạnh phúc hoặc chi tiết váy cưới.'}
                   </span>
                 </div>
 
@@ -558,7 +689,12 @@ ${hashtags}`;
                     Ảnh +N
                   </span>
                   <span>
-                    <strong className="text-white">Mạch thời gian:</strong> Sắp xếp tiếp nối theo tiến trình buổi chụp/lễ hôn phối để người xem lướt ảnh.
+                    <strong className="text-white">
+                      {data.type === 'PACKAGE' ? 'Thư viện ảnh khách hàng:' : 'Mạch thời gian:'}
+                    </strong>{' '}
+                    {data.type === 'PACKAGE'
+                      ? 'Thêm các góc ảnh thực tế đa dạng concept để khách hàng dễ dàng hình dung và lựa chọn.'
+                      : 'Sắp xếp tiếp nối theo tiến trình buổi chụp/lễ hôn phối để người xem lướt ảnh.'}
                   </span>
                 </div>
               </div>
