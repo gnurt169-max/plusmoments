@@ -9,13 +9,13 @@ export interface ImageLoaderParams {
 /**
  * Image Loader for PlusMoments:
  * Ensures the returned image URL always points to the exact, actual file path on the VPS (/uploads/...).
- * Avoids phantom variant rewrites (-sm.webp, -md.webp) that cause 404s and broken image states.
+ * Incorporates width parameter to satisfy Next.js loader signature while serving original file directly.
  */
-export default function staticVariantLoader({ src }: ImageLoaderParams): string {
+export default function staticVariantLoader({ src, width }: ImageLoaderParams): string {
   if (!src || typeof src !== 'string') {
     return '';
   }
 
-  // Always return the exact, clean URL as stored on the VPS
-  return src.split('?')[0].split('#')[0].trim();
+  const clean = src.split('?')[0].split('#')[0].trim();
+  return width ? `${clean}?w=${width}` : clean;
 }

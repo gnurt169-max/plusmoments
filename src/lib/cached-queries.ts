@@ -85,16 +85,36 @@ export const getCachedAlbums = cache(async () => {
   return fetchAlbumsCached();
 });
 
+/**
+ * Serializes Prisma Decimal & Date fields to plain JavaScript types (number & string)
+ * to prevent Next.js Flight warning: "Only plain objects can be passed to Client Components from Server Components"
+ */
+export function serializePackage<T extends Record<string, any>>(pkg: T | null | undefined): any {
+  if (!pkg) return null;
+  return {
+    ...pkg,
+    price: Number(pkg.price) || 0,
+    originalPrice: pkg.originalPrice != null ? Number(pkg.originalPrice) : null,
+    createdAt: pkg.createdAt instanceof Date ? pkg.createdAt.toISOString() : pkg.createdAt,
+    updatedAt: pkg.updatedAt instanceof Date ? pkg.updatedAt.toISOString() : pkg.updatedAt,
+  };
+}
+
 const fetchAlbumBySlugCached = unstable_cache(
   async (slug: string) => {
     try {
-      return await prisma.album.findUnique({
+      const album = await prisma.album.findUnique({
         where: { slug },
         include: {
           package: true,
           media: { orderBy: { orderIndex: 'asc' } },
         },
       });
+      if (!album) return null;
+      return {
+        ...album,
+        package: album.package ? serializePackage(album.package) : null,
+      };
     } catch {
       return null;
     }
@@ -116,7 +136,7 @@ export const getCachedAlbumBySlug = cache(async (slug: string) => {
 const fetchPackagesCached = unstable_cache(
   async () => {
     try {
-      return await prisma.servicePackage.findMany({
+      const pkgs = await prisma.servicePackage.findMany({
         where: { published: true },
         orderBy: [
           { isPopular: 'desc' },
@@ -124,6 +144,7 @@ const fetchPackagesCached = unstable_cache(
           { orderIndex: 'asc' },
         ],
       });
+      return pkgs.map((p) => serializePackage(p));
     } catch {
       return [];
     }

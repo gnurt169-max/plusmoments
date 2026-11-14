@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
+import { serializePackage } from '@/lib/cached-queries';
 import { LandingPageClientView } from './LandingPageClientView';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,11 +26,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function GoogleAdsLandingPage() {
   const [settings, packages, featuredAlbums, testimonials] = await Promise.all([
     getSystemSettings(),
-    prisma.servicePackage.findMany({
-      where: { published: true },
-      orderBy: [{ isFeatured: 'desc' }, { orderIndex: 'asc' }],
-      take: 3,
-    }).catch(() => []),
+    prisma.servicePackage
+      .findMany({
+        where: { published: true },
+        orderBy: [{ isFeatured: 'desc' }, { orderIndex: 'asc' }],
+        take: 3,
+      })
+      .then((pkgs) => pkgs.map(serializePackage))
+      .catch(() => []),
     prisma.album.findMany({
       where: { published: true },
       orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
