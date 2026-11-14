@@ -4,8 +4,9 @@ import {
   getCachedPackages,
   getCachedSystemSettings,
   getCachedPricingFaqs,
+  getCachedTestimonials,
 } from '@/lib/cached-queries';
-import { PricingPackagesJsonLd, FaqJsonLd } from '@/components/seo/JsonLdSchema';
+import { PricingPackagesJsonLd, FaqJsonLd, computeReviewStats } from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
@@ -42,11 +43,14 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function PricingPage() {
-  const [packagesRaw, settings, faqsRaw] = await Promise.all([
+  const [packagesRaw, settings, faqsRaw, testimonials] = await Promise.all([
     getCachedPackages(),
     getCachedSystemSettings(),
     getCachedPricingFaqs(),
+    getCachedTestimonials(),
   ]);
+
+  const { aggregateRating, reviews } = computeReviewStats(testimonials);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
@@ -110,6 +114,8 @@ export default async function PricingPage() {
       {/* Structured Schema Data */}
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
+        aggregateRating={aggregateRating}
+        reviews={reviews}
         packages={packages.map((pkg) => {
           let demoImagesList: string[] = [];
           if (pkg.demoImages) {

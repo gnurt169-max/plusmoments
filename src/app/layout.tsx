@@ -3,7 +3,8 @@ import { headers } from 'next/headers';
 import { Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
-import { RootWebsiteJsonLd } from '@/components/seo/JsonLdSchema';
+import { getCachedTestimonials } from '@/lib/cached-queries';
+import { RootWebsiteJsonLd, computeReviewStats } from '@/components/seo/JsonLdSchema';
 
 const playfair = Playfair_Display({
   subsets: ['vietnamese'],
@@ -96,7 +97,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const nonce = (await headers()).get('x-nonce') || undefined;
-  const settings = await getSystemSettings();
+  const [settings, testimonials] = await Promise.all([
+    getSystemSettings(),
+    getCachedTestimonials(),
+  ]);
+  const { aggregateRating, reviews } = computeReviewStats(testimonials);
 
   return (
     <html
@@ -177,6 +182,8 @@ export default async function RootLayout({
           priceRange="6.000.000đ - 25.000.000đ"
           latitude={10.7769}
           longitude={106.7009}
+          aggregateRating={aggregateRating}
+          reviews={reviews}
         />
       </head>
       <body className="min-h-screen bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans antialiased">

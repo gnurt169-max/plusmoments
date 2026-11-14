@@ -4,8 +4,14 @@ import {
   getCachedPackages,
   getCachedSystemSettings,
   getCachedPricingFaqs,
+  getCachedTestimonials,
 } from '@/lib/cached-queries';
-import { PricingPackagesJsonLd, FaqJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
+import {
+  PricingPackagesJsonLd,
+  FaqJsonLd,
+  BreadcrumbJsonLd,
+  computeReviewStats,
+} from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { HelpCircle, Sparkles, CheckCircle2 } from 'lucide-react';
@@ -42,11 +48,14 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function BangGiaPage() {
-  const [packagesRaw, settings, faqsRaw] = await Promise.all([
+  const [packagesRaw, settings, faqsRaw, testimonials] = await Promise.all([
     getCachedPackages(),
     getCachedSystemSettings(),
     getCachedPricingFaqs(),
+    getCachedTestimonials(),
   ]);
+
+  const { aggregateRating, reviews } = computeReviewStats(testimonials);
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
@@ -115,6 +124,8 @@ export default async function BangGiaPage() {
       />
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
+        aggregateRating={aggregateRating}
+        reviews={reviews}
         packages={packages.map((pkg) => {
           let demoImagesList: string[] = [];
           if (pkg.demoImages) {

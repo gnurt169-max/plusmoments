@@ -33,9 +33,13 @@ const fetchTestimonialsCached = unstable_cache(
   async () => {
     try {
       return await prisma.testimonial.findMany({
-        where: { published: true, OR: [{ featured: true }, { isFeatured: true }] },
-        orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
-        take: 6,
+        where: { published: true },
+        orderBy: [
+          { isFeatured: 'desc' },
+          { featured: 'desc' },
+          { orderIndex: 'asc' },
+          { createdAt: 'desc' },
+        ],
       });
     } catch {
       return [];
@@ -43,7 +47,7 @@ const fetchTestimonialsCached = unstable_cache(
   },
   ['public-testimonials'],
   {
-    tags: ['settings'],
+    tags: ['testimonials', 'settings'],
     revalidate: 60,
   }
 );

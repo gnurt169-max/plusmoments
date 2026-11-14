@@ -1,6 +1,94 @@
 import React from 'react';
 
 // =========================================================================
+// TYPES & COMPUTATION FOR REAL REVIEWS & AGGREGATE RATINGS
+// =========================================================================
+export interface ReviewSchemaItem {
+  authorName: string;
+  rating: number;
+  reviewBody?: string | null;
+  datePublished?: string;
+}
+
+export interface AggregateRatingSchema {
+  ratingValue: string;
+  reviewCount: string | number;
+  bestRating?: string;
+  worstRating?: string;
+}
+
+/**
+ * Calculates dynamic aggregateRating and review schema items from real studio testimonials
+ */
+export function computeReviewStats(
+  testimonials?: Array<{
+    coupleNames?: string | null;
+    authorName?: string | null;
+    quote?: string | null;
+    content?: string | null;
+    reviewContent?: string | null;
+    rating?: number | null;
+    createdAt?: Date | string | null;
+  }> | null
+): {
+  aggregateRating?: AggregateRatingSchema;
+  reviews?: ReviewSchemaItem[];
+} {
+  if (!testimonials || !Array.isArray(testimonials) || testimonials.length === 0) {
+    return {};
+  }
+
+  const validReviews = testimonials.filter(
+    (t) => t && ((t.coupleNames && t.coupleNames.trim()) || (t.authorName && t.authorName.trim()))
+  );
+  if (validReviews.length === 0) {
+    return {};
+  }
+
+  const totalRating = validReviews.reduce((sum, item) => sum + (Number(item.rating) || 5), 0);
+  const avg = (totalRating / validReviews.length).toFixed(1);
+
+  const aggregateRating: AggregateRatingSchema = {
+    ratingValue: avg,
+    bestRating: '5',
+    worstRating: '1',
+    reviewCount: String(validReviews.length),
+  };
+
+  const reviews: ReviewSchemaItem[] = validReviews.slice(0, 5).map((rev) => {
+    let datePublished: string | undefined;
+    if (rev.createdAt) {
+      try {
+        const d = rev.createdAt instanceof Date ? rev.createdAt : new Date(rev.createdAt);
+        if (!isNaN(d.getTime())) {
+          datePublished = d.toISOString().split('T')[0];
+        }
+      } catch {
+        // ignore invalid date
+      }
+    }
+
+    const reviewBody =
+      rev.content?.trim() ||
+      rev.quote?.trim() ||
+      rev.reviewContent?.trim() ||
+      'Dịch vụ chụp ảnh cưới chuyên nghiệp và tận tâm tại PlusMoments Studio.';
+
+    return {
+      authorName: (rev.coupleNames || rev.authorName || 'Khách hàng PlusMoments').trim(),
+      datePublished,
+      reviewBody,
+      rating: Number(rev.rating) || 5,
+    };
+  });
+
+  return {
+    aggregateRating,
+    reviews,
+  };
+}
+
+// =========================================================================
 // 1. ROOT WEBSITE & BRIDAL SHOP (LOCAL BUSINESS + ORGANIZATION + WEBSITE)
 // =========================================================================
 export interface RootWebsiteSchemaProps {
@@ -16,6 +104,8 @@ export interface RootWebsiteSchemaProps {
   latitude?: number;
   longitude?: number;
   sameAs?: string[];
+  aggregateRating?: AggregateRatingSchema;
+  reviews?: ReviewSchemaItem[];
 }
 
 export function RootWebsiteJsonLd({
@@ -35,6 +125,8 @@ export function RootWebsiteJsonLd({
     'https://www.instagram.com/plusmoments',
     'https://www.tiktok.com/@plusmoments.vn',
   ],
+  aggregateRating,
+  reviews,
 }: RootWebsiteSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
@@ -79,6 +171,32 @@ export function RootWebsiteJsonLd({
           },
         ],
         sameAs,
+        ...(aggregateRating ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: aggregateRating.ratingValue,
+            bestRating: aggregateRating.bestRating || '5',
+            worstRating: aggregateRating.worstRating || '1',
+            reviewCount: String(aggregateRating.reviewCount),
+          },
+        } : {}),
+        ...(reviews && reviews.length > 0 ? {
+          review: reviews.slice(0, 5).map((rev) => ({
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: rev.authorName || 'Khách hàng PlusMoments',
+            },
+            ...(rev.datePublished ? { datePublished: rev.datePublished } : {}),
+            reviewBody: rev.reviewBody || 'Dịch vụ chụp ảnh cưới chuyên nghiệp và tận tâm tại PlusMoments Studio.',
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: String(rev.rating || 5),
+              bestRating: '5',
+              worstRating: '1',
+            },
+          })),
+        } : {}),
       },
       {
         '@type': 'WebSite',
@@ -202,12 +320,18 @@ export interface PricingPackagesSchemaProps {
     url: string;
     image?: string | string[] | null;
     brand?: string;
+    aggregateRating?: AggregateRatingSchema;
+    reviews?: ReviewSchemaItem[];
   }[];
+  aggregateRating?: AggregateRatingSchema;
+  reviews?: ReviewSchemaItem[];
   baseUrl?: string;
 }
 
 export function PricingPackagesJsonLd({
   packages,
+  aggregateRating,
+  reviews,
   baseUrl = 'https://plusmoments.vn',
 }: PricingPackagesSchemaProps) {
   const schema = {
@@ -238,6 +362,9 @@ export function PricingPackagesJsonLd({
           ? pkg.description.trim()
           : `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`;
 
+      const pkgAggregateRating = pkg.aggregateRating || aggregateRating;
+      const pkgReviews = pkg.reviews || reviews;
+
       return {
         '@type': 'ListItem',
         position: index + 1,
@@ -258,6 +385,32 @@ export function PricingPackagesJsonLd({
             availability: 'https://schema.org/InStock',
             url: itemUrl,
           },
+          ...(pkgAggregateRating ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: pkgAggregateRating.ratingValue,
+              bestRating: pkgAggregateRating.bestRating || '5',
+              worstRating: pkgAggregateRating.worstRating || '1',
+              reviewCount: String(pkgAggregateRating.reviewCount),
+            },
+          } : {}),
+          ...(pkgReviews && pkgReviews.length > 0 ? {
+            review: pkgReviews.slice(0, 5).map((rev) => ({
+              '@type': 'Review',
+              author: {
+                '@type': 'Person',
+                name: rev.authorName || 'Khách hàng PlusMoments',
+              },
+              ...(rev.datePublished ? { datePublished: rev.datePublished } : {}),
+              reviewBody: rev.reviewBody || 'Dịch vụ chụp ảnh cưới chuyên nghiệp và tận tâm tại PlusMoments Studio.',
+              reviewRating: {
+                '@type': 'Rating',
+                ratingValue: String(rev.rating || 5),
+                bestRating: '5',
+                worstRating: '1',
+              },
+            })),
+          } : {}),
         },
       };
     }),
