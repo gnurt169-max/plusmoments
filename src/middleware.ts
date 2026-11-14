@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
   const cspHeader = `
     default-src 'self';
     script-src ${scriptSrcDirective}
-    style-src 'self' 'unsafe-inline' 'nonce-${nonce}';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.com.vn https://googleads.g.doubleclick.net https://lh3.googleusercontent.com https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://img.vietqr.io https://api.vietqr.io https://www.facebook.com;
     font-src 'self' data: https://fonts.gstatic.com;
     connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net https://www.googleadservices.com https://www.googleapis.com https://api.vietqr.io https://connect.facebook.net https://analytics.tiktok.com;
