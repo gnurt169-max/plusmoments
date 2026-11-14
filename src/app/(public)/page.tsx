@@ -11,7 +11,7 @@ import {
   getCachedBlogs,
 } from '@/lib/cached-queries';
 import { SafeImage } from '@/components/common/SafeImage';
-import { FloatingCard } from '@/components/motion/FloatingCard';
+import { FeaturedAlbumsSection } from '@/components/home/FeaturedAlbumsSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import {
   PricingPackagesJsonLd,
@@ -314,101 +314,23 @@ export default async function HomePage() {
             FEATURED ALBUMS WITH ANTIGRAVITY FLOATING MOTION
         ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
-            Portfolio Tuyệt Tác
-          </p>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-charcoal-900">
-            Bộ Sưu Tập Cưới Nổi Bật
-          </h2>
-          <p className="text-sm text-charcoal-600 font-light leading-relaxed">
-            Mỗi bộ ảnh là một cuốn nhật ký tình yêu mang hơi thở riêng biệt, được thực hiện bởi sự tỉ mỉ từ trang phục, makeup đến ánh sáng.
-          </p>
-        </div>
+          <div className="text-center max-w-2xl mx-auto space-y-2.5 sm:space-y-3 mb-10 sm:mb-16 px-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
+              Portfolio Tuyệt Tác
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-charcoal-900">
+              Bộ Sưu Tập Cưới Nổi Bật
+            </h2>
+            <p className="text-xs sm:text-sm text-charcoal-600 font-light leading-relaxed">
+              Mỗi bộ ảnh là một cuốn nhật ký tình yêu mang hơi thở riêng biệt, được thực hiện bởi sự tỉ mỉ từ trang phục, makeup đến ánh sáng.
+            </p>
+          </div>
 
-        {(() => {
-          const displayedAlbums = albums && Array.isArray(albums) ? albums.slice(0, 3) : [];
-          if (displayedAlbums.length === 0) {
-            return (
-              <div className="text-center py-12 text-xs text-charcoal-600">
-                Đang cập nhật các bộ sưu tập mới...
-              </div>
-            );
-          }
-
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-              {displayedAlbums.map((album, idx) => {
-                const coverImageSrc =
-                  (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
-                  (album as any)?.photos?.[0]?.url ||
-                  album?.media?.[0]?.url ||
-                  '/placeholder.jpg';
-
-                return (
-                  <FloatingCard
-                    key={album?.id || idx}
-                    delay={idx * 0.2}
-                    reverse={idx % 2 === 1}
-                    className="group h-full"
-                  >
-                    <Link
-                      href={`/bo-suu-tap/${album?.slug || ''}`}
-                      aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
-                      className="flex flex-col h-full bg-white p-3.5 rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300"
-                    >
-                      <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1C1A]">
-                        <SafeImage
-                          src={coverImageSrc}
-                          alt={album?.title || 'PlusMoments Wedding Album'}
-                          fill
-                          quality={65}
-                          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
-                        />
-                        {album?.concept && (
-                          <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
-                            {album.concept}
-                          </div>
-                        )}
-                        {album?.location && (
-                          <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[11px] font-mono text-charcoal-800">
-                            {album.location}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5 px-2 pb-2 mt-auto">
-                        <div className="flex items-center justify-between text-xs text-[#7A6243]">
-                          <span className="font-medium tracking-wide">{album?.coupleNames || ''}</span>
-                          <span className="text-charcoal-600 text-[11px] font-medium">Chi tiết →</span>
-                        </div>
-                        <h3 className="font-serif text-lg text-charcoal-900 font-light group-hover:text-luxury-600 transition-colors line-clamp-1">
-                          {album?.title || ''}
-                        </h3>
-                        <p className="text-xs text-charcoal-500 line-clamp-2 font-light">
-                          {album?.subtitle || album?.description || ''}
-                        </p>
-                      </div>
-                    </Link>
-                  </FloatingCard>
-                );
-              })}
-            </div>
-          );
-        })()}
-
-        {/* Nút Xem Tất Cả Bộ Sưu Tập */}
-        <div className="mt-12 text-center">
-          <Link
-            href="/bo-suu-tap"
-            className="inline-flex items-center gap-3 px-8 py-3.5 border border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white rounded-full text-sm font-medium tracking-widest uppercase transition-all duration-300 shadow-sm hover:shadow-lg group cursor-pointer"
-          >
-            <span>Xem Tất Cả Bộ Sưu Tập {totalAlbumsCount > 0 ? `(${totalAlbumsCount})` : ''}</span>
-            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </section>
+          <FeaturedAlbumsSection
+            albums={albums as any}
+            totalAlbumsCount={totalAlbumsCount}
+          />
+        </section>
 
       {/* =========================================================================
           PRICING & PACKAGES SECTION (3-Column Grid & Detail Modal)

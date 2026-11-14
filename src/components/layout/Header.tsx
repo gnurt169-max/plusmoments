@@ -97,7 +97,7 @@ export function Header(props: HeaderProps) {
           {/* DESKTOP LAYOUT (Hidden on mobile) */}
           <div className="hidden lg:flex items-center justify-between min-h-[52px]">
             {/* Brand Logo */}
-            <Link href="/" className="inline-block hover:opacity-85 transition-opacity shrink-0">
+            <Link href="/" className="inline-block hover:opacity-85 transition-opacity shrink-0 outline-none border-0 select-none">
               <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
             </Link>
 
@@ -151,7 +151,7 @@ export function Header(props: HeaderProps) {
 
             {/* Center: Brand Logo (Centered perfectly on mobile) */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-              <Link href="/" className="inline-block hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] rounded-lg">
+              <Link href="/" className="inline-block hover:opacity-85 transition-opacity outline-none border-0 select-none">
                 <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
               </Link>
             </div>
