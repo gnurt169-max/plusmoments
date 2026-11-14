@@ -156,14 +156,8 @@ export function Header(props: HeaderProps) {
               </Link>
             </div>
 
-            {/* Right: Quick Action Pill */}
-            <button
-              type="button"
-              onClick={() => setIsConsultModalOpen(true)}
-              className="px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold bg-amber-800 text-white shadow-2xs active:scale-95 transition-transform z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
-            >
-              Báo Giá
-            </button>
+            {/* Right: Spacer for perfect symmetrical balance with hamburger button */}
+            <div className="w-10 h-10 -mr-2 pointer-events-none" aria-hidden="true" />
           </div>
         </div>
       </header>

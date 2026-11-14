@@ -11,7 +11,6 @@ import { getAdminSession } from '@/lib/auth';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { VerticalFloatingContact } from '@/components/layout/VerticalFloatingContact';
-import { MobileBottomBar } from '@/components/public/MobileBottomBar';
 import { ContactProvider } from '@/context/ContactContext';
 import { TrackingProvider } from '@/components/tracking/TrackingProvider';
 import { ContentProtection } from '@/components/security/ContentProtection';
@@ -152,13 +151,10 @@ export default async function PublicLayout({
         />
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-grow pb-16 md:pb-0">{children}</main>
+        <main id="main-content" className="flex-grow">{children}</main>
 
-        {/* Luxury Vertical Floating Action Bar (Desktop Only) */}
+        {/* Luxury Vertical Floating Action Bar (Responsive Desktop & Mobile) */}
         <VerticalFloatingContact />
-
-        {/* Sticky Mobile Action Bar (Mobile Only <768px) */}
-        <MobileBottomBar />
 
         {/* Editorial Footer */}
         <Footer
