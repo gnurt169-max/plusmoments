@@ -1,9 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-
-const DEFAULT_WARM_BLUR_DATA_URL =
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
+import React, { useState } from 'react';
 
 export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -18,14 +15,16 @@ export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageEl
 }
 
 /**
- * ProtectedImage: Multi-layer Image Protection Wrapper with Responsive WebP srcSet,
- * 16px Blur Placeholder / Warm-Beige Transition & Defensive Error Fallback
+ * ProtectedImage: Multi-layer Image Protection Wrapper for PlusMoments
+ * - Renders the real image directly at 100% opacity with zero delay (no stuck opacity-0 / onLoad lag)
+ * - Safe error fallback without hiding images or rendering misplaced blur overlays
+ * - Clean security shield overlay & optional subtle studio watermark
  */
 export function ProtectedImage({
   src,
   alt,
-  sizes = '(max-width: 640px) 95vw, (max-width: 1200px) 50vw, 900px',
-  blurDataUrl,
+  sizes,
+  blurDataUrl, // kept for interface backward compatibility
   wrapperClassName = '',
   imageClassName = '',
   priority = false,
@@ -34,33 +33,15 @@ export function ProtectedImage({
   onClick,
   ...props
 }: ProtectedImageProps) {
-  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(priority);
 
-  useEffect(() => {
-    setFallbackToOriginal(false);
-    setHasError(false);
-    setIsLoaded(priority);
-  }, [src, priority]);
-
-  // Defensive rendering: If src is null, undefined, empty, or failed to load, suppress rendering cleanly
-  if (!src || !src.trim() || hasError) {
+  // If no source is provided, return null
+  if (!src || !src.trim()) {
     return null;
   }
 
   const cleanSrc = src.trim();
-  const isLocalWebp =
-    cleanSrc.startsWith('/uploads/') &&
-    cleanSrc.endsWith('.webp') &&
-    !cleanSrc.endsWith('-sm.webp') &&
-    !cleanSrc.endsWith('-md.webp');
-  const base = isLocalWebp ? cleanSrc.slice(0, -5) : '';
-  const computedSrcSet =
-    isLocalWebp && !fallbackToOriginal
-      ? `${base}-sm.webp 540w, ${base}-md.webp 1440w, ${cleanSrc} 2048w`
-      : undefined;
-  const effectiveBlurUrl = blurDataUrl || DEFAULT_WARM_BLUR_DATA_URL;
+  const displaySrc = hasError ? '/placeholder.jpg' : cleanSrc;
 
   return (
     <div
@@ -85,50 +66,27 @@ export function ProtectedImage({
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* LAYER 0: Instant 16px Blur Placeholder / Warm-Beige Backdrop */}
-      {!isLoaded && (
-        <img
-          src={effectiveBlurUrl}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover blur-md scale-105 pointer-events-none select-none"
-        />
-      )}
-
-      {/* LAYER 1: Core Image with responsive WebP srcSet, smooth blur-to-sharp opacity transition & error boundary */}
+      {/* CORE IMAGE: Always rendered cleanly with opacity-100 */}
       <img
-        key={fallbackToOriginal ? 'orig' : 'srcset'}
         {...props}
-        src={cleanSrc}
-        srcSet={computedSrcSet}
-        sizes={computedSrcSet ? sizes : undefined}
+        src={displaySrc}
         alt={alt}
+        sizes={sizes}
         draggable={false}
         fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : (props.loading || 'lazy')}
         decoding="async"
-        onLoad={(e) => {
-          setIsLoaded(true);
-          props.onLoad?.(e);
-        }}
-        className={`pointer-events-none select-none w-full h-auto object-cover block transition-opacity duration-500 ${
-          isLoaded ? 'opacity-100' : 'opacity-90'
-        } ${imageClassName}`}
+        className={`pointer-events-none select-none w-full h-auto object-cover block opacity-100 transition-transform ${imageClassName}`}
         onContextMenu={(e) => e.preventDefault()}
         onError={(e) => {
-          if (isLocalWebp && !fallbackToOriginal) {
-            setFallbackToOriginal(true);
-            return;
+          if (!hasError) {
+            setHasError(true);
           }
-          setHasError(true);
-          try {
-            (e.target as HTMLElement).style.display = 'none';
-          } catch {}
           props.onError?.(e);
         }}
       />
 
-      {/* LAYER 2: Transparent Security Shield */}
+      {/* LAYER: Transparent Security Shield */}
       <div
         className="absolute inset-0 z-10 select-none bg-transparent cursor-inherit"
         aria-hidden="true"
@@ -136,7 +94,7 @@ export function ProtectedImage({
         onDragStart={(e) => e.preventDefault()}
       />
 
-      {/* LAYER 3: Optional Subtle Luxury Watermark */}
+      {/* LAYER: Optional Subtle Luxury Watermark */}
       {watermark && (
         <div
           className="absolute bottom-3 right-3 z-15 pointer-events-none select-none px-2.5 py-1 rounded-md bg-black/35 backdrop-blur-xs text-[10px] tracking-widest uppercase font-serif text-white/80 border border-white/10 shadow-sm"
@@ -150,4 +108,3 @@ export function ProtectedImage({
 }
 
 export default ProtectedImage;
-

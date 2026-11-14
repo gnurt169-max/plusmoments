@@ -5,9 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FloatingCard } from '@/components/motion/FloatingCard';
 
-const DEFAULT_WARM_BLUR_DATA_URL =
-  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0YzRUZFQSIvPjwvc3ZnPg==';
-
 export interface AlbumCardData {
   id: string;
   slug: string;
@@ -30,19 +27,15 @@ export interface AlbumCardProps {
 }
 
 export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) {
-  const [fallbackToOriginal, setFallbackToOriginal] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  const originalSrc =
+  const rawSrc =
     (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
     album?.photos?.[0]?.url ||
     album?.media?.[0]?.url ||
     '/placeholder.jpg';
 
-  const blurDataURL =
-    album?.blurDataUrl ||
-    album?.media?.[0]?.blurDataUrl ||
-    album?.photos?.[0]?.blurDataUrl ||
-    DEFAULT_WARM_BLUR_DATA_URL;
+  const originalSrc = hasError ? '/placeholder.jpg' : rawSrc;
 
   return (
     <FloatingCard
@@ -57,19 +50,15 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
       >
         <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden mb-4 bg-[#F3EFEA]">
           <Image
-            key={fallbackToOriginal ? 'raw' : 'opt'}
             src={originalSrc}
             alt={album.title || 'PlusMoments Album'}
             fill
             priority={priority}
             fetchPriority={priority ? 'high' : 'auto'}
-            placeholder="blur"
-            blurDataURL={blurDataURL}
-            unoptimized={fallbackToOriginal}
-            onError={() => setFallbackToOriginal(true)}
+            onError={() => setHasError(true)}
             quality={70}
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-            className="object-cover group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
+            className="object-cover opacity-100 group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
           />
           {album.concept && (
             <div className="absolute top-3 left-3 px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[10px] tracking-widest uppercase text-champagne-light font-medium">
