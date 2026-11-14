@@ -172,19 +172,44 @@ export function ImageGalleryJsonLd({
 }
 
 // =========================================================================
+// HELPER: Convert relative or protocol-relative image URLs to absolute HTTPS
+// =========================================================================
+export function toAbsoluteImageUrl(
+  url: string | undefined | null,
+  baseUrl: string = 'https://plusmoments.vn'
+): string {
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    const cleanBase = baseUrl.replace(/\/+$/, '');
+    return `${cleanBase}/og-image.jpg`;
+  }
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const cleanBase = baseUrl.replace(/\/+$/, '');
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${cleanBase}${cleanPath}`;
+}
+
+// =========================================================================
 // 4. PRICING PACKAGES SCHEMA (ItemList of Products / Services)
 // =========================================================================
 export interface PricingPackagesSchemaProps {
   packages: {
     name: string;
-    description: string;
+    description?: string;
     price: number | string;
     url: string;
-    image?: string;
+    image?: string | string[] | null;
+    brand?: string;
   }[];
+  baseUrl?: string;
 }
 
-export function PricingPackagesJsonLd({ packages }: PricingPackagesSchemaProps) {
+export function PricingPackagesJsonLd({
+  packages,
+  baseUrl = 'https://plusmoments.vn',
+}: PricingPackagesSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -193,21 +218,45 @@ export function PricingPackagesJsonLd({ packages }: PricingPackagesSchemaProps) 
     numberOfItems: packages.length,
     itemListElement: packages.map((pkg, index) => {
       const cleanPrice = pkg.price.toString().replace(/[^0-9]/g, '');
+      const itemUrl = pkg.url.startsWith('http://') || pkg.url.startsWith('https://')
+        ? pkg.url
+        : `${baseUrl.replace(/\/+$/, '')}${pkg.url.startsWith('/') ? pkg.url : `/${pkg.url}`}`;
+
+      let rawImages: string[] = [];
+      if (Array.isArray(pkg.image)) {
+        rawImages = pkg.image.filter((img): img is string => typeof img === 'string' && img.trim().length > 0);
+      } else if (typeof pkg.image === 'string' && pkg.image.trim().length > 0) {
+        rawImages = [pkg.image.trim()];
+      }
+
+      const absoluteImages = rawImages.length > 0
+        ? rawImages.map((img) => toAbsoluteImageUrl(img, baseUrl))
+        : [toAbsoluteImageUrl(null, baseUrl)];
+
+      const description =
+        pkg.description && pkg.description.trim()
+          ? pkg.description.trim()
+          : `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`;
+
       return {
         '@type': 'ListItem',
         position: index + 1,
         item: {
           '@type': 'Product',
           name: pkg.name,
-          description: pkg.description,
-          url: pkg.url,
-          ...(pkg.image ? { image: pkg.image } : {}),
+          description,
+          url: itemUrl,
+          image: absoluteImages,
+          brand: {
+            '@type': 'Brand',
+            name: pkg.brand || 'PlusMoments',
+          },
           offers: {
             '@type': 'Offer',
             priceCurrency: 'VND',
             price: cleanPrice || pkg.price.toString(),
             availability: 'https://schema.org/InStock',
-            url: pkg.url,
+            url: itemUrl,
           },
         },
       };

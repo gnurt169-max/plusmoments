@@ -109,12 +109,37 @@ export default async function PricingPage() {
     <div className="pt-32 pb-24 space-y-20">
       {/* Structured Schema Data */}
       <PricingPackagesJsonLd
-        packages={packages.map((pkg) => ({
-          name: pkg.name,
-          description: pkg.subtitle || pkg.name,
-          price: pkg.price.toString(),
-          url: `${baseUrl}/pricing#${pkg.slug}`,
-        }))}
+        baseUrl={baseUrl}
+        packages={packages.map((pkg) => {
+          let demoImagesList: string[] = [];
+          if (pkg.demoImages) {
+            try {
+              const parsed = JSON.parse(pkg.demoImages);
+              if (Array.isArray(parsed)) {
+                demoImagesList = parsed.filter(
+                  (item): item is string => typeof item === 'string' && item.trim().length > 0
+                );
+              }
+            } catch {
+              // ignore
+            }
+          }
+          const allImages = [pkg.coverImage, ...demoImagesList].filter(
+            (img): img is string => Boolean(img && img.trim())
+          );
+          const packageImages = allImages.length > 0 ? allImages : ['/og-image.jpg'];
+
+          return {
+            name: pkg.name,
+            description:
+              pkg.subtitle ||
+              pkg.coreHighlights?.[0] ||
+              `Gói dịch vụ chụp ảnh cưới cao cấp ${pkg.name} trọn gói tại PlusMoments Studio.`,
+            price: pkg.price.toString(),
+            url: `${baseUrl}/pricing#${pkg.slug}`,
+            image: packageImages,
+          };
+        })}
       />
       {faqs.length > 0 && <FaqJsonLd faqs={faqs} />}
 
