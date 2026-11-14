@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getOrAnalyzeImageChunk, VisionAIChunk } from '@/lib/vision-ai';
 import { getAdminSession } from '@/lib/auth';
@@ -37,6 +38,146 @@ function extractJson(text: string): any {
   return null;
 }
 
+export interface NormalizedImageItem {
+  url: string;
+  id?: string;
+  width?: number;
+  height?: number;
+  orientation: 'landscape' | 'portrait' | 'square';
+  name?: string;
+  filename?: string;
+}
+
+/**
+ * Thuật toán Giám định & Sắp xếp Bố cục Thông minh (Heuristic Fallback Engine)
+ * Đảm bảo 100% hoạt động mượt mà khi không có AI Key hoặc khi AI gặp sự cố mạng.
+ */
+function curateAlbumFallback(images: NormalizedImageItem[], folderName?: string) {
+  if (images.length === 0) {
+    return {
+      title: 'Khoảnh Khắc Cưới Tinh Khôi',
+      slug: 'khoanh-khac-cuoi-tinh-khoi',
+      subtitle: 'Phong cách Luxury & Cảm xúc vượt thời gian',
+      concept: 'Pre-Wedding Luxury',
+      location: 'Studio & Ngoại cảnh PlusMoments',
+      coupleNames: 'Hai bạn uyên ương',
+      description: 'Bộ ảnh cưới lưu giữ những rung cảm tinh khôi và chân thành nhất tại PlusMoments Studio.',
+      seoTitle: 'Khoảnh Khắc Cưới Tinh Khôi | PlusMoments',
+      seoDescription: 'Bộ sưu tập ảnh cưới tinh khôi, sang trọng phong cách điện ảnh tại PlusMoments Studio.',
+      bestCoverUrl: '',
+      coverReason: '',
+      orderedImages: [],
+      imagesMetadata: [],
+    };
+  }
+
+  // 1. Chấm điểm tìm Ảnh Bìa Đại Diện (Cover Image) xuất sắc nhất
+  let bestCover = images[0].url;
+  let bestCoverReason = 'Khung hình nổi bật với bố cục cân đối và ánh sáng sang trọng.';
+  let highestScore = -1;
+
+  images.forEach((img, index) => {
+    let score = 50;
+    const fn = (img.filename || img.name || img.url).toLowerCase();
+
+    // Điểm thưởng theo từ khóa ảnh đại diện / ảnh chính
+    if (fn.includes('cover') || fn.includes('bia') || fn.includes('hero') || fn.includes('banner')) score += 50;
+    if (fn.includes('main') || fn.includes('best') || fn.includes('highlight') || fn.includes('select')) score += 30;
+
+    // Ảnh dọc (portrait) là tỉ lệ vàng lý tưởng cho thẻ ảnh Album 3:4 & 4:5
+    if (img.orientation === 'portrait') {
+      score += 25;
+      if (img.width && img.height) {
+        const ratio = img.width / img.height;
+        if (ratio >= 0.65 && ratio <= 0.85) score += 15; // Chuẩn 3:4 hoặc 4:5
+      }
+    } else if (img.orientation === 'landscape' && img.width && img.width >= 1920) {
+      score += 15; // Ảnh ngang độ phân giải cao làm banner hero
+    }
+
+    // Độ phân giải cao
+    if ((img.width && img.width >= 1600) || (img.height && img.height >= 1600)) score += 10;
+
+    // Vị trí: các tấm mở đầu thường là khoảnh khắc đắt giá
+    if (index === 0) score += 10;
+    else if (index <= 5) score += 5;
+
+    if (score > highestScore) {
+      highestScore = score;
+      bestCover = img.url;
+      if (fn.includes('cover') || fn.includes('bia')) {
+        bestCoverReason = 'Tấm ảnh bìa điểm nhấn được đánh dấu trong thư mục với bố cục chân dung chuẩn xác.';
+      } else if (img.orientation === 'portrait') {
+        bestCoverReason = 'Khung hình chân dung dọc sang trọng, bắt trọn cảm xúc đôi uyên ương với tỉ lệ vàng hoàn hảo cho ảnh bìa.';
+      } else {
+        bestCoverReason = 'Khung hình toàn cảnh góc rộng ấn tượng, không gian lễ cưới tráng lệ và ánh sáng hài hòa nhất.';
+      }
+    }
+  });
+
+  // 2. Sắp xếp lại thứ tự ảnh tối ưu nhịp điệu lưới Masonry & Mạch kể chuyện
+  // Xen kẽ nhịp nhàng giữa landscape và portrait để các cột Masonry cân bằng chiều cao
+  const portraits = images.filter((img) => img.orientation === 'portrait');
+  const landscapes = images.filter((img) => img.orientation === 'landscape');
+  const squaresAndOthers = images.filter((img) => img.orientation !== 'portrait' && img.orientation !== 'landscape');
+
+  const pPool = [...portraits];
+  const lPool = [...landscapes];
+  const oPool = [...squaresAndOthers];
+
+  const orderedImages: string[] = [];
+
+  // Mở đầu bằng tấm ảnh bìa nếu có
+  if (bestCover) {
+    orderedImages.push(bestCover);
+    const pIdx = pPool.findIndex((it) => it.url === bestCover);
+    if (pIdx !== -1) pPool.splice(pIdx, 1);
+    const lIdx = lPool.findIndex((it) => it.url === bestCover);
+    if (lIdx !== -1) lPool.splice(lIdx, 1);
+  }
+
+  // Đan xen nhịp nhàng: 1 Landscape -> 2 Portrait -> 1 Landscape -> 2 Portrait...
+  while (pPool.length > 0 || lPool.length > 0 || oPool.length > 0) {
+    if (orderedImages.length % 3 === 0) {
+      if (lPool.length > 0) orderedImages.push(lPool.shift()!.url);
+      else if (pPool.length > 0) orderedImages.push(pPool.shift()!.url);
+      else if (oPool.length > 0) orderedImages.push(oPool.shift()!.url);
+    } else {
+      if (pPool.length > 0) orderedImages.push(pPool.shift()!.url);
+      else if (lPool.length > 0) orderedImages.push(lPool.shift()!.url);
+      else if (oPool.length > 0) orderedImages.push(oPool.shift()!.url);
+    }
+  }
+
+  // Tiêu đề & metadata tự nhiên từ tên thư mục
+  const cleanName = (folderName || 'Chuyện Tình Mùa Yêu').replace(/[-_]/g, ' ').trim();
+  const title = cleanName
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+  const slug = slugify(cleanName);
+
+  return {
+    title: title || 'Bộ Sưu Tập Cưới Điện Ảnh',
+    slug: slug || 'bo-suu-tap-cuoi-dien-anh',
+    subtitle: 'Khoảnh khắc tình yêu tinh khôi & ánh sáng điện ảnh vượt thời gian',
+    concept: 'Pre-Wedding Luxury',
+    location: 'Studio & Ngoại cảnh PlusMoments',
+    coupleNames: 'Hai bạn uyên ương',
+    description: `Bộ ảnh cưới "${title}" được PlusMoments ghi lại trọn vẹn từng khoảnh khắc rung cảm tinh khôi và ánh mắt yêu thương đong đầy của đôi bạn uyên ương. Dưới lăng kính nghệ thuật điện ảnh kết hợp ánh sáng tự nhiên tinh tế, từng khung hình như một bản tình ca dịu êm dành riêng cho ngày trọng đại.`,
+    seoTitle: `${title} | PlusMoments`,
+    seoDescription: `Bộ sưu tập ảnh cưới ${title} tại PlusMoments Studio. Phong cách Luxury, ánh sáng điện ảnh và cảm xúc tự nhiên vượt thời gian.`,
+    bestCoverUrl: bestCover,
+    coverReason: bestCoverReason,
+    orderedImages,
+    imagesMetadata: images.map((img) => ({
+      alt: `${title} - Ảnh cưới nghệ thuật | PlusMoments`,
+      caption: '',
+    })),
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getAdminSession();
@@ -45,23 +186,71 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { type = 'BLOG', images } = body;
+    const { type = 'BLOG', images, folderName, folderSlug } = body;
 
-    const imgList: Array<{ url: string; id?: string }> = Array.isArray(images) ? images : [];
-    if (imgList.length === 0) {
+    const rawList: any[] = Array.isArray(images) ? images : [];
+    if (rawList.length === 0) {
       return NextResponse.json(
         { success: false, message: 'Vui lòng chọn hoặc tải lên ít nhất 1 ảnh trước khi kích hoạt AI.' },
         { status: 400 }
       );
     }
 
-    // 1. Fetch system settings for Gemini
+    // Chuẩn hóa danh sách ảnh đầu vào kèm thông số kích thước & hướng ảnh
+    const normalizedImages: NormalizedImageItem[] = [];
+    for (const item of rawList) {
+      const url = typeof item === 'string' ? item : item?.url || '';
+      if (!url || !url.trim()) continue;
+      const id = typeof item === 'object' ? item?.id : undefined;
+      const width = typeof item === 'object' && typeof item?.width === 'number' ? item.width : undefined;
+      const height = typeof item === 'object' && typeof item?.height === 'number' ? item.height : undefined;
+      let orientation: 'landscape' | 'portrait' | 'square' = 'landscape';
+
+      if (typeof item === 'object' && item?.orientation) {
+        orientation = item.orientation;
+      } else if (width && height) {
+        if (width > height) orientation = 'landscape';
+        else if (height > width) orientation = 'portrait';
+        else orientation = 'square';
+      }
+
+      const filename = typeof item === 'object' ? item?.filename || item?.name : path.basename(url);
+
+      normalizedImages.push({
+        url: url.trim(),
+        id,
+        width,
+        height,
+        orientation,
+        filename,
+      });
+    }
+
+    if (normalizedImages.length === 0) {
+      return NextResponse.json(
+        { success: false, message: 'Danh sách ảnh không hợp lệ.' },
+        { status: 400 }
+      );
+    }
+
+    // 1. Fetch system settings for Gemini AI
     const setting = await prisma.systemSetting.findUnique({
       where: { id: 'default' },
     });
 
     const apiKey = setting?.geminiApiKey?.trim() || process.env.GEMINI_API_KEY || '';
+
+    // Cơ chế Fallback Thông Minh: Nếu không có API key và yêu cầu là ALBUM, trả về thuật toán Curation Heuristic ngay
     if (!apiKey) {
+      if (type === 'ALBUM') {
+        const fallbackResult = curateAlbumFallback(normalizedImages, folderName);
+        return NextResponse.json({
+          success: true,
+          data: fallbackResult,
+          isFallback: true,
+          notice: 'Đã hoàn tất giám định ảnh bìa & sắp xếp bố cục Masonry bằng thuật toán thông minh.',
+        });
+      }
       return NextResponse.json(
         {
           success: false,
@@ -84,57 +273,81 @@ export async function POST(req: Request) {
 
     const temperature = setting?.geminiTemperature !== undefined ? Number(setting.geminiTemperature) : 0.7;
 
-    // 2. Scan / collect Vision AI chunks for all images
+    // 2. Thu thập ngữ cảnh thị giác: Phân tích tối đa 12 ảnh đại diện để tối ưu tốc độ gọi Vision API
+    const sampleLimit = Math.min(normalizedImages.length, 12);
     const visualContextLines: string[] = [];
     const chunks: Array<VisionAIChunk | null> = [];
 
-    for (let i = 0; i < imgList.length; i++) {
-      const item = imgList[i];
-      const url = typeof item === 'string' ? item : item.url;
-      const id = typeof item === 'object' ? item.id : undefined;
-
+    for (let i = 0; i < normalizedImages.length; i++) {
+      const item = normalizedImages[i];
       let chunk: VisionAIChunk | null = null;
-      if (url) {
-        chunk = await getOrAnalyzeImageChunk(url, id);
+
+      // Phân tích Vision cho 12 ảnh mẫu hoặc dùng cache DB có sẵn
+      if (i < sampleLimit) {
+        chunk = await getOrAnalyzeImageChunk(item.url, item.id);
       }
       chunks.push(chunk);
 
+      const orientationLabel = item.orientation === 'portrait' ? 'Ảnh Dọc (Portrait)' : item.orientation === 'landscape' ? 'Ảnh Ngang (Landscape)' : 'Ảnh Vuông';
+      const dimLabel = item.width && item.height ? `${item.width}x${item.height}` : '';
+
       if (chunk) {
         visualContextLines.push(
-          `- Ảnh [image:${i + 1}]: ${chunk.visualDescription} (Chủ thể: ${chunk.mainSubject}, Tone/Ánh sáng: ${chunk.colorMood})`
+          `- [Ảnh #${i + 1}] [${orientationLabel}${dimLabel ? ` ${dimLabel}` : ''}] (URL: "${item.url}"): ${chunk.visualDescription} (Chủ thể: ${chunk.mainSubject}, Tone/Ánh sáng: ${chunk.colorMood})`
         );
       } else {
-        visualContextLines.push(`- Ảnh [image:${i + 1}]: Khoảnh khắc chụp ảnh cưới nghệ thuật tại PlusMoments Studio`);
+        visualContextLines.push(
+          `- [Ảnh #${i + 1}] [${orientationLabel}${dimLabel ? ` ${dimLabel}` : ''}] (URL: "${item.url}"): Khoảnh khắc cưới nghệ thuật tại PlusMoments`
+        );
       }
     }
 
     const visualSummaryText = visualContextLines.join('\n');
 
-    // 3. Build Prompt based on Target Type: BLOG or ALBUM
+    // 3. Build Prompt based on Target Type: ALBUM (Full-Folder Curation) or BLOG
     let systemPrompt = '';
 
     if (type === 'ALBUM') {
-      systemPrompt = `Bạn là Giám đốc Sáng tạo kiêm Chuyên gia SEO hàng đầu của studio ảnh cưới cao cấp PlusMoments (plusmoments.vn).
+      systemPrompt = `Bạn là Giám đốc Sáng tạo (Creative Director) kiêm Chuyên gia Nghệ thuật Bố cục của studio ảnh cưới cao cấp PlusMoments (plusmoments.vn).
 Studio định vị phong cách: Luxury, Minimalist, Cảm xúc chân thực & Ánh sáng điện ảnh Cinematic Art.
 
-Dưới đây là mô tả trực quan của toàn bộ các bức ảnh cưới thực tế trong bộ sưu tập này:
+Dưới đây là danh sách đầy đủ ${normalizedImages.length} bức ảnh thực tế vừa được tải lên từ thư mục "${folderName || 'Bộ sưu tập cưới'}":
 ${visualSummaryText}
 
-Dựa HOÀN TOÀN vào các bức ảnh trên (nhận diện địa điểm: Đà Lạt, studio, biển, phố cổ...; concept: Editorial, Hàn Quốc, Cổ điển; trang phục váy cưới, vest; nụ cười và cảm xúc của đôi uyên ương), hãy TỰ SUY NGHĨ VÀ ĐẶT TÊN BỘ ẢNH, SÁNG TÁC CÂU CHUYỆN TÌNH YÊU VÀ ĐIỀN TOÀN BỘ THÔNG TIN CHO ALBUM NÀY. Người dùng không cần phải nhập trước tiêu đề.
+NHIỆM VỤ GIÁM ĐỊNH & DÀN TRANG ALBUM (FULL-FOLDER AI CURATION):
+1. CHỌN ẢNH BÌA ĐẠI DIỆN (bestCoverUrl & coverReason):
+   - Đánh giá toàn bộ các ảnh và chọn ra DUY NHẤT 1 tấm ảnh xuất sắc nhất làm Ảnh Bìa Đại Diện cho Album.
+   - Tiêu chí: Bố cục cân đối (ưu tiên ảnh dọc portrait hoặc toàn cảnh ngoạn mục), gương mặt/nụ cười/biểu cảm của cô dâu chú rể ngập tràn hạnh phúc và rõ nét, ánh sáng sang trọng, trang phục hoàn mỹ, không bị mờ nhòe hay cắt góc.
+   - Viết 1 câu giải thích ngắn gọn (coverReason, dưới 35 từ) vì sao chọn tấm này làm bìa.
+
+2. SẮP XẾP BỐ CỤC TOÀN BỘ ẢNH (orderedImages):
+   - Sắp xếp lại danh sách ĐẦY ĐỦ ${normalizedImages.length} URL ảnh theo 2 nguyên tắc bắt buộc:
+     a) Mạch kể chuyện cảm xúc (Storytelling Arc): Mở đầu ấn tượng / Thiết lập không gian -> Chuẩn bị & Chi tiết tinh tế (váy, hoa, nhẫn) -> Khoảnh khắc nghi lễ / Cảm xúc cao trào -> Khép lại bằng những bức chân dung lãng mạn, ngọt ngào.
+     b) Nhịp điệu lưới Masonry (Visual Rhythm): Phân bổ xen kẽ hài hòa giữa Ảnh Ngang (Landscape) và Ảnh Dọc (Portrait) để khi hiển thị ra lưới Masonry gallery các cột ảnh khớp chiều cao đẹp mắt, TUYỆT ĐỐI KHÔNG dồn 4-5 ảnh cùng chiều liên tiếp.
+
+3. SÁNG TÁC METADATA:
+   - Tự đặt Tên Album nghệ thuật (title), slug chuẩn SEO, lời tựa (subtitle <15 từ), concept, địa điểm, tên dâu rể, câu chuyện tình yêu (description 150-250 từ), thẻ SEO (seoTitle, seoDescription).
 
 YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ (KHÔNG bọc markdown backticks):
 {
-  "title": "Tên album nghệ thuật và gợi cảm (ví dụ: 'Chuyện Tình Mùa Thu Tại Rừng Thông Đà Lạt - Hoàng & Thảo' hoặc 'Minimalist Elegance in Seoul Studio')",
+  "bestCoverUrl": "URL chính xác của bức ảnh xuất sắc nhất làm bìa (phải là 1 trong các URL được cung cấp)",
+  "coverReason": "1 câu ngắn gọn lý do chọn bức ảnh này làm bìa",
+  "orderedImages": [
+    "URL_1",
+    "URL_2"
+    ... đủ ${normalizedImages.length} URL ảnh theo thứ tự bố cục mới ...
+  ],
+  "title": "Tên album nghệ thuật và gợi cảm",
   "slug": "slug-tieng-viet-khong-dau-chuan-seo",
-  "subtitle": "Câu định vị phong cách ngắn gọn dưới 15 từ (ví dụ: 'Khoảnh khắc ngọt ngào tự nhiên giữa rừng thông đại ngàn')",
+  "subtitle": "Câu định vị phong cách ngắn gọn dưới 15 từ",
   "concept": "Gợi ý concept (ví dụ: 'Outdoor Luxury', 'Studio Editorial', 'Pre-Wedding Cinematic', 'Minimalist Modern')",
-  "location": "Gợi ý địa điểm chụp nhận diện từ ảnh (ví dụ: 'Đà Lạt', 'Studio PlusMoments', 'Vĩnh Hy', 'Hồ Cốc')",
-  "coupleNames": "Tên gợi ý cho cặp đôi uyên ương (ví dụ: 'Hoàng & Thảo', 'Khánh & Vy')",
-  "description": "Câu chuyện tình yêu / Lời tựa đề tài giàu cảm xúc, đẹp như thơ dài khoảng 150-250 từ giới thiệu bộ ảnh cưới này tại PlusMoments Studio...",
+  "location": "Gợi ý địa điểm chụp nhận diện từ ảnh",
+  "coupleNames": "Tên gợi ý cho cặp đôi uyên ương",
+  "description": "Câu chuyện tình yêu / Lời tựa đề tài giàu cảm xúc dài khoảng 150-250 từ...",
   "seoTitle": "Tiêu đề chuẩn Google SEO dưới 65 ký tự kết thúc bằng ' | PlusMoments'",
   "seoDescription": "Đoạn mô tả Google Meta Description dưới 160 ký tự",
   "images": [
-    { "index": 0, "alt": "Thẻ ALT mô tả ảnh 1 chuẩn Google Image SEO", "caption": "Chú thích lãng mạn dưới ảnh 1" }
+    { "index": 0, "alt": "Thẻ ALT mô tả ảnh 1", "caption": "Chú thích ảnh 1" }
   ]
 }`;
     } else {
@@ -142,17 +355,16 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ 
       systemPrompt = `Bạn là Giám đốc Sáng tạo kiêm Chuyên gia SEO hàng đầu của studio ảnh cưới cao cấp PlusMoments (plusmoments.vn).
 Studio định vị phong cách: Luxury, Minimalist, Cảm xúc chân thực & Ánh sáng điện ảnh Cinematic Art.
 
-Dưới đây là mô tả trực quan của các bức ảnh cưới thực tế vừa được tải lên cho một bài viết Cẩm Nang Cưới / Phóng Sự Cưới:
+Dưới đây là mô tả trực quan của các bức ảnh cưới thực tế:
 ${visualSummaryText}
 
-Dựa HOÀN TOÀN vào các bức ảnh trên (nhận diện phong cách chụp, trang phục váy cưới, phụ kiện, bối cảnh, cảm xúc), hãy TỰ NGHĨ RA TIÊU ĐỀ NGHỆ THUẬT VÀ NỘI DUNG HOÀN CHỈNH CHO BÀI VIẾT. Người dùng không cần phải nhập trước tiêu đề.
-
-YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ (KHÔNG bọc markdown backticks):
+Dựa HOÀN TOÀN vào các bức ảnh trên, hãy TỰ NGHĨ RA TIÊU ĐỀ NGHỆ THUẬT VÀ NỘI DUNG HOÀN CHỈNH CHO BÀI VIẾT.
+YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ:
 {
-  "title": "Tiêu đề bài viết nghệ thuật, sang trọng và cuốn hút (không quá 70 ký tự, ví dụ: 'Bí Quyết Chọn Váy Cưới Tối Giản Tinh Khôi Cho Nàng Dâu Hiện Đại')",
+  "title": "Tiêu đề bài viết nghệ thuật (không quá 70 ký tự)",
   "slug": "slug-tieng-viet-khong-dau-chuan-seo",
-  "excerpt": "Đoạn giới thiệu ngắn 2-3 câu đầy chất thơ và sang trọng (khoảng 140 - 180 ký tự)...",
-  "content": "Nội dung bài viết chi tiết dài khoảng 600-900 từ định dạng HTML an toàn (<p>, <h2>, <h3>, <ul>, <li>), có lồng ghép các shortcode [image:1], [image:2]... vào đúng các đoạn văn miêu tả khoảnh khắc tương ứng.",
+  "excerpt": "Đoạn giới thiệu ngắn 2-3 câu đầy chất thơ (khoảng 140 - 180 ký tự)...",
+  "content": "Nội dung bài viết chi tiết dài khoảng 600-900 từ định dạng HTML an toàn (<p>, <h2>, <h3>, <ul>, <li>), có lồng ghép shortcode [image:1], [image:2]...",
   "category": "Gợi ý danh mục (ví dụ: 'Cẩm nang cưới', 'Kinh nghiệm chụp ảnh', 'Xu hướng cưới')",
   "seoTitle": "Tiêu đề chuẩn Google SEO dưới 65 ký tự kết thúc bằng ' | PlusMoments'",
   "seoDescription": "Đoạn mô tả Google Meta Description dưới 160 ký tự",
@@ -177,7 +389,7 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ 
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             generationConfig: { temperature, responseMimeType: 'application/json' },
           }),
-          signal: AbortSignal.timeout(15000),
+          signal: AbortSignal.timeout(18000),
         });
 
         const resData = await res.json().catch(() => null);
@@ -201,19 +413,68 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ 
       }
     }
 
+    // Nếu Gemini API gặp lỗi hoặc timeout nhưng đang ở tác vụ ALBUM -> Kích hoạt ngay Heuristic Curation Fallback
     if (!parsed) {
+      if (type === 'ALBUM') {
+        console.warn('[AI_ALBUM] Gemini failed or timed out. Activating smart heuristic fallback curation.');
+        const fallbackResult = curateAlbumFallback(normalizedImages, folderName);
+        return NextResponse.json({
+          success: true,
+          data: fallbackResult,
+          isFallback: true,
+          notice: 'Đã hoàn tất giám định ảnh bìa & sắp xếp bố cục Masonry bằng thuật toán thông minh.',
+        });
+      }
+
       return NextResponse.json(
         { success: false, message: lastErrorMsg || 'Không thể tạo nội dung từ AI. Vui lòng thử lại sau.' },
         { status: 500 }
       );
     }
 
-    // 5. Ensure slug is clean and images metadata is complete for all images
-    const finalTitle = (parsed.title || '').trim() || (type === 'ALBUM' ? 'Khoảnh Khắc Cưới Tinh Khôi' : 'Cẩm Nang Cưới Hiện Đại');
+    // 5. Chuẩn hóa & Xác thực kết quả từ Gemini đối với ALBUM
+    const allInputUrls = normalizedImages.map((it) => it.url);
+
+    // Xác thực bestCoverUrl: phải nằm trong danh sách URL thực tế
+    let finalCoverUrl = parsed.bestCoverUrl?.trim();
+    if (!finalCoverUrl || !allInputUrls.includes(finalCoverUrl)) {
+      // Fallback về ảnh điểm cao nhất từ thuật toán
+      const fallbackEngine = curateAlbumFallback(normalizedImages, folderName);
+      finalCoverUrl = fallbackEngine.bestCoverUrl;
+    }
+
+    const finalCoverReason =
+      (parsed.coverReason || '').trim() ||
+      'Khung hình nổi bật nhất với bố cục cân đối và ánh sáng sang trọng.';
+
+    // Xác thực orderedImages: phải bảo toàn 100% tất cả ảnh đầu vào (không bỏ sót ảnh nào)
+    let finalOrderedImages: string[] = [];
+    if (Array.isArray(parsed.orderedImages) && parsed.orderedImages.length > 0) {
+      // Lọc các URL hợp lệ từ AI
+      const seen = new Set<string>();
+      for (const u of parsed.orderedImages) {
+        if (typeof u === 'string' && allInputUrls.includes(u.trim()) && !seen.has(u.trim())) {
+          seen.add(u.trim());
+          finalOrderedImages.push(u.trim());
+        }
+      }
+      // Bổ sung các ảnh mà AI có thể đã bỏ sót
+      for (const u of allInputUrls) {
+        if (!seen.has(u)) {
+          seen.add(u);
+          finalOrderedImages.push(u);
+        }
+      }
+    } else {
+      const fallbackEngine = curateAlbumFallback(normalizedImages, folderName);
+      finalOrderedImages = fallbackEngine.orderedImages;
+    }
+
+    const finalTitle = (parsed.title || '').trim() || (type === 'ALBUM' ? (folderName || 'Khoảnh Khắc Cưới Tinh Khôi') : 'Cẩm Nang Cưới Hiện Đại');
     const finalSlug = slugify(parsed.slug || finalTitle);
 
     const imagesMetadata: Array<{ alt: string; caption: string }> = [];
-    for (let i = 0; i < imgList.length; i++) {
+    for (let i = 0; i < normalizedImages.length; i++) {
       const generated = Array.isArray(parsed.images)
         ? parsed.images.find((it: any) => it.index === i || it.imageIndex === i)
         : null;
@@ -238,6 +499,9 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ 
       ...parsed,
       title: finalTitle,
       slug: finalSlug,
+      bestCoverUrl: finalCoverUrl,
+      coverReason: finalCoverReason,
+      orderedImages: finalOrderedImages,
       imagesMetadata,
       seoTitle: parsed.seoTitle || `${finalTitle} | PlusMoments`,
       seoDescription: parsed.seoDescription || parsed.excerpt || parsed.description || '',

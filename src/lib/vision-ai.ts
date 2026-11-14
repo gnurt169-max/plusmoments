@@ -52,10 +52,20 @@ async function getImageBase64(imageUrl: string): Promise<{ base64: string; mimeT
       // Local image in public folder
       const cleanPath = imageUrl.replace(/^\/+/, '').split('?')[0];
       const fullPath = path.join(process.cwd(), 'public', cleanPath);
-      if (!fs.existsSync(fullPath)) return null;
 
-      buffer = await fs.promises.readFile(fullPath);
-      const ext = path.extname(cleanPath).toLowerCase();
+      // Prioritize lightweight -sm.webp variant if available on disk for fast Vision AI inference
+      let targetPath = fullPath;
+      if (cleanPath.endsWith('.webp') && !cleanPath.endsWith('-sm.webp')) {
+        const smCandidate = fullPath.replace(/\.webp$/, '-sm.webp');
+        if (fs.existsSync(smCandidate)) {
+          targetPath = smCandidate;
+        }
+      }
+
+      if (!fs.existsSync(targetPath)) return null;
+
+      buffer = await fs.promises.readFile(targetPath);
+      const ext = path.extname(targetPath).toLowerCase();
       if (ext === '.webp') mimeType = 'image/webp';
       else if (ext === '.png') mimeType = 'image/png';
       else if (ext === '.avif') mimeType = 'image/avif';

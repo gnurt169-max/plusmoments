@@ -89,6 +89,13 @@ export default function AdminAlbumsPage() {
   >([]);
   const [loadingFolders, setLoadingFolders] = useState(false);
 
+  // Full-Folder AI Curation State
+  const [isCuratingFolder, setIsCuratingFolder] = useState(false);
+  const [curatingStep, setCuratingStep] = useState('');
+  const [aiCoverReason, setAiCoverReason] = useState<string | null>(null);
+  const [originalMediaUrls, setOriginalMediaUrls] = useState<string[]>([]);
+  const [isAiOrdered, setIsAiOrdered] = useState(false);
+
   const handleOpenFolderPicker = async () => {
     setIsFolderPickerOpen(true);
     setLoadingFolders(true);
@@ -111,25 +118,91 @@ export default function AdminAlbumsPage() {
     imageCount: number;
   }) => {
     try {
+      setIsCuratingFolder(true);
+      setCuratingStep(`Đang nạp toàn bộ ảnh từ thư mục "${folder.name}"...`);
+      setIsFolderPickerOpen(false);
+
       const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(folder.slug)}`);
       const data = await res.json();
-      if (data.success && data.images && data.images.length > 0) {
-        const urls: string[] = data.images.map((img: any) => img.url);
+      if (!data.success || !data.images || data.images.length === 0) {
+        throw new Error(`Thư mục "${folder.name}" chưa có ảnh nào.`);
+      }
+
+      const folderImages = data.images;
+      const rawUrls: string[] = folderImages.map((img: any) => img.url);
+      setOriginalMediaUrls(rawUrls);
+
+      setCuratingStep(`AI đang thẩm định ${folderImages.length} ảnh để chọn ảnh bìa & sắp xếp bố cục...`);
+
+      // Invoke Full-Folder AI Curation Pipeline
+      const aiRes = await fetch('/api/admin/ai/auto-generate-from-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'ALBUM',
+          folderName: folder.name,
+          folderSlug: folder.slug,
+          images: folderImages,
+        }),
+      });
+
+      const aiJson = await aiRes.json();
+      if (aiRes.ok && aiJson.success && aiJson.data) {
+        const d = aiJson.data;
+        const curatedUrls = Array.isArray(d.orderedImages) && d.orderedImages.length > 0
+          ? d.orderedImages
+          : rawUrls;
+
+        const bestCover = d.bestCoverUrl || curatedUrls[0] || rawUrls[0];
+        const reason = d.coverReason || 'Khung hình nổi bật nhất với bố cục cân đối và ánh sáng sang trọng.';
+
+        setFormData((prev) => ({
+          ...prev,
+          title: prev.title || d.title || folder.name,
+          slug: prev.slug || d.slug || folder.slug,
+          subtitle: prev.subtitle || d.subtitle || '',
+          concept: prev.concept || d.concept || '',
+          location: prev.location || d.location || '',
+          coupleNames: prev.coupleNames || d.coupleNames || '',
+          description: prev.description || d.description || '',
+          coverImage: bestCover,
+          batchMediaUrls: curatedUrls.join('\n'),
+          metaTitle: prev.metaTitle || d.seoTitle || '',
+          metaDescription: prev.metaDescription || d.seoDescription || '',
+        }));
+
+        setAiCoverReason(reason);
+        setIsAiOrdered(true);
+        showToast(`✨ AI đã thẩm định ${folderImages.length} ảnh: chọn ảnh bìa đẹp nhất & tối ưu dàn trang Album!`);
+      } else {
+        // Fallback: load raw folder images
         setFormData((prev) => ({
           ...prev,
           title: prev.title || folder.name,
           slug: prev.slug || folder.slug,
-          coverImage: prev.coverImage || urls[0],
-          batchMediaUrls: urls.join('\n'),
+          coverImage: prev.coverImage || rawUrls[0],
+          batchMediaUrls: rawUrls.join('\n'),
         }));
-        showToast(`Đã nạp toàn bộ ${urls.length} ảnh từ thư mục "${folder.name}" vào Album!`);
-        setIsFolderPickerOpen(false);
-      } else {
-        alert(`Thư mục "${folder.name}" chưa có ảnh nào.`);
+        setAiCoverReason(null);
+        setIsAiOrdered(false);
+        showToast(`Đã nạp toàn bộ ${rawUrls.length} ảnh từ thư mục "${folder.name}" vào Album!`);
       }
     } catch (err: any) {
       alert(err.message || 'Lỗi khi tải ảnh từ thư mục.');
+    } finally {
+      setIsCuratingFolder(false);
+      setCuratingStep('');
     }
+  };
+
+  const handleRestoreOriginalOrder = () => {
+    if (originalMediaUrls.length === 0) return;
+    setFormData((prev) => ({
+      ...prev,
+      batchMediaUrls: originalMediaUrls.join('\n'),
+    }));
+    setIsAiOrdered(false);
+    showToast('Đã khôi phục thứ tự ảnh gốc từ thư mục!');
   };
 
   const handleDriveImportSuccess = (urls: string[]) => {
@@ -239,6 +312,11 @@ export default function AdminAlbumsPage() {
 
   const openCreateModal = () => {
     setEditingId(null);
+    setAiCoverReason(null);
+    setOriginalMediaUrls([]);
+    setIsAiOrdered(false);
+    setIsCuratingFolder(false);
+    setCuratingStep('');
     setFormData({
       title: '',
       slug: '',
@@ -262,6 +340,11 @@ export default function AdminAlbumsPage() {
 
   const openEditModal = (album: AlbumItem) => {
     setEditingId(album.id);
+    setAiCoverReason(null);
+    setOriginalMediaUrls([]);
+    setIsAiOrdered(false);
+    setIsCuratingFolder(false);
+    setCuratingStep('');
     const mediaUrlsString = (album.media || []).map((m) => m.url).join('\n');
     setFormData({
       title: album.title,
@@ -411,6 +494,19 @@ export default function AdminAlbumsPage() {
       }
       const resData = data.data || data;
 
+      const orderedList = Array.isArray(resData.orderedImages) && resData.orderedImages.length > 0
+        ? resData.orderedImages
+        : null;
+
+      if (orderedList) {
+        setOriginalMediaUrls(urls);
+        setIsAiOrdered(true);
+      }
+
+      if (resData.coverReason) {
+        setAiCoverReason(resData.coverReason);
+      }
+
       setFormData((prev) => ({
         ...prev,
         title: resData.title || prev.title,
@@ -420,12 +516,13 @@ export default function AdminAlbumsPage() {
         location: resData.location || prev.location,
         coupleNames: resData.coupleNames || prev.coupleNames,
         description: resData.description || prev.description,
-        coverImage: prev.coverImage || urls[0] || '',
+        coverImage: prev.coverImage || resData.bestCoverUrl || urls[0] || '',
+        batchMediaUrls: orderedList ? orderedList.join('\n') : prev.batchMediaUrls,
         metaTitle: resData.seoTitle || prev.metaTitle,
         metaDescription: resData.seoDescription || prev.metaDescription,
       }));
 
-      showToast('⚡ AI đã khởi tạo hoàn tất Tên Album, Câu Chuyện Tình Yêu, Concept & Thẻ SEO!');
+      showToast('⚡ AI đã thẩm định bộ ảnh, tối ưu thứ tự bố cục & hoàn tất thông tin album!');
     } catch (err: any) {
       alert(err.message || 'Lỗi kết nối AI.');
     } finally {
@@ -756,47 +853,66 @@ export default function AdminAlbumsPage() {
           )}
 
           {/* AI ZERO-INPUT ASSISTANT BANNER */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-luxury-50 via-amber-50/70 to-luxury-50 border border-luxury-200/80 rounded-2xl shadow-2xs">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-luxury-900 text-luxury-400 flex items-center justify-center shadow-xs shrink-0">
-                <Bot className="w-4 h-4" />
+          <div className="p-4 bg-gradient-to-r from-luxury-50 via-amber-50/70 to-luxury-50 border border-luxury-200/80 rounded-2xl shadow-2xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-luxury-900 text-luxury-400 flex items-center justify-center shadow-xs shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-semibold text-charcoal-900 flex items-center gap-1.5">
+                    <span>Trợ Lý Khởi Tạo Album AI</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-200/80 text-amber-900 font-bold uppercase tracking-wider">
+                      Full-Folder Curation
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-charcoal-500 font-light">
+                    Tự động chấm điểm chọn ảnh bìa đẹp nhất, dàn trang nhịp điệu Masonry và sáng tác câu chuyện tình yêu.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs font-semibold text-charcoal-900 flex items-center gap-1.5">
-                  <span>Trợ Lý Khởi Tạo Album AI</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-200/80 text-amber-900 font-bold uppercase tracking-wider">
-                    Zero-Input
-                  </span>
-                </h4>
-                <p className="text-[11px] text-charcoal-500 font-light">
-                  Chỉ cần chọn ảnh – AI tự phân tích concept để đặt tên album, viết lời tựa và tối ưu SEO.
-                </p>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  disabled={isCuratingFolder || isAutoGeneratingFromImages}
+                  onClick={handleOpenFolderPicker}
+                  className="px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+                  title="Chọn 1 thư mục Media: AI sẽ tự động nạp toàn bộ ảnh, chấm điểm chọn ảnh bìa xuất sắc nhất và sắp xếp lại bố cục Masonry"
+                >
+                  <Folder className="w-4 h-4 fill-amber-200 text-amber-100" />
+                  <span>📁 Chọn Thư Mục & AI Tự Động Dàn Trang</span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={(!formData.batchMediaUrls.trim() && !formData.coverImage) || isAutoGeneratingFromImages || isCuratingFolder}
+                  onClick={handleAutoGenerateFromImages}
+                  className="px-3.5 py-2 bg-charcoal-900 hover:bg-charcoal-800 text-white text-xs font-medium rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer shrink-0 border border-luxury-500/30"
+                  title="AI tự động phân tích ảnh hiện có để sinh Tên Album, Slug, Concept, Địa điểm, Câu chuyện tình yêu & SEO"
+                >
+                  {isAutoGeneratingFromImages ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" />
+                      <span>AI Đang Phân Tích...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>⚡ AI Phân Tích Ảnh Đã Chọn</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled={(!formData.batchMediaUrls.trim() && !formData.coverImage) || isAutoGeneratingFromImages}
-              onClick={handleAutoGenerateFromImages}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#2E2824] to-[#4A3E37] hover:from-[#1A1614] hover:to-[#2E2824] text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
-              title={
-                !formData.batchMediaUrls.trim() && !formData.coverImage
-                  ? 'Vui lòng chọn hoặc tải lên ít nhất 1 ảnh trước'
-                  : 'AI tự động phân tích ảnh để sinh Tên Album, Slug, Concept, Địa điểm, Câu chuyện tình yêu & SEO'
-              }
-            >
-              {isAutoGeneratingFromImages ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
-                  <span>AI Đang Phân Tích Bộ Ảnh...</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-amber-300 text-sm">⚡</span>
-                  <span>AI Tự Động Phân Tích Ảnh & Điền Tất Cả</span>
-                </>
-              )}
-            </button>
+            {/* Curating Progress Indicator */}
+            {isCuratingFolder && (
+              <div className="flex items-center gap-2.5 px-3.5 py-2 bg-white/90 border border-amber-300/80 rounded-xl text-xs text-amber-950 animate-pulse shadow-2xs">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-600 shrink-0" />
+                <span className="font-medium">{curatingStep || 'AI đang thẩm định toàn bộ ảnh thư mục...'}</span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -915,18 +1031,34 @@ export default function AdminAlbumsPage() {
           </div>
 
           {/* COVER IMAGE PICKER */}
-          <SingleImagePicker
-            label="Ảnh Bìa Đại Diện (Cover Image)"
-            value={formData.coverImage}
-            onChange={(url) => {
-              setFormData({ ...formData, coverImage: url });
-              if (errorMessage) setErrorMessage('');
-            }}
-            aspectRatio="portrait"
-            required
-            modalTitle="Chọn Ảnh Bìa Đại Diện Album"
-            helperText="Ảnh bìa hiển thị ngoài trang danh sách và phần đầu album cưới."
-          />
+          <div className="space-y-2">
+            {aiCoverReason && (
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-300/80 text-xs text-amber-950 shadow-2xs">
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-amber-900 flex items-center gap-1.5">
+                    <span>✨ AI Đề Xuất Bìa Đẹp Nhất:</span>
+                  </div>
+                  <p className="text-[11px] text-stone-600 font-light leading-relaxed">
+                    {aiCoverReason}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <SingleImagePicker
+              label="Ảnh Bìa Đại Diện (Cover Image)"
+              value={formData.coverImage}
+              onChange={(url) => {
+                setFormData({ ...formData, coverImage: url });
+                if (errorMessage) setErrorMessage('');
+              }}
+              aspectRatio="portrait"
+              required
+              modalTitle="Chọn Ảnh Bìa Đại Diện Album"
+              helperText="Ảnh bìa hiển thị ngoài trang danh sách và phần đầu album cưới. Bạn có thể chọn lại tấm khác từ Kho Media bất kỳ lúc nào."
+            />
+          </div>
 
           {/* GALLERY MEDIA PICKER */}
           <div className="space-y-2">
@@ -944,6 +1076,24 @@ export default function AdminAlbumsPage() {
                 <span>📁 Nhập Nhanh Toàn Bộ Thư Mục</span>
               </button>
             </div>
+
+            {isAiOrdered && (
+              <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs">
+                <div className="flex items-center gap-2 text-stone-700 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>Đã tối ưu bố cục Masonry & mạch kể chuyện ({formData.batchMediaUrls.split('\n').filter(Boolean).length} ảnh)</span>
+                </div>
+                {originalMediaUrls.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleRestoreOriginalOrder}
+                    className="text-[11px] text-stone-600 hover:text-stone-900 font-medium underline cursor-pointer"
+                  >
+                    Khôi phục thứ tự gốc
+                  </button>
+                )}
+              </div>
+            )}
 
             <MultiImagePicker
               values={formData.batchMediaUrls.split('\n').map((u) => u.trim()).filter(Boolean)}
