@@ -82,9 +82,9 @@ export function MobileBottomBar() {
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
             <div className="relative flex items-center justify-center w-6 h-6">
-              <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-emerald-400 opacity-60" />
-              <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                <Phone className="w-3.5 h-3.5 fill-current" />
+              <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-[#E5C799] opacity-60" />
+              <div className="w-6 h-6 rounded-full bg-[#C59B6D] text-[#1C1917] flex items-center justify-center shadow-xs">
+                <Phone className="w-3.5 h-3.5 fill-current stroke-[2.2]" />
               </div>
             </div>
             <span className="text-[10px] font-medium text-stone-700 tracking-tight mt-1 whitespace-nowrap">
@@ -101,7 +101,7 @@ export function MobileBottomBar() {
             aria-label="Chat trực tiếp qua Zalo với chuyên viên tư vấn"
             className="flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-200/90 transition-all shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
           >
-            <div className="w-6 h-6 rounded-full bg-[#0068FF] text-white flex items-center justify-center shadow-xs">
+            <div className="w-6 h-6 rounded-full bg-[#1C1917] border border-[#D4AF37]/35 text-[#E5C799] flex items-center justify-center shadow-xs">
               <span className="font-extrabold text-[9px] tracking-tighter">Zalo</span>
             </div>
             <span className="text-[10px] font-medium text-stone-700 tracking-tight mt-1 whitespace-nowrap">
