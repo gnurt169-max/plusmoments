@@ -169,7 +169,7 @@ export default async function HomePage() {
   const { aggregateRating, reviews } = computeReviewStats(testimonials);
 
   return (
-    <div className="space-y-24 sm:space-y-32 pb-24 overflow-hidden">
+    <>
       {/* Structured Schema Data for Packages */}
       <PricingPackagesJsonLd
         baseUrl={baseUrl}
@@ -210,7 +210,7 @@ export default async function HomePage() {
       {/* =========================================================================
           CINEMATIC FULL-SCREEN IMMERSIVE HERO BANNER
       ========================================================================= */}
-      <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-stone-950 pt-16">
+      <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-stone-950 pt-20">
         {/* LỚP 1: ẢNH NỀN TRÀN MÀN HÌNH (BACKGROUND IMAGE) */}
         {heroBanner && heroBanner.trim() ? (
           <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden bg-stone-950">
@@ -304,9 +304,13 @@ export default async function HomePage() {
       </section>
 
       {/* =========================================================================
-          FEATURED ALBUMS WITH ANTIGRAVITY FLOATING MOTION
+          MAIN PAGE CONTENT SECTIONS (PORTFOLIO, PRICING, BLOG, TESTIMONIALS, CONSULTATION)
       ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-24 sm:space-y-32 py-24 sm:py-32 overflow-hidden">
+        {/* =========================================================================
+            FEATURED ALBUMS WITH ANTIGRAVITY FLOATING MOTION
+        ========================================================================= */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
             Portfolio Tuyệt Tác
@@ -468,6 +472,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
