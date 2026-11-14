@@ -95,7 +95,7 @@ export default async function BoSuuTapPage({
     }));
 
   return (
-    <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <div className="pt-24 sm:pt-32 pb-16 sm:pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
       {/* Schema.org BreadcrumbList & ImageGallery for Rich Snippets */}
       <BreadcrumbJsonLd
         items={[
@@ -111,19 +111,19 @@ export default async function BoSuuTapPage({
       />
 
       {/* HEADER SECTION */}
-      <div className="text-center max-w-3xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-stone-50/80 backdrop-blur-sm">
+      <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-4">
+        <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border border-stone-200 bg-stone-50/80 backdrop-blur-sm">
           <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
-          <span className="text-[11px] font-sans tracking-[0.25em] text-stone-600 uppercase font-medium">
+          <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.25em] text-stone-600 uppercase font-medium">
             Portfolio & Lookbook
           </span>
         </div>
 
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-light text-charcoal-900 tracking-tight">
+        <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-light text-charcoal-900 tracking-tight">
           Bộ Sưu Tập Ảnh Cưới
         </h1>
 
-        <p className="text-sm sm:text-base text-charcoal-600 font-light leading-relaxed max-w-2xl mx-auto">
+        <p className="text-xs sm:text-base text-charcoal-600 font-light leading-relaxed max-w-2xl mx-auto line-clamp-2 sm:line-clamp-none">
           Nơi lưu giữ những nụ cười rạng rỡ và cảm xúc thuần khiết của hàng trăm cặp đôi qua ngôn ngữ ánh sáng điện ảnh tinh tế.
         </p>
       </div>
