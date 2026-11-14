@@ -19,6 +19,7 @@ import {
   ExternalLink,
   LogOut,
   CreditCard,
+  CheckSquare,
   X,
 } from 'lucide-react';
 import { useAdminNav } from '@/context/AdminNavContext';
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { name: 'Bộ Sưu Tập Album', href: '/admin/albums', icon: ImageIcon, roles: ['SUPER_ADMIN', 'ADMIN', 'USER'] },
   { name: 'Cẩm Nang Cưới', href: '/admin/blog', icon: BookOpen, roles: ['SUPER_ADMIN', 'ADMIN', 'USER'] },
   { name: 'Kho Lưu Trữ Media', href: '/admin/media', icon: FolderArchive, roles: ['SUPER_ADMIN', 'ADMIN', 'USER'] },
+  { name: 'Trả Ảnh Khách (Proofing)', href: '/admin/proofing', icon: CheckSquare, roles: ['SUPER_ADMIN', 'ADMIN', 'USER'] },
 
   // Operational ADMIN & SUPER_ADMIN only
   { name: 'Quản Lý Trang Chủ', href: '/admin/home', icon: HomeIcon, roles: ['SUPER_ADMIN', 'ADMIN'] },

@@ -615,4 +615,30 @@ model PackageAddon {
   @@index([orderIndex])
 }
 
+// -----------------------------------------------------------------------------
+// 15. CLIENT PROOFING GALLERIES (Cổng Trả Ảnh & Chọn Ảnh In Riêng Tư)
+// -----------------------------------------------------------------------------
+model ClientGallery {
+  id             String    @id @default(cuid())
+  code           String    @unique // Slug đường dẫn riêng, vd: "minh-phuong-hoang-nam"
+  pinCode        String    // Mã PIN 4-6 chữ số bảo vệ quyền riêng tư
+  coupleName     String    // Tên dâu rể
+  shootDate      String?   // Ngày chụp / Ngày cưới
+  folderSlug     String    // Liên kết trực tiếp tới thư mục trong public/uploads/folders/[folderSlug] hoặc public/uploads/[folderSlug]
+  coverImage     String?   // Ảnh bìa màn hình khóa PIN
+  maxPhotobook   Int       @default(40) // Hạn mức số ảnh chọn in Photobook
+  maxPortrait    Int       @default(2)  // Hạn mức số ảnh chọn làm Ảnh Cổng
+  allowDownload  Boolean   @default(true) // Cho phép khách tải ảnh gốc / ZIP
+  status         String    @default("OPEN") // "OPEN" (Đang chọn) | "SUBMITTED" (Khách đã chốt) | "COMPLETED" (Đã bàn giao xong)
+  selectionsJson String    @default("{}") @db.Text // Lưu JSON map theo tên file: { "img01.webp": { photobook: true, portrait: false, note: "..." } }
+  clientNote     String?   @db.Text // Lời nhắn chung của dâu rể khi bấm chốt danh sách
+  submittedAt    DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([code])
+  @@index([status])
+}
+
 
