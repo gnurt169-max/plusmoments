@@ -360,7 +360,7 @@ export default async function HomePage() {
       {/* =========================================================================
           PRICING & PACKAGES SECTION (3-Column Grid & Detail Modal)
       ========================================================================= */}
-      <section className="bg-charcoal-900 text-white py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="bg-gradient-to-b from-[#1E1A17] via-[#241F1C] to-[#1E1A17] text-white py-20 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-y border-[#3E3630]/40">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-luxury-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto">

@@ -28,6 +28,19 @@ export function PackageCard({
   const rawCover = pkg.coverImage && pkg.coverImage.trim() ? pkg.coverImage.trim() : '';
   const coverImg = hasError ? '/placeholder.jpg' : rawCover;
 
+  const numericPrice = typeof pkg.price === 'number' ? pkg.price : Number(pkg.price) || 0;
+  const formattedNumber = new Intl.NumberFormat('vi-VN').format(numericPrice);
+
+  const numericOriginalPrice = pkg.originalPrice ? Number(pkg.originalPrice) : null;
+  const formattedOriginalPrice = numericOriginalPrice
+    ? new Intl.NumberFormat('vi-VN').format(numericOriginalPrice)
+    : null;
+
+  const discountPercent =
+    numericOriginalPrice && numericOriginalPrice > numericPrice
+      ? Math.round(((numericOriginalPrice - numericPrice) / numericOriginalPrice) * 100)
+      : null;
+
   return (
     <article
       onClick={() => onSelect?.(pkg)}
@@ -38,7 +51,7 @@ export function PackageCard({
       }`}
     >
       {/* 1. COVER IMAGE */}
-      <div className="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-[#F3EFEA]">
+      <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] md:aspect-[4/3] shrink-0 overflow-hidden bg-[#F3EFEA]">
         {coverImg ? (
           <Image
             src={coverImg}
@@ -69,43 +82,53 @@ export function PackageCard({
 
         {/* Title on cover */}
         <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
-          <h3 className="font-serif text-2xl font-light text-white drop-shadow-sm group-hover:text-amber-200 transition-colors">
+          <h3 className="font-serif text-xl sm:text-2xl font-light text-white drop-shadow-sm group-hover:text-amber-200 transition-colors">
             {pkg.name}
           </h3>
         </div>
       </div>
 
       {/* 2. BODY CONTENT */}
-      <div className="p-6 sm:p-7 flex-1 flex flex-col space-y-6">
+      <div className="p-4 sm:p-6 md:p-7 flex-1 flex flex-col justify-between space-y-4 sm:space-y-5 md:space-y-6">
         {/* Pricing Display */}
-        <div className="pb-4 border-b border-[#E8E2D9]/80 flex items-baseline justify-between gap-2">
+        <div className="pb-3 sm:pb-4 border-b border-[#E8E2D9]/80 flex items-baseline justify-between gap-2">
           <div>
             <span className="text-[10px] uppercase tracking-wider text-stone-600 font-medium block">
               Giá trọn gói ưu đãi
             </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-serif text-2xl sm:text-3xl font-light text-amber-900 font-semibold">
-                {formatVND(pkg.price)}
+            <div className="flex items-baseline">
+              <span className="font-serif text-2xl sm:text-3xl font-light text-amber-900 font-semibold tabular-nums tracking-normal">
+                {formattedNumber}
               </span>
-              <span className="text-xs text-stone-600">/{pkg.unit}</span>
+              <span className="ml-1 text-base sm:text-lg font-sans font-semibold text-amber-800">
+                đ
+              </span>
+              <span className="text-xs text-stone-600 ml-1">/{pkg.unit}</span>
             </div>
           </div>
-          {pkg.originalPrice && (
-            <span className="text-xs text-stone-600 line-through font-mono">
-              {formatVND(pkg.originalPrice)}
-            </span>
+          {formattedOriginalPrice && (
+            <div className="flex flex-col items-end gap-1">
+              {discountPercent !== null && discountPercent > 0 && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-600 border border-rose-200">
+                  -{discountPercent}%
+                </span>
+              )}
+              <span className="text-xs text-stone-600 line-through font-mono">
+                {formattedOriginalPrice} đ
+              </span>
+            </div>
           )}
         </div>
 
         {/* Điểm nhấn cốt lõi gói dịch vụ (Chỉ hiển thị khi có dữ liệu thật trong DB) */}
         {highlights.length > 0 && (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-[#7A6243]">
               <Sparkles className="w-3.5 h-3.5 text-[#C5A880] shrink-0" />
               <span>ĐIỂM NHẤN CỐT LÕI:</span>
             </div>
-            <ul className="space-y-2 text-sm text-[#4A4036]">
-              {highlights.map((feat: string, idx: number) => (
+            <ul className="space-y-1.5 text-xs sm:text-sm text-[#4A4036]">
+              {highlights.slice(0, 3).map((feat: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-2">
                   <span
                     aria-hidden="true"
@@ -121,7 +144,7 @@ export function PackageCard({
         )}
 
         {/* 3. CARD FOOTER BUTTON */}
-        <div className="mt-auto pt-4 border-t border-[#E8E2D9]/80">
+        <div className="mt-auto pt-3 sm:pt-4 border-t border-[#E8E2D9]/80">
           <button
             type="button"
             onClick={(e) => {
@@ -129,7 +152,7 @@ export function PackageCard({
               onSelect?.(pkg);
             }}
             aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
-            className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 after:absolute after:inset-0 after:content-['']"
+            className="w-full py-2.5 sm:py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 after:absolute after:inset-0 after:content-['']"
           >
             <Eye className="w-3.5 h-3.5 text-amber-300" />
             <span>Xem Chi Tiết & Đặt Lịch</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Sparkles } from 'lucide-react';
 import { PackageCard } from '@/components/packages/PackageCard';
@@ -31,6 +31,35 @@ export function AllPackagesCatalog({
 }: AllPackagesCatalogProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedPackage, setSelectedPackage] = useState<PricingPackageData | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    if (!scrollRef.current || filteredPackages.length === 0) return;
+    const container = scrollRef.current;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = container.scrollWidth / filteredPackages.length;
+    const idx = Math.min(
+      filteredPackages.length - 1,
+      Math.max(0, Math.round(scrollLeft / cardWidth))
+    );
+    setActiveIndex(idx);
+  };
+
+  const scrollToPackage = (index: number) => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const children = container.children;
+    if (children && children[index]) {
+      const targetCard = children[index] as HTMLElement;
+      const containerWidth = container.offsetWidth;
+      const targetLeft = targetCard.offsetLeft;
+      const targetWidth = targetCard.offsetWidth;
+      const scrollLeft = targetLeft - (containerWidth - targetWidth) / 2;
+      container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    }
+    setActiveIndex(index);
+  };
 
   // Tự động trích xuất danh mục từ chính mảng packages thực tế truy vấn từ Database
   const dynamicCategories = useMemo(() => {
@@ -60,6 +89,11 @@ export function AllPackagesCatalog({
       (pkg) => pkg.category?.trim().toLowerCase() === target
     );
   }, [packages, selectedCategory]);
+
+  // Reset activeIndex when category or filtered packages change
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [filteredPackages]);
 
   return (
     <div className="w-full space-y-10">
@@ -93,7 +127,35 @@ export function AllPackagesCatalog({
         </div>
       )}
 
-      {/* 3-COLUMN FULL PACKAGES GRID (MAX 3 PER ROW) / PERFECT CENTERED ALIGNMENT */}
+      {/* QUICK PACKAGE JUMP PILLS ON MOBILE (< md) */}
+      {filteredPackages.length > 1 && (
+        <div className="md:hidden flex items-center gap-2 overflow-x-auto no-scrollbar px-4 pb-2 -mt-4">
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-500 shrink-0 mr-1">
+            Gói:
+          </span>
+          {filteredPackages.map((pkg, idx) => {
+            const isActive = activeIndex === idx;
+            return (
+              <button
+                key={pkg.id || idx}
+                type="button"
+                onClick={() => scrollToPackage(idx)}
+                aria-label={`Xem nhanh gói ${pkg.name}`}
+                aria-pressed={isActive}
+                className={`px-3 py-1.5 rounded-full text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer shrink-0 border ${
+                  isActive
+                    ? 'bg-[#1C1917] text-[#E5C799] border-[#C59B6D] font-semibold shadow-sm'
+                    : 'bg-[#FAF7F2] text-[#57534E] border-[#E8E0D5] hover:border-amber-400'
+                }`}
+              >
+                {pkg.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 3-COLUMN FULL PACKAGES GRID (MAX 3 PER ROW) / MOBILE SNAP CAROUSEL */}
       {filteredPackages.length === 0 ? (
         <div className="text-center py-16 bg-stone-50 rounded-3xl border border-dashed border-stone-300 max-w-2xl mx-auto space-y-3">
           <Sparkles className="w-8 h-8 text-stone-400 mx-auto" />
@@ -105,21 +167,51 @@ export function AllPackagesCatalog({
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
-          {filteredPackages.map((pkg, index) => (
-            <div
-              key={pkg.id}
-              className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
-            >
-              <PackageCard
-                pkg={pkg}
-                priority={index < 3}
-                isSummary={isSummary}
-                onSelect={(selected) => setSelectedPackage(selected)}
-              />
+        <>
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex md:flex-wrap md:justify-center items-stretch overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 lg:gap-8 px-5 md:px-0 pb-4 no-scrollbar scroll-smooth max-w-7xl mx-auto"
+          >
+            {filteredPackages.map((pkg, index) => (
+              <div
+                key={pkg.id}
+                className="shrink-0 w-[84vw] max-w-[340px] snap-center md:shrink md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
+              >
+                <PackageCard
+                  pkg={pkg}
+                  priority={index < 3}
+                  isSummary={isSummary}
+                  onSelect={(selected) => setSelectedPackage(selected)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* MOBILE CAROUSEL INDICATOR DOTS (< md) */}
+          {filteredPackages.length > 1 && (
+            <div className="flex md:hidden items-center justify-center gap-1 mt-3">
+              {filteredPackages.map((pkg, idx) => {
+                const isActive = activeIndex === idx;
+                return (
+                  <button
+                    key={pkg.id || idx}
+                    type="button"
+                    onClick={() => scrollToPackage(idx)}
+                    aria-label={`Chuyển tới gói ${pkg.name}`}
+                    className="w-8 h-8 flex items-center justify-center cursor-pointer p-0 focus:outline-none"
+                  >
+                    <span
+                      className={`block rounded-full transition-all duration-300 ${
+                        isActive ? 'w-6 h-1.5 bg-[#1C1917]' : 'w-1.5 h-1.5 bg-stone-300'
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* DETAIL MODAL WITH VIETQR REDIRECT */}
