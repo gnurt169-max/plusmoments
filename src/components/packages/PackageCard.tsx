@@ -41,13 +41,42 @@ export function PackageCard({
       ? Math.round(((numericOriginalPrice - numericPrice) / numericOriginalPrice) * 100)
       : null;
 
+  const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    pointerStartRef.current = null;
+    // Chỉ kích hoạt mở Modal khi độ dịch chuyển ngón tay < 8px (tap chuẩn, không phải vuốt)
+    if (dx < 8 && dy < 8) {
+      onSelect?.(pkg);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelect?.(pkg);
+    }
+  };
+
   return (
     <article
-      onClick={() => onSelect?.(pkg)}
-      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
+      tabIndex={0}
+      role="button"
+      aria-label={`Xem chi tiết gói dịch vụ ${pkg.name}`}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onKeyDown={handleKeyDown}
+      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm md:hover:shadow-2xl md:hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 ${
         pkg.isPopular
           ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
-          : 'hover:border-amber-400/60'
+          : 'md:hover:border-amber-400/60'
       }`}
     >
       {/* 1. COVER IMAGE */}
@@ -152,7 +181,7 @@ export function PackageCard({
               onSelect?.(pkg);
             }}
             aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
-            className="w-full py-2.5 sm:py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 after:absolute after:inset-0 after:content-['']"
+            className="w-full py-2.5 sm:py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 select-none"
           >
             <Eye className="w-3.5 h-3.5 text-amber-300" />
             <span>Xem Chi Tiết & Đặt Lịch</span>

@@ -170,6 +170,7 @@ export function PricingSection({
       {packages.length > 1 && (
         <div
           ref={pillsRef}
+          style={{ WebkitOverflowScrolling: 'touch' }}
           className="md:hidden flex items-center gap-2 overflow-x-auto no-scrollbar px-4 pb-4 mb-2 -mt-4 touch-pan-x overscroll-x-contain"
         >
           <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-500 shrink-0 mr-1 select-none">
@@ -217,6 +218,7 @@ export function PricingSection({
           <div
             ref={scrollRef}
             onScroll={handleScroll}
+            style={{ WebkitOverflowScrolling: 'touch' }}
             className={`flex md:flex-wrap md:justify-center items-stretch overflow-x-auto md:overflow-visible gap-4 md:gap-6 lg:gap-8 px-5 md:px-0 pb-4 no-scrollbar touch-pan-x overscroll-x-contain max-w-7xl mx-auto ${
               isSnapping ? 'snap-x snap-proximity md:snap-none' : ''
             }`}

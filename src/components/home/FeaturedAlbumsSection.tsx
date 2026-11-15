@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { SafeImage } from '@/components/common/SafeImage';
@@ -42,20 +42,39 @@ export function FeaturedAlbumsSection({
 }: FeaturedAlbumsSectionProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isSnapping, setIsSnapping] = useState(true);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const isProgrammaticScrollRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    isDraggingRef.current = false;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointerStartRef.current) return;
+    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+    if (dx > 8 || dy > 8) {
+      isDraggingRef.current = true;
+    }
+  };
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   const displayedAlbums = Array.isArray(albums) ? albums.slice(0, 3) : [];
 
-  if (displayedAlbums.length === 0) {
-    return (
-      <div className="text-center py-12 text-xs text-charcoal-600">
-        Đang cập nhật các bộ sưu tập mới...
-      </div>
-    );
-  }
-
   const handleScroll = () => {
-    if (!carouselRef.current) return;
+    if (isProgrammaticScrollRef.current || !carouselRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
     const maxScroll = scrollWidth - clientWidth;
     if (maxScroll > 0) {
@@ -68,6 +87,14 @@ export function FeaturedAlbumsSection({
 
   const scrollToAlbum = (index: number) => {
     if (!carouselRef.current) return;
+    setActiveIndex(index);
+    isProgrammaticScrollRef.current = true;
+    setIsSnapping(false);
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
     const cards = carouselRef.current.children;
     if (cards[index]) {
       (cards[index] as HTMLElement).scrollIntoView({
@@ -76,7 +103,28 @@ export function FeaturedAlbumsSection({
         block: 'nearest',
       });
     }
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsSnapping(true);
+      isProgrammaticScrollRef.current = false;
+    }, 450);
   };
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  if (displayedAlbums.length === 0) {
+    return (
+      <div className="text-center py-12 text-xs text-charcoal-600">
+        Đang cập nhật các bộ sưu tập mới...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-10">
@@ -88,7 +136,12 @@ export function FeaturedAlbumsSection({
         <div
           ref={carouselRef}
           onScroll={handleScroll}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-5 pb-4 no-scrollbar scroll-smooth -mx-4 sm:-mx-6"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          className={`flex overflow-x-auto gap-4 px-5 pb-4 no-scrollbar touch-pan-x overscroll-x-contain -mx-4 sm:-mx-6 ${
+            isSnapping ? 'snap-x snap-proximity' : ''
+          }`}
         >
           {displayedAlbums.map((album, idx) => {
             const rawSrc =
@@ -111,8 +164,10 @@ export function FeaturedAlbumsSection({
               >
                 <Link
                   href={`/bo-suu-tap/${album?.slug || ''}`}
+                  onClick={handleLinkClick}
+                  draggable={false}
                   aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
-                  className="group block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md active:scale-[0.98] transition-all duration-300 bg-[#1E1C1A]"
+                  className="group block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md active:scale-[0.98] transition-all duration-300 bg-[#1E1C1A] select-none"
                 >
                   <SafeImage
                     src={coverImageSrc}
@@ -120,14 +175,14 @@ export function FeaturedAlbumsSection({
                     fill
                     quality={75}
                     sizes="(max-width: 640px) 80vw, 320px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none select-none"
                   />
 
                   {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/35 via-45% to-transparent pointer-events-none" />
 
                   {/* Nội dung thông tin trên ảnh phong cách Editorial Art Card */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end text-left z-10">
+                  <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end text-left z-10 pointer-events-none select-none">
                     {tagLine && (
                       <p className="text-[10px] tracking-[0.18em] uppercase text-[#E5C799] font-medium line-clamp-1 drop-shadow-sm">
                         {tagLine}
@@ -171,7 +226,7 @@ export function FeaturedAlbumsSection({
                     type="button"
                     aria-label={`Chuyển tới album ${i + 1}`}
                     onClick={() => scrollToAlbum(i)}
-                    className="w-8 h-8 inline-flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B6D]"
+                    className="touch-manipulation w-8 h-8 inline-flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B6D] active:scale-90 transition-transform"
                   >
                     <span
                       className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${

@@ -23,6 +23,14 @@
     overflow-x: hidden;
   }
 
+  /* Loại bỏ độ trễ 300ms, sticky hover và viền xám mặc định trên thiết bị cảm ứng */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   /* Custom Selection Color */
   ::selection {
     background-color: #DECDB8;
