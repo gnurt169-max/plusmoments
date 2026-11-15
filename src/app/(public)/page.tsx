@@ -113,7 +113,7 @@ export default async function HomePage() {
     getCachedBlogs(),
   ]);
 
-  const featuredAlbumsRaw = (allAlbumsRaw || []).slice(0, 3);
+  const featuredAlbumsRaw = (allAlbumsRaw || []).slice(0, 5);
   const totalAlbumsCount = (allAlbumsRaw || []).length;
   const totalPackagesCount = (allPackagesRaw || []).length;
   const featuredPostsRaw = (allBlogsRaw || []).slice(0, 3);
@@ -130,7 +130,7 @@ export default async function HomePage() {
     createdAt: post.createdAt,
   }));
 
-  // 1. Featured Albums (Top 3)
+  // 1. Featured Albums (Top 5)
   const albums = featuredAlbumsRaw;
 
   // 2. Packages list
