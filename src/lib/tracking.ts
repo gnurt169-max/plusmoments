@@ -436,15 +436,25 @@ export function trackConsultationSubmit(details: {
     package_interest: details.package || 'general',
   });
 
-  // Google Tag Manager / GA4 Lead Event
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push({
-      event: 'generate_lead',
-      value: val,
-      currency: 'VND',
-      transaction_id: details.leadId,
-      package: details.package,
-    });
+  // Google Analytics 4 (GA4) & GTM Lead Event
+  if (typeof window !== 'undefined') {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'generate_lead', {
+        value: val,
+        currency: 'VND',
+        transaction_id: details.leadId,
+        package: details.package,
+      });
+    }
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'generate_lead',
+        value: val,
+        currency: 'VND',
+        transaction_id: details.leadId,
+        package: details.package,
+      });
+    }
   }
 
   // Google Ads Direct Conversion
@@ -496,11 +506,10 @@ export function trackBeginCheckout(packageData: {
     ...traffic,
   });
 
-  // Google Tag Manager / GA4 Standard E-commerce payload
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push({
-      event: 'begin_checkout',
-      ecommerce: {
+  // Google Analytics 4 (GA4) & GTM Standard E-commerce payload
+  if (typeof window !== 'undefined') {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'begin_checkout', {
         currency: 'VND',
         value: value,
         transaction_id: packageData.orderCode,
@@ -512,8 +521,26 @@ export function trackBeginCheckout(packageData: {
             quantity: 1,
           },
         ],
-      },
-    });
+      });
+    }
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'begin_checkout',
+        ecommerce: {
+          currency: 'VND',
+          value: value,
+          transaction_id: packageData.orderCode,
+          items: [
+            {
+              item_id: packageData.id,
+              item_name: packageData.name,
+              price: value,
+              quantity: 1,
+            },
+          ],
+        },
+      });
+    }
   }
 
   // Meta Pixel InitiateCheckout
@@ -562,11 +589,10 @@ export function trackPurchase(details: {
     package: details.packageName,
   });
 
-  // GTM / GA4 standard purchase
-  if (window.dataLayer) {
-    window.dataLayer.push({
-      event: 'purchase',
-      ecommerce: {
+  // GA4 & GTM standard purchase
+  if (typeof window !== 'undefined') {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'purchase', {
         transaction_id: details.orderCode,
         value: details.amount,
         currency: 'VND',
@@ -578,8 +604,26 @@ export function trackPurchase(details: {
             quantity: 1,
           },
         ],
-      },
-    });
+      });
+    }
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'purchase',
+        ecommerce: {
+          transaction_id: details.orderCode,
+          value: details.amount,
+          currency: 'VND',
+          items: [
+            {
+              item_id: details.packageId || details.orderCode,
+              item_name: details.packageName,
+              price: details.amount,
+              quantity: 1,
+            },
+          ],
+        },
+      });
+    }
   }
 
   // Google Ads conversion

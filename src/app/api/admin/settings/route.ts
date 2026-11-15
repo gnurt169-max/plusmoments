@@ -28,6 +28,7 @@ export async function GET() {
     for (const [key, val] of Object.entries(raw)) {
       settings[key] = val === null || val === undefined ? '' : val;
     }
+    settings.ga4Id = settings.googleAnalyticsId || '';
 
     // RBAC: If ADMIN, hide sensitive API Keys & Maintenance data
     if (authCheck.session.role === AdminRole.ADMIN) {
@@ -51,6 +52,16 @@ export async function PUT(request: Request) {
     if (!authCheck.authorized) return authCheck.response;
 
     const body = await request.json();
+
+    // Support ga4Id as alias of googleAnalyticsId & Smart Sanitize GA4 ID
+    if (body.ga4Id !== undefined && body.googleAnalyticsId === undefined) {
+      body.googleAnalyticsId = body.ga4Id;
+    }
+    if (typeof body.googleAnalyticsId === 'string') {
+      const trimmed = body.googleAnalyticsId.trim();
+      const match = trimmed.match(/G-[A-Z0-9]+/i);
+      body.googleAnalyticsId = match ? match[0].toUpperCase() : trimmed ? trimmed.toUpperCase() : '';
+    }
 
     // Partial update defense: Only update fields that are explicitly provided in the request
     const updateData: Record<string, any> = {};

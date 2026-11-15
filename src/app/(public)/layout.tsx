@@ -111,6 +111,7 @@ export default async function PublicLayout({
         gtmId={settings.gtmId}
         googleAdsId={settings.googleAdsId}
         googleAnalyticsId={settings.googleAnalyticsId}
+        ga4Id={settings.googleAnalyticsId}
         metaPixelId={settings.metaPixelId}
         tiktokPixelId={settings.tiktokPixelId}
         customHeadScript={settings.customHeadScript}

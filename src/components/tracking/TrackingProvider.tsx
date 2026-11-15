@@ -2,12 +2,14 @@
 
 import Script from 'next/script';
 import React, { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { captureAndStoreTrafficSource } from '@/lib/tracking';
 
 interface TrackingProviderProps {
   gtmId?: string | null;
   googleAdsId?: string | null;
   googleAnalyticsId?: string | null;
+  ga4Id?: string | null;
   metaPixelId?: string | null;
   tiktokPixelId?: string | null;
   customHeadScript?: string | null;
@@ -19,14 +21,21 @@ export function TrackingProvider({
   gtmId,
   googleAdsId,
   googleAnalyticsId,
+  ga4Id,
   metaPixelId,
   tiktokPixelId,
   customHeadScript,
   customBodyScript,
   nonce,
 }: TrackingProviderProps) {
+  const pathname = usePathname();
+
+  // Đảm bảo không nạp mã đo lường trên trang Admin CMS để tránh làm sai lệch báo cáo GA4 & Ads
+  const isAdmin = pathname?.startsWith('/admin');
+
   // Capture & persist UTM and GCLID on page load (sau khi trình duyệt rảnh, không block hydration)
   useEffect(() => {
+    if (isAdmin) return;
     if ('requestIdleCallback' in window) {
       const id = window.requestIdleCallback(() => captureAndStoreTrafficSource());
       return () => window.cancelIdleCallback(id);
@@ -34,9 +43,15 @@ export function TrackingProvider({
       const timer = setTimeout(() => captureAndStoreTrafficSource(), 200);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isAdmin]);
 
-  const primaryGoogleId = googleAdsId || googleAnalyticsId;
+  if (isAdmin) {
+    return null;
+  }
+
+  const effectiveGa4Id = (ga4Id || googleAnalyticsId || '').trim();
+  const effectiveGoogleAdsId = (googleAdsId || '').trim();
+  const primaryGoogleId = effectiveGa4Id || effectiveGoogleAdsId;
 
   return (
     <>
@@ -70,7 +85,7 @@ export function TrackingProvider({
         </>
       )}
 
-      {/* 2. Google Ads & Google Analytics 4 (gtag.js) */}
+      {/* 2. Google Ads & Google Analytics 4 (gtag.js - Nạp duy nhất 1 lần script thư viện gtag) */}
       {primaryGoogleId && (
         <>
           <Script
@@ -88,8 +103,8 @@ export function TrackingProvider({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                ${googleAdsId ? `gtag('config', '${googleAdsId}', { 'allow_enhanced_conversions': true });` : ''}
-                ${googleAnalyticsId ? `gtag('config', '${googleAnalyticsId}', { 'send_page_view': true });` : ''}
+                ${effectiveGoogleAdsId ? `gtag('config', '${effectiveGoogleAdsId}', { 'allow_enhanced_conversions': true });` : ''}
+                ${effectiveGa4Id ? `gtag('config', '${effectiveGa4Id}', { 'send_page_view': true });` : ''}
               `,
             }}
           />

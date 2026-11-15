@@ -189,6 +189,7 @@ export default function AdminSettingsPage() {
     googleTagManagerId: '',
     googleAdsId: '',
     googleAnalyticsId: '',
+    ga4Id: '',
     googleAdsConversionLabel: '',
     googleAdsLeadLabel: '',
     googleAdsPurchaseLabel: '',
@@ -350,7 +351,8 @@ export default function AdminSettingsPage() {
             gtmId: s.gtmId || s.googleTagManagerId || '',
             googleTagManagerId: s.googleTagManagerId || s.gtmId || '',
             googleAdsId: s.googleAdsId || '',
-            googleAnalyticsId: s.googleAnalyticsId || '',
+            googleAnalyticsId: s.googleAnalyticsId || s.ga4Id || '',
+            ga4Id: s.ga4Id || s.googleAnalyticsId || '',
             googleAdsConversionLabel: s.googleAdsConversionLabel || s.googleAdsLeadLabel || '',
             googleAdsLeadLabel: s.googleAdsLeadLabel || s.googleAdsConversionLabel || '',
             googleAdsPurchaseLabel: s.googleAdsPurchaseLabel || '',
@@ -2776,21 +2778,61 @@ export default function AdminSettingsPage() {
                   </p>
                 </div>
 
-                <div>
-                  <label className="text-xs font-semibold tracking-wider text-stone-700 mb-2 block uppercase">
-                    Google Analytics 4 Measurement ID (GA4)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="G-XXXXXXXXXX"
-                    value={formData.googleAnalyticsId || ''}
-                    onChange={(e) =>
-                      setFormData({ ...formData, googleAnalyticsId: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-mono"
-                  />
-                  <p className="text-[11px] text-stone-400 mt-1 font-light">
-                    Mã luồng dữ liệu web Google Analytics 4 (Ví dụ: G-AB12CD34EF)
+                <div className="rounded-2xl border border-stone-200/90 bg-stone-50/40 p-4 sm:p-5 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold tracking-wider text-stone-800 uppercase flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-600 inline-block" />
+                        Google Analytics 4 (GA4)
+                      </label>
+                      {formData.googleAnalyticsId ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Đang hoạt động
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-stone-200/70 text-stone-500">
+                          Chưa kích hoạt
+                        </span>
+                      )}
+                    </div>
+                    {formData.googleAnalyticsId && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData({ ...formData, googleAnalyticsId: '', ga4Id: '' })
+                        }
+                        className="text-[11px] text-stone-400 hover:text-rose-600 transition-colors font-medium cursor-pointer"
+                      >
+                        Ngắt kết nối / Xóa
+                      </button>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-stone-600 mb-1.5 block">
+                      GA4 Measurement ID (Mã đo lường luồng web)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="G-XXXXXXXXXX"
+                      value={formData.googleAnalyticsId || ''}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const match = raw.match(/G-[A-Z0-9]+/i);
+                        const cleanId = match ? match[0].toUpperCase() : raw.trim().toUpperCase();
+                        setFormData({
+                          ...formData,
+                          googleAnalyticsId: cleanId,
+                          ga4Id: cleanId,
+                        });
+                      }}
+                      className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-stone-800 focus:ring-1 focus:ring-stone-800 transition-all outline-none text-sm font-mono shadow-xs"
+                    />
+                  </div>
+
+                  <p className="text-[11px] text-stone-400 leading-relaxed font-light">
+                    💡 Hướng dẫn: Lấy tại <strong>Google Analytics → Quản trị → Luồng dữ liệu → Mã đo lường</strong> (Ví dụ: G-AB12CD34EF). Hệ thống tự động trích xuất mã chuẩn nếu bạn dán nguyên đoạn mã script thẻ Google Tag.
                   </p>
                 </div>
               </div>
