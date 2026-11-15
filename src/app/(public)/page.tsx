@@ -381,9 +381,9 @@ export default async function HomePage() {
       </section>
 
       {/* =========================================================================
-          FEATURED BLOG & WEDDING JOURNAL (Cẩm Nang Cưới)
+          FEATURED BLOG & WEDDING JOURNAL (Cẩm Nang Cưới - Chỉ hiển thị khi có bài viết)
       ========================================================================= */}
-      <FeaturedBlogSection posts={featuredPosts} />
+      {featuredPosts.length > 0 && <FeaturedBlogSection posts={featuredPosts} />}
 
       {/* =========================================================================
           TESTIMONIALS (Floating Love Stories)

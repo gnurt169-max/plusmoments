@@ -46,6 +46,7 @@ export default async function PublicLayout({
     title: b.title,
     slug: b.slug,
   }));
+  const hasPublishedBlogs = (allPosts?.length ?? 0) > 0;
 
   let session = null;
   // If maintenance mode is ON and visitor is not an authenticated Admin, display Maintenance View
@@ -149,6 +150,7 @@ export default async function PublicLayout({
         <Header
           hotlineDisplay={settings.hotlineDisplay}
           hotline={settings.hotline}
+          hasPublishedBlogs={hasPublishedBlogs}
         />
 
         {/* Main Content Area */}
@@ -163,6 +165,7 @@ export default async function PublicLayout({
           activeAlbums={activeAlbums}
           activePackages={activePackages}
           activePosts={activePosts}
+          hasPublishedBlogs={hasPublishedBlogs}
         />
       </div>
     </ContactProvider>

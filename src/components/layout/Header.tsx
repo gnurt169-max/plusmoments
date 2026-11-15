@@ -18,12 +18,14 @@ const ConsultationModal = dynamic(
 interface HeaderProps {
   hotlineDisplay?: string;
   hotline?: string;
+  hasPublishedBlogs?: boolean;
 }
 
 export function Header(props: HeaderProps) {
   const { contact } = useContact();
   const hotlineDisplay = contact.hotlineDisplay || props.hotlineDisplay || '0903.768.871';
   const hotline = contact.hotline || props.hotline || '0903768871';
+  const hasPublishedBlogs = props.hasPublishedBlogs ?? false;
   const cleanPhone = hotline.replace(/[^0-9]/g, '');
   const zaloUrl = contact.zaloUrl || `https://zalo.me/${cleanPhone}`;
   const studioAddress = contact.address || 'Hồ Chí Minh & Đà Lạt';
@@ -69,13 +71,18 @@ export function Header(props: HeaderProps) {
     };
   }, [mobileMenuOpen]);
 
-  const navLinks = [
-    { name: 'Trang Chủ', href: '/', num: '01' },
-    { name: 'Bộ Sưu Tập', href: '/bo-suu-tap', num: '02' },
-    { name: 'Bảng Giá Dịch Vụ', href: '/pricing', num: '03' },
-    { name: 'Cẩm Nang Cưới', href: '/blog', num: '04' },
-    { name: 'Liên Hệ & Studio', href: '/contact', num: '05' },
+  const baseNavLinks = [
+    { name: 'Trang Chủ', href: '/' },
+    { name: 'Bộ Sưu Tập', href: '/bo-suu-tap' },
+    { name: 'Bảng Giá Dịch Vụ', href: '/pricing' },
+    ...(hasPublishedBlogs ? [{ name: 'Cẩm Nang Cưới', href: '/blog' }] : []),
+    { name: 'Liên Hệ & Studio', href: '/contact' },
   ];
+
+  const navLinks = baseNavLinks.map((link, index) => ({
+    ...link,
+    num: `0${index + 1}`,
+  }));
 
   return (
     <>
@@ -93,21 +100,23 @@ export function Header(props: HeaderProps) {
             : 'bg-white/85 backdrop-blur-md border-b border-stone-200/60 py-3.5 shadow-2xs'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
           {/* DESKTOP LAYOUT (Hidden on mobile) */}
           <div className="hidden lg:flex items-center justify-between min-h-[52px]">
-            {/* Brand Logo */}
-            <Link href="/" className="inline-block hover:opacity-85 transition-opacity shrink-0 outline-none border-0 select-none">
-              <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
-            </Link>
+            {/* 1. Khối Trái (Logo): shrink-0 mr-8 lg:mr-12 để cụm PLUS MOMENTS luôn có khoảng thở rộng rãi bên phải */}
+            <div className="shrink-0 mr-8 lg:mr-12">
+              <Link href="/" className="inline-block hover:opacity-85 transition-opacity outline-none border-0 select-none">
+                <BrandLogo variant="dark" logoAccentColor={brandAccentColor} />
+              </Link>
+            </div>
 
-            {/* Desktop Navigation */}
-            <nav className="flex items-center gap-8 shrink-0" aria-label="Menu chính">
+            {/* 2. Khối Giữa (Navigation Links): flex-1 flex items-center justify-center gap-6 lg:gap-9 */}
+            <nav className="flex-1 flex items-center justify-center gap-6 lg:gap-9" aria-label="Menu chính">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-xs uppercase tracking-widest font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-sm"
+                  className="whitespace-nowrap text-[12px] tracking-[0.14em] uppercase font-medium text-stone-700 hover:text-amber-800 transition-colors relative py-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-sm"
                 >
                   {link.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-800 transition-all duration-300 group-hover:w-full" />
@@ -115,23 +124,23 @@ export function Header(props: HeaderProps) {
               ))}
             </nav>
 
-            {/* Right Action CTA */}
-            <div className="flex items-center gap-4">
+            {/* 3. Khối Phải (Hotline + Nút CTA): shrink-0 flex items-center gap-5 ml-6 */}
+            <div className="shrink-0 flex items-center gap-5 ml-6">
               <a
                 href={`tel:${cleanPhone}`}
                 onClick={() => trackHotlineClick(cleanPhone, 'header_desktop', contact.googleAdsPhoneConversionLabel)}
-                className="flex items-center gap-1.5 text-xs font-mono font-medium text-stone-700 hover:text-amber-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-md px-1.5 py-1"
+                className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-mono font-medium text-stone-700 hover:text-amber-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2 rounded-md px-1.5 py-1"
               >
-                <Phone className="w-3.5 h-3.5 text-amber-800" />
+                <Phone className="w-3.5 h-3.5 text-amber-800 shrink-0" />
                 <span>{hotlineDisplay}</span>
               </a>
 
               <button
                 type="button"
                 onClick={() => setIsConsultModalOpen(true)}
-                className="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest font-medium bg-amber-800 hover:bg-amber-900 active:scale-95 text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
+                className="whitespace-nowrap h-10 px-5 rounded-full inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] uppercase bg-amber-800 hover:bg-amber-900 active:scale-95 text-white transition-all shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
                 <span>Tư Vấn Concept</span>
               </button>
             </div>

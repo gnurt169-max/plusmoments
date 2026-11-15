@@ -42,6 +42,7 @@ export interface FooterProps {
   activeAlbums?: FooterAlbumItem[];
   activePackages?: FooterPackageItem[];
   activePosts?: FooterPostItem[];
+  hasPublishedBlogs?: boolean;
 
   brandName?: string | null;
   brandSlogan?: string | null;
@@ -129,6 +130,9 @@ export async function Footer(props: FooterProps) {
       })
       .catch(() => []);
   }
+
+  const hasPublishedBlogs =
+    props.hasPublishedBlogs !== undefined ? props.hasPublishedBlogs : posts.length > 0;
 
   // Brand Manifesto & Identity
   const aboutText = (
@@ -228,7 +232,11 @@ export async function Footer(props: FooterProps) {
   return (
     <footer className="bg-charcoal-950 text-stone-300 pt-20 pb-12 border-t border-charcoal-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 mb-16">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-2 ${
+            hasPublishedBlogs ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+          } gap-8 lg:gap-6 mb-16`}
+        >
           {/* CỘT 1: THƯƠNG HIỆU & MẠNG XÃ HỘI */}
           <div className="space-y-4">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
@@ -372,33 +380,35 @@ export async function Footer(props: FooterProps) {
             </ul>
           </div>
 
-          {/* CỘT 4: CẨM NANG CƯỚI */}
-          <div>
-            <p className="font-serif text-sm uppercase tracking-widest text-[#E8E2D9] mb-4 font-medium">
-              Cẩm Nang Cưới
-            </p>
-            <ul className="space-y-2.5 text-xs text-[#A8A29E] font-light">
-              {posts.map((post) => (
-                <li key={post.id}>
+          {/* CỘT 4: CẨM NANG CƯỚI (CHỈ HIỂN THỊ KHI CÓ BÀI VIẾT XUẤT BẢN) */}
+          {hasPublishedBlogs && (
+            <div>
+              <p className="font-serif text-sm uppercase tracking-widest text-[#E8E2D9] mb-4 font-medium">
+                Cẩm Nang Cưới
+              </p>
+              <ul className="space-y-2.5 text-xs text-[#A8A29E] font-light">
+                {posts.map((post) => (
+                  <li key={post.id}>
+                    <Link
+                      href={`/cam-nang/${post.slug}`}
+                      className="hover:text-white transition duration-200 line-clamp-1"
+                      title={post.title}
+                    >
+                      {post.title}
+                    </Link>
+                  </li>
+                ))}
+                <li>
                   <Link
-                    href={`/cam-nang/${post.slug}`}
-                    className="hover:text-white transition duration-200 line-clamp-1"
-                    title={post.title}
+                    href="/cam-nang"
+                    className="inline-block text-[#D6D0C7] hover:text-white transition duration-200 mt-1 font-medium"
                   >
-                    {post.title}
+                    Xem tất cả cẩm nang &rarr;
                   </Link>
                 </li>
-              ))}
-              <li>
-                <Link
-                  href="/cam-nang"
-                  className="inline-block text-[#D6D0C7] hover:text-white transition duration-200 mt-1 font-medium"
-                >
-                  Xem tất cả cẩm nang &rarr;
-                </Link>
-              </li>
-            </ul>
-          </div>
+              </ul>
+            </div>
+          )}
 
           {/* CỘT 5: LIÊN HỆ STUDIO (CHỈ HIỂN THỊ CÁC Ô CÓ DỮ LIỆU) */}
           <div>
