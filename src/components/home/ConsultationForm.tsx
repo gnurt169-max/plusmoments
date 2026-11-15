@@ -112,10 +112,12 @@ export function ConsultationForm({
         throw new Error(data.error || 'Có lỗi xảy ra khi gửi thông tin.');
       }
 
-      // Fire conversion tracking event
+      // Fire conversion tracking event with Enhanced Conversions match data
       trackConsultationSubmit({
         leadId: data.lead?.id,
         fullName: formData.fullName,
+        phone: formData.phone,
+        email: customerEmailValue,
         package: formData.expectedPackage,
         googleAdsConversionLabel: contact.googleAdsConversionLabel,
         conversionValue: contact.googleAdsConversionValue || 500000,

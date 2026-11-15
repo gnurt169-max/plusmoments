@@ -20,12 +20,21 @@ export const metadata: Metadata = {
     siteName: 'PlusMoments Wedding Pictures & Films',
     locale: 'vi_VN',
     type: 'website',
+    images: [
+      {
+        url: 'https://plusmoments.vn/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
     description:
       'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+    images: ['https://plusmoments.vn/images/og-image.jpg'],
   },
 };
 

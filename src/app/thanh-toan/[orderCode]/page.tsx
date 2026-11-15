@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { trackGoogleAdsConversion, trackEvent } from '@/lib/tracking';
+import { trackGoogleAdsConversion, trackEvent, trackPurchase } from '@/lib/tracking';
 import {
   QrCode,
   Copy,
@@ -145,20 +145,13 @@ export default function CheckoutPage({
           setTransactionId(data.order.transactionId);
           if (!hasTriggeredCelebration.current) {
             hasTriggeredCelebration.current = true;
-            trackEvent('conversion_purchase', {
-              order_id: data.order.orderCode,
-              value: data.order.amount,
-              currency: 'VND',
-              package: data.order.packageName,
+            trackPurchase({
+              orderCode: data.order.orderCode,
+              packageName: data.order.packageName,
+              amount: data.order.amount,
+              googleAdsId: data.tracking?.googleAdsId,
+              googleAdsPurchaseLabel: data.tracking?.googleAdsPurchaseLabel,
             });
-            if (data.tracking?.googleAdsId && data.tracking?.googleAdsPurchaseLabel) {
-              trackGoogleAdsConversion(
-                data.tracking.googleAdsId,
-                data.tracking.googleAdsPurchaseLabel,
-                data.order.amount,
-                'VND'
-              );
-            }
           }
         }
       } catch (err: any) {
@@ -189,20 +182,13 @@ export default function CheckoutPage({
             hasTriggeredCelebration.current = true;
             playSuccessChime();
             triggerConfetti();
-            trackEvent('conversion_purchase', {
-              order_id: orderCode,
-              value: order?.amount || 0,
-              currency: 'VND',
-              package: order?.packageName || '',
+            trackPurchase({
+              orderCode: orderCode,
+              packageName: order?.packageName || '',
+              amount: order?.amount || 0,
+              googleAdsId: tracking?.googleAdsId,
+              googleAdsPurchaseLabel: tracking?.googleAdsPurchaseLabel,
             });
-            if (tracking?.googleAdsId && tracking?.googleAdsPurchaseLabel) {
-              trackGoogleAdsConversion(
-                tracking.googleAdsId,
-                tracking.googleAdsPurchaseLabel,
-                order?.amount || 0,
-                'VND'
-              );
-            }
           }
         }
       } catch {

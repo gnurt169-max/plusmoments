@@ -47,3 +47,14 @@ export function formatCurrencyInput(val: string | number): string {
   return Number(digits).toLocaleString('vi-VN');
 }
 
+/**
+ * Ensure image or asset URL is fully qualified with domain (for OpenGraph / Twitter / CAPI)
+ */
+export function toAbsoluteUrl(path: string | null | undefined, baseUrl = 'https://plusmoments.vn'): string {
+  if (!path) return `${baseUrl.replace(/\/$/, '')}/images/og-image.jpg`;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const cleanBase = baseUrl.replace(/\/$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${cleanBase}${cleanPath}`;
+}
+

@@ -59,12 +59,14 @@ export async function POST(request: Request) {
       estimatedBudget,
       notes,
       sourceUrl,
+      landingPageUrl,
       utmSource,
       utmMedium,
       utmCampaign,
       utmTerm,
       utmContent,
       gclid,
+      fbclid,
       conversionValue,
     } = body;
 
@@ -98,6 +100,26 @@ export async function POST(request: Request) {
     const cleanEmail = customerEmail && customerEmail.includes('@') ? customerEmail : null;
     const selectedPackage = (packageInterested || expectedPackage || '').trim();
 
+    // Tự động nhận diện nguồn quảng cáo (Google Ads / Facebook Ads) nếu thiếu utmSource
+    let finalUtmSource = utmSource;
+    let finalUtmMedium = utmMedium;
+    if (!finalUtmSource) {
+      if (gclid) {
+        finalUtmSource = 'google_ads';
+        finalUtmMedium = finalUtmMedium || 'cpc';
+      } else if (fbclid) {
+        finalUtmSource = 'facebook_ads';
+        finalUtmMedium = finalUtmMedium || 'cpc';
+      }
+    }
+
+    let finalNotes = notes ? notes.trim() : '';
+    if (fbclid && !finalNotes.includes(fbclid)) {
+      finalNotes = finalNotes ? `${finalNotes} | [FBCLID: ${fbclid}]` : `[FBCLID: ${fbclid}]`;
+    }
+
+    const effectiveSourceUrl = sourceUrl || landingPageUrl || null;
+
     // 2. Persist Lead to Database
     const lead = await prisma.leadBooking.create({
       data: {
@@ -110,14 +132,14 @@ export async function POST(request: Request) {
         packageInterested: selectedPackage || null,
         expectedPackage: selectedPackage || null,
         estimatedBudget: estimatedBudget ? estimatedBudget.trim() : null,
-        notes: notes ? notes.trim() : null,
-        sourceUrl: sourceUrl || null,
-        utmSource: utmSource || null,
-        utmMedium: utmMedium || null,
+        notes: finalNotes || null,
+        sourceUrl: effectiveSourceUrl,
+        utmSource: finalUtmSource || null,
+        utmMedium: finalUtmMedium || null,
         utmCampaign: utmCampaign || null,
         utmTerm: utmTerm || null,
         utmContent: utmContent || null,
-        gclid: gclid || null,
+        gclid: gclid || (fbclid ? `fb_${fbclid}` : null),
         conversionValue: conversionValue !== undefined ? Number(conversionValue) : null,
         status: 'NEW',
         isRead: false,

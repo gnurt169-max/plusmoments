@@ -117,12 +117,24 @@ export async function processCreateOrder(request: Request) {
         : `Ngày dự kiến: ${targetDate}`;
     }
 
-    // Attach UTM / GCLID marketing attribution if present
+    // Attach UTM / GCLID / FBCLID marketing attribution if present
     const utmSource = (body.utmSource || body.trafficSource?.utmSource || '').trim();
+    const utmMedium = (body.utmMedium || body.trafficSource?.utmMedium || '').trim();
     const utmCampaign = (body.utmCampaign || body.trafficSource?.utmCampaign || '').trim();
     const gclid = (body.gclid || body.trafficSource?.gclid || '').trim();
-    if (utmSource || gclid) {
-      const utmInfo = `[Nguồn: ${utmSource || 'direct'}${utmCampaign ? ` / ${utmCampaign}` : ''}${gclid ? ` | GCLID: ${gclid}` : ''}]`;
+    const fbclid = (body.fbclid || body.trafficSource?.fbclid || '').trim();
+    const landingPageUrl = (body.landingPageUrl || body.sourceUrl || body.trafficSource?.landingPageUrl || '').trim();
+
+    const resolvedSource = utmSource || (gclid ? 'google_ads' : fbclid ? 'facebook_ads' : '');
+    if (resolvedSource || gclid || fbclid || utmCampaign) {
+      const parts = [
+        `Nguồn: ${resolvedSource || 'direct'}${utmMedium ? ` / ${utmMedium}` : ''}`,
+      ];
+      if (utmCampaign) parts.push(`Campaign: ${utmCampaign}`);
+      if (gclid) parts.push(`GCLID: ${gclid}`);
+      if (fbclid) parts.push(`FBCLID: ${fbclid}`);
+      if (landingPageUrl) parts.push(`Landing: ${landingPageUrl}`);
+      const utmInfo = `[${parts.join(' | ')}]`;
       finalNotes = finalNotes ? `${finalNotes} ${utmInfo}` : utmInfo;
     }
 

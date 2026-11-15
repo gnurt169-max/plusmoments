@@ -22,26 +22,35 @@ import {
 import { HelpCircle, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2025 | PlusMoments Studio',
+  title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2026 | PlusMoments Studio',
   description:
     'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
   alternates: {
     canonical: 'https://plusmoments.vn/pricing',
   },
   openGraph: {
-    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2025 | PlusMoments Studio',
+    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2026 | PlusMoments Studio',
     description:
       'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
     url: 'https://plusmoments.vn/pricing',
     siteName: 'PlusMoments Wedding Pictures & Films',
     locale: 'vi_VN',
     type: 'website',
+    images: [
+      {
+        url: 'https://plusmoments.vn/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2026 | PlusMoments Studio',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2025 | PlusMoments Studio',
+    title: 'Bảng Giá Chụp Ảnh Cưới Trọn Gói 2026 | PlusMoments Studio',
     description:
       'Bảng giá dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio Hàn Quốc, phóng sự cưới trọn gói tại TP.HCM. Cam kết không phát sinh, tặng 2.000.000đ khi cọc sớm.',
+    images: ['https://plusmoments.vn/images/og-image.jpg'],
   },
 };
 

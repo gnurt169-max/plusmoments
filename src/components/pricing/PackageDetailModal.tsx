@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
-import { getStoredTrafficSource, trackEvent, trackBeginCheckout } from '@/lib/tracking';
+import { getStoredTrafficSource, trackEvent, trackBeginCheckout, trackPackageView } from '@/lib/tracking';
 import {
   parseArrayOrLines,
   extractPackageInclusions,
@@ -108,14 +108,21 @@ export function PackageDetailModal({
       .finally(() => setLoadingAddons(false));
   }, [isOpen]);
 
-  // Reset form when modal opens or package changes
+  // Reset form and track ViewContent when modal opens or package changes
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && packageData) {
       setActiveImageIndex(0);
       setIsLightboxOpen(false);
       setErrorMessage('');
       setSelectedAddonQuantities({});
       setPaymentMode('deposit30');
+
+      trackPackageView({
+        id: packageData.id,
+        name: packageData.name,
+        price: packageData.price,
+        category: packageData.category,
+      });
     }
   }, [isOpen, packageData?.id]);
 

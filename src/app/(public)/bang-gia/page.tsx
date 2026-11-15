@@ -37,12 +37,21 @@ export const metadata: Metadata = {
     siteName: 'PlusMoments Wedding Pictures & Films',
     locale: 'vi_VN',
     type: 'website',
+    images: [
+      {
+        url: 'https://plusmoments.vn/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Bảng Giá Dịch Vụ Cưới Trọn Gói 2026 | PlusMoments Studio',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Bảng Giá Dịch Vụ Cưới Trọn Gói 2026 | PlusMoments Studio',
     description:
       'Bảng giá trọn gói tất cả các dịch vụ chụp ảnh cưới Pre-Wedding ngoại cảnh, studio phong cách Hàn Quốc, phóng sự cưới tại TP.HCM. Cam kết 100% không phát sinh chi phí.',
+    images: ['https://plusmoments.vn/images/og-image.jpg'],
   },
 };
 

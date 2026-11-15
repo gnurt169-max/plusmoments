@@ -5,6 +5,7 @@ import './globals.css';
 import { getSystemSettings } from '@/lib/settings';
 import { getCachedTestimonials } from '@/lib/cached-queries';
 import { RootWebsiteJsonLd, computeReviewStats } from '@/components/seo/JsonLdSchema';
+import { toAbsoluteUrl } from '@/lib/utils';
 
 const playfair = Playfair_Display({
   subsets: ['vietnamese'],
@@ -35,6 +36,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
+  const ogImageUrl = toAbsoluteUrl(settings.defaultOgImage, baseUrl);
+
   return {
     metadataBase: new URL(baseUrl),
     title: {
@@ -49,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: settings.siteName,
       images: [
         {
-          url: settings.defaultOgImage,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: `${settings.siteName} Wedding Photography`,
@@ -62,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: settings.defaultMetaTitle,
       description: settings.defaultMetaDescription,
-      images: [settings.defaultOgImage],
+      images: [ogImageUrl],
     },
     robots: {
       index: true,

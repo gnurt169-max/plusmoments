@@ -22,6 +22,7 @@ import {
   extractPackageHighlights,
   extractPackageInclusions,
 } from '@/lib/package-features';
+import { toAbsoluteUrl } from '@/lib/utils';
 import {
   Sparkles,
   ArrowRight,
@@ -64,9 +65,33 @@ export const revalidate = 60; // ISR cache revalidation every 60s
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getCachedSystemSettings();
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
+  const ogImageUrl = toAbsoluteUrl(settings.defaultOgImage, baseUrl);
+
   return {
     alternates: {
       canonical: baseUrl,
+    },
+    openGraph: {
+      title: settings.defaultMetaTitle,
+      description: settings.defaultMetaDescription,
+      url: baseUrl,
+      siteName: settings.siteName,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${settings.siteName} Wedding Photography`,
+        },
+      ],
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: settings.defaultMetaTitle,
+      description: settings.defaultMetaDescription,
+      images: [ogImageUrl],
     },
   };
 }

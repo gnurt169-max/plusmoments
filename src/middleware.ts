@@ -57,8 +57,8 @@ export async function middleware(request: NextRequest) {
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: blob: https:;
     font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googleadservices.com https://*.google.com https://*.google.com.vn https:;
-    frame-src 'self' https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net https://docs.google.com https://drive.google.com https://www.google.com https://maps.google.com https://www.youtube.com;
+    connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googleadservices.com https://*.google.com https://*.google.com.vn https://connect.facebook.net https://www.facebook.com https://*.facebook.com https://*.fbcdn.net https:;
+    frame-src 'self' https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net https://docs.google.com https://drive.google.com https://www.google.com https://maps.google.com https://www.youtube.com https://www.facebook.com https://web.facebook.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';

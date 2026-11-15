@@ -5,6 +5,7 @@ import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
 import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
+import { toAbsoluteUrl } from '@/lib/utils';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 const ConsultationForm = dynamic(
@@ -23,6 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     'Khám phá toàn bộ album ảnh cưới đẹp nhất tại Đà Lạt, TP.HCM, Phú Quốc phong cách điện ảnh, Hàn Quốc và Châu Âu của PlusMoments Studio.';
 
+  const ogImageUrl = toAbsoluteUrl(settings.defaultOgImage, baseUrl);
+
   return {
     title,
     description,
@@ -38,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       images: [
         {
-          url: settings.defaultOgImage || '/images/og-image.jpg',
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: `${settings.siteName} - Bộ Sưu Tập Ảnh Cưới`,
@@ -49,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [settings.defaultOgImage || '/images/og-image.jpg'],
+      images: [ogImageUrl],
     },
   };
 }

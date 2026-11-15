@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCachedBlogBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
-import { formatDate } from '@/lib/utils';
+import { formatDate, toAbsoluteUrl } from '@/lib/utils';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
@@ -31,6 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = post.metaTitle || `${post.title} | PlusMoments Blog`;
   const description = post.metaDescription || post.summary;
 
+  const coverImageUrl = toAbsoluteUrl(post.coverImage, baseUrl);
+
   return {
     title,
     description,
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: postUrl,
-      images: [{ url: post.coverImage, width: 1200, height: 630 }],
+      images: [{ url: coverImageUrl, width: 1200, height: 630 }],
       type: 'article',
       publishedTime: new Date(post.publishedAt).toISOString(),
       authors: [post.author],
@@ -50,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [post.coverImage],
+      images: [coverImageUrl],
     },
   };
 }

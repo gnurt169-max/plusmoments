@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { getCachedAlbumBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
-import { formatDate } from '@/lib/utils';
+import { formatDate, toAbsoluteUrl } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
 import { AlbumVideoFacade } from '@/components/albums/AlbumVideoFacade';
@@ -40,6 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     album.subtitle ||
     `Chiêm ngưỡng bộ ảnh cưới ${album.title} của cặp đôi ${album.coupleNames} tại ${album.location} thực hiện bởi PlusMoments Studio.`;
 
+  const coverImageUrl = toAbsoluteUrl(album.coverImage, baseUrl);
+
   return {
     title,
     description,
@@ -52,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: albumUrl,
       images: [
         {
-          url: album.coverImage,
+          url: coverImageUrl,
           width: 1200,
           height: 800,
           alt: album.title,
@@ -66,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [album.coverImage],
+      images: [coverImageUrl],
     },
   };
 }
