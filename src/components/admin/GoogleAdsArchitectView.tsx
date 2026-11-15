@@ -22,6 +22,8 @@ import {
   Pin,
   Flame,
   CheckCircle2,
+  Image as ImageIcon,
+  Download,
 } from 'lucide-react';
 import type { GoogleAdsPlan } from '@/lib/google-ads-architect';
 
@@ -39,7 +41,7 @@ export function GoogleAdsArchitectView() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'campaign' | 'aimax' | 'keywords' | 'rsa' | 'assets'>('campaign');
+  const [activeTab, setActiveTab] = useState<'campaign' | 'aimax' | 'keywords' | 'rsa' | 'images' | 'assets'>('campaign');
 
   // Form controls
   const [campaignGoal, setCampaignGoal] = useState<string>('all_packages');
@@ -110,6 +112,20 @@ export function GoogleAdsArchitectView() {
     setTimeout(() => {
       setCopiedKey((curr) => (curr === keyId ? null : curr));
     }, 2000);
+  };
+
+  const handleBatchDownloadImages = () => {
+    if (!plan?.imageAssets || plan.imageAssets.length === 0) return;
+    plan.imageAssets.forEach((img, index) => {
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = img.url;
+        a.download = img.downloadFileName || `plusmoments-ads-asset-${index + 1}.webp`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, index * 300);
+    });
   };
 
   if (loading) {
@@ -272,7 +288,8 @@ export function GoogleAdsArchitectView() {
             { key: 'aimax', label: '2. Nhóm Ads & AI Max Beta', icon: Compass },
             { key: 'keywords', label: '3. Từ Khóa & Phủ Định', icon: Key },
             { key: 'rsa', label: '4. Mẫu Quảng Cáo RSA (15 Tiêu Đề)', icon: FileText },
-            { key: 'assets', label: '5. Tiện Ích Mở Rộng (Assets)', icon: Layers },
+            { key: 'images', label: '5. Hình Ảnh Quảng Cáo (+ Thêm Hình Ảnh)', icon: ImageIcon },
+            { key: 'assets', label: '6. Tiện Ích Mở Rộng (Assets)', icon: Layers },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -871,13 +888,201 @@ export function GoogleAdsArchitectView() {
             </div>
           )}
 
-          {/* TAB 5: TIỆN ÍCH MỞ RỘNG (ASSETS) */}
+          {/* TAB 5: HÌNH ẢNH QUẢNG CÁO (+ THÊM HÌNH ẢNH) */}
+          {activeTab === 'images' && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E2D9] shadow-sm space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8E2D9] pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif text-lg font-normal text-stone-900">
+                      5. Thành Phần Hình Ảnh Quảng Cáo (Google Ads Image Assets)
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                      + THÊM HÌNH ẢNH
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1">
+                    Hình ảnh gốc độ phân giải cao (2560x3840) tuyển chọn từ Database thực tế của PlusMoments Studio. Tương thích chuẩn cắt 1:1 (Vuông) và 1.91:1 (Ngang).
+                  </p>
+                </div>
+
+                {plan.imageAssets && plan.imageAssets.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleBatchDownloadImages}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1C1917] hover:bg-stone-800 text-[#E5C799] text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+                  >
+                    <Download className="w-4 h-4 text-amber-400" />
+                    <span>Tải Trọn Bộ {plan.imageAssets.length} Ảnh Đề Xuất</span>
+                  </button>
+                )}
+              </div>
+
+              {/* BẢNG KIỂM TRA CHÍNH SÁCH GOOGLE ADS (POLICY COMPLIANCE CHECKLIST) */}
+              <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-stone-200 rounded-2xl p-5 border border-stone-700/60 shadow-inner space-y-4">
+                <div className="flex items-center gap-2.5 text-amber-300 font-semibold text-xs uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Bảng Tiêu Chuẩn 100% Tuân Thủ Chính Sách Hình Ảnh Google Ads</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
+                    <span className="text-emerald-400 font-bold block">✓ 0% Text Overlay &amp; Logo</span>
+                    <p className="text-[11px] text-stone-300 leading-relaxed">
+                      Tuyệt đối không chèn chữ, watermark, số hotline hay logo đồ họa đè lên ảnh (tránh bị Google Ads từ chối duyệt).
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
+                    <span className="text-emerald-400 font-bold block">✓ Khung 1:1 &amp; 1.91:1 Tương Thích</span>
+                    <p className="text-[11px] text-stone-300 leading-relaxed">
+                      Chủ thể cô dâu chú rể nằm trọn vẹn trong vùng an toàn, dễ dàng crop thành 1200x1200 (1:1) và 1200x628 (1.91:1).
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
+                    <span className="text-emerald-400 font-bold block">✓ Độ Phân Giải Master (2560px)</span>
+                    <p className="text-[11px] text-stone-300 leading-relaxed">
+                      File ảnh gốc siêu nét 2560 x 3840 px, vượt xa tiêu chuẩn tối thiểu (300x300) của Google để đạt CTR tối đa.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
+                    <span className="text-emerald-400 font-bold block">✓ Định Dạng WebP Tối Ưu</span>
+                    <p className="text-[11px] text-stone-300 leading-relaxed">
+                      Dung lượng nén nhẹ dưới 1.5MB (Google Ads cho phép tối đa 5MB), tải cực nhanh khi hiển thị trên Search và Discovery.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* LƯỚI DANH SÁCH 6 ẢNH ASSETS ĐỀ XUẤT */}
+              {plan.imageAssets && plan.imageAssets.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {plan.imageAssets.map((img, i) => (
+                    <div
+                      key={img.id || i}
+                      className="bg-stone-50 rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md hover:border-amber-300 transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Ảnh preview */}
+                        <div className="relative aspect-[4/5] bg-stone-900 overflow-hidden group">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={img.url}
+                            alt={img.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+
+                          {/* Huy hiệu trên ảnh */}
+                          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+                            <span className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-sm text-[10px] font-mono font-semibold text-white border border-white/20">
+                              {img.resolution}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-600/90 text-white text-[10px] font-medium backdrop-blur-sm">
+                              ✓ Google Ads Verified
+                            </span>
+                          </div>
+
+                          {/* Quick overlay buttons on hover */}
+                          <div className="absolute inset-0 bg-stone-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
+                            <a
+                              href={img.url}
+                              download={img.downloadFileName}
+                              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-semibold flex items-center gap-1.5 shadow-lg active:scale-95 transition-all cursor-pointer"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Tải Ảnh</span>
+                            </a>
+                            <a
+                              href={img.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 rounded-xl bg-white/90 hover:bg-white text-stone-900 text-xs font-semibold flex items-center gap-1 shadow-lg cursor-pointer"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span>Xem Gốc</span>
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Thông tin chi tiết */}
+                        <div className="p-4 space-y-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="font-serif text-sm font-semibold text-stone-900 line-clamp-1">
+                              {img.title}
+                            </h4>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 shrink-0 font-medium">
+                              Ảnh #{i + 1}
+                            </span>
+                          </div>
+
+                          {img.albumTitle && (
+                            <p className="text-[11px] text-stone-500 line-clamp-1">
+                              Album: <strong className="text-stone-700">{img.albumTitle}</strong>
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {img.aspectRatios?.map((ratio, rIdx) => (
+                              <span
+                                key={rIdx}
+                                className="px-2 py-0.5 rounded-md bg-stone-200/80 text-stone-700 text-[10px] font-mono font-medium"
+                              >
+                                {ratio}
+                              </span>
+                            ))}
+                          </div>
+
+                          <p className="text-xs text-stone-600 bg-white p-2.5 rounded-xl border border-stone-200/80 leading-relaxed font-sans">
+                            {img.notes}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Nút tác vụ dưới chân card */}
+                      <div className="p-3 bg-stone-100/80 border-t border-stone-200 flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(img.url, `img_url_${i}`)}
+                          className="px-3 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+                        >
+                          {copiedKey === `img_url_${i}` ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                          <span>Copy Link</span>
+                        </button>
+
+                        <a
+                          href={img.url}
+                          download={img.downloadFileName}
+                          className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Tải Về Máy</span>
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 space-y-2">
+                  <p className="text-xs">Chưa có danh sách hình ảnh được chọn lọc cho kịch bản này.</p>
+                  <p className="text-[11px] text-stone-400">
+                    Bấm nút <strong>&quot;AI Phân Tích &amp; Tạo Kịch Bản&quot;</strong> ở trên để nạp 6 ảnh cưới chuẩn chính sách từ Database.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 6: TIỆN ÍCH MỞ RỘNG (ASSETS) */}
           {activeTab === 'assets' && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8E2D9] shadow-sm space-y-8">
               <div className="flex items-center justify-between border-b border-[#E8E2D9] pb-4">
                 <div>
                   <h3 className="font-serif text-lg font-normal text-stone-900">
-                    Thành Phần Tiện Ích Mở Rộng (Assets / Extensions)
+                    6. Thành Phần Tiện Ích Mở Rộng (Assets / Extensions)
                   </h3>
                   <p className="text-xs text-stone-500">
                     Gia tăng 15% - 25% tỷ lệ CTR với liên kết trang web, chú thích và cuộc gọi

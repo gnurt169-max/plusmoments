@@ -1,0 +1,395 @@
+{
+  "id": "gads_1794731377216",
+  "generatedAt": "2026-11-15T08:29:37.216Z",
+  "inputs": {
+    "campaignGoal": "all_packages",
+    "campaignGoalLabel": "Bảng Giá Trọn Gói (Toàn Bộ Gói Dịch Vụ)",
+    "selectedPackageId": "cmwbt69fr000012i64zv8xwnb",
+    "selectedPackageName": "Gói Deluxe - Nâng Cao",
+    "targetLocation": "TP. Hồ Chí Minh & lân cận (Bán kính 35km)",
+    "dailyBudget": "300.000đ - 500.000đ/ngày"
+  },
+  "campaignSettings": {
+    "campaignName": "[GS]_PLUS MOMENTS_ALL_PACKAGES_HCM_2026",
+    "goal": "Khách hàng tiềm năng (Leads)",
+    "campaignType": "Tìm kiếm (Google Search)",
+    "biddingStrategyWeek1": "Tuần 1 - 2: Tối đa hóa lượt nhấp (Maximize Clicks) với Giới hạn CPC tối đa 6.500đ - 8.500đ để máy học Google thu thập tín hiệu chuyển đổi nhanh.",
+    "biddingStrategyWeek2Plus": "Từ Tuần 3 trở đi: Khi có từ 15-30 chuyển đổi, chuyển sang \"Tối đa hóa lượt chuyển đổi\" (Maximize Conversions) kèm CPA mục tiêu: 65.000đ - 95.000đ/lead.",
+    "dailyBudgetRecommended": "300.000đ - 500.000đ/ngày",
+    "goldenHoursSchedule": "Chạy từ 07:30 đến 23:45 hàng ngày. Tập trung tăng 20% giá thầu vào 2 khung giờ vàng: 11:30 - 13:30 (nghỉ trưa) và 19:30 - 23:30 (buổi tối cặp đôi cùng xem). Tăng 15% vào Thứ 7 & Chủ Nhật.",
+    "locationTargeting": "TP. Hồ Chí Minh & lân cận (Bán kính 35km). Loại trừ tất cả người dùng ngoài lãnh thổ hoặc không có mặt trực tiếp tại khu vực.",
+    "languages": "Tiếng Việt, Tiếng Anh",
+    "enhancedConversions": "BẬT (Enhanced Conversions đã tích hợp sẵn trên website PlusMoments)"
+  },
+  "adGroupAndAiMax": {
+    "adGroupName": "Nhóm Ads - Bảng Giá Trọn Gói (Toàn Bộ Gói Dịch Vụ)",
+    "finalUrl": "https://plusmoments.vn/bang-gia",
+    "displayPath1": "Bang-Gia",
+    "displayPath2": "Uu-Dai-2Tr",
+    "productDescription": "PlusMoments Studio chuyên chụp ảnh cưới Pre-Wedding, Studio Hàn Quốc và phóng sự cưới trọn gói tại TP.HCM. Giá chỉ từ 16.900.000đ, tặng 2Tr khi cọc sớm, cam kết 100% không phát sinh.",
+    "aiMaxRecommendations": {
+      "matchPhraseSearch": {
+        "status": "BẬT",
+        "action": "Bật Khớp cụm từ tìm kiếm trong cài đặt nhóm quảng cáo",
+        "reason": "Thu hút đúng các cặp đôi có nhu cầu cưới thực tế tại TP.HCM, tránh các truy vấn rác ngoài ngành nhưng vẫn bắt kịp các biến thể từ khóa tự nhiên của dâu rể."
+      },
+      "expandKeywordsAi": {
+        "status": "TẮT",
+        "action": "Tắt tính năng \"Tự động mở rộng từ khóa bằng AI\"",
+        "reason": "Tránh việc Google tự động mở rộng sang các từ khóa quá rộng như \"chụp ảnh kỷ yếu\", \"chụp ảnh gia đình giá rẻ\", \"thuê áo dài tết\" gây lãng phí ngân sách."
+      },
+      "brandSelection": {
+        "status": "BẬT",
+        "action": "Bật Danh sách loại trừ thương hiệu đối thủ / nhãn hiệu không liên quan",
+        "reason": "Chỉ tập trung bảo vệ thương hiệu PlusMoments và các từ khóa dịch vụ cưới cao cấp, không đốt tiền đấu thầu vào các studio cạnh tranh không có lợi thế."
+      },
+      "locationInterest": {
+        "status": "TẮT",
+        "action": "Chọn mục \"Sự hiện diện: Những người đang ở hoặc thường xuyên ở vị trí của bạn\"",
+        "reason": "TUYỆT ĐỐI KHÔNG chọn \"Sự hiện diện hoặc mối quan tâm\". Cần chặn hoàn toàn click từ các tỉnh xa hoặc nước ngoài không có nhu cầu đến studio TP.HCM chụp ảnh."
+      },
+      "urlExpansion": {
+        "status": "TẮT",
+        "action": "Tắt tính năng \"Mở rộng URL trang đích\"",
+        "reason": "Đảm bảo 100% lưu lượng truy cập đổ dồn vào đúng trang Bảng Giá (/bang-gia) hoặc Trang Ưu Đãi (/uu-dai) đã được tối ưu chuyển đổi và cài sẵn mã tracking."
+      }
+    }
+  },
+  "keywords": {
+    "exactMatch": [
+      "[bảng giá chụp ảnh cưới]",
+      "[giá chụp ảnh cưới trọn gói]",
+      "[chụp ảnh cưới trọn gói tphcm]",
+      "[báo giá chụp ảnh cưới hcm]",
+      "[chụp ảnh cưới bao nhiêu tiền]",
+      "[studio chụp ảnh cưới đẹp tphcm]",
+      "[gói chụp ảnh cưới pre wedding]",
+      "[chụp ảnh cưới không phát sinh]",
+      "[bảng giá chụp hình cưới 2026]",
+      "[chi phí chụp ảnh cưới trọn gói]",
+      "[studio chụp ảnh cưới uy tín hcm]",
+      "[chụp ảnh cưới trọn gói giá tốt]"
+    ],
+    "phraseMatch": [
+      "\"bảng giá chụp ảnh cưới trọn gói\"",
+      "\"chụp ảnh cưới trọn gói tphcm\"",
+      "\"báo giá chụp ảnh cưới 2026\"",
+      "\"studio chụp ảnh cưới đẹp sài gòn\"",
+      "\"chụp ảnh cưới bao nhiêu tiền một gói\"",
+      "\"gói chụp ảnh cưới không phát sinh chi phí\"",
+      "\"studio chụp hình cưới trọn gói giá tốt\"",
+      "\"chụp ảnh cưới studio và ngoại cảnh\"",
+      "\"bảng giá chụp hình cưới studio hcm\"",
+      "\"dịch vụ chụp ảnh cưới trọn gói\"",
+      "\"chụp ảnh cưới tặng váy cưới\"",
+      "\"chụp ảnh cưới phong cách luxury\"",
+      "\"studio áo cưới trọn gói hcm\"",
+      "\"chụp ảnh cưới đẹp rẻ tphcm\"",
+      "\"gói chụp pre wedding trọn gói\""
+    ],
+    "broadMatchSeeds": [
+      "bảng giá chụp ảnh cưới",
+      "chụp ảnh cưới trọn gói",
+      "giá chụp ảnh cưới tphcm",
+      "studio chụp ảnh cưới",
+      "chụp hình cưới đẹp",
+      "gói chụp ảnh cưới hcm"
+    ],
+    "negativeKeywords": [
+      "miễn phí",
+      "free",
+      "giá rẻ 500k",
+      "giá rẻ 1 triệu",
+      "tải ảnh",
+      "download ảnh",
+      "app ghép ảnh",
+      "phần mềm chỉnh ảnh",
+      "tuyển dụng",
+      "việc làm",
+      "tìm việc thợ ảnh",
+      "học nghề chụp ảnh",
+      "khóa học nhiếp ảnh",
+      "thanh lý váy cưới",
+      "mua váy cưới cũ",
+      "thuê đồ diễn",
+      "mẫu hợp đồng chụp ảnh",
+      "tự chụp tại nhà",
+      "vector",
+      "file psd",
+      "preset lightroom",
+      "ảnh cưới chế",
+      "ảnh cưới hài hước",
+      "ảnh cưới anime",
+      "ly hôn",
+      "phốt studio",
+      "bán máy ảnh",
+      "sửa máy ảnh"
+    ]
+  },
+  "responsiveSearchAds": {
+    "headlines": [
+      {
+        "text": "PLUS MOMENTS - Ảnh Cưới Luxury",
+        "length": 30,
+        "pinned": "PIN_POS_1",
+        "note": "Ghim vị trí 1: Khẳng định thương hiệu & định vị đẳng cấp"
+      },
+      {
+        "text": "Bảng Giá Ảnh Cưới Trọn Gói",
+        "length": 26,
+        "pinned": "PIN_POS_1",
+        "note": "Ghim vị trí 1 (Xoay vòng): Trực diện nhu cầu tìm kiếm giá"
+      },
+      {
+        "text": "Gói Cưới Từ 16.900.000đ",
+        "length": 23,
+        "pinned": "PIN_POS_2",
+        "note": "Ghim vị trí 2: Mồi giá thật trong DB lọc ngay khách nghiêm túc"
+      },
+      {
+        "text": "Cam Kết 0 Đồng Phát Sinh",
+        "length": 24,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Xóa bỏ nỗi sợ phát sinh chi phí của dâu rể"
+      },
+      {
+        "text": "Tặng Ngay Voucher 2 Triệu",
+        "length": 25,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Khuyến mãi cọc sớm có thật trong hệ thống"
+      },
+      {
+        "text": "Tặng Váy Cưới Thiết Kế",
+        "length": 22,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Quyền lợi dòng váy Luxury & Haute Couture"
+      },
+      {
+        "text": "Bao Xe Đưa Đón Nội Thành",
+        "length": 24,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Quyền lợi có sẵn trong gói Deluxe & Luxury"
+      },
+      {
+        "text": "Chụp Studio Phong Cách Hàn",
+        "length": 26,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Bắt trúng xu hướng dâu rể yêu thích"
+      },
+      {
+        "text": "Trả Toàn Bộ File Ảnh Gốc",
+        "length": 24,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Bàn giao toàn bộ file gốc trong 24h"
+      },
+      {
+        "text": "Photobook 30x30 Mở Phẳng",
+        "length": 24,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Bàn giao album photobook bọc da thủ công"
+      },
+      {
+        "text": "02 Ảnh Cổng Pha Lê 60x90",
+        "length": 24,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Bàn giao 2 ảnh cổng pha lê cao cấp"
+      },
+      {
+        "text": "Tone Màu Điện Ảnh Tinh Tế",
+        "length": 25,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Khẳng định gu nghệ thuật độc bản"
+      },
+      {
+        "text": "Studio Cưới Đẹp Tại TP.HCM",
+        "length": 26,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Bổ trợ địa điểm cho điểm chất lượng cao"
+      },
+      {
+        "text": "Tư Vấn Miễn Phí & Xem Váy",
+        "length": 25,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Kêu gọi hành động nhẹ nhàng"
+      },
+      {
+        "text": "Hotline/Zalo: 0901577993",
+        "length": 24,
+        "pinned": "PIN_POS_3",
+        "note": "Ghim vị trí 3: Chuyển đổi gọi/chat Zalo trực tiếp"
+      }
+    ],
+    "descriptions": [
+      {
+        "text": "Trọn gói Deluxe 16.900.000đ. Tặng voucher 2Tr, váy cưới thiết kế & xe đưa đón nội thành.",
+        "length": 88,
+        "pinned": "PIN_POS_1",
+        "note": "Ghim vị trí 1: Đầy đủ giá gốc, quà tặng 2Tr và quyền lợi xe đưa đón."
+      },
+      {
+        "text": "PlusMoments cam kết 100% không phát sinh chi phí. Trả toàn bộ file gốc, album photobook",
+        "length": 87,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Cam kết minh bạch tài chính và chất lượng bàn giao."
+      },
+      {
+        "text": "Chụp ảnh cưới studio phong cách Hàn Quốc & Luxury tinh tế. Ekip tận tâm, hỗ trợ tạo dáng.",
+        "length": 89,
+        "pinned": "UNPINNED",
+        "note": "Thả tự do: Đánh trúng nỗi lo bị đơ khi chụp ảnh cưới."
+      },
+      {
+        "text": "Đăng ký hôm nay nhận ưu đãi 2.000.000đ. Ghé studio thử váy miễn phí. Hotline: 0901577993.",
+        "length": 89,
+        "pinned": "PIN_POS_2",
+        "note": "Ghim vị trí 2: Lời kêu gọi hành động (CTA) khẩn cấp kèm hotline thật."
+      }
+    ]
+  },
+  "imageAssets": [
+    {
+      "id": "img_asset_1",
+      "url": "/uploads/folders/tai-nguyen-1/hd_09203-1793935442285-ofgk.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "2560 x 3840 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "hd_09203-1793935442285-ofgk.webp"
+    },
+    {
+      "id": "img_asset_2",
+      "url": "/uploads/folders/tai-nguyen-1/nhd01602-1793935520263-r2wd.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương - Ảnh 1",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "1920 x 1280 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "nhd01602-1793935520263-r2wd.webp"
+    },
+    {
+      "id": "img_asset_3",
+      "url": "/uploads/folders/tai-nguyen-1/nhd01540-1793935512878-bc9w.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương - Ảnh 2",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "1920 x 1280 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "nhd01540-1793935512878-bc9w.webp"
+    },
+    {
+      "id": "img_asset_4",
+      "url": "/uploads/folders/tai-nguyen-1/nhd01533-1793935506048-83sr.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương - Ảnh 3",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "1920 x 1280 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "nhd01533-1793935506048-83sr.webp"
+    },
+    {
+      "id": "img_asset_5",
+      "url": "/uploads/folders/tai-nguyen-1/nhd01344-1793935499144-w6sn.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương - Ảnh 4",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "1920 x 1280 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "nhd01344-1793935499144-w6sn.webp"
+    },
+    {
+      "id": "img_asset_6",
+      "url": "/uploads/folders/tai-nguyen-1/nhd01242-1793935492413-n4oa.webp",
+      "title": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương - Ảnh 5",
+      "albumTitle": "Sắc Đỏ Duyên Dáng Ngày Vu Quy - Minh & Phương",
+      "concept": "Traditional Luxury & Cinematic",
+      "aspectRatios": [
+        "1:1 (Vuông)",
+        "1.91:1 (Ngang)"
+      ],
+      "resolution": "1920 x 1280 (Gốc sắc nét)",
+      "googleAdsCompliant": true,
+      "notes": "Đạt chuẩn 100% chính sách Google Ads: Không chứa logo/chữ đè lên ảnh, không mờ nhòe, màu sắc điện ảnh sắc nét.",
+      "downloadFileName": "nhd01242-1793935492413-n4oa.webp"
+    }
+  ],
+  "assets": {
+    "sitelinks": [
+      {
+        "title": "Bảng Giá Trọn Gói 2026",
+        "line1": "Gói chụp chỉ từ 16.900.000đ",
+        "line2": "Cam kết 100% không phát sinh",
+        "url": "https://plusmoments.vn/bang-gia"
+      },
+      {
+        "title": "Bộ Sưu Tập Cưới Mới",
+        "line1": "Tone màu Cinematic & Editorial",
+        "line2": "Ảnh cưới studio và phóng sự",
+        "url": "https://plusmoments.vn/bo-suu-tap"
+      },
+      {
+        "title": "Nhận Ưu Đãi Cọc 2 Triệu",
+        "line1": "Tặng voucher 2Tr trừ trực tiếp",
+        "line2": "Tặng váy cưới & makeup cô dâu",
+        "url": "https://plusmoments.vn/uu-dai"
+      },
+      {
+        "title": "Cẩm Nang Cưới Dâu Rể",
+        "line1": "Kinh nghiệm chụp phóng sự cưới",
+        "line2": "Kể câu chuyện tình yêu độc bản",
+        "url": "https://plusmoments.vn/blog"
+      }
+    ],
+    "callouts": [
+      "Không Phát Sinh Chi Phí",
+      "Tặng Váy Cưới Thiết Kế",
+      "Tặng Voucher 2.000.000đ",
+      "Bao Xe Đưa Đón Nội Thành",
+      "Trả 100% Toàn Bộ File Gốc",
+      "Album Photobook Mở Phẳng",
+      "02 Ảnh Cổng Pha Lê 60x90",
+      "Thử Váy Miễn Phí Studio"
+    ],
+    "structuredSnippets": {
+      "header": "Dịch vụ",
+      "values": [
+        "Pre-Wedding Studio",
+        "Pre-Wedding Ngoại Cảnh",
+        "Phóng Sự Ngày Cưới",
+        "Quay Phim Cinematic 4K",
+        "Váy Cưới Thiết Kế",
+        "Trang Điểm Cô Dâu"
+      ]
+    },
+    "callAsset": {
+      "phone": "0901577993",
+      "label": "Hotline PlusMoments (32/35 Cao Thắng, Bàn Cờ, TP. Hồ Chí Minh)",
+      "conversionTracking": "Bật theo dõi cuộc gọi làm lượt chuyển đổi Google Ads"
+    }
+  }
+}
