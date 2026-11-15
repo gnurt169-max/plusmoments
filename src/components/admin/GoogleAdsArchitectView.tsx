@@ -114,17 +114,17 @@ export function GoogleAdsArchitectView() {
     }, 2000);
   };
 
-  const handleBatchDownloadImages = () => {
+  const handleBatchDownloadImages = (ratio: 'square' | 'landscape' = 'square') => {
     if (!plan?.imageAssets || plan.imageAssets.length === 0) return;
     plan.imageAssets.forEach((img, index) => {
       setTimeout(() => {
         const a = document.createElement('a');
-        a.href = img.url;
-        a.download = img.downloadFileName || `plusmoments-ads-asset-${index + 1}.webp`;
+        a.href = `/api/admin/ai/google-ads-image?path=${encodeURIComponent(img.url)}&ratio=${ratio}`;
+        a.download = `plusmoments-ads-${ratio}-${index + 1}.jpg`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      }, index * 300);
+      }, index * 350);
     });
   };
 
@@ -907,15 +907,38 @@ export function GoogleAdsArchitectView() {
                 </div>
 
                 {plan.imageAssets && plan.imageAssets.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleBatchDownloadImages}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1C1917] hover:bg-stone-800 text-[#E5C799] text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-                  >
-                    <Download className="w-4 h-4 text-amber-400" />
-                    <span>Tải Trọn Bộ {plan.imageAssets.length} Ảnh Đề Xuất</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleBatchDownloadImages('square')}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 text-amber-200" />
+                      <span>Tải Trọn Bộ 6 Ảnh Vuông (1:1 .JPG)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleBatchDownloadImages('landscape')}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#1C1917] hover:bg-stone-800 text-[#E5C799] text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 text-amber-400" />
+                      <span>Tải Trọn Bộ 6 Ảnh Ngang (1.91:1 .JPG)</span>
+                    </button>
+                  </div>
                 )}
+              </div>
+
+              {/* LƯU Ý BẮT BUỘC ĐỊNH DẠNG GOOGLE ADS (JPG + VUÔNG 1:1) */}
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-xs leading-relaxed shadow-sm">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-amber-900 font-bold block mb-0.5">
+                    Yêu cầu kỹ thuật bắt buộc của Google Ads Image Assets:
+                  </strong>
+                  Google Ads từ chối tệp <code>.webp</code> (&quot;Loại tệp này không được hỗ trợ&quot;) và bắt buộc chiến dịch phải có{' '}
+                  <strong className="text-amber-950 font-bold">tối thiểu 1 hình ảnh vuông (1:1 - 1200x1200px)</strong>, bên cạnh ảnh ngang (1.91:1 - 1200x628px). Hệ thống tự động chuyển đổi sang{' '}
+                  <span className="font-bold underline decoration-amber-500">chuẩn .JPG chất lượng cao (92% mozjpeg)</span> và crop thông minh bảo toàn khuôn mặt khi bạn bấm các nút tải bên dưới.
+                </div>
               </div>
 
               {/* BẢNG KIỂM TRA CHÍNH SÁCH GOOGLE ADS (POLICY COMPLIANCE CHECKLIST) */}
@@ -935,19 +958,19 @@ export function GoogleAdsArchitectView() {
                   <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
                     <span className="text-emerald-400 font-bold block">✓ Khung 1:1 &amp; 1.91:1 Tương Thích</span>
                     <p className="text-[11px] text-stone-300 leading-relaxed">
-                      Chủ thể cô dâu chú rể nằm trọn vẹn trong vùng an toàn, dễ dàng crop thành 1200x1200 (1:1) và 1200x628 (1.91:1).
+                      Chủ thể cô dâu chú rể nằm trọn vẹn trong vùng an toàn, tự động crop thành 1200x1200 (1:1) và 1200x628 (1.91:1).
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
                     <span className="text-emerald-400 font-bold block">✓ Độ Phân Giải Master (2560px)</span>
                     <p className="text-[11px] text-stone-300 leading-relaxed">
-                      File ảnh gốc siêu nét 2560 x 3840 px, vượt xa tiêu chuẩn tối thiểu (300x300) của Google để đạt CTR tối đa.
+                      File ảnh gốc siêu nét 2560 x 3840 px từ studio, xuất sang file .JPG 1200px chuẩn Google Ads với độ nét tối đa.
                     </p>
                   </div>
                   <div className="p-3 rounded-xl bg-stone-800/80 border border-stone-700/80 space-y-1">
-                    <span className="text-emerald-400 font-bold block">✓ Định Dạng WebP Tối Ưu</span>
+                    <span className="text-emerald-400 font-bold block">✓ Tự Động Xuất .JPG Hợp Lệ</span>
                     <p className="text-[11px] text-stone-300 leading-relaxed">
-                      Dung lượng nén nhẹ dưới 1.5MB (Google Ads cho phép tối đa 5MB), tải cực nhanh khi hiển thị trên Search và Discovery.
+                      Tự động chuyển đổi sang .JPG theo chuẩn nén mozjpeg, dung lượng ~200KB cực nhẹ (quy định tối đa 5MB).
                     </p>
                   </div>
                 </div>
@@ -983,23 +1006,22 @@ export function GoogleAdsArchitectView() {
                           </div>
 
                           {/* Quick overlay buttons on hover */}
-                          <div className="absolute inset-0 bg-stone-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
+                          <div className="absolute inset-0 bg-stone-900/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4">
                             <a
-                              href={img.url}
-                              download={img.downloadFileName}
-                              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-semibold flex items-center gap-1.5 shadow-lg active:scale-95 transition-all cursor-pointer"
+                              href={`/api/admin/ai/google-ads-image?path=${encodeURIComponent(img.url)}&ratio=square`}
+                              download
+                              className="w-full max-w-[200px] px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-semibold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5" />
-                              <span>Tải Ảnh</span>
+                              <span>Tải Vuông 1:1 (.JPG)</span>
                             </a>
                             <a
-                              href={img.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-2 rounded-xl bg-white/90 hover:bg-white text-stone-900 text-xs font-semibold flex items-center gap-1 shadow-lg cursor-pointer"
+                              href={`/api/admin/ai/google-ads-image?path=${encodeURIComponent(img.url)}&ratio=landscape`}
+                              download
+                              className="w-full max-w-[200px] px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-semibold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all cursor-pointer"
                             >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              <span>Xem Gốc</span>
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Tải Ngang 1.91:1 (.JPG)</span>
                             </a>
                           </div>
                         </div>
@@ -1022,14 +1044,15 @@ export function GoogleAdsArchitectView() {
                           )}
 
                           <div className="flex flex-wrap gap-1.5 pt-1">
-                            {img.aspectRatios?.map((ratio, rIdx) => (
-                              <span
-                                key={rIdx}
-                                className="px-2 py-0.5 rounded-md bg-stone-200/80 text-stone-700 text-[10px] font-mono font-medium"
-                              >
-                                {ratio}
-                              </span>
-                            ))}
+                            <span className="px-2 py-0.5 rounded-md bg-amber-100/80 text-amber-900 text-[10px] font-mono font-medium">
+                              1:1 Vuông (1200x1200)
+                            </span>
+                            <span className="px-2 py-0.5 rounded-md bg-stone-200/80 text-stone-700 text-[10px] font-mono font-medium">
+                              1.91:1 Ngang (1200x628)
+                            </span>
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-100/80 text-emerald-900 text-[10px] font-mono font-medium">
+                              Chuẩn .JPG
+                            </span>
                           </div>
 
                           <p className="text-xs text-stone-600 bg-white p-2.5 rounded-xl border border-stone-200/80 leading-relaxed font-sans">
@@ -1039,28 +1062,55 @@ export function GoogleAdsArchitectView() {
                       </div>
 
                       {/* Nút tác vụ dưới chân card */}
-                      <div className="p-3 bg-stone-100/80 border-t border-stone-200 flex items-center justify-between gap-2">
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(img.url, `img_url_${i}`)}
-                          className="px-3 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
-                        >
-                          {copiedKey === `img_url_${i}` ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                          <span>Copy Link</span>
-                        </button>
+                      <div className="p-3 bg-stone-100/90 border-t border-stone-200 space-y-2">
+                        {/* 2 Nút tải chuẩn Google Ads JPG */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <a
+                            href={`/api/admin/ai/google-ads-image?path=${encodeURIComponent(img.url)}&ratio=square`}
+                            download
+                            className="px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer text-center"
+                            title="Tải ảnh vuông 1200x1200px chuẩn Google Ads định dạng .JPG"
+                          >
+                            <Download className="w-3.5 h-3.5 shrink-0" />
+                            <span>Tải Vuông 1:1 (.JPG)</span>
+                          </a>
 
-                        <a
-                          href={img.url}
-                          download={img.downloadFileName}
-                          className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Tải Về Máy</span>
-                        </a>
+                          <a
+                            href={`/api/admin/ai/google-ads-image?path=${encodeURIComponent(img.url)}&ratio=landscape`}
+                            download
+                            className="px-2.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-amber-200 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer text-center"
+                            title="Tải ảnh ngang 1200x628px chuẩn Google Ads định dạng .JPG"
+                          >
+                            <Download className="w-3.5 h-3.5 shrink-0" />
+                            <span>Tải Ngang 1.91:1 (.JPG)</span>
+                          </a>
+                        </div>
+
+                        {/* Nút phụ: Copy link và xem ảnh gốc */}
+                        <div className="flex items-center justify-between pt-1 border-t border-stone-200/60 text-stone-600 text-[11px]">
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(img.url, `img_url_${i}`)}
+                            className="text-stone-600 hover:text-stone-900 flex items-center gap-1 cursor-pointer font-medium"
+                          >
+                            {copiedKey === `img_url_${i}` ? (
+                              <Check className="w-3 h-3 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                            <span>Copy link gốc</span>
+                          </button>
+
+                          <a
+                            href={img.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-amber-800 hover:text-amber-950 flex items-center gap-1 cursor-pointer font-medium"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Xem ảnh gốc</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
