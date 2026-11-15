@@ -230,7 +230,7 @@ export function LandingPageClientView({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
             {packages.map((pkg) => {
               const highlights: string[] = (() => {
                 try {
@@ -243,70 +243,74 @@ export function LandingPageClientView({
               return (
                 <div
                   key={pkg.id}
-                  className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
-                    pkg.isFeatured
-                      ? 'bg-white border-2 border-champagne-gold shadow-xl ring-2 ring-champagne-gold/30'
-                      : 'bg-white/80 border border-stone-200 shadow-sm hover:shadow-md'
-                  }`}
+                  className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
                 >
-                  {pkg.isFeatured && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-luxury-700 to-amber-700 text-white text-[10px] uppercase tracking-widest font-semibold shadow-sm">
-                      Được Đặt Nhiều Nhất
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    <span className="text-[10px] uppercase tracking-widest text-luxury-600 font-semibold">
-                      {pkg.category}
-                    </span>
-                    <h3 className="font-serif text-xl sm:text-2xl font-light text-charcoal-900">
-                      {pkg.name}
-                    </h3>
-                    <p className="text-xs text-charcoal-500 font-light line-clamp-2">
-                      {pkg.subtitle}
-                    </p>
-
-                    <div className="pt-2 pb-4 border-b border-stone-100">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-serif text-2xl sm:text-3xl font-light text-luxury-800">
-                          {formatVND(pkg.price)}
-                        </span>
-                        {pkg.originalPrice && (
-                          <span className="text-xs text-stone-400 line-through">
-                            {formatVND(pkg.originalPrice)}
-                          </span>
-                        )}
+                  <div
+                    className={`relative w-full rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
+                      pkg.isFeatured
+                        ? 'bg-white border-2 border-champagne-gold shadow-xl ring-2 ring-champagne-gold/30'
+                        : 'bg-white/80 border border-stone-200 shadow-sm hover:shadow-md'
+                    }`}
+                  >
+                    {pkg.isFeatured && (
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-luxury-700 to-amber-700 text-white text-[10px] uppercase tracking-widest font-semibold shadow-sm">
+                        Được Đặt Nhiều Nhất
                       </div>
-                      <span className="text-[11px] text-emerald-700 font-medium block mt-1">
-                        ✓ Chưa trừ voucher {settings.landingPageDiscountAmount}
+                    )}
+
+                    <div className="space-y-4">
+                      <span className="text-[10px] uppercase tracking-widest text-luxury-600 font-semibold">
+                        {pkg.category}
                       </span>
+                      <h3 className="font-serif text-xl sm:text-2xl font-light text-charcoal-900">
+                        {pkg.name}
+                      </h3>
+                      <p className="text-xs text-charcoal-500 font-light line-clamp-2">
+                        {pkg.subtitle}
+                      </p>
+
+                      <div className="pt-2 pb-4 border-b border-stone-100">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-serif text-2xl sm:text-3xl font-light text-luxury-800">
+                            {formatVND(pkg.price)}
+                          </span>
+                          {pkg.originalPrice && (
+                            <span className="text-xs text-stone-400 line-through">
+                              {formatVND(pkg.originalPrice)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-emerald-700 font-medium block mt-1">
+                          ✓ Chưa trừ voucher {settings.landingPageDiscountAmount}
+                        </span>
+                      </div>
+
+                      {highlights.length > 0 && (
+                        <ul className="space-y-2 text-xs text-charcoal-700 font-light">
+                          {highlights.slice(0, 5).map((point, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-luxury-600 shrink-0 mt-0.5" />
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
 
-                    {highlights.length > 0 && (
-                      <ul className="space-y-2 text-xs text-charcoal-700 font-light">
-                        {highlights.slice(0, 5).map((point, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-luxury-600 shrink-0 mt-0.5" />
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-
-                  <div className="pt-6">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      aria-label={`Giữ chỗ ưu đãi gói ${pkg.name}`}
-                      className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-900 hover:bg-luxury-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-                    >
-                      <span>Giữ Chỗ Gói Này</span>
-                      <span className="sr-only">: {pkg.name}</span>
-                      <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
+                    <div className="pt-6">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        aria-label={`Giữ chỗ ưu đãi gói ${pkg.name}`}
+                        className="w-full py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-900 hover:bg-luxury-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                      >
+                        <span>Giữ Chỗ Gói Này</span>
+                        <span className="sr-only">: {pkg.name}</span>
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

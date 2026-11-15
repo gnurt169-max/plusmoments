@@ -45,8 +45,7 @@ export default async function GoogleAdsLandingPage() {
             orderBy: { publishedAt: 'desc' },
           },
         },
-        orderBy: [{ isFeatured: 'desc' }, { orderIndex: 'asc' }],
-        take: 3,
+        orderBy: { orderIndex: 'asc' },
       })
       .then((pkgs) => pkgs.map(serializePackage))
       .catch(() => []),

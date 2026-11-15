@@ -34,10 +34,8 @@ export function PricingSection({
 }: PricingSectionProps) {
   const [selectedPackage, setSelectedPackage] = useState<PricingPackageData | null>(null);
 
-  // Hiển thị tối đa 3 gói nổi bật nhất trên Trang Chủ
-  const featuredPackages = packages.slice(0, 3);
+  // Hiển thị đầy đủ toàn bộ các gói dịch vụ được xuất bản (không giới hạn take hay slice)
   const totalCount = totalPackagesCount || packages.length;
-  const hasMorePackages = totalCount > 3;
 
   return (
     <>
@@ -72,8 +70,8 @@ export function PricingSection({
         )}
       </div>
 
-      {/* 3-COLUMN LUXURY GRID / MOBILE SNAP CAROUSEL */}
-      {featuredPackages.length === 0 ? (
+      {/* 3-COLUMN LUXURY GRID (MAX 3 PER ROW) / PERFECT CENTERED ALIGNMENT */}
+      {packages.length === 0 ? (
         <div className="text-center py-16 bg-stone-900/40 rounded-3xl border border-dashed border-stone-800 max-w-xl mx-auto space-y-3">
           <Sparkles className="w-8 h-8 text-amber-500/60 mx-auto" />
           <p className="font-serif text-lg text-stone-300">
@@ -84,15 +82,15 @@ export function PricingSection({
           </p>
         </div>
       ) : (
-        <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          {featuredPackages.map((pkg, index) => (
+        <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
+          {packages.map((pkg, index) => (
             <div
               key={pkg.id}
-              className="w-[86vw] sm:w-[360px] md:w-auto shrink-0 md:shrink snap-center snap-always flex flex-col h-full"
+              className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
             >
               <PackageCard
                 pkg={pkg}
-                priority={index < 2}
+                priority={index < 3}
                 isSummary={isSummary}
                 onSelect={(selected) => setSelectedPackage(selected)}
               />
@@ -101,22 +99,20 @@ export function PricingSection({
         </div>
       )}
 
-      {/* VIEW ALL PACKAGES ROUTE BUTTON */}
-      {hasMorePackages && (
-        <div className="mt-12 sm:mt-16 text-center px-4">
-          <Link
-            href="/bang-gia"
-            className={`inline-flex items-center gap-2.5 px-8 py-3.5 border rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-2xs hover:shadow-md cursor-pointer transition-all duration-300 ${
-              darkTheme
-                ? 'border-[#E5C99B]/60 text-[#E5C99B] hover:border-white hover:text-white hover:bg-white/10'
-                : 'border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white'
-            }`}
-          >
-            <span>Xem Tất Cả Các Gói Dịch Vụ ({totalCount})</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      )}
+      {/* VIEW ALL PACKAGES & FAQ ROUTE BUTTON */}
+      <div className="mt-12 sm:mt-16 text-center px-4">
+        <Link
+          href="/bang-gia"
+          className={`inline-flex items-center gap-2.5 px-8 py-3.5 border rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-2xs hover:shadow-md cursor-pointer transition-all duration-300 ${
+            darkTheme
+              ? 'border-[#E5C99B]/60 text-[#E5C99B] hover:border-white hover:text-white hover:bg-white/10'
+              : 'border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white'
+          }`}
+        >
+          <span>Khám Phá Chi Tiết Bảng Giá & Câu Hỏi Thường Gặp</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
 
       {/* PACKAGE DETAIL & VIETQR CHECKOUT MODAL (Strictly conditional) */}
       {selectedPackage && (

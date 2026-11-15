@@ -141,9 +141,9 @@ export function LuxuryPricingSection({
         <span>👈 Vuốt ngang để so sánh các gói dịch vụ 👉</span>
       </div>
 
-      {/* Luxury Cards Grid & Mobile Horizontal Snap Carousel */}
+      {/* Luxury Cards Grid (Max 3 per row) / Centered Flex Wrap */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none pb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 items-stretch">
+        <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
           {packages.map((pkg, index) => {
             // Parse 3-4 core highlights
             const highlights = extractPackageHighlights(pkg);
@@ -154,14 +154,17 @@ export function LuxuryPricingSection({
                 : '';
 
             return (
-              <article
+              <div
                 key={pkg.id}
-                className={`group relative rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-500 border cursor-pointer select-none w-[84vw] sm:w-[380px] md:w-auto flex-shrink-0 md:flex-shrink snap-center snap-always ${
-                  pkg.isPopular
-                    ? 'bg-white shadow-2xl border-luxury-500 ring-2 ring-luxury-400/30 md:-translate-y-2 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(180,130,60,0.25)]'
-                    : 'bg-white shadow-luxury hover:shadow-2xl border-champagne-dark/30 hover:-translate-y-2 hover:border-luxury-400'
-                }`}
+                className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
               >
+                <article
+                  className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-500 border cursor-pointer select-none ${
+                    pkg.isPopular
+                      ? 'bg-white shadow-2xl border-luxury-500 ring-2 ring-luxury-400/30 md:-translate-y-2 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(180,130,60,0.25)]'
+                      : 'bg-white shadow-luxury hover:shadow-2xl border-champagne-dark/30 hover:-translate-y-2 hover:border-luxury-400'
+                  }`}
+                >
                 {/* Popular Ribbon Tag */}
                 {pkg.isPopular && (
                   <div className="absolute top-4 right-4 z-20 px-3.5 py-1 rounded-full bg-gradient-to-r from-luxury-600 to-amber-700 text-white text-[10px] uppercase tracking-widest font-semibold shadow-lg flex items-center gap-1.5 border border-champagne-gold/40">
@@ -278,8 +281,9 @@ export function LuxuryPricingSection({
                   </div>
                 </div>
               </article>
-            );
-          })}
+            </div>
+          );
+        })}
         </div>
       </div>
 

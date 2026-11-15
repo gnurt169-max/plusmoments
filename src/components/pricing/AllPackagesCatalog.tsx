@@ -93,7 +93,7 @@ export function AllPackagesCatalog({
         </div>
       )}
 
-      {/* 3-COLUMN FULL PACKAGES GRID */}
+      {/* 3-COLUMN FULL PACKAGES GRID (MAX 3 PER ROW) / PERFECT CENTERED ALIGNMENT */}
       {filteredPackages.length === 0 ? (
         <div className="text-center py-16 bg-stone-50 rounded-3xl border border-dashed border-stone-300 max-w-2xl mx-auto space-y-3">
           <Sparkles className="w-8 h-8 text-stone-400 mx-auto" />
@@ -105,15 +105,19 @@ export function AllPackagesCatalog({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+        <div className="flex flex-wrap justify-center items-stretch gap-6 lg:gap-8 max-w-7xl mx-auto">
           {filteredPackages.map((pkg, index) => (
-            <PackageCard
+            <div
               key={pkg.id}
-              pkg={pkg}
-              priority={index < 2}
-              isSummary={isSummary}
-              onSelect={(selected) => setSelectedPackage(selected)}
-            />
+              className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
+            >
+              <PackageCard
+                pkg={pkg}
+                priority={index < 3}
+                isSummary={isSummary}
+                onSelect={(selected) => setSelectedPackage(selected)}
+              />
+            </div>
           ))}
         </div>
       )}

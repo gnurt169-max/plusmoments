@@ -189,11 +189,7 @@ const fetchPackagesCached = unstable_cache(
             orderBy: { publishedAt: 'desc' },
           },
         },
-        orderBy: [
-          { isPopular: 'desc' },
-          { isFeatured: 'desc' },
-          { orderIndex: 'asc' },
-        ],
+        orderBy: { orderIndex: 'asc' },
       });
       return pkgs.map((p) => serializePackage(p));
     } catch {

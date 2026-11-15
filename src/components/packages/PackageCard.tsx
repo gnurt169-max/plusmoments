@@ -31,7 +31,7 @@ export function PackageCard({
   return (
     <article
       onClick={() => onSelect?.(pkg)}
-      className={`group relative rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
+      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm hover:shadow-2xl hover:-translate-y-1.5 ${
         pkg.isPopular
           ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
           : 'hover:border-amber-400/60'
