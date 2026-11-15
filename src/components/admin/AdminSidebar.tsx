@@ -21,6 +21,7 @@ import {
   CreditCard,
   CheckSquare,
   X,
+  Target,
 } from 'lucide-react';
 import { useAdminNav } from '@/context/AdminNavContext';
 
@@ -29,6 +30,8 @@ interface NavItem {
   href: string;
   icon: any;
   roles: ('SUPER_ADMIN' | 'ADMIN' | 'USER')[];
+  isExclusiveTrunglnm?: boolean;
+  badge?: string;
 }
 
 const navItems: NavItem[] = [
@@ -51,19 +54,33 @@ const navItems: NavItem[] = [
 
   // SUPER_ADMIN & ADMIN
   { name: 'Quản Trị Người Dùng', href: '/admin/users', icon: ShieldCheck, roles: ['SUPER_ADMIN', 'ADMIN'] },
+
+  // EXCLUSIVE SUPER_ADMIN ONLY (trunglnm)
+  {
+    name: 'Chiến Dịch Google Ads',
+    href: '/admin/google-ads-guide',
+    icon: Target,
+    roles: ['SUPER_ADMIN'],
+    isExclusiveTrunglnm: true,
+    badge: 'SUPER ADMIN',
+  },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const { isMobileOpen, closeMobileNav } = useAdminNav();
-  const [currentUserRole, setCurrentUserRole] = useState<'SUPER_ADMIN' | 'ADMIN' | 'USER' | null>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    username?: string;
+    email?: string | null;
+    role?: 'SUPER_ADMIN' | 'ADMIN' | 'USER';
+  } | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data?.user?.role) {
-          setCurrentUserRole(data.user.role);
+        if (data?.user) {
+          setCurrentUser(data.user);
         }
       })
       .catch(() => {});
@@ -85,11 +102,19 @@ export function AdminSidebar() {
     }
   };
 
+  const isSuperAdminTrunglnm = Boolean(
+    currentUser?.username?.toLowerCase() === 'trunglnm' ||
+    currentUser?.email?.toLowerCase().startsWith('trunglnm')
+  );
+
   const visibleNavItems = navItems.filter((item) => {
-    if (!currentUserRole) {
+    if (item.isExclusiveTrunglnm && !isSuperAdminTrunglnm) {
+      return false;
+    }
+    if (!currentUser?.role) {
       return item.roles.includes('USER');
     }
-    return item.roles.includes(currentUserRole);
+    return item.roles.includes(currentUser.role);
   });
 
   const sidebarContent = (
@@ -151,9 +176,13 @@ export function AdminSidebar() {
                   }`}
                 />
                 <span className="truncate">{item.name}</span>
-                {active && (
+                {item.badge ? (
+                  <span className="ml-auto text-[8px] font-mono font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider shrink-0">
+                    {item.badge}
+                  </span>
+                ) : active ? (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-luxury-400" />
-                )}
+                ) : null}
               </Link>
             );
           })}

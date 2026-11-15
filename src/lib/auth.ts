@@ -35,6 +35,16 @@ function getSecretKey(): Uint8Array {
 }
 
 /**
+ * Checks if the given session belongs exclusively to Super Admin 'trunglnm'
+ */
+export function isSuperAdminTrunglnm(session: SessionUser | null | undefined): boolean {
+  if (!session) return false;
+  const username = (session.username || '').trim().toLowerCase();
+  const email = (session.email || '').trim().toLowerCase();
+  return username === 'trunglnm' || email.startsWith('trunglnm');
+}
+
+/**
  * Asserts that the session exists and the user has one of the required roles.
  * Returns { authorized: true, session } if authorized,
  * or { authorized: false, response: NextResponse } with status 401 or 403.
