@@ -161,19 +161,26 @@ export function FeaturedAlbumsSection({
                 }}
               />
             </div>
-            {/* Chấm chỉ báo tối giản */}
-            <div className="flex items-center gap-1.5">
-              {displayedAlbums.map((_, i) => (
-                <button
-                  key={`dot-${i}`}
-                  type="button"
-                  aria-label={`Chuyển tới album ${i + 1}`}
-                  onClick={() => scrollToAlbum(i)}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    activeIndex === i ? 'w-4 bg-[#C59B6D]' : 'w-1.5 bg-[#E8E0D5]'
-                  }`}
-                />
-              ))}
+            {/* Chấm chỉ báo với kích thước đích chạm (touch target) tối ưu SEO & Accessibility */}
+            <div className="flex items-center justify-center gap-1.5 -my-1">
+              {displayedAlbums.map((_, i) => {
+                const isActive = activeIndex === i;
+                return (
+                  <button
+                    key={`dot-${i}`}
+                    type="button"
+                    aria-label={`Chuyển tới album ${i + 1}`}
+                    onClick={() => scrollToAlbum(i)}
+                    className="w-8 h-8 inline-flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B6D]"
+                  >
+                    <span
+                      className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${
+                        isActive ? 'w-5 bg-[#C59B6D]' : 'w-1.5 bg-[#E8E0D5]'
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
