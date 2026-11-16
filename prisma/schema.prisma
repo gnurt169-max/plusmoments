@@ -114,6 +114,11 @@ model SystemSetting {
   geminiTemperature       Float?   @default(0.7)
   geminiTone              String?  @default("LUXURY_CINEMATIC")
 
+  // Pinecone Vector Database Integration (Lưu trữ Vector Ngữ Cảnh Ảnh)
+  pineconeApiKey          String?  @default("")
+  pineconeIndexHost       String?  @default("")
+  pineconeNamespace       String?  @default("plusmoments-media")
+
   // VietQR & Automated Payment Configuration (SePay / Casso)
   bankBin                 String?  @default("") // Mã BIN ngân hàng (ví dụ: 970422 cho MB, 970415 cho VietinBank, v.v.)
   bankShortName           String?  @default("") // Tên viết tắt (ví dụ: "MBBank", "VCB", "TPBank")
@@ -498,6 +503,13 @@ model MediaFile {
   // Chunk ngữ cảnh thị giác do AI phân tích và lưu cache
   aiContextChunk Json?      // { visualDescription, mainSubject, colorMood, suggestedAlt, tags: [] }
 
+  // Trạng thái Chunk ngữ cảnh & Pinecone Vector Sync
+  chunkStatus     String       @default("NOT_CHUNKED") // "NOT_CHUNKED" | "PROCESSING" | "CHUNKED" | "FAILED"
+  chunkTitle      String?      // Tên cụm/chunk: "Lễ Gia Tiên Truyền Thống", "Váy Cưới & Phụ Kiện", v.v.
+  chunkGroup      String?      // Alias nhóm phân loại
+  aiContext       String?      @db.Text // Mô tả chi tiết ngữ cảnh thị giác do AI phân tích
+  pineconeSynced  Boolean      @default(false) // Đã đồng bộ vector lên Pinecone
+
   uploadedById  String?
   uploadedBy    AdminUser?   @relation("UserMedia", fields: [uploadedById], references: [id], onDelete: SetNull)
 
@@ -511,6 +523,8 @@ model MediaFile {
   @@index([folderId])
   @@index([url])
   @@index([createdAt])
+  @@index([chunkStatus])
+  @@index([pineconeSynced])
   @@index([driveFileId])
   @@index([md5Checksum])
   @@index([uploadedById])

@@ -34,6 +34,7 @@ export async function GET() {
     if (authCheck.session.role === AdminRole.ADMIN) {
       if (settings.geminiApiKey) settings.geminiApiKey = '••••••••••••••••';
       if (settings.googleDriveApiKey) settings.googleDriveApiKey = '••••••••••••••••';
+      if (settings.pineconeApiKey) settings.pineconeApiKey = '••••••••••••••••';
     }
 
     return NextResponse.json({ success: true, settings, currentUserRole: authCheck.session.role });
@@ -125,6 +126,9 @@ export async function PUT(request: Request) {
       'geminiModel',
       'geminiTemperature',
       'geminiTone',
+      'pineconeApiKey',
+      'pineconeIndexHost',
+      'pineconeNamespace',
       'bankBin',
       'bankShortName',
       'bankAccountNumber',
@@ -261,6 +265,9 @@ export async function PUT(request: Request) {
       'geminiModel',
       'geminiTemperature',
       'geminiTone',
+      'pineconeApiKey',
+      'pineconeIndexHost',
+      'pineconeNamespace',
       'googleDriveApiKey',
       'isMaintenanceMode',
       'maintenanceNotice',

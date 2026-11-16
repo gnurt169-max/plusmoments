@@ -30,6 +30,11 @@ export interface MediaItemMetadata {
   aiContextChunk?: any;
   aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
   chunkName?: string;
+  chunkStatus?: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED';
+  chunkTitle?: string | null;
+  chunkGroup?: string | null;
+  aiContext?: string | null;
+  pineconeSynced?: boolean;
 }
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(['.webp', '.jpg', '.jpeg', '.png', '.avif', '.heic', '.svg']);
@@ -143,6 +148,11 @@ export async function GET(request: Request) {
           id: true,
           url: true,
           folderId: true,
+          chunkStatus: true,
+          chunkTitle: true,
+          chunkGroup: true,
+          aiContext: true,
+          pineconeSynced: true,
           aiContextChunk: true,
           uploadedById: true,
           uploadedBy: { select: { fullName: true, username: true } },
@@ -161,7 +171,14 @@ export async function GET(request: Request) {
           item.aiStatus =
             chunk?.aiStatus ||
             (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
-          item.chunkName = chunk?.chunkName || undefined;
+          item.chunkName = match.chunkTitle || chunk?.chunkName || undefined;
+          item.chunkStatus =
+            (match.chunkStatus as any) ||
+            (item.aiStatus === 'DONE' ? 'CHUNKED' : item.aiStatus === 'RUNNING' ? 'PROCESSING' : item.aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+          item.chunkTitle = match.chunkTitle || item.chunkName || null;
+          item.chunkGroup = match.chunkGroup || item.chunkTitle || null;
+          item.aiContext = match.aiContext || chunk?.visualDescription || null;
+          item.pineconeSynced = Boolean(match.pineconeSynced);
         }
       }
     } catch (e) {

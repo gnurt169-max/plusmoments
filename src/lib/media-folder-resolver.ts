@@ -22,6 +22,11 @@ export interface FolderImageItem {
   aiContextChunk?: any;
   aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
   chunkName?: string;
+  chunkStatus?: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED';
+  chunkTitle?: string | null;
+  chunkGroup?: string | null;
+  aiContext?: string | null;
+  pineconeSynced?: boolean;
 }
 
 export interface ResolvedFolder {
@@ -277,7 +282,13 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
             const aiStatus: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' =
               chunk?.aiStatus ||
               (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
-            const chunkName: string | undefined = chunk?.chunkName || undefined;
+            const chunkName: string | undefined = dbMatch?.chunkTitle || chunk?.chunkName || undefined;
+            const chunkStatus: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED' =
+              (dbMatch?.chunkStatus as any) ||
+              (aiStatus === 'DONE' ? 'CHUNKED' : aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+            const chunkTitle = dbMatch?.chunkTitle || chunkName || null;
+            const aiContext = dbMatch?.aiContext || chunk?.visualDescription || null;
+            const pineconeSynced = Boolean(dbMatch?.pineconeSynced);
 
             images.push({
               id: dbMatch?.id || publicUrl,
@@ -298,6 +309,11 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               aiContextChunk: chunk,
               aiStatus,
               chunkName,
+              chunkStatus,
+              chunkTitle,
+              chunkGroup: dbMatch?.chunkGroup || chunkTitle,
+              aiContext,
+              pineconeSynced,
             });
           }
         } catch {}
@@ -327,7 +343,13 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
       const aiStatus: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' =
         chunk?.aiStatus ||
         (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
-      const chunkName: string | undefined = chunk?.chunkName || undefined;
+      const chunkName: string | undefined = file.chunkTitle || chunk?.chunkName || undefined;
+      const chunkStatus: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED' =
+        (file.chunkStatus as any) ||
+        (aiStatus === 'DONE' ? 'CHUNKED' : aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+      const chunkTitle = file.chunkTitle || chunkName || null;
+      const aiContext = file.aiContext || chunk?.visualDescription || null;
+      const pineconeSynced = Boolean(file.pineconeSynced);
 
       images.push({
         id: file.id,
@@ -346,6 +368,11 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         aiContextChunk: chunk,
         aiStatus,
         chunkName,
+        chunkStatus,
+        chunkTitle,
+        chunkGroup: file.chunkGroup || chunkTitle,
+        aiContext,
+        pineconeSynced,
       });
     }
   }

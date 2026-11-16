@@ -86,6 +86,11 @@ interface MediaItem {
   aiContextChunk?: any;
   aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
   chunkName?: string;
+  chunkStatus?: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED';
+  chunkTitle?: string | null;
+  chunkGroup?: string | null;
+  aiContext?: string | null;
+  pineconeSynced?: boolean;
 }
 
 interface FolderItem {
@@ -219,6 +224,7 @@ export default function AdminMediaPage() {
   const [isAiDrawerExpanded, setIsAiDrawerExpanded] = useState<boolean>(true);
   const [isStartingAi, setIsStartingAi] = useState<boolean>(false);
   const [selectedChunkFilter, setSelectedChunkFilter] = useState<string>('ALL');
+  const [chunkStatusFilter, setChunkStatusFilter] = useState<'ALL' | 'CHUNKED' | 'NOT_CHUNKED'>('ALL');
   const aiPollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Progressive Rendering & Infinite Scroll
@@ -1138,8 +1144,33 @@ export default function AdminMediaPage() {
     };
   }, [baseFilteredMedia, getItemOrientation]);
 
+  // Compute Chunk status counts (All / Chunked / Not Chunked)
+  const chunkCounts = useMemo(() => {
+    let chunked = 0;
+    let notChunked = 0;
+    for (const m of displayImages) {
+      if (m.chunkStatus === 'CHUNKED' || m.aiStatus === 'DONE') {
+        chunked++;
+      } else {
+        notChunked++;
+      }
+    }
+    return {
+      all: displayImages.length,
+      chunked,
+      notChunked,
+    };
+  }, [displayImages]);
+
   const filteredAndSortedMedia = useMemo(() => {
     let result = [...baseFilteredMedia];
+
+    // Chunk status filter (ALL | CHUNKED | NOT_CHUNKED)
+    if (chunkStatusFilter === 'CHUNKED') {
+      result = result.filter((m) => m.chunkStatus === 'CHUNKED' || m.aiStatus === 'DONE');
+    } else if (chunkStatusFilter === 'NOT_CHUNKED') {
+      result = result.filter((m) => m.chunkStatus !== 'CHUNKED' && m.aiStatus !== 'DONE');
+    }
 
     // Chunk grouping filter
     if (selectedChunkFilter !== 'ALL') {
@@ -1170,7 +1201,7 @@ export default function AdminMediaPage() {
     });
 
     return result;
-  }, [baseFilteredMedia, selectedChunkFilter, selectedOrientation, sortBy, getItemOrientation]);
+  }, [baseFilteredMedia, chunkStatusFilter, selectedChunkFilter, selectedOrientation, sortBy, getItemOrientation]);
 
   // Progressive rendering slice for high performance with 764+ images
   const visibleMedia = useMemo(() => {
@@ -1820,20 +1851,25 @@ export default function AdminMediaPage() {
 
               <button
                 type="button"
-                onClick={() => triggerAiChunkJob(undefined, currentFolder?.id)}
+                onClick={() => {
+                  const unchunkedIds = displayImages
+                    .filter((m) => m.chunkStatus !== 'CHUNKED' && m.aiStatus !== 'DONE')
+                    .map((m) => m.id);
+                  triggerAiChunkJob(unchunkedIds.length > 0 ? unchunkedIds : undefined, currentFolder?.id);
+                }}
                 disabled={isStartingAi || aiJob?.status === 'RUNNING'}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
-                title="Quét toàn bộ ảnh trong thư mục để AI đọc ngữ cảnh và gom cụm Chunks"
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-700 to-yellow-600 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Quét toàn bộ ảnh chưa tạo chunk trong thư mục để AI đọc ngữ cảnh và gom cụm Chunks"
               >
                 {aiJob?.status === 'RUNNING' ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>AI Đang Gom Chunks...</span>
+                    <span>AI Đang Tạo Chunks...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-                    <span>Chạy AI Gom Chunks</span>
+                    <span>Convert Chunks Chưa Xử Lý ({chunkCounts.notChunked})</span>
                   </>
                 )}
               </button>
@@ -1931,6 +1967,53 @@ export default function AdminMediaPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {/* Chunk Status Filter Tabs */}
+            <div className="flex items-center bg-stone-100 p-0.5 rounded-xl text-xs border border-stone-200">
+              <button
+                type="button"
+                onClick={() => setChunkStatusFilter('ALL')}
+                className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                  chunkStatusFilter === 'ALL'
+                    ? 'bg-white text-charcoal-900 shadow-2xs font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+                title="Tất cả ảnh"
+              >
+                <span>Tất cả</span>
+                <span className="text-[10px] text-stone-400 font-mono">({chunkCounts.all})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setChunkStatusFilter('CHUNKED')}
+                className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                  chunkStatusFilter === 'CHUNKED'
+                    ? 'bg-white text-emerald-800 shadow-2xs font-semibold ring-1 ring-emerald-400'
+                    : 'text-stone-600 hover:text-emerald-800'
+                }`}
+                title="Chỉ hiển thị ảnh đã tạo Chunks"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Đã Chunk</span>
+                <span className="text-[10px] text-emerald-700 font-mono font-bold">({chunkCounts.chunked})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setChunkStatusFilter('NOT_CHUNKED')}
+                className={`px-3 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                  chunkStatusFilter === 'NOT_CHUNKED'
+                    ? 'bg-white text-amber-900 shadow-2xs font-semibold ring-1 ring-amber-400'
+                    : 'text-stone-600 hover:text-amber-800'
+                }`}
+                title="Chỉ hiển thị ảnh chưa được tạo Chunks"
+              >
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                <span>Chưa Chunk</span>
+                <span className="text-[10px] text-amber-700 font-mono font-bold">({chunkCounts.notChunked})</span>
+              </button>
+            </div>
+
             {/* Orientation Segmented Control */}
             <div className="flex items-center bg-stone-200/60 p-0.5 rounded-xl text-xs border border-stone-200/80">
               <button
@@ -2372,28 +2455,53 @@ export default function AdminMediaPage() {
                       </div>
 
                       {/* AI Chunk Status Badge */}
-                      {item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && aiJob?.currentFileName === item.name) ? (
-                        <span className="px-2 py-0.5 rounded-md bg-blue-600/90 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
+                      {item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && aiJob?.currentFileName === item.name) ? (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
                           <Loader2 className="w-2.5 h-2.5 animate-spin" />
-                          <span>Đang phân tích...</span>
+                          <span>⟳ Đang tạo Chunk...</span>
                         </span>
-                      ) : item.aiStatus === 'DONE' ? (
-                        <span
-                          className="px-2 py-0.5 rounded-md bg-emerald-700/90 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs max-w-[170px] truncate"
-                          title={item.chunkName ? `Đã gom nhóm: ${item.chunkName}` : 'Đã phân tích ngữ cảnh'}
-                        >
-                          <Sparkles className="w-2.5 h-2.5 text-emerald-200 shrink-0" />
-                          <span className="truncate">{item.chunkName ? `Đã gom: ${item.chunkName}` : 'Đã gom nhóm'}</span>
-                        </span>
-                      ) : item.aiStatus === 'PENDING' ? (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-600/90 backdrop-blur-xs text-white text-[9px] font-medium shadow-xs">
-                          Chờ AI
-                        </span>
-                      ) : item.aiStatus === 'FAILED' ? (
-                        <span className="px-2 py-0.5 rounded-md bg-rose-600/90 backdrop-blur-xs text-white text-[9px] font-medium shadow-xs">
-                          Lỗi AI
-                        </span>
-                      ) : null}
+                      ) : item.chunkStatus === 'CHUNKED' || item.aiStatus === 'DONE' ? (
+                        <div className="flex flex-col items-start gap-0.5">
+                          <span
+                            className="px-2 py-0.5 rounded-md bg-emerald-700/95 backdrop-blur-xs text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs"
+                            title={`Đã chunk: ${item.chunkTitle || item.chunkName || 'Ảnh cưới'}${item.pineconeSynced ? ' • Đã đẩy vector lên Pinecone' : ''}`}
+                          >
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            <span>✓ Đã Chunk</span>
+                            {item.pineconeSynced && (
+                              <span title="Đã lưu vector vào Pinecone Vector DB" className="text-[10px]">
+                                🌲
+                              </span>
+                            )}
+                          </span>
+                          {(item.chunkTitle || item.chunkName) && (
+                            <span
+                              className="px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-emerald-200 text-[8.5px] font-medium max-w-[160px] truncate shadow-2xs"
+                              title={item.chunkTitle || item.chunkName}
+                            >
+                              {item.chunkTitle || item.chunkName}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md bg-stone-700/90 backdrop-blur-xs text-stone-200 text-[9px] font-medium shadow-xs">
+                            Chưa Chunk
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                            }}
+                            className="px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+                            title="Bấm để AI đọc ngữ cảnh và tạo chunk cho tấm ảnh này"
+                          >
+                            <Sparkles className="w-2.5 h-2.5 text-amber-200" />
+                            <span>Convert Chunks</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Hover Orientation & Dimensions Badge */}
@@ -2476,6 +2584,21 @@ export default function AdminMediaPage() {
                     className="flex items-center justify-between gap-1 pt-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {item.chunkStatus !== 'CHUNKED' && item.aiStatus !== 'DONE' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                        }}
+                        className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        title="Tạo chunk ngữ cảnh cho ảnh này"
+                      >
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        <span>Chunk</span>
+                      </button>
+                    )}
+
                     <button
                       type="button"
                       onClick={(e) => handleCopyUrl(item.url, e)}

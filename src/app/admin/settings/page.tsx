@@ -151,6 +151,16 @@ export default function AdminSettingsPage() {
   const [testingGemini, setTestingGemini] = useState(false);
   const [geminiTestResult, setGeminiTestResult] = useState<string | null>(null);
 
+  // Pinecone Vector DB state
+  const [showPineconeKey, setShowPineconeKey] = useState(false);
+  const [testingPinecone, setTestingPinecone] = useState(false);
+  const [pineconeTestResult, setPineconeTestResult] = useState<{
+    success: boolean;
+    message: string;
+    vectorCount?: number;
+    dimension?: number;
+  } | null>(null);
+
   const [formData, setFormData] = useState({
     // Brand Identity & Dynamic Logo
     logoType: 'TEXT',
@@ -274,6 +284,11 @@ export default function AdminSettingsPage() {
     geminiModel: 'gemini-2.5-flash',
     geminiTemperature: 0.7,
     geminiTone: 'LUXURY_CINEMATIC',
+
+    // Pinecone Vector Database Integration
+    pineconeApiKey: '',
+    pineconeIndexHost: '',
+    pineconeNamespace: 'plusmoments-media',
 
     // Maintenance Mode (Super Admin Only)
     isMaintenanceMode: false,
@@ -438,6 +453,10 @@ export default function AdminSettingsPage() {
             geminiModel: s.geminiModel || 'gemini-2.5-flash',
             geminiTemperature: s.geminiTemperature !== undefined ? Number(s.geminiTemperature) : 0.7,
             geminiTone: s.geminiTone || 'LUXURY_CINEMATIC',
+
+            pineconeApiKey: s.pineconeApiKey || '',
+            pineconeIndexHost: s.pineconeIndexHost || '',
+            pineconeNamespace: s.pineconeNamespace || 'plusmoments-media',
 
             isMaintenanceMode: Boolean(s.isMaintenanceMode),
             maintenanceNotice:
@@ -752,6 +771,50 @@ export default function AdminSettingsPage() {
       setModelsSyncError(err.message || 'Lỗi kết nối kiểm tra AI.');
     } finally {
       setTestingGemini(false);
+    }
+  };
+
+  const handleTestPinecone = async () => {
+    const apiKey = formData.pineconeApiKey.trim();
+    const host = formData.pineconeIndexHost.trim();
+    if (!apiKey || !host) {
+      setPineconeTestResult({
+        success: false,
+        message: 'Vui lòng nhập Pinecone API Key và Pinecone Index Host trước khi kiểm tra.',
+      });
+      return;
+    }
+
+    setTestingPinecone(true);
+    setPineconeTestResult(null);
+
+    try {
+      const res = await fetch('/api/admin/ai/pinecone/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey,
+          host,
+          namespace: formData.pineconeNamespace || 'plusmoments-media',
+        }),
+      });
+      const data = await res.json();
+      setPineconeTestResult({
+        success: Boolean(data.success),
+        message: data.message || (data.success ? 'Kết nối thành công!' : 'Kết nối thất bại'),
+        vectorCount: data.vectorCount,
+        dimension: data.dimension,
+      });
+      if (data.success) {
+        showToast('🌲 Kiểm tra kết nối Pinecone Vector DB thành công!');
+      }
+    } catch (err: any) {
+      setPineconeTestResult({
+        success: false,
+        message: `Lỗi kết nối: ${err.message}`,
+      });
+    } finally {
+      setTestingPinecone(false);
     }
   };
 
@@ -3938,6 +4001,159 @@ export default function AdminSettingsPage() {
                     Khi bạn bấm nút <strong>"Lưu Thay Đổi & Cập Nhật Hệ Thống"</strong> ở cuối trang, toàn bộ cấu hình API Key, Model được chọn, Temperature và Tone giọng văn sẽ tự động được đóng gói vào <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">prisma/seed.ts</code>. Khi deploy sang máy chủ VPS mới, chỉ cần chạy seed là toàn bộ cấu hình AI sẽ tự hoạt động mà không cần nhập lại.
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* PINECONE VECTOR DATABASE CARD */}
+            <div className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8 shadow-xs space-y-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-stone-100">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-mono text-base font-bold">
+                      🌲
+                    </span>
+                    <h2 className="text-lg font-serif font-medium text-stone-900">
+                      Pinecone Vector Database (Lưu Trữ Vector Ngữ Cảnh Ảnh)
+                    </h2>
+                  </div>
+                  <p className="text-xs text-stone-500 font-light">
+                    Kết nối Pinecone Vector Index để tự động lưu trữ và tìm kiếm vector ngữ cảnh (embeddings) cho toàn bộ ảnh cưới đã tạo Chunks tại Kho Media.
+                  </p>
+                </div>
+
+                <a
+                  href="https://app.pinecone.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-medium flex items-center gap-1.5 transition-colors shrink-0"
+                >
+                  <span>Mở Pinecone Console</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
+                </a>
+              </div>
+
+              {/* Status / Feedback Box */}
+              {pineconeTestResult && (
+                <div
+                  className={`p-4 rounded-xl border text-xs flex items-start gap-2.5 animate-fade-in ${
+                    pineconeTestResult.success
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                      : 'bg-red-50 border-red-200 text-red-900'
+                  }`}
+                >
+                  {pineconeTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  )}
+                  <div className="space-y-1">
+                    <span className="font-semibold block font-mono">
+                      {pineconeTestResult.success ? 'KẾT NỐI PINECONE THÀNH CÔNG' : 'LỖI KẾT NỐI PINECONE'}
+                    </span>
+                    <p className="leading-relaxed font-light">{pineconeTestResult.message}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pinecone API Key */}
+                <div className="md:col-span-2 space-y-2">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-stone-700">
+                    Pinecone API Key
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showPineconeKey ? 'text' : 'password'}
+                        value={formData.pineconeApiKey}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, pineconeApiKey: e.target.value }))}
+                        placeholder="pcsk_..."
+                        className="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono tracking-wider pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPineconeKey(!showPineconeKey)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors"
+                        title={showPineconeKey ? 'Ẩn API Key' : 'Hiện API Key'}
+                      >
+                        {showPineconeKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {formData.pineconeApiKey && (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(formData.pineconeApiKey, 'pineconeKey')}
+                        className="px-3.5 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs transition-colors shrink-0 flex items-center gap-1.5"
+                      >
+                        {copiedKey === 'pineconeKey' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-400" />}
+                        <span className="hidden sm:inline">{copiedKey === 'pineconeKey' ? 'Đã chép' : 'Sao chép'}</span>
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-stone-500 font-light">
+                    Lấy tại Pinecone Console → mục <strong>API Keys</strong>.
+                  </p>
+                </div>
+
+                {/* Pinecone Index Host */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-stone-700">
+                    Pinecone Index Host URL
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.pineconeIndexHost}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, pineconeIndexHost: e.target.value }))}
+                    placeholder="https://plusmoments-media-xxx.svc.aped-xxx.pinecone.io"
+                    className="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono text-stone-800"
+                  />
+                  <p className="text-[11px] text-stone-500 font-light">
+                    Host URL của Index (hiển thị trong phần Index Details của Pinecone).
+                  </p>
+                </div>
+
+                {/* Pinecone Namespace */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-stone-700">
+                    Namespace Phân Vùng
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.pineconeNamespace}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, pineconeNamespace: e.target.value }))}
+                    placeholder="plusmoments-media"
+                    className="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400 font-mono text-stone-800"
+                  />
+                  <p className="text-[11px] text-stone-500 font-light">
+                    Mặc định: <code className="bg-stone-100 px-1 py-0.5 rounded font-mono">plusmoments-media</code>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Test Button */}
+              <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
+                <span className="text-xs text-stone-500 font-light">
+                  Khuyến nghị bấm kiểm tra để xác nhận kết nối trước khi lưu cấu hình.
+                </span>
+
+                <button
+                  type="button"
+                  onClick={handleTestPinecone}
+                  disabled={testingPinecone || !formData.pineconeApiKey.trim() || !formData.pineconeIndexHost.trim()}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-medium flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+                >
+                  {testingPinecone ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Đang Kiểm Tra...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Kiểm Tra Kết Nối Pinecone</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

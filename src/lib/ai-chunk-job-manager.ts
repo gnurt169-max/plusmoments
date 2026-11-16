@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { analyzeImageWithVisionAI, inferChunkName, VisionAIChunk } from '@/lib/vision-ai';
 import { resolveFolder } from '@/lib/media-folder-resolver';
+import { syncMediaVectorToPinecone } from '@/lib/pinecone-service';
 
 export interface AiChunkCluster {
   id: string;
@@ -270,12 +271,13 @@ export async function startAiChunkJob(params: {
           ...newJob.logs.slice(0, 39),
         ];
 
-        // Mark image as RUNNING in DB
+        // Mark image as PROCESSING in DB
         const existingChunk = (file.aiContextChunk as any) || {};
         await prisma.mediaFile
           .update({
             where: { id: file.id },
             data: {
+              chunkStatus: 'PROCESSING',
               aiContextChunk: {
                 ...existingChunk,
                 aiStatus: 'RUNNING',
@@ -291,6 +293,7 @@ export async function startAiChunkJob(params: {
 
           if (analyzed) {
             const chunkName = analyzed.chunkName || inferChunkName(analyzed);
+            const contextText = analyzed.visualDescription || analyzed.mainSubject || '';
             const enrichedChunk: VisionAIChunk = {
               ...analyzed,
               chunkName,
@@ -298,12 +301,25 @@ export async function startAiChunkJob(params: {
               analyzedAt: new Date().toISOString(),
             };
 
-            // Save chunk into MediaFile
+            // Save chunk & status into MediaFile
             await prisma.mediaFile.update({
               where: { id: file.id },
               data: {
+                chunkStatus: 'CHUNKED',
+                chunkTitle: chunkName,
+                chunkGroup: chunkName,
+                aiContext: contextText,
                 aiContextChunk: enrichedChunk as any,
               },
+            });
+
+            // Sync vector to Pinecone
+            const pineconeSynced = await syncMediaVectorToPinecone({
+              id: file.id,
+              folderId: file.folderId,
+              url: file.url,
+              chunkTitle: chunkName,
+              aiContext: contextText,
             });
 
             // Update cluster groupings
@@ -326,8 +342,9 @@ export async function startAiChunkJob(params: {
 
             newJob.chunksCreated = Array.from(chunksMap.values());
             newJob.successCount += 1;
+            const pineconeTag = pineconeSynced ? ' [🌲 Đã đồng bộ Pinecone Vector DB]' : '';
             newJob.logs = [
-              `[${new Date().toLocaleTimeString('vi-VN')}] ✨ Đã gom nhóm: "${file.name}" → [${chunkName}]`,
+              `[${new Date().toLocaleTimeString('vi-VN')}] ✨ Đã gom nhóm: "${file.name}" → [${chunkName}]${pineconeTag}`,
               ...newJob.logs.slice(0, 39),
             ];
           } else {
@@ -336,6 +353,7 @@ export async function startAiChunkJob(params: {
               .update({
                 where: { id: file.id },
                 data: {
+                  chunkStatus: 'FAILED',
                   aiContextChunk: {
                     ...existingChunk,
                     aiStatus: 'FAILED',
@@ -356,6 +374,7 @@ export async function startAiChunkJob(params: {
             .update({
               where: { id: file.id },
               data: {
+                chunkStatus: 'FAILED',
                 aiContextChunk: {
                   ...existingChunk,
                   aiStatus: 'FAILED',
