@@ -9,7 +9,6 @@ import {
   downloadDriveImageBuffer,
   convertBufferToOptimizedWebP,
 } from '@/lib/drive';
-import { analyzeAndCacheImageChunk } from '@/lib/vision-ai';
 
 export const dynamic = 'force-dynamic';
 
@@ -187,10 +186,10 @@ export async function POST(request: Request) {
                 driveFileId: fileId,
                 md5Checksum: computedChecksum,
                 uploadedById: session?.userId || null,
+                aiContextChunk: { aiStatus: 'PENDING' },
               },
             });
             dbId = dbFile.id;
-            analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
           } catch {
             // In case of any concurrent collision, proceed with converted file
           }
@@ -230,6 +229,7 @@ export async function POST(request: Request) {
           : `Đã tải về và chuyển đổi tối ưu ${results.length} ảnh sang định dạng WebP thành công!`,
       importedCount,
       skippedCount,
+      importedMediaIds: results.map((r) => r.id),
       imported: results,
       errors: errors.length > 0 ? errors : undefined,
     });

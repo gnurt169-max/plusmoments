@@ -10,6 +10,39 @@ export interface VisionAIChunk {
   suggestedAlt: string;
   suggestedCaption?: string;
   tags?: string[];
+  chunkName?: string;
+  aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
+  analyzedAt?: string;
+  error?: string;
+}
+
+export function inferChunkName(chunk: Partial<VisionAIChunk>): string {
+  if (chunk.chunkName && typeof chunk.chunkName === 'string' && chunk.chunkName.trim().length > 2) {
+    return chunk.chunkName.trim();
+  }
+  const text = `${chunk.mainSubject || ''} ${chunk.visualDescription || ''} ${(chunk.tags || []).join(' ')}`.toLowerCase();
+  if (text.includes('gia tiên') || text.includes('áo dài') || text.includes('bàn thờ') || text.includes('trầu cau') || text.includes('rước dâu') || text.includes('nhà gái') || text.includes('nhà trai')) {
+    return 'Lễ Gia Tiên Truyền Thống';
+  }
+  if (text.includes('nhẫn') || text.includes('trao nhẫn') || text.includes('lễ đường') || text.includes('thề nguyện') || text.includes('cắt bánh') || text.includes('rót rượu')) {
+    return 'Nghi Thức Trao Nhẫn & Lễ Đường';
+  }
+  if (text.includes('váy') || text.includes('giày') || text.includes('hoa cưới') || text.includes('thiệp') || text.includes('khăn voan') || text.includes('trang sức') || text.includes('phụ kiện') || text.includes('tuxedo')) {
+    return 'Váy Cưới & Phụ Kiện Chi Tiết';
+  }
+  if (text.includes('ngoại cảnh') || text.includes('đà lạt') || text.includes('hoàng hôn') || text.includes('biển') || text.includes('đồi thông') || text.includes('thiên nhiên') || text.includes('outdoor')) {
+    return 'Pre-Wedding Ngoại Cảnh';
+  }
+  if (text.includes('studio') || text.includes('hàn quốc') || text.includes('phông trơn') || text.includes('tối giản') || text.includes('editorial')) {
+    return 'Studio Tối Giản Hàn Quốc';
+  }
+  if (text.includes('tiệc') || text.includes('sảnh tiệc') || text.includes('bàn tiệc') || text.includes('ánh nến') || text.includes('party') || text.includes('sự kiện')) {
+    return 'Tiệc Cưới & Không Gian Sang Trọng';
+  }
+  if (text.includes('cười') || text.includes('nước mắt') || text.includes('ôm') || text.includes('cảm xúc') || text.includes('hôn') || text.includes('phóng sự') || text.includes('khoảnh khắc')) {
+    return 'Khoảnh Khắc Cảm Xúc & Phóng Sự';
+  }
+  return 'Chân Dung Cô Dâu Chú Rể';
 }
 
 function extractJson(text: string): any {
@@ -139,7 +172,8 @@ Trả về DUY NHẤT một khối JSON hợp lệ theo định dạng:
   "colorMood": "Tone màu và ánh sáng (vd: Phong cách tối giản ấm áp, ánh sáng điện ảnh dịu nhẹ)",
   "suggestedAlt": "Alt text mô tả ngắn gọn, sang trọng chuẩn Google Image SEO dưới 100 ký tự",
   "suggestedCaption": "Chú thích ảnh lãng mạn, ngắn gọn (dưới 120 ký tự)",
-  "tags": ["ảnh cưới", "váy cưới", "studio"]
+  "tags": ["ảnh cưới", "váy cưới", "studio"],
+  "chunkName": "Cụm chủ đề phù hợp nhất (chọn 1 trong các nhóm: Lễ Gia Tiên Truyền Thống | Nghi Thức Trao Nhẫn & Lễ Đường | Váy Cưới & Phụ Kiện Chi Tiết | Chân Dung Cô Dâu Chú Rể | Pre-Wedding Ngoại Cảnh | Studio Tối Giản Hàn Quốc | Tiệc Cưới & Không Gian Sang Trọng | Khoảnh Khắc Cảm Xúc & Phóng Sự)"
 }`;
 
     for (const modelName of candidateModels) {
@@ -183,14 +217,19 @@ Trả về DUY NHẤT một khối JSON hợp lệ theo định dạng:
         const parsed = extractJson(rawText);
 
         if (parsed && (parsed.visualDescription || parsed.suggestedAlt)) {
-          return {
+          const rawChunk: VisionAIChunk = {
             visualDescription: parsed.visualDescription || 'Khoảnh khắc chụp ảnh cưới nghệ thuật tại PlusMoments Studio',
             mainSubject: parsed.mainSubject || 'Ảnh cưới nghệ thuật',
             colorMood: parsed.colorMood || 'Phong cách sang trọng, tối giản',
             suggestedAlt: parsed.suggestedAlt || 'Ảnh cưới nghệ thuật sang trọng tại PlusMoments Studio',
             suggestedCaption: parsed.suggestedCaption || '',
             tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+            chunkName: parsed.chunkName || undefined,
+            aiStatus: 'DONE',
+            analyzedAt: new Date().toISOString(),
           };
+          rawChunk.chunkName = inferChunkName(rawChunk);
+          return rawChunk;
         }
       } catch (err: any) {
         console.warn(`[VISION_AI_WARN] Model ${modelName} call failed:`, err.message);
@@ -227,6 +266,9 @@ export async function getOrAnalyzeImageChunk(
     if (dbFile?.aiContextChunk) {
       const cached = dbFile.aiContextChunk as any;
       if (cached && (cached.visualDescription || cached.suggestedAlt)) {
+        if (!cached.chunkName) {
+          cached.chunkName = inferChunkName(cached);
+        }
         return cached as VisionAIChunk;
       }
     }

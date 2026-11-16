@@ -29,9 +29,43 @@ import {
   Upload,
   RectangleHorizontal,
   RectangleVertical,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Pause,
+  RotateCcw,
+  FileText,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
+
+interface AiChunkCluster {
+  id: string;
+  name: string;
+  description?: string;
+  count: number;
+  imageIds: string[];
+  sampleUrl?: string;
+}
+
+interface AiChunkJob {
+  jobId: string;
+  folderId?: string | null;
+  folderSlug?: string | null;
+  folderName?: string | null;
+  status: 'IDLE' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  total: number;
+  processed: number;
+  successCount: number;
+  failedCount: number;
+  currentFileName: string;
+  chunksCreated: AiChunkCluster[];
+  logs: string[];
+  createdAt: string;
+  updatedAt: string;
+  error?: string;
+}
 
 interface MediaItem {
   id: string;
@@ -48,6 +82,10 @@ interface MediaItem {
   modifiedAt: string;
   uploadedById?: string | null;
   uploaderName?: string | null;
+  folderId?: string | null;
+  aiContextChunk?: any;
+  aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
+  chunkName?: string;
 }
 
 interface FolderItem {
@@ -176,6 +214,13 @@ export default function AdminMediaPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef<number>(0);
 
+  // Observable AI Chunk Job state (Phase 2)
+  const [aiJob, setAiJob] = useState<AiChunkJob | null>(null);
+  const [isAiDrawerExpanded, setIsAiDrawerExpanded] = useState<boolean>(true);
+  const [isStartingAi, setIsStartingAi] = useState<boolean>(false);
+  const [selectedChunkFilter, setSelectedChunkFilter] = useState<string>('ALL');
+  const aiPollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Progressive Rendering & Infinite Scroll
   const [visibleCount, setVisibleCount] = useState(24);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -246,22 +291,152 @@ export default function AdminMediaPage() {
       .catch(() => {});
   }, [fetchMedia]);
 
+  const fetchAiJobStatus = useCallback(async (targetFolderId?: string, targetJobId?: string) => {
+    try {
+      const q = new URLSearchParams();
+      if (targetJobId) q.set('jobId', targetJobId);
+      if (targetFolderId) q.set('folderId', targetFolderId);
+      const res = await fetch(`/api/admin/media/ai-chunk-jobs/status?${q.toString()}`, {
+        cache: 'no-store',
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.success && data.job) {
+        setAiJob(data.job);
+        return data.job;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const triggerAiChunkJob = useCallback(
+    async (mediaIds?: string[], targetFolderId?: string) => {
+      setIsStartingAi(true);
+      try {
+        const folderParam = targetFolderId || currentFolder?.id || currentFolder?.slug;
+        const res = await fetch('/api/admin/media/ai-chunk-jobs/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mediaIds: mediaIds && mediaIds.length > 0 ? mediaIds : undefined,
+            folderId: folderParam,
+            folderSlug: currentFolder?.slug,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.job) {
+          setAiJob(data.job);
+          setIsAiDrawerExpanded(true);
+          showToast(`Đã khởi chạy phân tích AI cho ${data.job.total} ảnh.`);
+        }
+      } catch (err: any) {
+        showToast(`Không thể khởi chạy AI: ${err.message}`);
+      } finally {
+        setIsStartingAi(false);
+      }
+    },
+    [currentFolder, showToast]
+  );
+
+  const handleCancelAiJob = useCallback(async () => {
+    if (!aiJob) return;
+    try {
+      await fetch('/api/admin/media/ai-chunk-jobs/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: aiJob.jobId, folderId: currentFolder?.id }),
+      });
+      showToast('Đã tạm dừng tiến trình phân tích AI.');
+      fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
+    } catch (err: any) {
+      showToast(`Lỗi khi dừng: ${err.message}`);
+    }
+  }, [aiJob, currentFolder, fetchAiJobStatus, showToast]);
+
+  const handleRetryAiJob = useCallback(async () => {
+    try {
+      setIsStartingAi(true);
+      const res = await fetch('/api/admin/media/ai-chunk-jobs/retry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: aiJob?.jobId,
+          folderId: currentFolder?.id,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.job) {
+        setAiJob(data.job);
+        setIsAiDrawerExpanded(true);
+        showToast(`Đã bắt đầu chạy lại phân tích AI cho ${data.job.total} ảnh.`);
+      }
+    } catch (err: any) {
+      showToast(`Lỗi khi chạy lại: ${err.message}`);
+    } finally {
+      setIsStartingAi(false);
+    }
+  }, [aiJob, currentFolder, showToast]);
+
+  // Poll AI job progress every 1.5s when RUNNING
+  useEffect(() => {
+    if (aiPollTimerRef.current) {
+      clearTimeout(aiPollTimerRef.current);
+      aiPollTimerRef.current = null;
+    }
+
+    if (aiJob?.status === 'RUNNING') {
+      aiPollTimerRef.current = setTimeout(async () => {
+        const updated = await fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
+        if (currentFolder) {
+          fetchFolderContent(currentFolder.slug);
+        } else {
+          fetchMedia();
+        }
+      }, 1500);
+    }
+
+    return () => {
+      if (aiPollTimerRef.current) {
+        clearTimeout(aiPollTimerRef.current);
+      }
+    };
+  }, [aiJob, currentFolder, fetchAiJobStatus, fetchFolderContent, fetchMedia]);
+
+  // When changing folder, check if an existing AI job exists for this folder
+  useEffect(() => {
+    fetchAiJobStatus(currentFolder?.id);
+    setSelectedChunkFilter('ALL');
+  }, [currentFolder, fetchAiJobStatus]);
+
   // Listen to background batch import completion events
   useEffect(() => {
     const handleBackgroundImportComplete = (e: any) => {
       const detail = e?.detail;
       if (detail?.isFinal) {
         showToast(
-          `Đã hoàn tất import ${detail.totalFolders} thư mục (${detail.totalImages} ảnh)!`
+          `Đã lưu ${detail.totalImages} ảnh vào kho thành công!`
         );
+        fetchMedia();
+        if (currentFolder) {
+          fetchFolderContent(currentFolder.slug);
+        }
+        if (detail?.importedMediaIds && detail.importedMediaIds.length > 0) {
+          triggerAiChunkJob(detail.importedMediaIds, currentFolder?.id);
+        }
       } else if (detail?.isPartial && detail?.folderName) {
-        showToast(`Đã đồng bộ xong thư mục: ${detail.folderName}`);
+        showToast(`Đã lưu ảnh thư mục: ${detail.folderName}`);
+        fetchMedia();
+        if (currentFolder) {
+          fetchFolderContent(currentFolder.slug);
+        }
       } else {
-        showToast('Đồng bộ nền Google Drive hoàn tất! Đang làm mới danh sách...');
-      }
-      fetchMedia();
-      if (currentFolder) {
-        fetchFolderContent(currentFolder.slug);
+        showToast('Đồng bộ nền Google Drive hoàn tất!');
+        fetchMedia();
+        if (currentFolder) {
+          fetchFolderContent(currentFolder.slug);
+        }
       }
     };
 
@@ -271,7 +446,7 @@ export default function AdminMediaPage() {
       window.removeEventListener('media-library-updated', handleBackgroundImportComplete);
       window.removeEventListener('media-job-completed', handleBackgroundImportComplete);
     };
-  }, [fetchMedia, fetchFolderContent, currentFolder]);
+  }, [fetchMedia, fetchFolderContent, currentFolder, triggerAiChunkJob, showToast]);
 
   // Reset visibleCount whenever currentFolder, searchQuery, selectedFormat, selectedOrientation, or sortBy changes
   useEffect(() => {
@@ -966,6 +1141,11 @@ export default function AdminMediaPage() {
   const filteredAndSortedMedia = useMemo(() => {
     let result = [...baseFilteredMedia];
 
+    // Chunk grouping filter
+    if (selectedChunkFilter !== 'ALL') {
+      result = result.filter((m) => m.chunkName === selectedChunkFilter);
+    }
+
     // Orientation filter
     if (selectedOrientation !== 'all') {
       result = result.filter((m) => getItemOrientation(m) === selectedOrientation);
@@ -990,7 +1170,7 @@ export default function AdminMediaPage() {
     });
 
     return result;
-  }, [baseFilteredMedia, selectedOrientation, sortBy, getItemOrientation]);
+  }, [baseFilteredMedia, selectedChunkFilter, selectedOrientation, sortBy, getItemOrientation]);
 
   // Progressive rendering slice for high performance with 764+ images
   const visibleMedia = useMemo(() => {
@@ -1637,6 +1817,26 @@ export default function AdminMediaPage() {
                 <HardDrive className="w-3.5 h-3.5 text-luxury-400" />
                 <span>Thêm Ảnh Từ Drive</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => triggerAiChunkJob(undefined, currentFolder?.id)}
+                disabled={isStartingAi || aiJob?.status === 'RUNNING'}
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                title="Quét toàn bộ ảnh trong thư mục để AI đọc ngữ cảnh và gom cụm Chunks"
+              >
+                {aiJob?.status === 'RUNNING' ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>AI Đang Gom Chunks...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                    <span>Chạy AI Gom Chunks</span>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
@@ -1836,6 +2036,226 @@ export default function AdminMediaPage() {
           </div>
         </div>
 
+        {/* PHASE 2: OBSERVABLE BACKGROUND AI CONTEXT & CHUNKING PIPELINE BANNER */}
+        {aiJob && (aiJob.status === 'RUNNING' || aiJob.status === 'COMPLETED' || aiJob.status === 'FAILED' || aiJob.status === 'CANCELLED') && (
+          <div className="bg-gradient-to-br from-amber-50/80 via-white to-stone-50 border border-amber-200/90 rounded-2xl p-4 sm:p-5 shadow-sm transition-all duration-300 space-y-3.5 mb-6">
+            {/* Top Bar: Status Header + Action Controls */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-100/80 pb-3">
+              <div className="flex items-center gap-2.5">
+                {aiJob.status === 'RUNNING' ? (
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 shadow-xs">
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-700" />
+                  </div>
+                ) : aiJob.status === 'COMPLETED' ? (
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  </div>
+                ) : aiJob.status === 'CANCELLED' ? (
+                  <div className="w-8 h-8 rounded-xl bg-stone-200 text-stone-700 flex items-center justify-center shrink-0 shadow-xs">
+                    <Pause className="w-4 h-4 text-stone-700" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 shadow-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-700" />
+                  </div>
+                )}
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-charcoal-900 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>
+                        {aiJob.status === 'RUNNING' && 'Tiến Trình AI Đọc Ngữ Cảnh & Chia Chunks'}
+                        {aiJob.status === 'COMPLETED' && 'Đã Hoàn Tất Phân Loại Chunks AI'}
+                        {aiJob.status === 'CANCELLED' && 'Tiến Trình AI Đã Tạm Dừng'}
+                        {aiJob.status === 'FAILED' && 'Tiến Trình AI Gặp Lỗi'}
+                      </span>
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold">
+                      {aiJob.status === 'RUNNING' && 'ĐANG CHẠY NGẦM'}
+                      {aiJob.status === 'COMPLETED' && 'HOÀN THÀNH 100%'}
+                      {aiJob.status === 'CANCELLED' && 'TẠM DỪNG'}
+                      {aiJob.status === 'FAILED' && 'CẦN CHẠY LẠI'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 font-light mt-0.5">
+                    {aiJob.status === 'RUNNING' && (
+                      <>
+                        AI đang phân tích thị giác: <strong className="text-stone-800 font-medium">{aiJob.currentFileName || 'Đang nạp ảnh...'}</strong> ({aiJob.processed}/{aiJob.total} ảnh)
+                      </>
+                    )}
+                    {aiJob.status === 'COMPLETED' && `Đã phân loại thành công ${aiJob.successCount}/${aiJob.total} ảnh vào ${aiJob.chunksCreated.length} cụm Chunks.`}
+                    {aiJob.status === 'CANCELLED' && `Đã dừng ở ảnh ${aiJob.processed}/${aiJob.total}. Bấm "Chạy Lại AI" để tiếp tục.`}
+                    {aiJob.status === 'FAILED' && (aiJob.error || 'Có lỗi xảy ra trong quá trình gọi API Gemini.')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                {aiJob.status === 'RUNNING' && (
+                  <button
+                    type="button"
+                    onClick={handleCancelAiJob}
+                    className="px-3 py-1.5 rounded-lg border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                    title="Tạm dừng tiến trình phân tích"
+                  >
+                    <Pause className="w-3.5 h-3.5" />
+                    <span>Dừng</span>
+                  </button>
+                )}
+
+                {(aiJob.status === 'COMPLETED' || aiJob.status === 'CANCELLED' || aiJob.status === 'FAILED') && (
+                  <button
+                    type="button"
+                    onClick={handleRetryAiJob}
+                    disabled={isStartingAi}
+                    className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                    title="Chạy lại các ảnh chưa hoàn tất hoặc gom lại toàn bộ"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Chạy Lại AI</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setIsAiDrawerExpanded(!isAiDrawerExpanded)}
+                  className="px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                  title={isAiDrawerExpanded ? 'Thu gọn chi tiết' : 'Mở rộng chi tiết'}
+                >
+                  {isAiDrawerExpanded ? (
+                    <>
+                      <ChevronUp className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Thu Gọn</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Chi Tiết</span>
+                    </>
+                  )}
+                </button>
+
+                {aiJob.status !== 'RUNNING' && (
+                  <button
+                    type="button"
+                    onClick={() => setAiJob(null)}
+                    className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
+                    title="Đóng thông báo"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Progress Bar Row */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-stone-600 font-medium">
+                  Tiến độ: <strong className="text-stone-900">{aiJob.processed} / {aiJob.total} ảnh</strong>
+                  {aiJob.successCount > 0 && <span className="text-emerald-700 ml-2">✓ {aiJob.successCount} thành công</span>}
+                  {aiJob.failedCount > 0 && <span className="text-rose-700 ml-2">✕ {aiJob.failedCount} lỗi</span>}
+                </span>
+                <span className="text-amber-800 font-bold">
+                  {aiJob.total > 0 ? Math.min(100, Math.round((aiJob.processed / aiJob.total) * 100)) : 0}%
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-stone-200/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 rounded-full transition-all duration-500 ease-out shadow-xs"
+                  style={{
+                    width: `${aiJob.total > 0 ? Math.min(100, Math.round((aiJob.processed / aiJob.total) * 100)) : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Expandable Section: Clustered Chunks + Live Logs */}
+            {isAiDrawerExpanded && (
+              <div className="space-y-3 pt-2 border-t border-amber-100/60">
+                {/* Real-time Chunks Clustered */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-charcoal-800 flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Cụm Chunks Đã Gom Nhóm ({aiJob.chunksCreated.length}):</span>
+                    </span>
+                    {selectedChunkFilter !== 'ALL' && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedChunkFilter('ALL')}
+                        className="text-[11px] text-amber-700 hover:text-amber-900 underline font-medium cursor-pointer"
+                      >
+                        Bỏ lọc cụm (Xem tất cả)
+                      </button>
+                    )}
+                  </div>
+
+                  {aiJob.chunksCreated.length === 0 ? (
+                    <p className="text-xs text-stone-400 italic">Đang chờ AI phân tích những bức ảnh đầu tiên để bắt đầu gom nhóm...</p>
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedChunkFilter('ALL')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                          selectedChunkFilter === 'ALL'
+                            ? 'bg-charcoal-900 text-white shadow-xs'
+                            : 'bg-white border border-stone-200 text-stone-700 hover:border-amber-400'
+                        }`}
+                      >
+                        <span>Tất cả</span>
+                        <span className="font-mono text-[10px] opacity-75">({aiJob.total})</span>
+                      </button>
+
+                      {aiJob.chunksCreated.map((chunk) => (
+                        <button
+                          key={chunk.id}
+                          type="button"
+                          onClick={() => setSelectedChunkFilter(selectedChunkFilter === chunk.name ? 'ALL' : chunk.name)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                            selectedChunkFilter === chunk.name
+                              ? 'bg-amber-600 text-white ring-2 ring-amber-300'
+                              : 'bg-white border border-amber-200 text-stone-800 hover:bg-amber-50/50'
+                          }`}
+                          title={`Xem ${chunk.count} ảnh thuộc cụm "${chunk.name}"`}
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+                          <span className="font-medium">{chunk.name}</span>
+                          <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-mono font-bold">
+                            {chunk.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Real-time Logs Box */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold text-charcoal-800">
+                    <FileText className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Nhật Ký Xử Lý Trực Tiếp (Real-time Logs):</span>
+                  </div>
+                  <div className="bg-stone-900 text-stone-200 p-3 rounded-xl max-h-36 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1 shadow-inner">
+                    {aiJob.logs && aiJob.logs.length > 0 ? (
+                      aiJob.logs.map((log, idx) => (
+                        <div key={idx} className="flex items-start gap-1.5">
+                          <span className="text-stone-300">{log}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-stone-500 italic">Chưa có nhật ký ghi nhận.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* LOADING STATE */}
         {loading || folderLoading ? (
           <div className="py-20 text-center text-charcoal-400 space-y-3">
@@ -1938,16 +2358,42 @@ export default function AdminMediaPage() {
                       />
                     </button>
 
-                    {/* Format & Dimensions Badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
-                      <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono uppercase font-medium">
-                        {item.format}
-                      </span>
-                      {itemWidth && itemHeight && (
-                        <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-xs text-stone-200 text-[9px] font-mono">
-                          {itemWidth}×{itemHeight}
+                    {/* Format, Dimensions & AI Status Badges */}
+                    <div className="absolute top-2 left-2 flex flex-col items-start gap-1 z-10 max-w-[calc(100%-3.2rem)]">
+                      <div className="flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono uppercase font-medium">
+                          {item.format}
                         </span>
-                      )}
+                        {itemWidth && itemHeight && (
+                          <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-xs text-stone-200 text-[9px] font-mono">
+                            {itemWidth}×{itemHeight}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* AI Chunk Status Badge */}
+                      {item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && aiJob?.currentFileName === item.name) ? (
+                        <span className="px-2 py-0.5 rounded-md bg-blue-600/90 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
+                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                          <span>Đang phân tích...</span>
+                        </span>
+                      ) : item.aiStatus === 'DONE' ? (
+                        <span
+                          className="px-2 py-0.5 rounded-md bg-emerald-700/90 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs max-w-[170px] truncate"
+                          title={item.chunkName ? `Đã gom nhóm: ${item.chunkName}` : 'Đã phân tích ngữ cảnh'}
+                        >
+                          <Sparkles className="w-2.5 h-2.5 text-emerald-200 shrink-0" />
+                          <span className="truncate">{item.chunkName ? `Đã gom: ${item.chunkName}` : 'Đã gom nhóm'}</span>
+                        </span>
+                      ) : item.aiStatus === 'PENDING' ? (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-600/90 backdrop-blur-xs text-white text-[9px] font-medium shadow-xs">
+                          Chờ AI
+                        </span>
+                      ) : item.aiStatus === 'FAILED' ? (
+                        <span className="px-2 py-0.5 rounded-md bg-rose-600/90 backdrop-blur-xs text-white text-[9px] font-medium shadow-xs">
+                          Lỗi AI
+                        </span>
+                      ) : null}
                     </div>
 
                     {/* Hover Orientation & Dimensions Badge */}
@@ -2675,10 +3121,12 @@ export default function AdminMediaPage() {
       <DriveMediaPicker
         isOpen={isDrivePickerOpen}
         onClose={() => setIsDrivePickerOpen(false)}
-        onSuccess={(urls) => {
-          showToast(`Đã đồng bộ thành công ${urls.length} ảnh WebP vào hệ thống!`);
+        onSuccess={(urls, importedItems) => {
+          showToast(`Đã lưu ${urls.length} ảnh vào kho thành công!`);
           if (currentFolder) fetchFolderContent(currentFolder.slug);
           fetchMedia();
+          const mediaIds = (importedItems || []).map((item) => item.id).filter(Boolean);
+          triggerAiChunkJob(mediaIds, currentFolder?.id);
         }}
         mode="multiple"
         title="Chọn Ảnh Hoặc Import Cả Thư Mục Từ Google Drive"

@@ -19,6 +19,9 @@ export interface FolderImageItem {
   modifiedAt: string;
   uploadedById?: string | null;
   uploaderName?: string | null;
+  aiContextChunk?: any;
+  aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
+  chunkName?: string;
 }
 
 export interface ResolvedFolder {
@@ -270,6 +273,12 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               rawName.replace(/-\d{10,}-[a-z0-9]+$/, '').replace(/[-_]/g, ' ').trim() ||
               entry.name;
 
+            const chunk = (dbMatch?.aiContextChunk as any) || null;
+            const aiStatus: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' =
+              chunk?.aiStatus ||
+              (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
+            const chunkName: string | undefined = chunk?.chunkName || undefined;
+
             images.push({
               id: dbMatch?.id || publicUrl,
               filename: entry.name,
@@ -286,6 +295,9 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               modifiedAt: stats.mtime.toISOString(),
               uploadedById: dbMatch?.uploadedById || null,
               uploaderName: dbMatch?.uploadedBy?.fullName || null,
+              aiContextChunk: chunk,
+              aiStatus,
+              chunkName,
             });
           }
         } catch {}
@@ -311,6 +323,12 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         orientation = orientation || dim.orientation;
       }
 
+      const chunk = (file.aiContextChunk as any) || null;
+      const aiStatus: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' =
+        chunk?.aiStatus ||
+        (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
+      const chunkName: string | undefined = chunk?.chunkName || undefined;
+
       images.push({
         id: file.id,
         filename: path.basename(file.url),
@@ -325,6 +343,9 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         folderId: dbFolder.id,
         createdAt: file.createdAt instanceof Date ? file.createdAt.toISOString() : file.createdAt,
         modifiedAt: file.updatedAt instanceof Date ? file.updatedAt.toISOString() : file.updatedAt,
+        aiContextChunk: chunk,
+        aiStatus,
+        chunkName,
       });
     }
   }

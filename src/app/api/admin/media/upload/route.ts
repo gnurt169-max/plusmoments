@@ -124,12 +124,9 @@ export async function POST(request: Request) {
         height: imageHeight,
         folderId: folderRecord?.id || null,
         uploadedById: session.userId,
-        aiContextChunk: { blurDataUrl } as any,
+        aiContextChunk: { blurDataUrl, aiStatus: 'PENDING' } as any,
       },
     });
-
-    // Trigger Vision AI chunk analysis in the background
-    analyzeAndCacheImageChunk(mediaFile.id, publicUrl);
 
     const orientation = getOrientation(imageWidth, imageHeight);
 

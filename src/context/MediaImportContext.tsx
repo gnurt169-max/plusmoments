@@ -80,6 +80,7 @@ export function MediaImportProvider({ children }: { children: React.ReactNode })
   const totalImportedImagesRef = useRef(0);
   const totalSkippedImagesRef = useRef(0);
   const totalFoldersSessionRef = useRef(0);
+  const importedMediaIdsRef = useRef<string[]>([]);
 
   const toggleMinimize = useCallback(() => {
     setIsMinimized((prev) => !prev);
@@ -123,6 +124,7 @@ export function MediaImportProvider({ children }: { children: React.ReactNode })
     setIsImporting(true);
     setStatus('running');
     setIsMinimized(false);
+    importedMediaIdsRef.current = [];
 
     while (queueRef.current.length > 0) {
       if (controller.signal.aborted) break;
@@ -190,6 +192,9 @@ export function MediaImportProvider({ children }: { children: React.ReactNode })
                 setCurrentProgressPercent(0);
               } else if (data.type === 'progress') {
                 setProcessedImages(data.current || 0);
+                if (!data.isSkipped && data.item?.id) {
+                  importedMediaIdsRef.current.push(data.item.id);
+                }
                 if (data.importedCount !== undefined) {
                   setImportedCount(data.importedCount);
                   totalImportedImagesRef.current = data.importedCount;
@@ -288,6 +293,7 @@ export function MediaImportProvider({ children }: { children: React.ReactNode })
             totalImages: finalImagesCount,
             importedCount: finalImagesCount,
             skippedCount: finalSkippedCount,
+            importedMediaIds: Array.from(new Set(importedMediaIdsRef.current)),
             isFinal: true,
           },
         })

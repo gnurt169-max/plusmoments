@@ -26,6 +26,10 @@ export interface MediaItemMetadata {
   modifiedAt: string;
   uploadedById?: string | null;
   uploaderName?: string | null;
+  folderId?: string | null;
+  aiContextChunk?: any;
+  aiStatus?: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED';
+  chunkName?: string;
 }
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(['.webp', '.jpg', '.jpeg', '.png', '.avif', '.heic', '.svg']);
@@ -132,11 +136,14 @@ export async function GET(request: Request) {
     // Sort by modifiedAt descending (newest images first)
     media.sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime());
 
-    // Enrich with database ownership info
+    // Enrich with database ownership & AI chunk info
     try {
       const dbFiles = await prisma.mediaFile.findMany({
         select: {
+          id: true,
           url: true,
+          folderId: true,
+          aiContextChunk: true,
           uploadedById: true,
           uploadedBy: { select: { fullName: true, username: true } },
         },
@@ -145,8 +152,16 @@ export async function GET(request: Request) {
       for (const item of media) {
         const match = dbMap.get(item.url);
         if (match) {
+          item.id = match.id || item.id;
+          item.folderId = match.folderId || null;
           item.uploadedById = match.uploadedById;
           item.uploaderName = match.uploadedBy?.fullName || match.uploadedBy?.username || null;
+          const chunk = (match.aiContextChunk as any) || null;
+          item.aiContextChunk = chunk;
+          item.aiStatus =
+            chunk?.aiStatus ||
+            (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
+          item.chunkName = chunk?.chunkName || undefined;
         }
       }
     } catch (e) {

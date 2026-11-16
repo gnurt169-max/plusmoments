@@ -397,7 +397,7 @@ export async function convertBufferToOptimizedWebP(
 
   // 3. Process with sharp: High-Resolution Wedding Photography Standard
   try {
-    let pipeline = sharp(buffer);
+    let pipeline = sharp(buffer).rotate();
     const metadata = await pipeline.metadata();
 
     // Only resize if image exceeds 2048px (2K max for full-screen Lightbox)

@@ -11,7 +11,6 @@ import {
   parseGoogleDriveFolderId,
   ScannedFolderItem,
 } from '@/lib/drive';
-import { analyzeAndCacheImageChunk } from '@/lib/vision-ai';
 import { createMediaJob, startGoogleDriveImportJob } from '@/lib/media-job-queue';
 
 export const dynamic = 'force-dynamic';
@@ -288,11 +287,11 @@ export async function POST(request: Request) {
                       driveFileId: img.id,
                       md5Checksum: checksum,
                       uploadedById: session?.userId || null,
+                      aiContextChunk: { aiStatus: 'PENDING' },
                     },
                   });
 
                   savedFolderIds.add(dbFolder.id);
-                  analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
 
                   totalImportedImages++;
 
@@ -517,11 +516,11 @@ export async function POST(request: Request) {
                 driveFileId: img.id,
                 md5Checksum: checksum,
                 uploadedById: session?.userId || null,
+                aiContextChunk: { aiStatus: 'PENDING' },
               },
             });
 
             savedFolderIdsSync.add(dbFolder.id);
-            analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
 
             totalImportedImages++;
             results.push({
@@ -551,6 +550,7 @@ export async function POST(request: Request) {
       totalImages: totalImportedImages,
       importedCount: totalImportedImages,
       skippedCount: totalSkippedImages,
+      importedMediaIds: results.map((r) => r.id),
       imported: results,
       errors: globalErrors.length > 0 ? globalErrors : undefined,
     });

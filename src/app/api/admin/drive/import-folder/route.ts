@@ -256,6 +256,7 @@ export async function POST(request: Request) {
                   driveFileId: fileId,
                   md5Checksum: checksum,
                   uploadedById: session?.userId || null,
+                  aiContextChunk: { aiStatus: 'PENDING' },
                 },
               });
 
@@ -314,6 +315,7 @@ export async function POST(request: Request) {
             discoveredFolders: savedFolderIds.size,
             importedCount,
             skippedCount,
+            importedMediaIds: results.map((r) => r.id),
             urls: results.map((r) => r.url),
             imported: results,
             errors,
@@ -402,6 +404,7 @@ export async function POST(request: Request) {
             driveFileId: fileId,
             md5Checksum: checksum,
             uploadedById: session?.userId || null,
+            aiContextChunk: { aiStatus: 'PENDING' },
           },
         });
 
@@ -437,6 +440,7 @@ export async function POST(request: Request) {
       total: results.length,
       importedCount,
       skippedCount,
+      importedMediaIds: results.map((r) => r.id),
       urls: results.map((r) => r.url),
       imported: results,
       errors,

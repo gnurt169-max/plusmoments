@@ -16,7 +16,6 @@ import {
   ScannedFolderItem,
   ScannedImageItem,
 } from '@/lib/drive';
-import { analyzeAndCacheImageChunk } from '@/lib/vision-ai';
 import { getOrientation } from '@/lib/image-dimensions';
 
 export interface MediaJob {
@@ -389,13 +388,11 @@ export function startGoogleDriveImportJob(
               driveFileId: img.id,
               md5Checksum: checksum,
               uploadedById: userId || null,
-              aiContextChunk: blurDataUrl ? ({ blurDataUrl } as any) : undefined,
+              aiContextChunk: blurDataUrl ? ({ blurDataUrl, aiStatus: 'PENDING' } as any) : { aiStatus: 'PENDING' },
             },
           });
 
           savedFolderIds.add(dbFolder.id);
-          // Vision AI analysis in background
-          analyzeAndCacheImageChunk(dbFile.id, converted.publicUrl);
 
           success++;
           processed++;
@@ -562,11 +559,9 @@ export function startLocalUploadJob(
               height: imageHeight,
               folderId: folderRecord?.id || null,
               uploadedById: userId || null,
-              aiContextChunk: { blurDataUrl } as any,
+              aiContextChunk: { blurDataUrl, aiStatus: 'PENDING' } as any,
             },
           });
-
-          analyzeAndCacheImageChunk(mediaFile.id, publicUrl);
 
           // Delete temp file after successful processing
           try {
