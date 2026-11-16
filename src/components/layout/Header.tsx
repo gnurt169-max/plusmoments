@@ -178,10 +178,10 @@ export function Header(props: HeaderProps) {
         <div
           role="dialog"
           aria-modal="true"
-          className="lg:hidden fixed inset-0 z-50 bg-[#FAF8F5]/98 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-8 animate-in fade-in duration-300 select-none overflow-y-auto"
+          className="lg:hidden fixed inset-0 z-50 bg-[#FAF7F2] text-[#1C1917] flex flex-col justify-between p-6 sm:p-8 animate-in fade-in duration-200 select-none overflow-y-auto"
         >
           {/* Top Bar: Brand Logo & Close Button */}
-          <div className="flex items-center justify-between border-b border-stone-200/80 pb-4">
+          <div className="flex items-center justify-between border-b border-[#E6DDD0] pb-4">
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
@@ -194,7 +194,7 @@ export function Header(props: HeaderProps) {
               type="button"
               aria-label="Đóng menu"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2.5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
+              className="p-2.5 rounded-full bg-[#EAE2D5] hover:bg-[#DDD2C0] text-[#1C1917] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#856740] focus-visible:ring-offset-2"
             >
               <X className="w-6 h-6" />
             </button>
@@ -207,27 +207,27 @@ export function Header(props: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="group flex items-center justify-between py-2 border-b border-stone-200/50 hover:border-amber-800 transition-colors"
+                className="group flex items-center justify-between py-2.5 border-b border-[#E6DDD0] hover:border-[#9A7448] transition-colors"
               >
                 <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-xs text-amber-800 font-semibold">
+                  <span className="font-mono text-xs text-[#9A7448] font-semibold">
                     {link.num}
                   </span>
-                  <span className="font-serif text-2xl sm:text-3xl font-light text-stone-900 group-hover:text-amber-800 transition-colors">
+                  <span className="font-serif text-xl sm:text-2xl font-medium text-[#1C1917] group-hover:text-[#9A7448] tracking-wide transition-colors">
                     {link.name}
                   </span>
                 </div>
-                <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-amber-800 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-[#8C6D46] group-hover:text-[#9A7448] group-hover:translate-x-1 transition-all" />
               </Link>
             ))}
           </nav>
 
           {/* Bottom Drawer Content: Direct Contacts & Showroom Address */}
-          <div className="space-y-4 pt-4 border-t border-stone-200/80">
+          <div className="space-y-4 pt-4 border-t border-[#E6DDD0]">
             {/* Showroom Address */}
-            <div className="flex items-start gap-2.5 text-xs text-stone-600 font-light">
-              <MapPin className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-              <span>{studioAddress}</span>
+            <div className="flex items-start gap-2.5 text-xs">
+              <MapPin className="w-4 h-4 text-[#9A7448] shrink-0 mt-0.5" />
+              <span className="text-[#44403C] font-medium leading-relaxed">{studioAddress}</span>
             </div>
 
             {/* Quick Contact Buttons Row */}
@@ -238,7 +238,7 @@ export function Header(props: HeaderProps) {
                   trackHotlineClick(cleanPhone, 'mobile_fullscreen_drawer', contact.googleAdsPhoneConversionLabel);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-stone-200 text-stone-800 text-xs font-semibold shadow-2xs hover:bg-stone-50 transition-colors"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-[#E6DDD0] text-[#1C1917] text-xs font-semibold shadow-2xs hover:bg-[#F5EFE6] transition-colors"
               >
                 <Phone className="w-4 h-4 text-emerald-600" />
                 <span>{hotlineDisplay}</span>
@@ -252,7 +252,7 @@ export function Header(props: HeaderProps) {
                   trackZaloClick(cleanPhone, 'mobile_fullscreen_drawer', contact.googleAdsZaloConversionLabel);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-stone-200 text-stone-800 text-xs font-semibold shadow-2xs hover:bg-stone-50 transition-colors"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-[#E6DDD0] text-[#1C1917] text-xs font-semibold shadow-2xs hover:bg-[#F5EFE6] transition-colors"
               >
                 <div className="w-4 h-4 rounded-full bg-[#0068FF] text-white flex items-center justify-center text-[8px] font-bold">
                   Z
@@ -268,10 +268,10 @@ export function Header(props: HeaderProps) {
                 setMobileMenuOpen(false);
                 setIsConsultModalOpen(true);
               }}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-charcoal-900 via-stone-900 to-amber-900 text-white font-serif text-sm uppercase tracking-wider font-medium shadow-luxury flex items-center justify-center gap-2 active:scale-[0.99] transition-transform cursor-pointer"
+              className="w-full py-3.5 rounded-xl bg-[#1C1917] hover:bg-stone-800 text-[#E5C799] font-serif text-sm uppercase tracking-wider font-semibold shadow-md flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>Nhận Ưu Đãi 2.000.000đ Ngay</span>
+              <Sparkles className="w-4 h-4 text-[#E5C799]" />
+              <span>Tư Vấn Concept &amp; Báo Giá</span>
             </button>
           </div>
         </div>
