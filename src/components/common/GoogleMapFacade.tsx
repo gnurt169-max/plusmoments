@@ -46,16 +46,7 @@ export function GoogleMapFacade({
   return (
     <div
       onClick={() => setIsLoaded(true)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsLoaded(true);
-        }
-      }}
-      aria-label="Nhấn để tải bản đồ Google Maps tương tác"
-      className={`group w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[#3E3834] bg-gradient-to-br from-[#1C1815] via-[#151210] to-[#0E0D0C] p-4 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:border-amber-700/60 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 relative select-none ${className}`}
+      className={`group w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[#3E3834] bg-gradient-to-br from-[#1C1815] via-[#151210] to-[#0E0D0C] p-4 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:border-amber-700/60 hover:shadow-lg relative select-none ${className}`}
     >
       {/* Subtle map grid background styling */}
       <div

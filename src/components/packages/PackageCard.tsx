@@ -48,6 +48,8 @@ export function PackageCard({
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
+    // Nếu tương tác trực tiếp lên nút con bên trong thì để nút con xử lý
+    if ((e.target as HTMLElement).closest('button')) return;
     if (!pointerStartRef.current) return;
     const dx = Math.abs(e.clientX - pointerStartRef.current.x);
     const dy = Math.abs(e.clientY - pointerStartRef.current.y);
@@ -58,22 +60,11 @@ export function PackageCard({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onSelect?.(pkg);
-    }
-  };
-
   return (
     <article
-      tabIndex={0}
-      role="button"
-      aria-label={`Xem chi tiết gói dịch vụ ${pkg.name}`}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onKeyDown={handleKeyDown}
-      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm md:hover:shadow-2xl md:hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 ${
+      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm md:hover:shadow-2xl md:hover:-translate-y-1.5 ${
         pkg.isPopular
           ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
           : 'md:hover:border-amber-400/60'
@@ -180,7 +171,7 @@ export function PackageCard({
               e.stopPropagation();
               onSelect?.(pkg);
             }}
-            aria-label={`Xem chi tiết gói ${pkg.name} & đặt lịch`}
+            aria-label={`Xem chi tiết và đặt lịch gói ${pkg.name}`}
             className="w-full py-2.5 sm:py-3 px-4 rounded-xl text-xs uppercase tracking-wider font-semibold text-white bg-[#2E2824] hover:bg-[#1A1614] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 select-none"
           >
             <Eye className="w-3.5 h-3.5 text-amber-300" />
