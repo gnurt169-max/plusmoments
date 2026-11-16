@@ -145,7 +145,7 @@ export function LinkedPackageCard({
             </button>
 
             <Link
-              href={`/pricing#${packageData.slug}`}
+              href={`/bang-gia#${packageData.slug}`}
               aria-label={`Xem báo giá chi tiết gói ${packageData.name}`}
               className="w-full px-5 py-3 rounded-full border border-stone-300 hover:border-charcoal-900 text-charcoal-800 hover:bg-white text-xs uppercase tracking-wider font-medium transition-all bg-white/70 shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer text-center"
             >

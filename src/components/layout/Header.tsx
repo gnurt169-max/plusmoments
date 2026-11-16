@@ -74,7 +74,7 @@ export function Header(props: HeaderProps) {
   const baseNavLinks = [
     { name: 'Trang Chủ', href: '/' },
     { name: 'Bộ Sưu Tập', href: '/bo-suu-tap' },
-    { name: 'Bảng Giá Dịch Vụ', href: '/pricing' },
+    { name: 'Bảng Giá Dịch Vụ', href: '/bang-gia' },
     ...(hasPublishedBlogs ? [{ name: 'Cẩm Nang Cưới', href: '/blog' }] : []),
     { name: 'Liên Hệ & Studio', href: '/contact' },
   ];

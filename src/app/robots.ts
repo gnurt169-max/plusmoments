@@ -9,13 +9,17 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     '/',
     '/bo-suu-tap/',
     '/bang-gia/',
-    '/pricing/',
     '/blog/',
     '/uu-dai/',
     '/contact/',
     '/_next/static/',
     '/uploads/',
     '/images/',
+    '/favicon.ico',
+    '/favicon-48x48.png',
+    '/favicon-96x96.png',
+    '/apple-touch-icon.png',
+    '/icon.png',
   ];
 
   const privateDisallowed = [
@@ -39,6 +43,20 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         userAgent: 'Googlebot',
         allow: publicAllowed,
         disallow: privateDisallowed,
+      },
+      {
+        userAgent: 'Googlebot-Image',
+        allow: [
+          '/',
+          '/uploads/',
+          '/images/',
+          '/favicon.ico',
+          '/favicon-48x48.png',
+          '/favicon-96x96.png',
+          '/apple-touch-icon.png',
+          '/icon.png',
+        ],
+        disallow: ['/admin/'],
       },
       {
         userAgent: 'Google-InspectionTool',

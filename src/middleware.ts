@@ -34,6 +34,17 @@ async function verifyToken(token: string | undefined) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Immediate bypass for static favicon, icon, and crawler assets
+  if (
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/apple-touch-icon') ||
+    pathname.startsWith('/apple-icon') ||
+    pathname.startsWith('/icon')
+  ) {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = await verifyToken(token);
 
@@ -155,7 +166,7 @@ export const config = {
   matcher: [
     {
       source:
-        '/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|apple-touch-icon.png|robots.txt|sitemap.xml|llms.txt|uploads).*)',
+        '/((?!api|_next/static|_next/image|favicon.*|icon.*|apple-icon.*|apple-touch-icon.*|robots.txt|sitemap.xml|llms.txt|uploads).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },

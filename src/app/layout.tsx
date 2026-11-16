@@ -81,13 +81,11 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: {
       icon: [
         { url: '/favicon.ico', sizes: 'any' },
-        { url: '/icon.png', type: 'image/png', sizes: '192x192' },
-        { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+        { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
       ],
       shortcut: '/favicon.ico',
-      apple: [
-        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
-      ],
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     },
   };
 }

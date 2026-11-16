@@ -103,6 +103,20 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/pricing',
+        destination: '/bang-gia',
+        permanent: true,
+      },
+      {
+        source: '/pricing/:slug*',
+        destination: '/bang-gia',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       { source: '/cam-nang', destination: '/blog' },
