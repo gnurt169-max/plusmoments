@@ -9,29 +9,29 @@ export function formatLlmsMarkdown(
   const packageLines =
     packages.length > 0
       ? packages
-          .map((pkg) => {
-            const priceText = pkg.price != null
-              ? `Giá từ ${Number(pkg.price).toLocaleString('vi-VN')} VNĐ.`
-              : '';
-            const subtitleText = pkg.subtitle
-              ? pkg.subtitle.replace(/\s+/g, ' ').trim()
-              : '';
-            return `- [${pkg.name}](https://plusmoments.vn/bang-gia): ${priceText} ${subtitleText}`.trim();
-          })
-          .join('\n')
+        .map((pkg) => {
+          const priceText = pkg.price != null
+            ? `Giá từ ${Number(pkg.price).toLocaleString('vi-VN')} VNĐ.`
+            : '';
+          const subtitleText = pkg.subtitle
+            ? pkg.subtitle.replace(/\s+/g, ' ').trim()
+            : '';
+          return `- [${pkg.name}](https://plusmoments.vn/bang-gia): ${priceText} ${subtitleText}`.trim();
+        })
+        .join('\n')
       : `- [Gói Chụp Ảnh Cưới Pre-Wedding](https://plusmoments.vn/bang-gia): Trọn gói concept studio, ngoại cảnh Sài Gòn, Đà Lạt, biển Nha Trang, Phú Quốc.\n- [Gói Phóng Sự Cưới (Wedding Journalism)](https://plusmoments.vn/bang-gia): Ghi lại những khoảnh khắc cảm xúc chân thực và tinh tế trong ngày cưới.\n- [Gói Trang Phục Cưới & Make-up Nghệ Thuật](https://plusmoments.vn/bang-gia): Váy cưới thiết kế cao cấp và phong cách trang điểm cô dâu tự nhiên sang trọng.`;
 
   const postLines =
     posts.length > 0
       ? posts
-          .map((post) => {
-            const summaryText = post.summary
-              ? `: ${post.summary.replace(/\s+/g, ' ').trim()}`
-              : '';
-            return `- [${post.title}](https://plusmoments.vn/cam-nang/${post.slug})${summaryText}`;
-          })
-          .join('\n')
-      : `- [Kinh nghiệm chọn concept chụp ảnh cưới Pre-Wedding](https://plusmoments.vn/cam-nang): Những lưu ý quan trọng để có bộ ảnh cưới ấn tượng và bền vững theo thời gian.\n- [Bí quyết chuẩn bị cho ngày cưới hoàn hảo](https://plusmoments.vn/cam-nang): Lịch trình chi tiết và lời khuyên hữu ích dành cho các cặp đôi.\n- [Xu hướng màu sắc và phong cách ảnh cưới Cinematic](https://plusmoments.vn/cam-nang): Định hình phong cách nghệ thuật tinh tế cho ngày trọng đại.`;
+        .map((post) => {
+          const summaryText = post.summary
+            ? `: ${post.summary.replace(/\s+/g, ' ').trim()}`
+            : '';
+          return `- [${post.title}](https://plusmoments.vn/blog/${post.slug})${summaryText}`;
+        })
+        .join('\n')
+      : `- [Kinh nghiệm chọn concept chụp ảnh cưới Pre-Wedding](https://plusmoments.vn/blog): Những lưu ý quan trọng để có bộ ảnh cưới ấn tượng và bền vững theo thời gian.\n- [Bí quyết chuẩn bị cho ngày cưới hoàn hảo](https://plusmoments.vn/blog): Lịch trình chi tiết và lời khuyên hữu ích dành cho các cặp đôi.\n- [Xu hướng màu sắc và phong cách ảnh cưới Cinematic](https://plusmoments.vn/blog): Định hình phong cách nghệ thuật tinh tế cho ngày trọng đại.`;
 
   return `# PlusMoments - Studio Chụp Ảnh Cưới & Phóng Sự Cưới Luxury tại TP.HCM
 
@@ -46,7 +46,7 @@ export function formatLlmsMarkdown(
 - [Trang chủ](https://plusmoments.vn/): Tổng quan phong cách nghệ thuật, các bộ sưu tập tiêu biểu và dịch vụ cưới tại PlusMoments.
 - [Bộ sưu tập ảnh cưới](https://plusmoments.vn/bo-suu-tap): Thư viện các album Pre-Wedding và phóng sự cưới thực tế của khách hàng.
 - [Bảng giá dịch vụ](https://plusmoments.vn/bang-gia): Thông tin chi tiết các gói chụp ảnh cưới, quyền lợi đi kèm và câu hỏi thường gặp.
-- [Cẩm nang cưới](https://plusmoments.vn/cam-nang): Kiến thức, kinh nghiệm chuẩn bị lễ cưới và gợi ý concept chụp ảnh.
+- [Cẩm nang cưới](https://plusmoments.vn/blog): Kiến thức, kinh nghiệm chuẩn bị lễ cưới và gợi ý concept chụp ảnh.
 - [Liên hệ & Studio](https://plusmoments.vn/lien-he): Đặt lịch hẹn tư vấn trực tiếp và nhận báo giá chi tiết.
 
 ## Các Gói Dịch Vụ Nổi Bật

@@ -79,14 +79,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.95,
       },
+      ...(blogPosts.length > 0
+        ? [
+            {
+              url: `${baseUrl}/blog`,
+              lastModified: latestBlog?.updatedAt || siteLastModified,
+              changeFrequency: 'daily' as const,
+              priority: 0.85,
+            },
+          ]
+        : []),
       {
-        url: `${baseUrl}/blog`,
-        lastModified: latestBlog?.updatedAt || siteLastModified,
-        changeFrequency: 'daily',
-        priority: 0.85,
-      },
-      {
-        url: `${baseUrl}/contact`,
+        url: `${baseUrl}/lien-he`,
         lastModified: siteLastModified,
         changeFrequency: 'monthly',
         priority: 0.7,
@@ -144,7 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.85,
       },
       {
-        url: `${baseUrl}/contact`,
+        url: `${baseUrl}/lien-he`,
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.7,

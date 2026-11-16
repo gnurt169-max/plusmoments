@@ -5,38 +5,58 @@ import { getCachedBlogs, getCachedSystemSettings } from '@/lib/cached-queries';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { BlogCard } from '@/components/blog/BlogCard';
 
-export const metadata: Metadata = {
-  title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
-  description:
-    'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
-  alternates: {
-    canonical: 'https://plusmoments.vn/blog',
-  },
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const [posts, settings] = await Promise.all([
+    getCachedBlogs(),
+    getCachedSystemSettings(),
+  ]);
+  const baseUrl = settings.canonicalBaseUrl?.replace(/\/+$/, '') || 'https://plusmoments.vn';
+  const hasPosts = posts.length > 0;
+
+  return {
     title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
     description:
       'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
-    url: 'https://plusmoments.vn/blog',
-    siteName: 'PlusMoments Wedding Pictures & Films',
-    locale: 'vi_VN',
-    type: 'website',
-    images: [
-      {
-        url: 'https://plusmoments.vn/images/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+    alternates: {
+      canonical: `${baseUrl}/blog`,
+    },
+    robots: {
+      index: hasPosts,
+      follow: true,
+      googleBot: {
+        index: hasPosts,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
-    description:
-      'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
-    images: ['https://plusmoments.vn/images/og-image.jpg'],
-  },
-};
+    },
+    openGraph: {
+      title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+      description:
+        'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+      url: `${baseUrl}/blog`,
+      siteName: 'PlusMoments Wedding Pictures & Films',
+      locale: 'vi_VN',
+      type: 'website',
+      images: [
+        {
+          url: `${baseUrl}/images/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Cẩm Nang Cưới & Kinh Nghiệm Chụp Ảnh | PlusMoments Blog',
+      description:
+        'Chia sẻ kinh nghiệm chụp ảnh cưới ngoại cảnh, chọn váy cưới phù hợp vóc dáng, bí quyết chuẩn bị đám cưới hoàn hảo từ PlusMoments Studio.',
+      images: [`${baseUrl}/images/og-image.jpg`],
+    },
+  };
+}
 
 export default async function BlogPage({
   searchParams,

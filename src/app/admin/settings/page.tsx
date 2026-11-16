@@ -92,16 +92,16 @@ const DEFAULT_COL1_LINKS: FooterLinkItem[] = [
 ];
 
 const DEFAULT_COL2_LINKS: FooterLinkItem[] = [
-  { label: 'Gói Chụp Pre-Wedding Trọn Gói', url: '/pricing' },
-  { label: 'Gói Studio Editorial Minimalist', url: '/pricing' },
-  { label: 'Gói Phóng Sự Cưới Lễ & Tiệc', url: '/pricing' },
+  { label: 'Gói Chụp Pre-Wedding Trọn Gói', url: '/bang-gia' },
+  { label: 'Gói Studio Editorial Minimalist', url: '/bang-gia' },
+  { label: 'Gói Phóng Sự Cưới Lễ & Tiệc', url: '/bang-gia' },
   { label: 'Kinh Nghiệm Chuẩn Bị Cưới', url: '/blog' },
-  { label: 'Lịch Hẹn Thử Váy Cưới Miễn Phí', url: '/contact' },
+  { label: 'Lịch Hẹn Thử Váy Cưới Miễn Phí', url: '/lien-he' },
 ];
 
 const DEFAULT_POLICY_LINKS: FooterLinkItem[] = [
-  { label: 'Chính Sách Bảo Mật', url: '/contact' },
-  { label: 'Quy Trình & Hợp Đồng', url: '/pricing' },
+  { label: 'Chính Sách Bảo Mật', url: '/lien-he' },
+  { label: 'Quy Trình & Hợp Đồng', url: '/bang-gia' },
 ];
 
 const parseLinkJson = (data: any, fallback: FooterLinkItem[]): FooterLinkItem[] => {

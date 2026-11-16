@@ -390,7 +390,7 @@ export async function Footer(props: FooterProps) {
                 {posts.map((post) => (
                   <li key={post.id}>
                     <Link
-                      href={`/cam-nang/${post.slug}`}
+                      href={`/blog/${post.slug}`}
                       className="hover:text-white transition duration-200 line-clamp-1"
                       title={post.title}
                     >
@@ -400,7 +400,7 @@ export async function Footer(props: FooterProps) {
                 ))}
                 <li>
                   <Link
-                    href="/cam-nang"
+                    href="/blog"
                     className="inline-block text-[#D6D0C7] hover:text-white transition duration-200 mt-1 font-medium"
                   >
                     Xem tất cả cẩm nang &rarr;

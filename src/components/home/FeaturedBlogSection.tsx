@@ -56,7 +56,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
               >
                 {/* Thumbnail Container */}
                 <Link
-                  href={`/cam-nang/${post.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="relative aspect-[16/10] w-full overflow-hidden bg-[#1E1C1A] block"
                   title={post.title}
                   aria-label={`Xem bài viết: ${post.title}`}
@@ -95,7 +95,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                   </div>
 
                   <h3 className="text-lg font-serif font-medium text-[#1C1917] group-hover:text-[#6E5A49] transition-colors duration-200 line-clamp-2 leading-snug mb-3">
-                    <Link href={`/cam-nang/${post.slug}`} aria-label={`Đọc bài viết: ${post.title}`}>
+                    <Link href={`/blog/${post.slug}`} aria-label={`Đọc bài viết: ${post.title}`}>
                       {post.title}
                     </Link>
                   </h3>
@@ -108,7 +108,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
 
                   <div className="pt-4 border-t border-[#F5F2EB] mt-auto">
                     <Link
-                      href={`/cam-nang/${post.slug}`}
+                      href={`/blog/${post.slug}`}
                       aria-label={`Khám phá bài viết: ${post.title}`}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7A6243] hover:text-[#5C4930] group-hover:text-[#5C4930] transition-colors"
                     >
@@ -126,7 +126,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
         {/* Nút Xem Tất Cả */}
         <div className="mt-14 text-center">
           <Link
-            href="/cam-nang"
+            href="/blog"
             className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#7A6243] text-[#7A6243] hover:bg-[#7A6243] hover:text-white transition-all duration-300 rounded-full text-xs sm:text-sm tracking-wider uppercase font-medium shadow-sm"
           >
             <span>Xem Tất Cả Cẩm Nang & Kinh Nghiệm</span>

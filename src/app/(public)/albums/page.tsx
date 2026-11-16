@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
 export default function AlbumsRedirectPage({
   searchParams,
@@ -7,5 +7,5 @@ export default function AlbumsRedirectPage({
 }) {
   const param = searchParams?.category || searchParams?.concept;
   const query = param ? `?concept=${encodeURIComponent(param)}` : '';
-  redirect(`/bo-suu-tap${query}`);
+  permanentRedirect(`/bo-suu-tap${query}`);
 }

@@ -76,7 +76,7 @@ export function Header(props: HeaderProps) {
     { name: 'Bộ Sưu Tập', href: '/bo-suu-tap' },
     { name: 'Bảng Giá Dịch Vụ', href: '/bang-gia' },
     ...(hasPublishedBlogs ? [{ name: 'Cẩm Nang Cưới', href: '/blog' }] : []),
-    { name: 'Liên Hệ & Studio', href: '/contact' },
+    { name: 'Liên Hệ & Studio', href: '/lien-he' },
   ];
 
   const navLinks = baseNavLinks.map((link, index) => ({
@@ -94,11 +94,10 @@ export function Header(props: HeaderProps) {
       />
 
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 min-h-[72px] sm:min-h-[80px] h-20 flex items-center ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-stone-200/80 py-3'
-            : 'bg-white/85 backdrop-blur-md border-b border-stone-200/60 py-3.5 shadow-2xs'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 min-h-[72px] sm:min-h-[80px] h-20 flex items-center ${isScrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-stone-200/80 py-3'
+          : 'bg-white/85 backdrop-blur-md border-b border-stone-200/60 py-3.5 shadow-2xs'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
           {/* DESKTOP LAYOUT (Hidden on mobile) */}

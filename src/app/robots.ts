@@ -11,7 +11,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     '/bang-gia/',
     '/blog/',
     '/uu-dai/',
-    '/contact/',
+    '/lien-he/',
     '/_next/static/',
     '/uploads/',
     '/images/',
@@ -30,6 +30,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     '/cam-on',
     '/tu-van/thanh-cong',
     '/maintenance',
+    '/*?*',
   ];
 
   return {

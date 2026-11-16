@@ -24,6 +24,7 @@ export function revalidateMediaRelatedPaths() {
     revalidatePath('/cam-nang', 'page');
     revalidatePath('/cam-nang/[slug]', 'page');
     revalidatePath('/contact', 'page');
+    revalidatePath('/lien-he', 'page');
 
     // Admin CMS routes
     revalidatePath('/admin/media', 'page');

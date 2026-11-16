@@ -69,6 +69,7 @@ export async function POST(request: Request) {
 
     revalidatePath('/');
     revalidatePath('/contact');
+    revalidatePath('/lien-he');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({
@@ -112,6 +113,7 @@ export async function PUT(request: Request) {
 
     revalidatePath('/');
     revalidatePath('/contact');
+    revalidatePath('/lien-he');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({
@@ -151,6 +153,7 @@ export async function DELETE(request: Request) {
 
     revalidatePath('/');
     revalidatePath('/contact');
+    revalidatePath('/lien-he');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({

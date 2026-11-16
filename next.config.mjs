@@ -9,6 +9,7 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   compress: true,
+  trailingSlash: false,
   experimental: {
     // Only optimize CSS during production builds; in development critters parses unminified CSS on every request and hangs the compiler
     optimizeCss: process.env.NODE_ENV === 'production',
@@ -115,17 +116,80 @@ const nextConfig = {
         destination: '/bang-gia',
         permanent: true,
       },
+      {
+        source: '/packages',
+        destination: '/bang-gia',
+        permanent: true,
+      },
+      {
+        source: '/packages/:slug*',
+        destination: '/bang-gia',
+        permanent: true,
+      },
+      {
+        source: '/albums',
+        destination: '/bo-suu-tap',
+        permanent: true,
+      },
+      {
+        source: '/albums/:slug*',
+        destination: '/bo-suu-tap/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/portfolio',
+        destination: '/bo-suu-tap',
+        permanent: true,
+      },
+      {
+        source: '/portfolio/:slug*',
+        destination: '/bo-suu-tap/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/contact',
+        destination: '/lien-he',
+        permanent: true,
+      },
+      {
+        source: '/contact/:slug*',
+        destination: '/lien-he',
+        permanent: true,
+      },
+      {
+        source: '/about',
+        destination: '/lien-he',
+        permanent: true,
+      },
+      {
+        source: '/about/:slug*',
+        destination: '/lien-he',
+        permanent: true,
+      },
+      {
+        source: '/handbook',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/handbook/:slug*',
+        destination: '/blog/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/cam-nang',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/cam-nang/:slug*',
+        destination: '/blog/:slug*',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
     return [
-      { source: '/cam-nang', destination: '/blog' },
-      { source: '/cam-nang/:slug*', destination: '/blog/:slug*' },
-      { source: '/lien-he', destination: '/contact' },
-      { source: '/packages', destination: '/bang-gia' },
-      { source: '/packages/:slug*', destination: '/bang-gia' },
-      { source: '/albums', destination: '/bo-suu-tap' },
-      { source: '/albums/:slug*', destination: '/bo-suu-tap/:slug*' },
       // Google Ads Dedicated Landing Pages & Conversion Thank You Pages
       { source: '/thank-you', destination: '/cam-on' },
       { source: '/dat-lich-thanh-cong', destination: '/cam-on' },
