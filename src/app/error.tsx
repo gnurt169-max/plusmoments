@@ -13,8 +13,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const { contact } = useContact();
-  const hotlineRaw = contact?.hotline || '0903768871';
-  const hotlineText = contact?.hotlineDisplay || contact?.hotline || '0903.768.871';
+  const hotlineRaw = contact?.hotline || '0901577993';
+  const hotlineText = contact?.hotlineDisplay || contact?.hotline || '0901.577.993';
 
   useEffect(() => {
     // Log exception for debugging without exposing raw details to visitors

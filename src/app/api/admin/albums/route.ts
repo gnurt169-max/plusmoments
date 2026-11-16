@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 import { resolvePublicUrlBlurDataUrl } from '@/lib/image-variants';
-import { normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
+import { normalizeLocationLabel } from '@/lib/album-utils';
 
 export const dynamic = 'force-dynamic';
 

@@ -3,7 +3,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
-import { PortfolioDualFilter, normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
+import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
+import { serializeAlbumForClient } from '@/lib/album-utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { toAbsoluteUrl } from '@/lib/utils';
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -72,20 +73,10 @@ export default async function BoSuuTapPage({
 
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
 
-  // Serialize albums into plain objects for Client Component
-  const serializedAlbums = allAlbums.map((a) => ({
-    id: a.id,
-    slug: a.slug,
-    title: a.title,
-    subtitle: a.subtitle,
-    description: a.description,
-    coupleNames: a.coupleNames,
-    concept: (a as any).category?.trim() || a.concept?.trim(),
-    location: normalizeLocationLabel(a.location || ''),
-    coverImage: a.coverImage,
-    videoUrl: (a as any).videoUrl || null,
-    blurDataUrl: (a as any).blurDataUrl || null,
-  }));
+  // Serialize albums into plain objects for Client Component (100% null-safe & primitives only)
+  const serializedAlbums = allAlbums
+    .map((a) => serializeAlbumForClient(a))
+    .filter((a): a is NonNullable<typeof a> => Boolean(a));
 
   // Prepare images for ImageGallery Schema.org
   const galleryImages = serializedAlbums

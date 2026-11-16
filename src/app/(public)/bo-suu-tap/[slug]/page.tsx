@@ -11,6 +11,7 @@ import { AlbumVideoFacade } from '@/components/albums/AlbumVideoFacade';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { MapPin, Calendar, Heart, ArrowLeft, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { normalizeLocationLabel } from '@/lib/album-utils';
 
 const ConsultationForm = dynamic(
   () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
@@ -34,11 +35,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const albumUrl = `${baseUrl}/bo-suu-tap/${album.slug}`;
 
+  const locationDisplay = normalizeLocationLabel(album.location);
+
   const title = album.metaTitle || `${album.title} - ${album.coupleNames} | PlusMoments`;
   const description =
     album.metaDescription ||
     album.subtitle ||
-    `Chiêm ngưỡng bộ ảnh cưới ${album.title} của cặp đôi ${album.coupleNames} tại ${album.location} thực hiện bởi PlusMoments Studio.`;
+    `Chiêm ngưỡng bộ ảnh cưới ${album.title} của cặp đôi ${album.coupleNames} tại ${locationDisplay} thực hiện bởi PlusMoments Studio.`;
 
   const coverImageUrl = toAbsoluteUrl(album.coverImage, baseUrl);
 
@@ -137,7 +140,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-charcoal-500" />
-              {album.location}
+              {normalizeLocationLabel(album.location)}
             </span>
             {album.shootingDate && (
               <span className="flex items-center gap-1.5 font-mono">

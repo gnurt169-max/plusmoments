@@ -3,7 +3,7 @@ import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getOrAnalyzeImageChunk, VisionAIChunk } from '@/lib/vision-ai';
 import { getAdminSession } from '@/lib/auth';
-import { normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
+import { normalizeLocationLabel } from '@/lib/album-utils';
 
 export const dynamic = 'force-dynamic';
 
