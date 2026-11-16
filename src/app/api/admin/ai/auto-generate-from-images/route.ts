@@ -3,6 +3,7 @@ import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getOrAnalyzeImageChunk, VisionAIChunk } from '@/lib/vision-ai';
 import { getAdminSession } from '@/lib/auth';
+import { normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +60,7 @@ function curateAlbumFallback(images: NormalizedImageItem[], folderName?: string)
       slug: 'khoanh-khac-cuoi-tinh-khoi',
       subtitle: 'Phong cách Luxury & Cảm xúc vượt thời gian',
       concept: 'Pre-Wedding Luxury',
-      location: 'Studio & Ngoại cảnh PlusMoments',
+      location: 'Studio PlusMoments',
       coupleNames: 'Hai bạn uyên ương',
       description: 'Bộ ảnh cưới lưu giữ những rung cảm tinh khôi và chân thành nhất tại PlusMoments Studio.',
       seoTitle: 'Khoảnh Khắc Cưới Tinh Khôi | PlusMoments',
@@ -163,7 +164,7 @@ function curateAlbumFallback(images: NormalizedImageItem[], folderName?: string)
     slug: slug || 'bo-suu-tap-cuoi-dien-anh',
     subtitle: 'Khoảnh khắc tình yêu tinh khôi & ánh sáng điện ảnh vượt thời gian',
     concept: 'Pre-Wedding Luxury',
-    location: 'Studio & Ngoại cảnh PlusMoments',
+    location: 'Studio PlusMoments',
     coupleNames: 'Hai bạn uyên ương',
     description: `Bộ ảnh cưới "${title}" được PlusMoments ghi lại trọn vẹn từng khoảnh khắc rung cảm tinh khôi và ánh mắt yêu thương đong đầy của đôi bạn uyên ương. Dưới lăng kính nghệ thuật điện ảnh kết hợp ánh sáng tự nhiên tinh tế, từng khung hình như một bản tình ca dịu êm dành riêng cho ngày trọng đại.`,
     seoTitle: `${title} | PlusMoments`,
@@ -308,6 +309,28 @@ export async function POST(req: Request) {
     let systemPrompt = '';
 
     if (type === 'ALBUM') {
+      let existingConceptsList: string[] = [];
+      try {
+        const dbAlbums = await prisma.album.findMany({
+          where: { published: true },
+          select: { concept: true },
+        });
+        existingConceptsList = Array.from(
+          new Set(
+            dbAlbums
+              .map((a) => a.concept?.trim())
+              .filter((c): c is string => Boolean(c))
+          )
+        );
+      } catch (err) {
+        console.warn('[AI_ALBUM] Could not fetch existing concepts:', err);
+      }
+
+      const existingConceptsPrompt =
+        existingConceptsList.length > 0
+          ? `[${existingConceptsList.join(', ')}]`
+          : "['Traditional Luxury & Cinematic', 'Studio Editorial', 'Minimalist Luxury', 'Pre-Wedding Cinematic']";
+
       systemPrompt = `Bạn là Giám đốc Sáng tạo (Creative Director) kiêm Chuyên gia Nghệ thuật Bố cục của studio ảnh cưới cao cấp PlusMoments (plusmoments.vn).
 Studio định vị phong cách: Luxury, Minimalist, Cảm xúc chân thực & Ánh sáng điện ảnh Cinematic Art.
 
@@ -325,7 +348,17 @@ NHIỆM VỤ GIÁM ĐỊNH & DÀN TRANG ALBUM (FULL-FOLDER AI CURATION):
      a) Mạch kể chuyện cảm xúc (Storytelling Arc): Mở đầu ấn tượng / Thiết lập không gian -> Chuẩn bị & Chi tiết tinh tế (váy, hoa, nhẫn) -> Khoảnh khắc nghi lễ / Cảm xúc cao trào -> Khép lại bằng những bức chân dung lãng mạn, ngọt ngào.
      b) Nhịp điệu lưới Masonry (Visual Rhythm): Phân bổ xen kẽ hài hòa giữa Ảnh Ngang (Landscape) và Ảnh Dọc (Portrait) để khi hiển thị ra lưới Masonry gallery các cột ảnh khớp chiều cao đẹp mắt, TUYỆT ĐỐI KHÔNG dồn 4-5 ảnh cùng chiều liên tiếp.
 
-3. SÁNG TÁC METADATA:
+3. QUY TẮC BẮT BUỘC VỀ ĐỊA ĐIỂM (location) & PHONG CÁCH (concept):
+   - Trường "location": BẮT BUỘC CHỈ ĐƯỢC CHỌN DUY NHẤT 1 TRONG 5 GIÁ TRỊ CHUẨN XÁC SAU ĐÂY (dựa trên bối cảnh nhận diện từ ảnh, tuyệt đối không tự sáng tạo tên địa điểm dài dòng hoặc tiếng Anh pha tiếng Việt):
+     1. "Studio PlusMoments" (chụp trong studio, phông trơn, bối cảnh studio chuyên nghiệp)
+     2. "Lễ Gia Tiên" (nghi thức vu quy, tân hôn, áo dài cưới truyền thống tại tư gia)
+     3. "Sảnh Tiệc Khách Sạn" (tiệc cưới tại khách sạn, sảnh tiệc, ballroom, trung tâm hội nghị)
+     4. "Tiệc Cưới Ngoài Trời" (tiệc cưới sân vườn, bãi biển, resort, không gian ngoài trời)
+     5. "Ngoại Cảnh TP.HCM" (chụp ngoại cảnh đường phố Sài Gòn, bảo tàng, quán cà phê, công viên)
+
+   - Trường "concept": ƯU TIÊN SỐ 1 là sử dụng lại một trong các Concept đang có sẵn trong Database: ${existingConceptsPrompt}. Chỉ tạo mới khi bộ ảnh mang phong cách hoàn toàn mới chưa từng có và phải ngắn gọn, sang trọng (dưới 30 ký tự).
+
+4. SÁNG TÁC METADATA:
    - Tự đặt Tên Album nghệ thuật (title), slug chuẩn SEO, lời tựa (subtitle <15 từ), concept, địa điểm, tên dâu rể, câu chuyện tình yêu (description 150-250 từ), thẻ SEO (seoTitle, seoDescription).
 
 YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ (KHÔNG bọc markdown backticks):
@@ -340,8 +373,8 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ 
   "title": "Tên album nghệ thuật và gợi cảm",
   "slug": "slug-tieng-viet-khong-dau-chuan-seo",
   "subtitle": "Câu định vị phong cách ngắn gọn dưới 15 từ",
-  "concept": "Gợi ý concept (ví dụ: 'Outdoor Luxury', 'Studio Editorial', 'Pre-Wedding Cinematic', 'Minimalist Modern')",
-  "location": "Gợi ý địa điểm chụp nhận diện từ ảnh",
+  "concept": "Ưu tiên chọn 1 trong danh sách concept có sẵn",
+  "location": "BẮT BUỘC 1 trong 5: 'Studio PlusMoments' | 'Lễ Gia Tiên' | 'Sảnh Tiệc Khách Sạn' | 'Tiệc Cưới Ngoài Trời' | 'Ngoại Cảnh TP.HCM'",
   "coupleNames": "Tên gợi ý cho cặp đôi uyên ương",
   "description": "Câu chuyện tình yêu / Lời tựa đề tài giàu cảm xúc dài khoảng 150-250 từ...",
   "seoTitle": "Tiêu đề chuẩn Google SEO dưới 65 ký tự kết thúc bằng ' | PlusMoments'",
@@ -495,10 +528,16 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA DUY NHẤT LÀ MỘT KHỐI JSON HỢP LỆ:
       imagesMetadata.push({ alt, caption });
     }
 
+    const finalLocation =
+      type === 'ALBUM'
+        ? normalizeLocationLabel(parsed.location || 'Studio PlusMoments')
+        : parsed.location;
+
     const resultPayload = {
       ...parsed,
       title: finalTitle,
       slug: finalSlug,
+      location: finalLocation,
       bestCoverUrl: finalCoverUrl,
       coverReason: finalCoverReason,
       orderedImages: finalOrderedImages,

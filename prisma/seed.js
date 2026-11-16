@@ -321,7 +321,7 @@ const snapshot = {
       "slug": "sac-do-duyen-dang-ngay-vu-quy-minh-phuong",
       "subtitle": "Vẻ đẹp truyền thống đượm màu hạnh phúc trong lễ vu quy",
       "concept": "Traditional Luxury & Cinematic",
-      "location": "Lễ Gia Tiên & Studio PlusMoments",
+      "location": "Lễ Gia Tiên",
       "coupleNames": "Minh & Phương",
       "shootingDate": null,
       "description": "Ngày trọng đại khoác lên mình sắc đỏ rực rỡ của tà áo dài truyền thống đính kết thủ công tinh xảo, cô dâu Phương và chú rể Minh đã viết nên câu chuyện tình yêu đậm đà bản sắc nhưng không kém phần sang trọng. Từng khung hình trong bộ sưu tập này là sự hòa quyện hoàn hảo giữa nét đẹp hoài cổ và ánh sáng điện ảnh hiện đại tại PlusMoments Studio. Từ nụ cười rạng rỡ sau tà quạt giấy, chiếc mấn đỏ kiêu sa cho đến khoảnh khắc trao nhau nụ hôn ngọt ngào giữa dàn bê tráp áo dài trắng tinh khôi, tất cả đều lưu giữ trọn vẹn những cảm xúc chân thực và thiêng liêng nhất của ngày vui đôi lứa.",

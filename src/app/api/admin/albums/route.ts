@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { AdminRole } from '@prisma/client';
 import { resolvePublicUrlBlurDataUrl } from '@/lib/image-variants';
+import { normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
 
 export const dynamic = 'force-dynamic';
 
@@ -159,7 +160,7 @@ export async function POST(request: Request) {
     albumData.slug = slug;
     albumData.coverImage = coverImage;
     albumData.concept = albumData.concept?.trim() || 'Album Cưới';
-    albumData.location = albumData.location || 'TP. Hồ Chí Minh';
+    albumData.location = albumData.location ? normalizeLocationLabel(albumData.location) : 'Studio PlusMoments';
     albumData.coupleNames = albumData.coupleNames || 'Cô dâu & Chú rể';
     albumData.orderIndex = parseInt(String(albumData.orderIndex), 10) || 0;
     albumData.featured = Boolean(albumData.featured);
@@ -283,6 +284,9 @@ export async function PUT(request: Request) {
 
     if (albumUpdateData.slug) {
       albumUpdateData.slug = String(albumUpdateData.slug).trim().toLowerCase().replace(/\s+/g, '-');
+    }
+    if (albumUpdateData.location) {
+      albumUpdateData.location = normalizeLocationLabel(albumUpdateData.location);
     }
     if (albumUpdateData.orderIndex !== undefined || 'orderIndex' in rawFields) {
       albumUpdateData.orderIndex = parseInt(String(albumUpdateData.orderIndex ?? rawFields.orderIndex), 10) || 0;

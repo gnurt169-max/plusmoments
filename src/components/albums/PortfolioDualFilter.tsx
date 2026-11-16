@@ -12,17 +12,70 @@ interface PortfolioDualFilterProps {
 }
 
 /**
- * Chuẩn hóa nhãn địa điểm:
- * Bất kỳ chuỗi nào chứa đồng thời "plusmoments" và "studio" (không phân biệt thứ tự/hoa thường)
- * đều gom thành nhãn chuẩn duy nhất "Studio PlusMoments".
+ * Chuẩn hóa nhãn địa điểm theo bộ Danh Mục Địa Điểm Chuẩn PlusMoments:
+ * 1. Studio PlusMoments
+ * 2. Lễ Gia Tiên
+ * 3. Sảnh Tiệc Khách Sạn
+ * 4. Tiệc Cưới Ngoài Trời
+ * 5. Ngoại Cảnh TP.HCM
  */
 export function normalizeLocationLabel(rawLocation: string): string {
   if (!rawLocation) return '';
   const trimmed = rawLocation.trim();
   const lower = trimmed.toLowerCase();
 
-  if (lower.includes('plusmoments') && lower.includes('studio')) {
+  // 1. Lễ Gia Tiên (kiểm tra trước Studio để xử lý các chuỗi như "Lễ Gia Tiên & Studio PlusMoments")
+  if (
+    lower.includes('gia tiên') ||
+    lower.includes('gia tien') ||
+    lower.includes('vu quy') ||
+    lower.includes('tân hôn') ||
+    lower.includes('tan hon')
+  ) {
+    return 'Lễ Gia Tiên';
+  }
+
+  // 2. Sảnh Tiệc Khách Sạn / Ballroom / Hotel
+  if (
+    lower.includes('khách sạn') ||
+    lower.includes('khach san') ||
+    lower.includes('sảnh tiệc') ||
+    lower.includes('sanh tiec') ||
+    lower.includes('ballroom') ||
+    lower.includes('hotel')
+  ) {
+    return 'Sảnh Tiệc Khách Sạn';
+  }
+
+  // 3. Tiệc Cưới Ngoài Trời / Outdoor
+  if (
+    lower.includes('ngoài trời') ||
+    lower.includes('ngoai troi') ||
+    lower.includes('outdoor') ||
+    lower.includes('sân vườn') ||
+    lower.includes('san vuon') ||
+    lower.includes('bãi biển') ||
+    lower.includes('bai bien')
+  ) {
+    return 'Tiệc Cưới Ngoài Trời';
+  }
+
+  // 4. Studio PlusMoments
+  if (lower.includes('studio') || lower.includes('plusmoments')) {
     return 'Studio PlusMoments';
+  }
+
+  // 5. Ngoại Cảnh TP.HCM / Sài Gòn
+  if (
+    lower.includes('ngoại cảnh') ||
+    lower.includes('ngoai canh') ||
+    lower.includes('hồ chí minh') ||
+    lower.includes('tp.hcm') ||
+    lower.includes('tphcm') ||
+    lower.includes('sài gòn') ||
+    lower.includes('sai gon')
+  ) {
+    return 'Ngoại Cảnh TP.HCM';
   }
 
   return trimmed;

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
-import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
+import { PortfolioDualFilter, normalizeLocationLabel } from '@/components/albums/PortfolioDualFilter';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { toAbsoluteUrl } from '@/lib/utils';
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -81,7 +81,7 @@ export default async function BoSuuTapPage({
     description: a.description,
     coupleNames: a.coupleNames,
     concept: (a as any).category?.trim() || a.concept?.trim(),
-    location: a.location,
+    location: normalizeLocationLabel(a.location || ''),
     coverImage: a.coverImage,
     videoUrl: (a as any).videoUrl || null,
     blurDataUrl: (a as any).blurDataUrl || null,

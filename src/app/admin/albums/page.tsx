@@ -253,6 +253,17 @@ export default function AdminAlbumsPage() {
     batchMediaUrls: '', // One URL per line
   });
 
+  const STANDARD_LOCATIONS = React.useMemo(
+    () => [
+      'Studio PlusMoments',
+      'Lễ Gia Tiên',
+      'Sảnh Tiệc Khách Sạn',
+      'Tiệc Cưới Ngoài Trời',
+      'Ngoại Cảnh TP.HCM',
+    ],
+    []
+  );
+
   const existingAlbumCategories = React.useMemo(() => {
     return Array.from(
       new Set(
@@ -262,6 +273,13 @@ export default function AdminAlbumsPage() {
       )
     );
   }, [albums]);
+
+  const existingAlbumLocations = React.useMemo(() => {
+    const fromAlbums = albums
+      .map((a) => a.location?.trim())
+      .filter((l): l is string => Boolean(l));
+    return Array.from(new Set([...STANDARD_LOCATIONS, ...fromAlbums]));
+  }, [albums, STANDARD_LOCATIONS]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -960,20 +978,98 @@ export default function AdminAlbumsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="album-concept-input" className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
-                Danh Mục / Concept <span className="text-luxury-600">*</span>
-              </label>
+          {/* STANDARDIZED CONCEPT, LOCATION & COUPLE NAMES */}
+          <div className="space-y-4 bg-stone-50/70 p-4 rounded-2xl border border-stone-200/70">
+            {/* ROW 1: ĐỊA ĐIỂM CHỤP (LOCATION) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs uppercase tracking-wider text-charcoal-700 font-semibold">
+                  Địa Điểm Chụp <span className="text-luxury-600">*</span>
+                </label>
+                <span className="text-[11px] text-stone-500 font-light">
+                  5 địa điểm chuẩn PlusMoments
+                </span>
+              </div>
+
+              {/* Quick Select 1-click Pills */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                {STANDARD_LOCATIONS.map((loc) => {
+                  const isSelected = formData.location.trim().toLowerCase() === loc.toLowerCase();
+                  return (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, location: loc }))}
+                      className={`px-3 py-1 rounded-full text-xs transition-all duration-150 cursor-pointer ${
+                        isSelected
+                          ? 'bg-amber-900 text-white font-medium shadow-xs ring-1 ring-amber-900'
+                          : 'bg-white text-stone-700 hover:bg-amber-50/80 border border-stone-200'
+                      }`}
+                    >
+                      {loc}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <input
+                type="text"
+                list="album-locations-datalist"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="Chọn nhanh ở trên hoặc tự nhập địa điểm..."
+                className="w-full mt-1.5 px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
+              />
+              <datalist id="album-locations-datalist">
+                {existingAlbumLocations.map((loc, idx) => (
+                  <option key={idx} value={loc} />
+                ))}
+              </datalist>
+            </div>
+
+            {/* ROW 2: PHONG CÁCH / CONCEPT */}
+            <div className="space-y-1.5 pt-3 border-t border-stone-200/60">
+              <div className="flex items-center justify-between">
+                <label htmlFor="album-concept-input" className="block text-xs uppercase tracking-wider text-charcoal-700 font-semibold">
+                  Phong Cách / Concept <span className="text-luxury-600">*</span>
+                </label>
+                <span className="text-[11px] text-stone-500 font-light">
+                  {existingAlbumCategories.length} concept hiện có
+                </span>
+              </div>
+
+              {/* Quick Select 1-click Pills */}
+              {existingAlbumCategories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  {existingAlbumCategories.map((cat) => {
+                    const isSelected = formData.concept.trim().toLowerCase() === cat.toLowerCase();
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, concept: cat }))}
+                        className={`px-3 py-1 rounded-full text-xs transition-all duration-150 cursor-pointer ${
+                          isSelected
+                            ? 'bg-charcoal-900 text-white font-medium shadow-xs ring-1 ring-charcoal-900'
+                            : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <input
                 id="album-concept-input"
                 list="album-categories"
                 type="text"
                 required
-                placeholder="Nhập hoặc chọn concept..."
+                placeholder="Chọn nhanh ở trên hoặc nhập concept mới..."
                 value={formData.concept}
                 onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
+                className="w-full mt-1.5 px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400 font-medium"
               />
               <datalist id="album-categories">
                 {existingAlbumCategories.map((cat, idx) => (
@@ -982,28 +1078,16 @@ export default function AdminAlbumsPage() {
               </datalist>
             </div>
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
-                Địa Điểm Chụp
-              </label>
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="Nhập địa điểm chụp..."
-                className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-charcoal-600 mb-1 font-medium">
+            {/* ROW 3: TÊN DÂU RỂ */}
+            <div className="pt-3 border-t border-stone-200/60">
+              <label className="block text-xs uppercase tracking-wider text-charcoal-700 mb-1 font-semibold">
                 Tên Dâu Rể
               </label>
               <input
                 type="text"
                 value={formData.coupleNames}
                 onChange={(e) => setFormData({ ...formData, coupleNames: e.target.value })}
-                placeholder="Nhập tên dâu rể..."
+                placeholder="Ví dụ: Minh & Phương, Ngọc & Phong..."
                 className="w-full px-3.5 py-2 text-xs bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-luxury-400"
               />
             </div>
