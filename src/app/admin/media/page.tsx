@@ -351,7 +351,11 @@ export default function AdminMediaPage() {
   }, [onRefreshMediaList]);
 
   const triggerAiChunkJob = useCallback(
-    async (mediaIds?: string[], targetFolderId?: string) => {
+    async (
+      mediaIds?: string[],
+      targetFolderId?: string,
+      items?: Array<{ id?: string; url?: string; filename?: string; name?: string }>
+    ) => {
       setIsStartingAi(true);
       try {
         const folderParam = targetFolderId || currentFolder?.id || currentFolder?.slug;
@@ -362,6 +366,7 @@ export default function AdminMediaPage() {
             mediaIds: mediaIds && mediaIds.length > 0 ? mediaIds : undefined,
             folderId: folderParam,
             folderSlug: currentFolder?.slug,
+            items: items && items.length > 0 ? items : undefined,
           }),
         });
         const data = await res.json();
@@ -371,6 +376,8 @@ export default function AdminMediaPage() {
           prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
           showToast(`Đã khởi chạy phân tích AI cho ${data.job.total} ảnh.`);
           onRefreshMediaList();
+        } else if (data.message) {
+          showToast(data.message);
         }
       } catch (err: any) {
         showToast(`Không thể khởi chạy AI: ${err.message}`);
@@ -1969,10 +1976,18 @@ export default function AdminMediaPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const unchunkedIds = displayImages
-                    .filter((m) => m.chunkStatus !== 'CHUNKED' && m.aiStatus !== 'DONE')
-                    .map((m) => m.id);
-                  triggerAiChunkJob(unchunkedIds.length > 0 ? unchunkedIds : undefined, currentFolder?.id);
+                  const unchunkedItems = displayImages
+                    .filter((m) => m.chunkStatus !== 'CHUNKED' && !m.chunkTitle && m.aiStatus !== 'DONE')
+                    .map((m) => ({ id: m.id, url: m.url, filename: m.filename, name: m.name }));
+                  if (unchunkedItems.length === 0) {
+                    showToast('Tất cả ảnh trong thư mục này đã được phân loại Chunks rồi.');
+                    return;
+                  }
+                  triggerAiChunkJob(
+                    unchunkedItems.map((i) => i.id || i.url).filter(Boolean) as string[],
+                    currentFolder?.id,
+                    unchunkedItems
+                  );
                 }}
                 disabled={isStartingAi || aiJob?.status === 'RUNNING'}
                 className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-700 to-yellow-600 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
@@ -2643,7 +2658,11 @@ export default function AdminMediaPage() {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                                triggerAiChunkJob(
+                                  [item.id || item.url],
+                                  item.folderId || currentFolder?.id,
+                                  [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
+                                );
                               }}
                               className="px-1.5 py-0.5 rounded bg-black/60 hover:bg-black/90 text-stone-200 hover:text-white text-[8.5px] font-medium flex items-center gap-0.5 transition-colors cursor-pointer"
                               title="Chạy lại AI để cập nhật lại ngữ cảnh & chunk cho ảnh này"
@@ -2670,7 +2689,11 @@ export default function AdminMediaPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                              triggerAiChunkJob(
+                                [item.id || item.url],
+                                item.folderId || currentFolder?.id,
+                                [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
+                              );
                             }}
                             className="px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95"
                             title="Bấm để AI đọc ngữ cảnh và tạo chunk cho tấm ảnh này"
@@ -2767,7 +2790,11 @@ export default function AdminMediaPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                          triggerAiChunkJob(
+                            [item.id || item.url],
+                            item.folderId || currentFolder?.id,
+                            [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
+                          );
                         }}
                         className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all flex items-center gap-1 cursor-pointer shrink-0"
                         title="Tạo chunk ngữ cảnh cho ảnh này"
@@ -2780,7 +2807,11 @@ export default function AdminMediaPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                          triggerAiChunkJob(
+                            [item.id || item.url],
+                            item.folderId || currentFolder?.id,
+                            [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
+                          );
                         }}
                         className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0"
                         title="Chạy lại AI để cập nhật ngữ cảnh chunk cho ảnh này"
@@ -3440,7 +3471,7 @@ export default function AdminMediaPage() {
           if (currentFolder) fetchFolderContent(currentFolder.slug);
           fetchMedia();
           const mediaIds = (importedItems || []).map((item) => item.id).filter(Boolean);
-          triggerAiChunkJob(mediaIds, currentFolder?.id);
+          triggerAiChunkJob(mediaIds, currentFolder?.id, importedItems);
         }}
         mode="multiple"
         title="Chọn Ảnh Hoặc Import Cả Thư Mục Từ Google Drive"
