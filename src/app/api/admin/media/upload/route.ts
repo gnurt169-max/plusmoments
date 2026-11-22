@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { analyzeAndCacheImageChunk, getOrAnalyzeImageChunk } from '@/lib/vision-ai';
 import { getOrientation } from '@/lib/image-dimensions';
+import { resolveValidFolderId } from '@/lib/media-folder-resolver';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,13 +106,8 @@ export async function POST(request: Request) {
     const publicUrl = `${relativeUrlPrefix}/${finalFilename}`;
     const displayName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
 
-    // Look up folder if folderSlug exists
-    let folderRecord = null;
-    if (folderSlug) {
-      folderRecord = await prisma.mediaFolder.findFirst({
-        where: { slug: folderSlug },
-      });
-    }
+    // Look up folder if folderSlug exists safely
+    const validFolderId = await resolveValidFolderId(folderSlug, publicUrl);
 
     // Save into MediaFile table (including tiny 16px blurDataUrl in aiContextChunk metadata)
     const mediaFile = await prisma.mediaFile.create({
@@ -122,7 +118,7 @@ export async function POST(request: Request) {
         format: 'WEBP',
         width: imageWidth,
         height: imageHeight,
-        folderId: folderRecord?.id || null,
+        folderId: validFolderId,
         uploadedById: session.userId,
         aiContextChunk: { blurDataUrl, aiStatus: 'PENDING' } as any,
       },

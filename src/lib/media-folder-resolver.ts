@@ -71,6 +71,103 @@ export function slugifyFolder(name: string): string {
 }
 
 /**
+ * Helper an toàn xác thực và giải quyết folderId hợp lệ tham chiếu đến bảng MediaFolder.
+ * Ngăn chặn tuyệt đối lỗi "Foreign key constraint violated: MediaFile_folderId_fkey".
+ */
+export async function resolveValidFolderId(
+  rawFolderId?: string | null,
+  folderPathHint?: string | null
+): Promise<string | null> {
+  const cleanRaw = typeof rawFolderId === 'string' ? rawFolderId.trim() : '';
+
+  // Trích xuất slug thư mục từ đường dẫn nếu có gợi ý (ví dụ: /uploads/folders/tai-nguyen-4/...)
+  let hintSlug: string | null = null;
+  if (typeof folderPathHint === 'string' && folderPathHint.trim()) {
+    const match = folderPathHint.trim().match(/\/uploads\/folders\/([^/]+)/);
+    if (match && match[1]) {
+      hintSlug = decodeURIComponent(match[1]).trim();
+    }
+  }
+
+  // 1. Nếu không có rawFolderId và cũng không có hintSlug, hoặc là 'root', hoặc rỗng -> trả về null
+  const candidatesToCheck = [cleanRaw, hintSlug].filter(
+    (c): c is string => Boolean(c) && c !== 'root' && c !== ''
+  );
+
+  if (candidatesToCheck.length === 0) {
+    return null;
+  }
+
+  for (const candidate of candidatesToCheck) {
+    try {
+      // 2. Tìm trong bảng MediaFolder theo ID
+      const byId = await prisma.mediaFolder.findUnique({
+        where: { id: candidate },
+        select: { id: true },
+      });
+      if (byId) return byId.id;
+
+      // 3. Tìm theo slug hoặc name (kể cả slugify)
+      const slugified = slugifyFolder(candidate);
+      const bySlugOrName = await prisma.mediaFolder.findFirst({
+        where: {
+          OR: [
+            { slug: candidate },
+            { name: candidate },
+            { slug: slugified },
+            { name: slugified },
+          ],
+        },
+        select: { id: true },
+      });
+      if (bySlugOrName) return bySlugOrName.id;
+
+      // 4. Nếu thư mục vật lý đã tồn tại trên ổ đĩa public/uploads/folders/<candidate>
+      const foldersBaseDir = path.join(process.cwd(), 'public', 'uploads', 'folders');
+      const candidateDiskDir = path.join(foldersBaseDir, candidate);
+      const slugifiedDiskDir = path.join(foldersBaseDir, slugified);
+
+      let matchedDiskDir: string | null = null;
+      let targetSlug = candidate;
+
+      if (fs.existsSync(candidateDiskDir) && fs.statSync(candidateDiskDir).isDirectory()) {
+        matchedDiskDir = candidateDiskDir;
+        targetSlug = candidate;
+      } else if (fs.existsSync(slugifiedDiskDir) && fs.statSync(slugifiedDiskDir).isDirectory()) {
+        matchedDiskDir = slugifiedDiskDir;
+        targetSlug = slugified;
+      }
+
+      if (matchedDiskDir) {
+        // Tự động tạo bản ghi MediaFolder mới nếu chưa có
+        try {
+          const created = await prisma.mediaFolder.create({
+            data: {
+              name: targetSlug.replace(/[-_]/g, ' ') || targetSlug,
+              slug: targetSlug,
+            },
+            select: { id: true },
+          });
+          return created.id;
+        } catch {
+          // Phòng trường hợp race-condition đã có bản ghi vừa tạo
+          const existing = await prisma.mediaFolder.findFirst({
+            where: { OR: [{ slug: targetSlug }, { name: targetSlug }] },
+            select: { id: true },
+          });
+          if (existing) return existing.id;
+        }
+      }
+    } catch (err) {
+      console.warn('[RESOLVE_VALID_FOLDER_ID_WARN]:', err);
+    }
+  }
+
+  // 5. Nếu vẫn không xác định được: an toàn trả về null (lưu ở root)
+  return null;
+}
+
+/**
  * Multi-Key Folder Resolver:
  * Tra cứu thư mục đa tầng qua ID, Slug, Name, hoặc Path trên cả Database và Hệ thống file vật lý.
  */
@@ -91,7 +188,7 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
   const withoutTaiNguyen = cleanParam.replace(/^tai-nguyen-/, '');
 
   // 1. Tìm trong bảng MediaFolder của Database
-  let dbFolder = null;
+  let dbFolder: any = null;
   try {
     dbFolder = await prisma.mediaFolder.findFirst({
       where: {
@@ -167,6 +264,23 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
   // Xác định các định danh chuẩn
   const canonicalSlug = matchedDiskSlug || dbFolder?.slug || slugified || cleanParam;
   const canonicalName = dbFolder?.name || cleanParam.replace(/[-_]/g, ' ') || canonicalSlug;
+
+  // Nếu thư mục vật lý tồn tại trên đĩa nhưng chưa có trong Database, tự động tạo bản ghi MediaFolder
+  if (!dbFolder && physicalDir) {
+    try {
+      dbFolder = await prisma.mediaFolder.create({
+        data: {
+          name: canonicalName,
+          slug: canonicalSlug,
+        },
+      });
+    } catch {
+      dbFolder = await prisma.mediaFolder.findFirst({
+        where: { OR: [{ slug: canonicalSlug }, { name: canonicalName }] },
+      });
+    }
+  }
+
   const canonicalId = dbFolder?.id || canonicalSlug;
   const canonicalPath = `/uploads/folders/${canonicalSlug}`;
 

@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { analyzeImageWithVisionAI, inferChunkName, VisionAIChunk } from '@/lib/vision-ai';
-import { resolveFolder } from '@/lib/media-folder-resolver';
+import { resolveFolder, resolveValidFolderId } from '@/lib/media-folder-resolver';
 import { syncMediaVectorToPinecone } from '@/lib/pinecone-service';
 
 export interface AiChunkCluster {
@@ -293,6 +293,7 @@ export async function startAiChunkJob(params: {
             },
           });
           if (!existing) {
+            const validFolderId = await resolveValidFolderId(resolvedFolderInfo.id, publicUrl);
             const fullP = path.join(resolvedFolderInfo.physicalDir, entry.name);
             const stat = await fs.promises.stat(fullP);
             await prisma.mediaFile.create({
@@ -301,7 +302,7 @@ export async function startAiChunkJob(params: {
                 url: publicUrl,
                 size: stat.size,
                 format: ext.replace('.', '').toUpperCase(),
-                folderId: resolvedFolderInfo.id,
+                folderId: validFolderId,
                 chunkStatus: 'NOT_CHUNKED',
               },
             });
@@ -341,6 +342,24 @@ export async function startAiChunkJob(params: {
           targetMedia.push(match);
         }
       } else if (item.url) {
+        // Kiểm tra trực tiếp URL trong database để không tạo trùng bản ghi nếu item.id là id tạm
+        const existingByUrl = await prisma.mediaFile.findFirst({
+          where: { url: item.url },
+          select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true, chunkStatus: true, chunkTitle: true },
+        });
+
+        if (existingByUrl) {
+          if (!targetMedia.some((m) => m.id === existingByUrl.id)) {
+            targetMedia.push(existingByUrl);
+          }
+          continue;
+        }
+
+        const validFolderId = await resolveValidFolderId(
+          resolvedFolderInfo?.id || params.folderId,
+          item.url
+        );
+
         const cleanP = item.url.replace(/^\/+/, '');
         const fullP = path.join(process.cwd(), 'public', cleanP);
         let size = 0;
@@ -355,7 +374,7 @@ export async function startAiChunkJob(params: {
             url: item.url,
             size: size || 1024,
             format: path.extname(item.url).replace('.', '').toUpperCase() || 'WEBP',
-            folderId: resolvedFolderInfo?.id || params.folderId || null,
+            folderId: validFolderId,
             chunkStatus: 'NOT_CHUNKED',
           },
           select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true, chunkStatus: true, chunkTitle: true },
