@@ -229,10 +229,49 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
   const { physicalDir, canonicalSlug, canonicalId, dbFolder } = resolved;
   const images: FolderImageItem[] = [];
 
-  // Bản đồ tra cứu từ DB files nếu có
-  const dbFileMap = new Map<string, any>((dbFolder?.files || []).map((f: any) => [f.url, f]));
+  // Tra cứu trực tiếp từ Database cho toàn bộ MediaFile thuộc thư mục này
+  let dbFiles: any[] = [];
+  try {
+    dbFiles = await prisma.mediaFile.findMany({
+      where: {
+        OR: [
+          ...(dbFolder ? [{ folderId: dbFolder.id }] : []),
+          { folderId: canonicalId },
+          { url: { startsWith: `/uploads/folders/${canonicalSlug}/` } },
+        ],
+      },
+      include: {
+        uploadedBy: {
+          select: { id: true, fullName: true, username: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (err) {
+    console.warn('[FOLDER_RESOLVER] DB fetch failed, using dbFolder.files:', err);
+    dbFiles = dbFolder?.files || [];
+  }
+
+  // Kết hợp thêm dbFolder?.files nếu có bản ghi chưa nằm trong dbFiles
+  if (dbFolder?.files && dbFolder.files.length > 0) {
+    const existingIds = new Set(dbFiles.map((f: any) => f.id));
+    for (const f of dbFolder.files) {
+      if (!existingIds.has(f.id)) {
+        dbFiles.push(f);
+      }
+    }
+  }
+
+  // Bản đồ tra cứu đa khóa từ DB files
+  const dbFileMap = new Map<string, any>(dbFiles.map((f: any) => [f.url, f]));
   const dbFileByFilename = new Map<string, any>(
-    (dbFolder?.files || []).map((f: any) => [path.basename(f.url), f])
+    dbFiles.map((f: any) => [path.basename(f.url), f])
+  );
+  const dbFileByName = new Map<string, any>(
+    dbFiles.map((f: any) => [f.name, f])
+  );
+  const dbFileById = new Map<string, any>(
+    dbFiles.map((f: any) => [f.id, f])
   );
 
   if (physicalDir && fs.existsSync(physicalDir)) {
@@ -259,7 +298,12 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
           const stats = await fs.promises.stat(fullPath);
           if (stats.size > 0) {
             const publicUrl = `/uploads/folders/${canonicalSlug}/${entry.name}`;
-            const dbMatch = dbFileMap.get(publicUrl) || dbFileByFilename.get(entry.name);
+            const rawName = entry.name.replace(/\.[^/.]+$/, '');
+            const dbMatch =
+              dbFileMap.get(publicUrl) ||
+              dbFileByFilename.get(entry.name) ||
+              dbFileByName.get(entry.name) ||
+              dbFileByName.get(rawName);
 
             let width = dbMatch?.width;
             let height = dbMatch?.height;
@@ -272,7 +316,6 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               orientation = orientation || dim.orientation;
             }
 
-            const rawName = entry.name.replace(/\.[^/.]+$/, '');
             const displayName =
               dbMatch?.name ||
               rawName.replace(/-\d{10,}-[a-z0-9]+$/, '').replace(/[-_]/g, ' ').trim() ||
@@ -283,9 +326,16 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               chunk?.aiStatus ||
               (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
             const chunkName: string | undefined = dbMatch?.chunkTitle || chunk?.chunkName || undefined;
+            const isChunked =
+              dbMatch?.chunkStatus === 'CHUNKED' ||
+              Boolean(dbMatch?.chunkTitle) ||
+              Boolean(chunkName) ||
+              aiStatus === 'DONE';
             const chunkStatus: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED' =
-              (dbMatch?.chunkStatus as any) ||
-              (aiStatus === 'DONE' ? 'CHUNKED' : aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+              isChunked
+                ? 'CHUNKED'
+                : (dbMatch?.chunkStatus as any) ||
+                  (aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
             const chunkTitle = dbMatch?.chunkTitle || chunkName || null;
             const aiContext = dbMatch?.aiContext || chunk?.visualDescription || null;
             const pineconeSynced = Boolean(dbMatch?.pineconeSynced);
@@ -305,7 +355,7 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
               createdAt: dbMatch?.createdAt instanceof Date ? dbMatch.createdAt.toISOString() : stats.birthtime.toISOString(),
               modifiedAt: stats.mtime.toISOString(),
               uploadedById: dbMatch?.uploadedById || null,
-              uploaderName: dbMatch?.uploadedBy?.fullName || null,
+              uploaderName: dbMatch?.uploadedBy?.fullName || dbMatch?.uploadedBy?.username || null,
               aiContextChunk: chunk,
               aiStatus,
               chunkName,
@@ -324,8 +374,8 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
   }
 
   // Nếu trên đĩa không có file nhưng trong Database có
-  if (images.length === 0 && dbFolder?.files && dbFolder.files.length > 0) {
-    for (const file of dbFolder.files) {
+  if (images.length === 0 && dbFiles.length > 0) {
+    for (const file of dbFiles) {
       if (file.url.endsWith('-sm.webp') || file.url.endsWith('-md.webp')) continue;
 
       let width = file.width ?? undefined;
@@ -344,9 +394,16 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         chunk?.aiStatus ||
         (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
       const chunkName: string | undefined = file.chunkTitle || chunk?.chunkName || undefined;
+      const isChunked =
+        file.chunkStatus === 'CHUNKED' ||
+        Boolean(file.chunkTitle) ||
+        Boolean(chunkName) ||
+        aiStatus === 'DONE';
       const chunkStatus: 'NOT_CHUNKED' | 'PROCESSING' | 'CHUNKED' | 'FAILED' =
-        (file.chunkStatus as any) ||
-        (aiStatus === 'DONE' ? 'CHUNKED' : aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+        isChunked
+          ? 'CHUNKED'
+          : (file.chunkStatus as any) ||
+            (aiStatus === 'RUNNING' ? 'PROCESSING' : aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
       const chunkTitle = file.chunkTitle || chunkName || null;
       const aiContext = file.aiContext || chunk?.visualDescription || null;
       const pineconeSynced = Boolean(file.pineconeSynced);
@@ -362,9 +419,11 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         width,
         height,
         orientation,
-        folderId: dbFolder.id,
+        folderId: dbFolder?.id || canonicalId,
         createdAt: file.createdAt instanceof Date ? file.createdAt.toISOString() : file.createdAt,
         modifiedAt: file.updatedAt instanceof Date ? file.updatedAt.toISOString() : file.updatedAt,
+        uploadedById: file.uploadedById || null,
+        uploaderName: file.uploadedBy?.fullName || file.uploadedBy?.username || null,
         aiContextChunk: chunk,
         aiStatus,
         chunkName,

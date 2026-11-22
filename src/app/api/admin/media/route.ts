@@ -172,9 +172,15 @@ export async function GET(request: Request) {
             chunk?.aiStatus ||
             (chunk?.visualDescription || chunk?.mainSubject ? 'DONE' : 'PENDING');
           item.chunkName = match.chunkTitle || chunk?.chunkName || undefined;
-          item.chunkStatus =
-            (match.chunkStatus as any) ||
-            (item.aiStatus === 'DONE' ? 'CHUNKED' : item.aiStatus === 'RUNNING' ? 'PROCESSING' : item.aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
+          const isChunked =
+            match.chunkStatus === 'CHUNKED' ||
+            Boolean(match.chunkTitle) ||
+            Boolean(item.chunkName) ||
+            item.aiStatus === 'DONE';
+          item.chunkStatus = isChunked
+            ? 'CHUNKED'
+            : (match.chunkStatus as any) ||
+              (item.aiStatus === 'RUNNING' ? 'PROCESSING' : item.aiStatus === 'FAILED' ? 'FAILED' : 'NOT_CHUNKED');
           item.chunkTitle = match.chunkTitle || item.chunkName || null;
           item.chunkGroup = match.chunkGroup || item.chunkTitle || null;
           item.aiContext = match.aiContext || chunk?.visualDescription || null;

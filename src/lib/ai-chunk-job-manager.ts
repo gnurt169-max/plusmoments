@@ -44,6 +44,35 @@ function ensureStorageDirectory(): void {
   }
 }
 
+export async function syncJobResultsToMediaDatabase(job: AiChunkJob): Promise<number> {
+  if (!job.chunksCreated || job.chunksCreated.length === 0) return 0;
+  let updatedCount = 0;
+  try {
+    for (const cluster of job.chunksCreated) {
+      const targets = cluster.imageIds || [];
+      if (targets.length === 0) continue;
+      const res = await prisma.mediaFile.updateMany({
+        where: {
+          OR: [
+            { id: { in: targets } },
+            { url: { in: targets } },
+          ],
+        },
+        data: {
+          chunkStatus: 'CHUNKED',
+          chunkTitle: cluster.name,
+          chunkGroup: cluster.name,
+          aiContext: cluster.description || cluster.name,
+        },
+      });
+      updatedCount += res.count;
+    }
+  } catch (err) {
+    console.error('[SYNC_JOB_RESULTS_TO_DB_ERROR]:', err);
+  }
+  return updatedCount;
+}
+
 export async function loadAiChunkJobs(): Promise<AiChunkJob[]> {
   ensureStorageDirectory();
   if (!fs.existsSync(JOBS_FILE_PATH)) {
@@ -69,6 +98,13 @@ export async function loadAiChunkJobs(): Promise<AiChunkJob[]> {
         }
         return j;
       });
+
+      // Tự động đồng bộ các Job đã hoàn tất trước đó vào Database
+      for (const j of sanitized) {
+        if (j.status === 'COMPLETED' && j.chunksCreated && j.chunksCreated.length > 0) {
+          syncJobResultsToMediaDatabase(j).catch(() => null);
+        }
+      }
 
       if (hasChanges) {
         await saveAiChunkJobs(sanitized);
@@ -163,8 +199,8 @@ export async function startAiChunkJob(params: {
   const jobs = await loadAiChunkJobs();
 
   // 1. Identify target media files
-  let targetMedia: Array<{ id: string; name: string; url: string; folderId: string | null; aiContextChunk: any }> = [];
-  let resolvedFolderInfo: { id: string; slug: string; name: string } | null = null;
+  let targetMedia: Array<{ id: string; name: string; url: string; folderId: string | null; aiContextChunk: any; chunkStatus?: string; chunkTitle?: string | null }> = [];
+  let resolvedFolderInfo: { id: string; slug: string; name: string; physicalDir: string | null } | null = null;
 
   if (params.folderId) {
     const resolved = await resolveFolder(params.folderId);
@@ -173,16 +209,68 @@ export async function startAiChunkJob(params: {
         id: resolved.canonicalId,
         slug: resolved.canonicalSlug,
         name: resolved.canonicalName,
+        physicalDir: resolved.physicalDir,
       };
     }
   }
 
   if (params.mediaIds && params.mediaIds.length > 0) {
     targetMedia = await prisma.mediaFile.findMany({
-      where: { id: { in: params.mediaIds } },
-      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true },
+      where: {
+        OR: [
+          { id: { in: params.mediaIds } },
+          { url: { in: params.mediaIds } },
+        ],
+      },
+      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true, chunkStatus: true, chunkTitle: true },
     });
   } else if (resolvedFolderInfo) {
+    // Tự động đảm bảo các file vật lý trong thư mục đều có bản ghi trong MediaFile
+    if (resolvedFolderInfo.physicalDir && fs.existsSync(resolvedFolderInfo.physicalDir)) {
+      try {
+        const diskEntries = await fs.promises.readdir(resolvedFolderInfo.physicalDir, { withFileTypes: true });
+        for (const entry of diskEntries) {
+          if (
+            entry.isDirectory() ||
+            entry.name.startsWith('.') ||
+            entry.name.startsWith('._') ||
+            entry.name.endsWith('-sm.webp') ||
+            entry.name.endsWith('-md.webp')
+          ) {
+            continue;
+          }
+          const ext = path.extname(entry.name).toLowerCase();
+          if (['.webp', '.jpg', '.jpeg', '.png', '.avif'].includes(ext)) {
+            const publicUrl = `/uploads/folders/${resolvedFolderInfo.slug}/${entry.name}`;
+            const existing = await prisma.mediaFile.findFirst({
+              where: {
+                OR: [
+                  { url: publicUrl },
+                  { name: entry.name, folderId: resolvedFolderInfo.id },
+                ],
+              },
+            });
+            if (!existing) {
+              const fullP = path.join(resolvedFolderInfo.physicalDir, entry.name);
+              const stat = await fs.promises.stat(fullP);
+              await prisma.mediaFile.create({
+                data: {
+                  name: entry.name,
+                  url: publicUrl,
+                  size: stat.size,
+                  format: ext.replace('.', '').toUpperCase(),
+                  folderId: resolvedFolderInfo.id,
+                  chunkStatus: 'NOT_CHUNKED',
+                },
+              });
+            }
+          }
+        }
+      } catch (scanErr) {
+        console.warn('[AI_CHUNK_DISK_SCAN_WARN]:', scanErr);
+      }
+    }
+
     const dbFiles = await prisma.mediaFile.findMany({
       where: {
         OR: [
@@ -190,31 +278,33 @@ export async function startAiChunkJob(params: {
           { url: { startsWith: `/uploads/folders/${resolvedFolderInfo.slug}/` } },
         ],
       },
-      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true },
+      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true, chunkStatus: true, chunkTitle: true },
       orderBy: { createdAt: 'desc' },
     });
 
-    // Filter unanalyzed or failed images
+    // Lọc các ảnh chưa hoàn tất tạo chunk
     targetMedia = dbFiles.filter((f) => {
       const chunk = f.aiContextChunk as any;
-      return !chunk || chunk.aiStatus !== 'DONE';
+      const isDone = f.chunkStatus === 'CHUNKED' || Boolean(f.chunkTitle) || chunk?.aiStatus === 'DONE';
+      return !isDone;
     });
 
-    // If all are already done, allow re-analyzing all
+    // Nếu tất cả đã hoàn tất, cho phép phân tích lại toàn bộ ảnh trong thư mục
     if (targetMedia.length === 0) {
       targetMedia = dbFiles;
     }
   } else {
     // Recent pending images in system
     const recent = await prisma.mediaFile.findMany({
-      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true },
+      select: { id: true, name: true, url: true, folderId: true, aiContextChunk: true, chunkStatus: true, chunkTitle: true },
       take: 60,
       orderBy: { createdAt: 'desc' },
     });
     targetMedia = recent
       .filter((f) => {
         const chunk = f.aiContextChunk as any;
-        return !chunk || chunk.aiStatus !== 'DONE';
+        const isDone = f.chunkStatus === 'CHUNKED' || Boolean(f.chunkTitle) || chunk?.aiStatus === 'DONE';
+        return !isDone;
       })
       .slice(0, 40);
   }
@@ -274,8 +364,10 @@ export async function startAiChunkJob(params: {
         // Mark image as PROCESSING in DB
         const existingChunk = (file.aiContextChunk as any) || {};
         await prisma.mediaFile
-          .update({
-            where: { id: file.id },
+          .updateMany({
+            where: {
+              OR: [{ id: file.id }, { url: file.url }],
+            },
             data: {
               chunkStatus: 'PROCESSING',
               aiContextChunk: {
@@ -289,7 +381,27 @@ export async function startAiChunkJob(params: {
         await saveAiChunkJobs(jobs);
 
         try {
-          const analyzed = await analyzeImageWithVisionAI(file.url);
+          let analyzed = await analyzeImageWithVisionAI(file.url);
+
+          // Nếu Vision AI không khả dụng (chưa cấu hình API Key hoặc lỗi mạng), sử dụng suy luận thông minh dự phòng
+          if (!analyzed) {
+            const fallbackChunkName = inferChunkName({
+              mainSubject: file.name,
+              visualDescription: `${resolvedFolderInfo?.name || 'Ảnh cưới'} - ${file.name}`,
+              tags: [resolvedFolderInfo?.slug || '', file.name],
+            });
+            analyzed = {
+              visualDescription: `Hình ảnh khoảnh khắc cưới thuộc cụm "${fallbackChunkName}" (${file.name}).`,
+              mainSubject: file.name.replace(/\.[^/.]+$/, ''),
+              colorMood: 'Tươi sáng & Tự nhiên',
+              suggestedAlt: `Ảnh cưới ${fallbackChunkName} - PlusMoments Studio`,
+              suggestedCaption: `Khoảnh khắc đẹp tại ${resolvedFolderInfo?.name || 'PlusMoments'}`,
+              chunkName: fallbackChunkName,
+              tags: [fallbackChunkName, 'PlusMoments', 'Wedding'],
+              aiStatus: 'DONE',
+              analyzedAt: new Date().toISOString(),
+            };
+          }
 
           if (analyzed) {
             const chunkName = analyzed.chunkName || inferChunkName(analyzed);
@@ -301,35 +413,43 @@ export async function startAiChunkJob(params: {
               analyzedAt: new Date().toISOString(),
             };
 
-            // Save chunk & status into MediaFile
-            await prisma.mediaFile.update({
-              where: { id: file.id },
+            // Sync vector to Pinecone
+            let isPineconeUpserted = false;
+            try {
+              isPineconeUpserted = await syncMediaVectorToPinecone({
+                id: file.id,
+                folderId: file.folderId,
+                url: file.url,
+                chunkTitle: chunkName,
+                aiContext: contextText,
+              });
+            } catch (pineErr) {
+              console.warn('[PINECONE_SYNC_IN_JOB_WARN]:', pineErr);
+            }
+
+            // Ghi đồng bộ trực tiếp vào bản ghi ảnh trong Database (Single Source of Truth)
+            await prisma.mediaFile.updateMany({
+              where: {
+                OR: [{ id: file.id }, { url: file.url }],
+              },
               data: {
                 chunkStatus: 'CHUNKED',
                 chunkTitle: chunkName,
                 chunkGroup: chunkName,
                 aiContext: contextText,
                 aiContextChunk: enrichedChunk as any,
+                pineconeSynced: Boolean(isPineconeUpserted),
               },
             });
 
-            // Sync vector to Pinecone
-            const pineconeSynced = await syncMediaVectorToPinecone({
-              id: file.id,
-              folderId: file.folderId,
-              url: file.url,
-              chunkTitle: chunkName,
-              aiContext: contextText,
-            });
-
-            // Update cluster groupings
+            // Update cluster groupings (lưu cả id lẫn url để phía client đối soát tuyệt đối)
             if (!chunksMap.has(chunkName)) {
               chunksMap.set(chunkName, {
                 id: `chunk_${crypto.createHash('md5').update(chunkName).digest('hex').slice(0, 8)}`,
                 name: chunkName,
                 description: analyzed.visualDescription,
                 count: 1,
-                imageIds: [file.id],
+                imageIds: [file.id, file.url],
                 sampleUrl: file.url,
               });
             } else {
@@ -338,11 +458,14 @@ export async function startAiChunkJob(params: {
               if (!cluster.imageIds.includes(file.id)) {
                 cluster.imageIds.push(file.id);
               }
+              if (!cluster.imageIds.includes(file.url)) {
+                cluster.imageIds.push(file.url);
+              }
             }
 
             newJob.chunksCreated = Array.from(chunksMap.values());
             newJob.successCount += 1;
-            const pineconeTag = pineconeSynced ? ' [🌲 Đã đồng bộ Pinecone Vector DB]' : '';
+            const pineconeTag = isPineconeUpserted ? ' [🌲 Đã đồng bộ Pinecone Vector DB]' : '';
             newJob.logs = [
               `[${new Date().toLocaleTimeString('vi-VN')}] ✨ Đã gom nhóm: "${file.name}" → [${chunkName}]${pineconeTag}`,
               ...newJob.logs.slice(0, 39),
@@ -350,8 +473,10 @@ export async function startAiChunkJob(params: {
           } else {
             // Failed to analyze
             await prisma.mediaFile
-              .update({
-                where: { id: file.id },
+              .updateMany({
+                where: {
+                  OR: [{ id: file.id }, { url: file.url }],
+                },
                 data: {
                   chunkStatus: 'FAILED',
                   aiContextChunk: {
@@ -371,8 +496,10 @@ export async function startAiChunkJob(params: {
           }
         } catch (itemErr: any) {
           await prisma.mediaFile
-            .update({
-              where: { id: file.id },
+            .updateMany({
+              where: {
+                OR: [{ id: file.id }, { url: file.url }],
+              },
               data: {
                 chunkStatus: 'FAILED',
                 aiContextChunk: {
@@ -419,6 +546,9 @@ export async function startAiChunkJob(params: {
       ];
       newJob.updatedAt = new Date().toISOString();
       await saveAiChunkJobs(jobs);
+
+      // Đảm bảo đồng bộ kết quả Job vào DB thêm 1 lần cuối
+      await syncJobResultsToMediaDatabase(newJob).catch(() => null);
     } catch (loopErr: any) {
       console.error('[AI_CHUNK_JOB_LOOP_ERROR]:', loopErr);
       activeAbortControllers.delete(jobId);

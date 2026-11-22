@@ -226,6 +226,15 @@ export default function AdminMediaPage() {
   const [selectedChunkFilter, setSelectedChunkFilter] = useState<string>('ALL');
   const [chunkStatusFilter, setChunkStatusFilter] = useState<'ALL' | 'CHUNKED' | 'NOT_CHUNKED'>('ALL');
   const aiPollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevJobProgressRef = useRef<{ processed: number; status: string }>({ processed: 0, status: 'IDLE' });
+  const currentFolderRef = useRef<FolderItem | null>(null);
+  currentFolderRef.current = currentFolder;
+
+  // Create Album from Chunk Modal state
+  const [createAlbumModalOpen, setCreateAlbumModalOpen] = useState(false);
+  const [newAlbumTitle, setNewAlbumTitle] = useState('');
+  const [newAlbumConcept, setNewAlbumConcept] = useState('Pre-Wedding');
+  const [creatingAlbumFromChunk, setCreatingAlbumFromChunk] = useState(false);
 
   // Progressive Rendering & Infinite Scroll
   const [visibleCount, setVisibleCount] = useState(24);
@@ -245,7 +254,9 @@ export default function AdminMediaPage() {
       setLoading(true);
       setErrorMessage('');
 
-      const res = await fetch('/api/admin/media');
+      const res = await fetch(`/api/admin/media?t=${Date.now()}`, {
+        cache: 'no-store',
+      });
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -267,7 +278,9 @@ export default function AdminMediaPage() {
   const fetchFolderContent = useCallback(async (slug: string) => {
     try {
       setFolderLoading(true);
-      const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(slug)}`);
+      const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(slug)}?t=${Date.now()}`, {
+        cache: 'no-store',
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -283,7 +296,18 @@ export default function AdminMediaPage() {
     } finally {
       setFolderLoading(false);
     }
-  }, []);
+  }, [showToast]);
+
+  const onRefreshMediaList = useCallback(() => {
+    if (currentFolderRef.current) {
+      const targetSlug = currentFolderRef.current.slug || currentFolderRef.current.id;
+      if (targetSlug) {
+        fetchFolderContent(targetSlug);
+      }
+    } else {
+      fetchMedia();
+    }
+  }, [fetchFolderContent, fetchMedia]);
 
   useEffect(() => {
     fetchMedia();
@@ -302,6 +326,7 @@ export default function AdminMediaPage() {
       const q = new URLSearchParams();
       if (targetJobId) q.set('jobId', targetJobId);
       if (targetFolderId) q.set('folderId', targetFolderId);
+      q.set('t', Date.now().toString());
       const res = await fetch(`/api/admin/media/ai-chunk-jobs/status?${q.toString()}`, {
         cache: 'no-store',
       });
@@ -309,13 +334,21 @@ export default function AdminMediaPage() {
       const data = await res.json();
       if (data.success && data.job) {
         setAiJob(data.job);
+        const prev = prevJobProgressRef.current;
+        if (
+          data.job.processed !== prev.processed ||
+          (data.job.status === 'COMPLETED' && prev.status !== 'COMPLETED')
+        ) {
+          prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
+          onRefreshMediaList();
+        }
         return data.job;
       }
       return null;
     } catch {
       return null;
     }
-  }, []);
+  }, [onRefreshMediaList]);
 
   const triggerAiChunkJob = useCallback(
     async (mediaIds?: string[], targetFolderId?: string) => {
@@ -335,7 +368,9 @@ export default function AdminMediaPage() {
         if (data.success && data.job) {
           setAiJob(data.job);
           setIsAiDrawerExpanded(true);
+          prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
           showToast(`Đã khởi chạy phân tích AI cho ${data.job.total} ảnh.`);
+          onRefreshMediaList();
         }
       } catch (err: any) {
         showToast(`Không thể khởi chạy AI: ${err.message}`);
@@ -343,7 +378,7 @@ export default function AdminMediaPage() {
         setIsStartingAi(false);
       }
     },
-    [currentFolder, showToast]
+    [currentFolder, showToast, onRefreshMediaList]
   );
 
   const handleCancelAiJob = useCallback(async () => {
@@ -356,10 +391,11 @@ export default function AdminMediaPage() {
       });
       showToast('Đã tạm dừng tiến trình phân tích AI.');
       fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
+      onRefreshMediaList();
     } catch (err: any) {
       showToast(`Lỗi khi dừng: ${err.message}`);
     }
-  }, [aiJob, currentFolder, fetchAiJobStatus, showToast]);
+  }, [aiJob, currentFolder, fetchAiJobStatus, onRefreshMediaList, showToast]);
 
   const handleRetryAiJob = useCallback(async () => {
     try {
@@ -376,14 +412,16 @@ export default function AdminMediaPage() {
       if (data.success && data.job) {
         setAiJob(data.job);
         setIsAiDrawerExpanded(true);
+        prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
         showToast(`Đã bắt đầu chạy lại phân tích AI cho ${data.job.total} ảnh.`);
+        onRefreshMediaList();
       }
     } catch (err: any) {
       showToast(`Lỗi khi chạy lại: ${err.message}`);
     } finally {
       setIsStartingAi(false);
     }
-  }, [aiJob, currentFolder, showToast]);
+  }, [aiJob, currentFolder, onRefreshMediaList, showToast]);
 
   // Poll AI job progress every 1.5s when RUNNING
   useEffect(() => {
@@ -395,11 +433,7 @@ export default function AdminMediaPage() {
     if (aiJob?.status === 'RUNNING') {
       aiPollTimerRef.current = setTimeout(async () => {
         const updated = await fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
-        if (currentFolder) {
-          fetchFolderContent(currentFolder.slug);
-        } else {
-          fetchMedia();
-        }
+        onRefreshMediaList();
       }, 1500);
     }
 
@@ -408,13 +442,82 @@ export default function AdminMediaPage() {
         clearTimeout(aiPollTimerRef.current);
       }
     };
-  }, [aiJob, currentFolder, fetchAiJobStatus, fetchFolderContent, fetchMedia]);
+  }, [aiJob, currentFolder, fetchAiJobStatus, onRefreshMediaList]);
 
   // When changing folder, check if an existing AI job exists for this folder
   useEffect(() => {
     fetchAiJobStatus(currentFolder?.id);
     setSelectedChunkFilter('ALL');
   }, [currentFolder, fetchAiJobStatus]);
+
+  // Handle open create album from active chunk
+  const handleOpenCreateAlbumModal = useCallback((chunkName: string) => {
+    setNewAlbumTitle(`Bộ Sưu Tập: ${chunkName}`);
+    const lower = chunkName.toLowerCase();
+    if (lower.includes('gia tiên') || lower.includes('truyền thống') || lower.includes('áo dài')) {
+      setNewAlbumConcept('Lễ Gia Tiên');
+    } else if (lower.includes('phóng sự') || lower.includes('cảm xúc')) {
+      setNewAlbumConcept('Phóng Sự Cưới');
+    } else if (lower.includes('tiệc cưới') || lower.includes('không gian')) {
+      setNewAlbumConcept('Tiệc Cưới Luxury');
+    } else if (lower.includes('studio') || lower.includes('editorial')) {
+      setNewAlbumConcept('Studio Editorial');
+    } else {
+      setNewAlbumConcept('Pre-Wedding');
+    }
+    setCreateAlbumModalOpen(true);
+  }, []);
+
+  const handleCreateAlbumFromChunk = useCallback(async () => {
+    if (!newAlbumTitle.trim()) {
+      showToast('Vui lòng nhập tên bộ sưu tập.');
+      return;
+    }
+    setCreatingAlbumFromChunk(true);
+    try {
+      // Lấy danh sách URL ảnh thuộc chunk hiện tại
+      const activeCluster = aiJob?.chunksCreated?.find((c) => c.name === selectedChunkFilter);
+      const currentList = (currentFolder ? folderImages : rootMedia).filter((m) => {
+        const matchesText =
+          m.chunkTitle === selectedChunkFilter ||
+          m.chunkName === selectedChunkFilter ||
+          m.chunkGroup === selectedChunkFilter ||
+          m.aiContextChunk?.chunkName === selectedChunkFilter;
+        const matchesCluster = activeCluster
+          ? activeCluster.imageIds.includes(m.id) || activeCluster.imageIds.includes(m.url)
+          : false;
+        return matchesText || matchesCluster;
+      });
+
+      const chunkUrls = Array.from(new Set(currentList.map((m) => m.url)));
+      if (chunkUrls.length === 0) {
+        throw new Error('Không tìm thấy hình ảnh nào thuộc cụm Chunk này.');
+      }
+
+      const res = await fetch('/api/admin/albums', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newAlbumTitle.trim(),
+          concept: newAlbumConcept,
+          mediaUrls: chunkUrls,
+          coverImage: chunkUrls[0] || '',
+          published: false,
+          description: `Bộ sưu tập được khởi tạo tự động từ cụm Chunk AI: "${selectedChunkFilter}" (${chunkUrls.length} ảnh).`,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Lỗi khi tạo bộ sưu tập.');
+      }
+      setCreateAlbumModalOpen(false);
+      showToast(`🎉 Đã tạo thành công bộ sưu tập nháp "${newAlbumTitle.trim()}" (${chunkUrls.length} ảnh)!`);
+    } catch (err: any) {
+      showToast(`Lỗi tạo album: ${err.message}`);
+    } finally {
+      setCreatingAlbumFromChunk(false);
+    }
+  }, [newAlbumTitle, newAlbumConcept, selectedChunkFilter, aiJob, currentFolder, folderImages, rootMedia, showToast]);
 
   // Listen to background batch import completion events
   useEffect(() => {
@@ -1149,7 +1252,8 @@ export default function AdminMediaPage() {
     let chunked = 0;
     let notChunked = 0;
     for (const m of displayImages) {
-      if (m.chunkStatus === 'CHUNKED' || m.aiStatus === 'DONE') {
+      const isDone = m.chunkStatus === 'CHUNKED' || Boolean(m.chunkTitle) || m.aiStatus === 'DONE';
+      if (isDone) {
         chunked++;
       } else {
         notChunked++;
@@ -1167,14 +1271,27 @@ export default function AdminMediaPage() {
 
     // Chunk status filter (ALL | CHUNKED | NOT_CHUNKED)
     if (chunkStatusFilter === 'CHUNKED') {
-      result = result.filter((m) => m.chunkStatus === 'CHUNKED' || m.aiStatus === 'DONE');
+      result = result.filter((m) => m.chunkStatus === 'CHUNKED' || Boolean(m.chunkTitle) || m.aiStatus === 'DONE');
     } else if (chunkStatusFilter === 'NOT_CHUNKED') {
-      result = result.filter((m) => m.chunkStatus !== 'CHUNKED' && m.aiStatus !== 'DONE');
+      result = result.filter((m) => m.chunkStatus !== 'CHUNKED' && !m.chunkTitle && m.aiStatus !== 'DONE');
     }
 
-    // Chunk grouping filter
+    // Chunk grouping filter (kết hợp đối soát cả tên chunk lẫn imageIds của cluster)
     if (selectedChunkFilter !== 'ALL') {
-      result = result.filter((m) => m.chunkName === selectedChunkFilter);
+      const activeCluster = aiJob?.chunksCreated?.find((c) => c.name === selectedChunkFilter);
+      result = result.filter((m) => {
+        const matchesText =
+          m.chunkTitle === selectedChunkFilter ||
+          m.chunkName === selectedChunkFilter ||
+          m.chunkGroup === selectedChunkFilter ||
+          m.aiContextChunk?.chunkName === selectedChunkFilter;
+
+        const matchesCluster = activeCluster
+          ? activeCluster.imageIds.includes(m.id) || activeCluster.imageIds.includes(m.url)
+          : false;
+
+        return matchesText || matchesCluster;
+      });
     }
 
     // Orientation filter
@@ -1201,7 +1318,7 @@ export default function AdminMediaPage() {
     });
 
     return result;
-  }, [baseFilteredMedia, chunkStatusFilter, selectedChunkFilter, selectedOrientation, sortBy, getItemOrientation]);
+  }, [baseFilteredMedia, chunkStatusFilter, selectedChunkFilter, aiJob, selectedOrientation, sortBy, getItemOrientation]);
 
   // Progressive rendering slice for high performance with 764+ images
   const visibleMedia = useMemo(() => {
@@ -2266,13 +2383,24 @@ export default function AdminMediaPage() {
                       <span>Cụm Chunks Đã Gom Nhóm ({aiJob.chunksCreated.length}):</span>
                     </span>
                     {selectedChunkFilter !== 'ALL' && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedChunkFilter('ALL')}
-                        className="text-[11px] text-amber-700 hover:text-amber-900 underline font-medium cursor-pointer"
-                      >
-                        Bỏ lọc cụm (Xem tất cả)
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCreateAlbumModal(selectedChunkFilter)}
+                          className="px-2.5 py-1 rounded-lg bg-luxury-800 hover:bg-luxury-900 text-white text-[11px] font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                          title="Tạo nhanh bộ sưu tập nháp từ cụm ảnh này"
+                        >
+                          <FolderPlus className="w-3.5 h-3.5 text-luxury-300" />
+                          <span>Tạo Album từ Chunk này</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedChunkFilter('ALL')}
+                          className="text-[11px] text-amber-700 hover:text-amber-900 underline font-medium cursor-pointer"
+                        >
+                          Bỏ lọc cụm (Xem tất cả)
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -2377,6 +2505,42 @@ export default function AdminMediaPage() {
         ) : (
           /* IMAGES GRID */
           <>
+            {selectedChunkFilter !== 'ALL' && (
+              <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <span className="p-2 rounded-xl bg-amber-500 text-white shadow-xs">
+                    <Sparkles className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h4 className="text-xs font-semibold text-charcoal-900">
+                      Đang lọc theo cụm Chunk: <span className="text-amber-800 font-bold">"{selectedChunkFilter}"</span>
+                    </h4>
+                    <p className="text-[11px] text-stone-500 font-light">
+                      Hiển thị {filteredAndSortedMedia.length} ảnh thuộc cụm phân loại ngữ cảnh AI này.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedChunkFilter('ALL')}
+                    className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    Bỏ lọc (Xem tất cả)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCreateAlbumModal(selectedChunkFilter)}
+                    className="px-3.5 py-1.5 rounded-xl bg-luxury-800 hover:bg-luxury-900 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <FolderPlus className="w-3.5 h-3.5 text-luxury-300" />
+                    <span>Tạo Album từ Chunk này</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {visibleMedia.map((item) => {
                 const itemKey = item.id || item.url;
@@ -2455,29 +2619,43 @@ export default function AdminMediaPage() {
                       </div>
 
                       {/* AI Chunk Status Badge */}
-                      {item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && aiJob?.currentFileName === item.name) ? (
+                      {item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && (aiJob?.currentFileName === item.name || aiJob?.currentFileName === item.filename)) ? (
                         <span className="px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
                           <Loader2 className="w-2.5 h-2.5 animate-spin" />
                           <span>⟳ Đang tạo Chunk...</span>
                         </span>
-                      ) : item.chunkStatus === 'CHUNKED' || item.aiStatus === 'DONE' ? (
-                        <div className="flex flex-col items-start gap-0.5">
-                          <span
-                            className="px-2 py-0.5 rounded-md bg-emerald-700/95 backdrop-blur-xs text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs"
-                            title={`Đã chunk: ${item.chunkTitle || item.chunkName || 'Ảnh cưới'}${item.pineconeSynced ? ' • Đã đẩy vector lên Pinecone' : ''}`}
-                          >
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                            <span>✓ Đã Chunk</span>
-                            {item.pineconeSynced && (
-                              <span title="Đã lưu vector vào Pinecone Vector DB" className="text-[10px]">
-                                🌲
-                              </span>
-                            )}
-                          </span>
+                      ) : (item.chunkStatus === 'CHUNKED' || Boolean(item.chunkTitle) || item.aiStatus === 'DONE') ? (
+                        <div className="flex flex-col items-start gap-1">
+                          <div className="flex items-center gap-1">
+                            <span
+                              className="px-2 py-0.5 rounded-md bg-emerald-700/95 backdrop-blur-xs text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs"
+                              title={`Đã chunk: ${item.chunkTitle || item.chunkName || 'Ảnh cưới'}${item.aiContext ? `\nNgữ cảnh: ${item.aiContext}` : ''}${item.pineconeSynced ? '\n🌲 Đã đồng bộ Pinecone Vector DB' : ''}`}
+                            >
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              <span>✓ Đã Chunk</span>
+                              {item.pineconeSynced && (
+                                <span title="Đã lưu vector vào Pinecone Vector DB" className="text-[10px]">
+                                  🌲
+                                </span>
+                              )}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                              }}
+                              className="px-1.5 py-0.5 rounded bg-black/60 hover:bg-black/90 text-stone-200 hover:text-white text-[8.5px] font-medium flex items-center gap-0.5 transition-colors cursor-pointer"
+                              title="Chạy lại AI để cập nhật lại ngữ cảnh & chunk cho ảnh này"
+                            >
+                              <RotateCcw className="w-2.5 h-2.5" />
+                              <span>Re-chunk</span>
+                            </button>
+                          </div>
                           {(item.chunkTitle || item.chunkName) && (
                             <span
                               className="px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-emerald-200 text-[8.5px] font-medium max-w-[160px] truncate shadow-2xs"
-                              title={item.chunkTitle || item.chunkName}
+                              title={`${item.chunkTitle || item.chunkName}${item.aiContext ? ` - ${item.aiContext}` : ''}`}
                             >
                               {item.chunkTitle || item.chunkName}
                             </span>
@@ -2584,7 +2762,7 @@ export default function AdminMediaPage() {
                     className="flex items-center justify-between gap-1 pt-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {item.chunkStatus !== 'CHUNKED' && item.aiStatus !== 'DONE' && (
+                    {item.chunkStatus !== 'CHUNKED' && !item.chunkTitle && item.aiStatus !== 'DONE' ? (
                       <button
                         type="button"
                         onClick={(e) => {
@@ -2596,6 +2774,19 @@ export default function AdminMediaPage() {
                       >
                         <Sparkles className="w-3 h-3 text-amber-600" />
                         <span>Chunk</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerAiChunkJob([item.id], item.folderId || currentFolder?.id);
+                        }}
+                        className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        title="Chạy lại AI để cập nhật ngữ cảnh chunk cho ảnh này"
+                      >
+                        <RotateCcw className="w-3 h-3 text-stone-500" />
+                        <span>Re-chunk</span>
                       </button>
                     )}
 
@@ -3381,6 +3572,81 @@ export default function AdminMediaPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Tạo Album từ Cụm Chunk */}
+      <Modal
+        isOpen={createAlbumModalOpen}
+        onClose={() => !creatingAlbumFromChunk && setCreateAlbumModalOpen(false)}
+        title="Tạo Album / Bộ Sưu Tập Mới Từ Chunk AI"
+      >
+        <div className="space-y-4 pt-1">
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs flex items-start gap-2.5">
+            <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span className="font-semibold block">Gom nhóm thông minh từ AI</span>
+              <p className="text-[11px] text-amber-800 leading-relaxed font-light">
+                Toàn bộ ảnh thuộc cụm <strong>"{selectedChunkFilter}"</strong> sẽ được gom thành một bộ sưu tập nháp (Draft) để bạn có thể tùy chỉnh thêm trước khi công khai trên website.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-stone-700">Tên Bộ Sưu Tập (Album Title)</label>
+            <input
+              type="text"
+              value={newAlbumTitle}
+              onChange={(e) => setNewAlbumTitle(e.target.value)}
+              placeholder="Nhập tên bộ sưu tập cưới..."
+              className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400 text-stone-900 font-medium"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-stone-700">Concept / Phong Cách</label>
+            <select
+              value={newAlbumConcept}
+              onChange={(e) => setNewAlbumConcept(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-luxury-400 text-stone-900"
+            >
+              <option value="Pre-Wedding">Pre-Wedding</option>
+              <option value="Phóng Sự Cưới">Phóng Sự Cưới</option>
+              <option value="Lễ Gia Tiên">Lễ Gia Tiên</option>
+              <option value="Tiệc Cưới Luxury">Tiệc Cưới Luxury</option>
+              <option value="Studio Editorial">Studio Editorial</option>
+              <option value="Outdoor Luxury">Outdoor Luxury</option>
+            </select>
+          </div>
+
+          <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setCreateAlbumModalOpen(false)}
+              disabled={creatingAlbumFromChunk}
+              className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={handleCreateAlbumFromChunk}
+              disabled={creatingAlbumFromChunk || !newAlbumTitle.trim()}
+              className="px-5 py-2 rounded-xl bg-luxury-800 hover:bg-luxury-900 text-white text-xs font-medium flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              {creatingAlbumFromChunk ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Đang Tạo Album...</span>
+                </>
+              ) : (
+                <>
+                  <FolderPlus className="w-3.5 h-3.5 text-luxury-300" />
+                  <span>Tạo Album Nháp Ngay</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
