@@ -223,6 +223,7 @@ export default function AdminMediaPage() {
   const [aiJob, setAiJob] = useState<AiChunkJob | null>(null);
   const [isAiDrawerExpanded, setIsAiDrawerExpanded] = useState<boolean>(true);
   const [isStartingAi, setIsStartingAi] = useState<boolean>(false);
+  const [processingMediaIds, setProcessingMediaIds] = useState<string[]>([]);
   const [selectedChunkFilter, setSelectedChunkFilter] = useState<string>('ALL');
   const [chunkStatusFilter, setChunkStatusFilter] = useState<'ALL' | 'CHUNKED' | 'NOT_CHUNKED'>('ALL');
   const aiPollTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -330,7 +331,10 @@ export default function AdminMediaPage() {
       const res = await fetch(`/api/admin/media/ai-chunk-jobs/status?${q.toString()}`, {
         cache: 'no-store',
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        setAiJob(null);
+        return null;
+      }
       const data = await res.json();
       if (data.success && data.job) {
         setAiJob(data.job);
@@ -343,9 +347,12 @@ export default function AdminMediaPage() {
           onRefreshMediaList();
         }
         return data.job;
+      } else {
+        setAiJob(null);
+        return null;
       }
-      return null;
     } catch {
+      setAiJob(null);
       return null;
     }
   }, [onRefreshMediaList]);
@@ -430,6 +437,76 @@ export default function AdminMediaPage() {
     }
   }, [aiJob, currentFolder, onRefreshMediaList, showToast]);
 
+  const handleDismissAiJob = useCallback(async () => {
+    if (!aiJob) return;
+    const currentJobId = aiJob.jobId;
+    const currentFolderId = currentFolder?.id || currentFolder?.slug;
+    setAiJob(null);
+    try {
+      await fetch('/api/admin/media/ai-chunk-jobs/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: currentJobId, folderId: currentFolderId }),
+      });
+    } catch (err) {
+      console.warn('[DISMISS_AI_JOB_ERROR]:', err);
+    }
+  }, [aiJob, currentFolder]);
+
+  const handleConvertSingleImage = useCallback(
+    async (item: any) => {
+      const targetKey = item.id || item.url;
+      if (!targetKey || processingMediaIds.includes(targetKey)) return;
+
+      setProcessingMediaIds((prev) => [...prev, targetKey]);
+      showToast(`Đang phân tích AI và tạo chunk cho ảnh "${item.name || item.filename}"...`);
+
+      try {
+        const folderParam = item.folderId || currentFolder?.id || currentFolder?.slug;
+        const res = await fetch('/api/admin/media/ai-chunk-jobs/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            folderId: folderParam,
+            folderSlug: currentFolder?.slug,
+            items: [{ id: item.id, url: item.url, filename: item.filename, name: item.name }],
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showToast(`Lỗi: ${data.message || data.error || 'Không thể tạo chunk cho ảnh này.'}`);
+          return;
+        }
+
+        if (data.job) {
+          setAiJob(data.job);
+          setIsAiDrawerExpanded(true);
+          prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
+
+          // Chờ worker hoàn tất tấm ảnh này (tối đa 15 giây)
+          let isDone = data.job.status === 'COMPLETED';
+          let attempts = 0;
+          while (!isDone && attempts < 10) {
+            await new Promise((r) => setTimeout(r, 1200));
+            attempts++;
+            const check = await fetchAiJobStatus(folderParam, data.job.jobId);
+            if (check?.status === 'COMPLETED' || check?.status === 'FAILED' || check?.status === 'CANCELLED') {
+              isDone = true;
+            }
+          }
+          onRefreshMediaList();
+          showToast(`✓ Đã tạo Chunk thành công cho "${item.name || item.filename}"!`);
+        }
+      } catch (err: any) {
+        showToast(`Không thể tạo chunk cho ảnh này: ${err.message}`);
+      } finally {
+        setProcessingMediaIds((prev) => prev.filter((id) => id !== targetKey));
+      }
+    },
+    [currentFolder, fetchAiJobStatus, onRefreshMediaList, processingMediaIds, showToast]
+  );
+
   // Poll AI job progress every 1.5s when RUNNING
   useEffect(() => {
     if (aiPollTimerRef.current) {
@@ -451,11 +528,19 @@ export default function AdminMediaPage() {
     };
   }, [aiJob, currentFolder, fetchAiJobStatus, onRefreshMediaList]);
 
-  // When changing folder, check if an existing AI job exists for this folder
+  // When changing folder, reset previous job state immediately, then fetch new folder's job
   useEffect(() => {
-    fetchAiJobStatus(currentFolder?.id);
+    setAiJob(null);
     setSelectedChunkFilter('ALL');
-  }, [currentFolder, fetchAiJobStatus]);
+    setIsStartingAi(false);
+    if (aiPollTimerRef.current) {
+      clearTimeout(aiPollTimerRef.current);
+      aiPollTimerRef.current = null;
+    }
+
+    const targetFolderId = currentFolder?.id || currentFolder?.slug;
+    fetchAiJobStatus(targetFolderId);
+  }, [currentFolder?.id, currentFolder?.slug, fetchAiJobStatus]);
 
   // Handle open create album from active chunk
   const handleOpenCreateAlbumModal = useCallback((chunkName: string) => {
@@ -1273,6 +1358,51 @@ export default function AdminMediaPage() {
     };
   }, [displayImages]);
 
+  const handleBulkConvertChunks = useCallback(async () => {
+    const unchunkedItems = displayImages
+      .filter((m) => m.chunkStatus !== 'CHUNKED' && !m.chunkTitle && m.aiStatus !== 'DONE')
+      .map((m) => ({ id: m.id, url: m.url, filename: m.filename, name: m.name }));
+
+    if (unchunkedItems.length === 0) {
+      showToast('Tất cả ảnh trong thư mục này đã được phân loại Chunks rồi.');
+      return;
+    }
+
+    setIsStartingAi(true);
+    showToast(`Đang khởi tạo tiến trình AI cho ${unchunkedItems.length} ảnh...`);
+
+    try {
+      const folderParam = currentFolder?.id || currentFolder?.slug;
+      const res = await fetch('/api/admin/media/ai-chunk-jobs/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          folderId: folderParam,
+          folderSlug: currentFolder?.slug,
+          items: unchunkedItems,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast(`Lỗi: ${data.message || data.error || 'Không thể khởi chạy Job AI.'}`);
+        return;
+      }
+
+      if (data.job) {
+        setAiJob(data.job);
+        setIsAiDrawerExpanded(true);
+        prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
+        showToast(`🚀 Đã khởi chạy tiến trình phân loại Chunks cho ${data.job.total} ảnh.`);
+        onRefreshMediaList();
+      }
+    } catch (err: any) {
+      showToast(`Không thể khởi chạy AI: ${err.message}`);
+    } finally {
+      setIsStartingAi(false);
+    }
+  }, [displayImages, currentFolder, showToast, onRefreshMediaList]);
+
   const filteredAndSortedMedia = useMemo(() => {
     let result = [...baseFilteredMedia];
 
@@ -1975,28 +2105,15 @@ export default function AdminMediaPage() {
 
               <button
                 type="button"
-                onClick={() => {
-                  const unchunkedItems = displayImages
-                    .filter((m) => m.chunkStatus !== 'CHUNKED' && !m.chunkTitle && m.aiStatus !== 'DONE')
-                    .map((m) => ({ id: m.id, url: m.url, filename: m.filename, name: m.name }));
-                  if (unchunkedItems.length === 0) {
-                    showToast('Tất cả ảnh trong thư mục này đã được phân loại Chunks rồi.');
-                    return;
-                  }
-                  triggerAiChunkJob(
-                    unchunkedItems.map((i) => i.id || i.url).filter(Boolean) as string[],
-                    currentFolder?.id,
-                    unchunkedItems
-                  );
-                }}
-                disabled={isStartingAi || aiJob?.status === 'RUNNING'}
+                onClick={handleBulkConvertChunks}
+                disabled={isStartingAi || chunkCounts.notChunked === 0}
                 className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-700 to-yellow-600 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 title="Quét toàn bộ ảnh chưa tạo chunk trong thư mục để AI đọc ngữ cảnh và gom cụm Chunks"
               >
-                {aiJob?.status === 'RUNNING' ? (
+                {isStartingAi || aiJob?.status === 'RUNNING' ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>AI Đang Tạo Chunks...</span>
+                    <span>AI Đang Tạo Chunks ({aiJob?.processed || 0}/{aiJob?.total || chunkCounts.notChunked})...</span>
                   </>
                 ) : (
                   <>
@@ -2355,7 +2472,7 @@ export default function AdminMediaPage() {
                 {aiJob.status !== 'RUNNING' && (
                   <button
                     type="button"
-                    onClick={() => setAiJob(null)}
+                    onClick={handleDismissAiJob}
                     className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
                     title="Đóng thông báo"
                   >
@@ -2621,7 +2738,7 @@ export default function AdminMediaPage() {
                     </button>
 
                     {/* Format, Dimensions & AI Status Badges */}
-                    <div className="absolute top-2 left-2 flex flex-col items-start gap-1 z-10 max-w-[calc(100%-3.2rem)]">
+                    <div className="absolute top-2 left-2 flex flex-col items-start gap-1 z-20 pointer-events-auto max-w-[calc(100%-3.2rem)]">
                       <div className="flex items-center gap-1">
                         <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono uppercase font-medium">
                           {item.format}
@@ -2634,10 +2751,10 @@ export default function AdminMediaPage() {
                       </div>
 
                       {/* AI Chunk Status Badge */}
-                      {item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && (aiJob?.currentFileName === item.name || aiJob?.currentFileName === item.filename)) ? (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
+                      {processingMediaIds.includes(item.id || item.url) || item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && (aiJob?.currentFileName?.includes(item.name) || aiJob?.currentFileName?.includes(item.filename))) ? (
+                        <span className="relative z-20 pointer-events-auto px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
                           <Loader2 className="w-2.5 h-2.5 animate-spin" />
-                          <span>⟳ Đang tạo Chunk...</span>
+                          <span>⟳ Đang xử lý...</span>
                         </span>
                       ) : (item.chunkStatus === 'CHUNKED' || Boolean(item.chunkTitle) || item.aiStatus === 'DONE') ? (
                         <div className="flex flex-col items-start gap-1">
@@ -2657,14 +2774,12 @@ export default function AdminMediaPage() {
                             <button
                               type="button"
                               onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
-                                triggerAiChunkJob(
-                                  [item.id || item.url],
-                                  item.folderId || currentFolder?.id,
-                                  [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
-                                );
+                                handleConvertSingleImage(item);
                               }}
-                              className="px-1.5 py-0.5 rounded bg-black/60 hover:bg-black/90 text-stone-200 hover:text-white text-[8.5px] font-medium flex items-center gap-0.5 transition-colors cursor-pointer"
+                              disabled={processingMediaIds.includes(item.id || item.url)}
+                              className="relative z-20 pointer-events-auto px-1.5 py-0.5 rounded bg-black/60 hover:bg-black/90 text-stone-200 hover:text-white text-[8.5px] font-medium flex items-center gap-0.5 transition-colors cursor-pointer disabled:opacity-50"
                               title="Chạy lại AI để cập nhật lại ngữ cảnh & chunk cho ảnh này"
                             >
                               <RotateCcw className="w-2.5 h-2.5" />
@@ -2688,14 +2803,12 @@ export default function AdminMediaPage() {
                           <button
                             type="button"
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
-                              triggerAiChunkJob(
-                                [item.id || item.url],
-                                item.folderId || currentFolder?.id,
-                                [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
-                              );
+                              handleConvertSingleImage(item);
                             }}
-                            className="px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+                            disabled={processingMediaIds.includes(item.id || item.url)}
+                            className="relative z-20 pointer-events-auto px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
                             title="Bấm để AI đọc ngữ cảnh và tạo chunk cho tấm ảnh này"
                           >
                             <Sparkles className="w-2.5 h-2.5 text-amber-200" />
@@ -2785,18 +2898,21 @@ export default function AdminMediaPage() {
                     className="flex items-center justify-between gap-1 pt-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {item.chunkStatus !== 'CHUNKED' && !item.chunkTitle && item.aiStatus !== 'DONE' ? (
+                    {processingMediaIds.includes(item.id || item.url) ? (
+                      <span className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shrink-0 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Đang xử lý...</span>
+                      </span>
+                    ) : item.chunkStatus !== 'CHUNKED' && !item.chunkTitle && item.aiStatus !== 'DONE' ? (
                       <button
                         type="button"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
-                          triggerAiChunkJob(
-                            [item.id || item.url],
-                            item.folderId || currentFolder?.id,
-                            [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
-                          );
+                          handleConvertSingleImage(item);
                         }}
-                        className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        disabled={processingMediaIds.includes(item.id || item.url)}
+                        className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
                         title="Tạo chunk ngữ cảnh cho ảnh này"
                       >
                         <Sparkles className="w-3 h-3 text-amber-600" />
@@ -2806,14 +2922,12 @@ export default function AdminMediaPage() {
                       <button
                         type="button"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
-                          triggerAiChunkJob(
-                            [item.id || item.url],
-                            item.folderId || currentFolder?.id,
-                            [{ id: item.id, url: item.url, filename: item.filename, name: item.name }]
-                          );
+                          handleConvertSingleImage(item);
                         }}
-                        className="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        disabled={processingMediaIds.includes(item.id || item.url)}
+                        className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
                         title="Chạy lại AI để cập nhật ngữ cảnh chunk cho ảnh này"
                       >
                         <RotateCcw className="w-3 h-3 text-stone-500" />

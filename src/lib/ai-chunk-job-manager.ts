@@ -31,6 +31,7 @@ export interface AiChunkJob {
   createdAt: string;
   updatedAt: string;
   error?: string;
+  dismissed?: boolean;
 }
 
 const JOBS_FILE_PATH = path.join(process.cwd(), 'prisma', 'ai-chunk-jobs.json');
@@ -140,21 +141,46 @@ export async function saveAiChunkJobs(jobs: AiChunkJob[]): Promise<void> {
 export async function getAiChunkJob(query: { jobId?: string; folderId?: string }): Promise<AiChunkJob | null> {
   const jobs = await loadAiChunkJobs();
   if (query.jobId) {
-    return jobs.find((j) => j.jobId === query.jobId) || null;
+    const job = jobs.find((j) => j.jobId === query.jobId);
+    if (job && !job.dismissed) return job;
+    return null;
   }
   if (query.folderId) {
     const cleanId = query.folderId.trim();
-    return (
-      jobs.find(
-        (j) =>
-          (j.folderId === cleanId || j.folderSlug === cleanId) &&
-          (j.status === 'RUNNING' || j.status === 'COMPLETED' || j.status === 'FAILED')
-      ) ||
-      jobs.find((j) => j.folderId === cleanId || j.folderSlug === cleanId) ||
-      null
+    const folderJobs = jobs.filter(
+      (j) => (j.folderId === cleanId || j.folderSlug === cleanId) && !j.dismissed
     );
+    // Ưu tiên job đang RUNNING, sau đó đến job mới nhất
+    const running = folderJobs.find((j) => j.status === 'RUNNING');
+    if (running) return running;
+    return folderJobs[0] || null;
   }
-  return jobs[0] || null;
+  // Nếu là kho ảnh gốc (không có folderId): chỉ tìm job của root, tuyệt đối không lấy nhầm job của thư mục con!
+  const rootJobs = jobs.filter((j) => (!j.folderId || j.folderId === 'root') && !j.dismissed);
+  const activeRoot = rootJobs.find((j) => j.status === 'RUNNING');
+  if (activeRoot) return activeRoot;
+  return rootJobs[0] || null;
+}
+
+export async function dismissAiChunkJob(params: { jobId?: string; folderId?: string }): Promise<boolean> {
+  const jobs = await loadAiChunkJobs();
+  let targetJob: AiChunkJob | undefined;
+
+  if (params.jobId) {
+    targetJob = jobs.find((j) => j.jobId === params.jobId);
+  } else if (params.folderId) {
+    const cleanId = params.folderId.trim();
+    targetJob = jobs.find((j) => (j.folderId === cleanId || j.folderSlug === cleanId) && !j.dismissed);
+  } else {
+    targetJob = jobs.find((j) => !j.folderId && !j.dismissed);
+  }
+
+  if (!targetJob) return false;
+
+  targetJob.dismissed = true;
+  targetJob.updatedAt = new Date().toISOString();
+  await saveAiChunkJobs(jobs);
+  return true;
 }
 
 export async function cancelAiChunkJob(params: { jobId?: string; folderId?: string }): Promise<boolean> {
@@ -212,6 +238,32 @@ export async function startAiChunkJob(params: {
         name: resolved.canonicalName,
         physicalDir: resolved.physicalDir,
       };
+    }
+  }
+
+  // Hủy hoặc đánh dấu FAILED các Job cũ nếu bị treo quá 3 phút hoặc khi người dùng yêu cầu chạy phiên mới
+  const folderKey = resolvedFolderInfo?.id || params.folderId || null;
+  const existingRunning = jobs.find(
+    (j) =>
+      ((folderKey && (j.folderId === folderKey || (resolvedFolderInfo?.slug && j.folderSlug === resolvedFolderInfo.slug))) ||
+        (!folderKey && !j.folderId)) &&
+      j.status === 'RUNNING'
+  );
+  if (existingRunning) {
+    const updatedAtTime = new Date(existingRunning.updatedAt).getTime();
+    const isStale = Date.now() - updatedAtTime > 3 * 60 * 1000;
+    if (isStale || (params.items && params.items.length > 0)) {
+      const ctrl = activeAbortControllers.get(existingRunning.jobId);
+      if (ctrl) {
+        ctrl.abort();
+        activeAbortControllers.delete(existingRunning.jobId);
+      }
+      existingRunning.status = isStale ? 'FAILED' : 'CANCELLED';
+      existingRunning.error = isStale
+        ? 'Tiến trình cũ đã bị treo quá 3 phút và được tự động giải phóng.'
+        : 'Được thay thế bằng phiên chạy mới theo yêu cầu của quản trị viên.';
+      existingRunning.updatedAt = new Date().toISOString();
+      await saveAiChunkJobs(jobs);
     }
   }
 
