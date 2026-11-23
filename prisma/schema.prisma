@@ -655,4 +655,56 @@ model ClientGallery {
   @@index([status])
 }
 
+// -----------------------------------------------------------------------------
+// 16. DIGITAL WEDDING INVITATIONS (Nền Tảng Thiệp Cưới Điện Tử Cá Nhân Hóa)
+// -----------------------------------------------------------------------------
+model WeddingInvitation {
+  id               String           @id @default(cuid())
+  slug             String           @unique // Ví dụ "minh-trung-thanh-thao"
+  templateId       String           @default("timeless-ivory") // timeless-ivory | cinematic-noir | botanical-silk | minimalist-story
+  themeColor       String           @default("#8C6D46")
+  groomName        String
+  brideName        String
+  groomParents     String?
+  brideParents     String?
+  ceremonyDate     DateTime
+  ceremonyTimeText String?          // Ví dụ "11:00 — Thứ Bảy, 20.12.2026"
+  venueName        String
+  venueAddress     String
+  googleMapsUrl    String?
+  storyTitle       String?
+  storyText        String?          @db.Text
+  coverImage       String
+  galleryImages    Json             // Mảng object: [{ id, url, width, height, orientation: 'portrait' | 'landscape', caption? }]
+  musicPreset      String           @default("romantic-piano") // romantic-piano | acoustic-love | cinematic-orchestral | gentle-strings
+  bankQrImage      String?
+  bankInfoText     String?
+  editPasscode     String           // Mã PIN 6 số để cặp đôi quay lại chỉnh sửa thiệp
+  isPublished      Boolean          @default(true)
+  viewCount        Int              @default(0)
+  rsvps            InvitationRsvp[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([slug])
+  @@index([templateId])
+  @@index([isPublished])
+}
+
+model InvitationRsvp {
+  id           String            @id @default(cuid())
+  invitationId String
+  invitation   WeddingInvitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  guestName    String
+  attendance   String            @default("ATTENDING") // ATTENDING | DECLINED
+  guestCount   Int               @default(1)
+  side         String            @default("BOTH") // GROOM | BRIDE | BOTH
+  wishMessage  String?           @db.Text
+  createdAt    DateTime          @default(now())
+
+  @@index([invitationId])
+  @@index([createdAt])
+}
+
+
 

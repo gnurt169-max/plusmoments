@@ -137,6 +137,7 @@ export function AlbumMasonryGallery({
           alt={item.altText || `${albumTitle} - Ảnh cưới ${originalIndex + 1}`}
           priority={false}
           orientation={item.orientation}
+          objectPosition={item.orientation === 'portrait' ? 'object-[50%_18%]' : 'object-center'}
           aspectRatio={aspectClass.includes('16/9') ? '16/9' : aspectClass.includes('3/4') ? '3/4' : '3/2'}
           aspectClassName={aspectClass}
           sizes={
@@ -151,15 +152,15 @@ export function AlbumMasonryGallery({
           imageClassName="w-full h-full object-cover block group-hover:scale-[1.03] transition-transform duration-700 ease-out"
         />
 
-        {/* Heart Button on Corner */}
+        {/* Heart Button on Top-Right Corner (compact, subtle, never blocks head/face) */}
         <button
           type="button"
           aria-label="Lưu concept yêu thích"
           onClick={(e) => toggleLikePhoto(item.id, e)}
-          className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
+          className="absolute top-2.5 right-2.5 z-20 w-7 h-7 md:w-8 md:h-8 rounded-full bg-black/35 hover:bg-black/60 backdrop-blur-xs flex items-center justify-center transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${
+            className={`w-3.5 h-3.5 transition-colors ${
               isLiked ? 'fill-rose-500 text-rose-500' : 'text-white/90'
             }`}
           />
@@ -277,7 +278,7 @@ export function AlbumMasonryGallery({
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 [overflow-anchor:none]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 md:gap-6 [overflow-anchor:none]">
             {landscapeItems.map(({ item, originalIndex }, idx) => {
               const isHero = isLandscapeOdd && idx === 0;
               const aspectClass = isHero ? 'aspect-[16/9]' : 'aspect-[3/2]';
@@ -315,9 +316,9 @@ export function AlbumMasonryGallery({
             </div>
           )}
 
-          {/* Main 3-Column Grid (Filled rows) */}
+          {/* Main Portrait Grid: 2 columns on mobile, 3 columns on tablet/desktop */}
           {fullGridPortraits.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 [overflow-anchor:none]">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 [overflow-anchor:none]">
               {fullGridPortraits.map(({ item, originalIndex }, idx) => (
                 <EditorialReveal
                   key={item.id}

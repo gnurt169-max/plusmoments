@@ -380,11 +380,11 @@ export async function Footer(props: FooterProps) {
             </ul>
           </div>
 
-          {/* CỘT 4: CẨM NANG CƯỚI (CHỈ HIỂN THỊ KHI CÓ BÀI VIẾT XUẤT BẢN) */}
+          {/* CỘT 4: BLOG & WEDDING JOURNAL (CHỈ HIỂN THỊ KHI CÓ BÀI VIẾT XUẤT BẢN) */}
           {hasPublishedBlogs && (
             <div>
               <p className="font-serif text-sm uppercase tracking-widest text-[#E8E2D9] mb-4 font-medium">
-                Cẩm Nang Cưới
+                Blog &amp; Cẩm Nang
               </p>
               <ul className="space-y-2.5 text-xs text-[#A8A29E] font-light">
                 {posts.map((post) => (
@@ -403,7 +403,7 @@ export async function Footer(props: FooterProps) {
                     href="/blog"
                     className="inline-block text-[#D6D0C7] hover:text-white transition duration-200 mt-1 font-medium"
                   >
-                    Xem tất cả cẩm nang &rarr;
+                    Xem tất cả bài viết &rarr;
                   </Link>
                 </li>
               </ul>

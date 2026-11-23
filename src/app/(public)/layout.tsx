@@ -119,7 +119,7 @@ export default async function PublicLayout({
         customBodyScript={settings.customBodyScript}
       />
 
-      <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans relative">
+      <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-charcoal-900 selection:bg-champagne selection:text-charcoal-950 font-sans relative overflow-x-clip w-full max-w-full">
         {/* Invisible Scroll Sentinel for Zero-Reflow IntersectionObserver Navbar */}
         <div
           id="scroll-sentinel"

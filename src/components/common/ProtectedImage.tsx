@@ -9,6 +9,7 @@ export interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageEl
   blurDataUrl?: string | null;
   wrapperClassName?: string;
   imageClassName?: string;
+  objectPosition?: string;
   priority?: boolean;
   watermark?: boolean;
   watermarkText?: string;
@@ -27,6 +28,7 @@ export function ProtectedImage({
   blurDataUrl, // kept for interface backward compatibility
   wrapperClassName = '',
   imageClassName = '',
+  objectPosition = 'object-[50%_18%]',
   priority = false,
   watermark = false,
   watermarkText = 'PlusMoments Photography',
@@ -81,7 +83,7 @@ export function ProtectedImage({
         fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : (props.loading || 'lazy')}
         decoding="async"
-        className={`pointer-events-none select-none w-full h-auto object-cover block opacity-100 transition-transform ${imageClassName}`}
+        className={`pointer-events-none select-none w-full h-auto object-cover block opacity-100 transition-transform ${objectPosition} ${imageClassName}`}
         onContextMenu={(e) => e.preventDefault()}
         onError={(e) => {
           if (!hasError) {

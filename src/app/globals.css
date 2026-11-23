@@ -20,7 +20,7 @@
     color: var(--foreground);
     background: var(--background);
     font-family: var(--font-montserrat), var(--font-sans), 'Montserrat', system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Loại bỏ độ trễ 300ms, sticky hover và viền xám mặc định trên thiết bị cảm ứng */

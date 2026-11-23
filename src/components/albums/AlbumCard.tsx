@@ -51,6 +51,8 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
             src={rawSrc}
             alt={album.title || 'PlusMoments Album'}
             aspectRatio="3/4"
+            orientation="portrait"
+            objectPosition="object-[50%_18%]"
             priority={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
             className="w-full h-full rounded-lg sm:rounded-xl"

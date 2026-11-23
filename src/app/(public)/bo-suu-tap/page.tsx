@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import dynamic from 'next/dynamic';
-import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
+import { PortfolioGalleryGrid } from '@/components/albums/PortfolioGalleryGrid';
 import { serializeAlbumForClient } from '@/lib/album-utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { toAbsoluteUrl } from '@/lib/utils';
@@ -60,14 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function BoSuuTapPage({
-  searchParams,
-}: {
-  searchParams: { concept?: string; category?: string; location?: string };
-}) {
-  const selectedConcept = searchParams.category || searchParams.concept;
-  const selectedLocation = searchParams.location;
-
+export default async function BoSuuTapPage() {
   const [allAlbums, settings] = await Promise.all([
     getCachedAlbums(),
     getCachedSystemSettings(),
@@ -128,13 +121,9 @@ export default async function BoSuuTapPage({
         </div>
       </EditorialReveal>
 
-      {/* DUAL INTERACTIVE FILTER & GALLERY GRID */}
+      {/* CLEAN EDITORIAL LOOKBOOK GALLERY GRID */}
       <div id="portfolio-filter-grid">
-        <PortfolioDualFilter
-          albums={serializedAlbums}
-          initialConcept={selectedConcept || 'Tất Cả'}
-          initialLocation={selectedLocation || 'Tất Cả'}
-        />
+        <PortfolioGalleryGrid albums={serializedAlbums} />
       </div>
 
       {/* CONSULTATION CTA SECTION */}

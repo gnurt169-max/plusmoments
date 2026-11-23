@@ -198,6 +198,8 @@ export function FeaturedAlbumsSection({
                     src={coverImageSrc}
                     alt={album?.title || 'PlusMoments Wedding Album'}
                     aspectRatio="3/4"
+                    orientation="portrait"
+                    objectPosition="object-[50%_18%]"
                     priority={idx === 0}
                     sizes="(max-width: 640px) 84vw, 340px"
                     className="w-full h-full rounded-2xl"
@@ -303,6 +305,8 @@ export function FeaturedAlbumsSection({
                     src={coverImageSrc}
                     alt={album?.title || 'PlusMoments Wedding Album'}
                     aspectRatio="3/4"
+                    orientation="portrait"
+                    objectPosition="object-[50%_18%]"
                     priority={idx < 2}
                     sizes="(max-width: 1024px) 33vw, 420px"
                     className="w-full h-full rounded-2xl"

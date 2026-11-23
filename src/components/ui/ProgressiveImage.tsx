@@ -11,6 +11,7 @@ export interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImage
   aspectRatio?: string; // e.g. '3/4', '3/2', '16/9', '1/1'
   aspectClassName?: string; // e.g. 'aspect-[3/4]', 'aspect-[3/2]'
   orientation?: 'portrait' | 'landscape';
+  objectPosition?: string; // e.g. 'object-[50%_18%]', 'object-top', 'object-center'
   priority?: boolean;
   sizes?: string;
   className?: string; // Container wrapper class
@@ -25,10 +26,13 @@ export interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImage
  * - Locked Container: Container aspect ratio is permanently locked (block w-full aspect-[...])
  *   to guarantee height is NEVER 0, keeping off-screen images strictly below the viewport.
  * - When priority !== true and not in memory cache, the <img> tag is NOT mounted in the DOM
- *   until container enters viewport (rootMargin: 180px). This guarantees zero network requests
- *   for off-screen images on initial load (Cmd + Shift + R).
- * - Zero-Flicker State: When URL is in loadedImageCache, renders directly at opacity-100
+ *   until container enters viewport (rootMargin: '450px 0px' for luxury mobile-first prefetching).
+ *   Guarantees zero network requests for off-screen images on initial load while pre-fetching
+ *   ahead of rapid phone scrolling.
+ * - Zero-Flicker State: When URL is in loadedImageCache, renders directly at opacity-100 scale-100 translate-y-0
  *   without secondary transitions or placeholder flashes.
+ * - Luxury Editorial Reveal: When loading for the first time, reveals with duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
+ *   with subtle lens settle (scale-[1.04] translate-y-2 -> scale-100 translate-y-0) strictly inside overflow-hidden (CLS = 0).
  * - Static warm cream placeholder (bg-[#EFECE6]) with zero pulsing, shimmer, or layout shifting.
  * - Multi-layer right-click & drag protection.
  */
@@ -38,6 +42,7 @@ export function ProgressiveImage({
   aspectRatio,
   aspectClassName,
   orientation,
+  objectPosition,
   priority = false,
   sizes,
   className = '',
@@ -88,6 +93,10 @@ export function ProgressiveImage({
     aspectClassName ||
     (aspectRatio ? `aspect-[${aspectRatio.replace(/\s+/g, '')}]` : defaultAspectClass);
 
+  // Default portrait focal point to 50% 18% (prioritize head/face to prevent cropping)
+  const defaultObjectPosition = isPortrait ? 'object-[50%_18%]' : 'object-center';
+  const resolvedObjectPosition = objectPosition || defaultObjectPosition;
+
   // Mark loaded and remember permanently in module cache
   const markLoaded = (url: string) => {
     if (url) {
@@ -128,7 +137,7 @@ export function ProgressiveImage({
         }
       },
       {
-        rootMargin: '180px 0px',
+        rootMargin: '450px 0px',
         threshold: 0.01,
       }
     );
@@ -204,12 +213,12 @@ export function ProgressiveImage({
         <div
           aria-hidden="true"
           className={`absolute inset-0 z-10 pointer-events-none bg-[#EFECE6] ${
-            isLoaded ? 'opacity-0 transition-opacity duration-300 ease-out' : 'opacity-100'
+            isLoaded ? 'opacity-0 transition-opacity duration-500 ease-out' : 'opacity-100'
           }`}
         />
       )}
 
-      {/* 2. CORE IMAGE WITH TRUE DOM-DEFERRED MOUNTING (Only mounts when shouldLoad is true) */}
+      {/* 2. CORE IMAGE WITH TRUE DOM-DEFERRED MOUNTING & LUXURY EDITORIAL REVEAL */}
       {shouldLoad && (
         <img
           {...props}
@@ -230,12 +239,12 @@ export function ProgressiveImage({
             setIsLoaded(true);
             onError?.(e);
           }}
-          className={`pointer-events-none select-none w-full h-full object-cover block ${
+          className={`pointer-events-none select-none w-full h-full object-cover block will-change-transform ${resolvedObjectPosition} ${
             isCached
-              ? 'opacity-100'
+              ? 'opacity-100 scale-100 translate-y-0'
               : isLoaded
-              ? 'opacity-100 transition-opacity duration-300 ease-out'
-              : 'opacity-0'
+              ? 'opacity-100 scale-100 translate-y-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]'
+              : 'opacity-0 scale-[1.04] translate-y-2'
           } ${imageClassName}`}
         />
       )}
