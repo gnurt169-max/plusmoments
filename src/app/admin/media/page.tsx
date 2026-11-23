@@ -219,6 +219,9 @@ export default function AdminMediaPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef<number>(0);
 
+  // Collapsible Root Media state (collapsed by default in Overview)
+  const [isRootMediaExpanded, setIsRootMediaExpanded] = useState<boolean>(false);
+
   // Observable AI Chunk Job state (Phase 2)
   const [aiJob, setAiJob] = useState<AiChunkJob | null>(null);
   const [isAiDrawerExpanded, setIsAiDrawerExpanded] = useState<boolean>(true);
@@ -2025,6 +2028,39 @@ export default function AdminMediaPage() {
       )}
 
       {/* SECTION 2: IMAGES GRID (Inside Folder or Root Images) */}
+      {!currentFolder && !isRootMediaExpanded ? (
+        <div className="bg-white rounded-3xl border border-stone-200 shadow-xs p-5 sm:p-6 transition-all hover:border-luxury-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-amber-50/70 border border-amber-200/60 flex items-center justify-center text-luxury-700 shadow-2xs shrink-0">
+                <FolderArchive className="w-5 h-5 text-[#B8860B]" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-serif text-base sm:text-lg font-medium text-charcoal-900">
+                    Ảnh Ngoài Thư Mục Gốc (Root Media)
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-stone-100 text-charcoal-700 text-xs font-mono font-medium">
+                    {rootMedia.length} tệp
+                  </span>
+                </div>
+                <p className="text-xs text-charcoal-500 font-light mt-0.5">
+                  Tệp tài nguyên dùng chung & ảnh tải lên ngoài thư mục
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsRootMediaExpanded(true)}
+              className="px-4 py-2 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-charcoal-800 text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:shadow-xs self-start sm:self-auto"
+            >
+              <span>Hiển thị danh sách</span>
+              <ChevronDown className="w-4 h-4 text-stone-500" />
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 sm:p-8 space-y-6">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-5">
@@ -2043,11 +2079,11 @@ export default function AdminMediaPage() {
             <p className="text-xs text-charcoal-500 font-light mt-0.5">
               {currentFolder
                 ? 'Toàn bộ hình ảnh WebP thuộc riêng thư mục này trên máy chủ VPS.'
-                : 'Các ảnh đơn lẻ tải lên không theo thư mục hoặc dùng chung trên website.'}
+                : 'Tệp tài nguyên dùng chung & ảnh tải lên ngoài thư mục'}
             </p>
           </div>
 
-          {currentFolder && (
+          {currentFolder ? (
             <div className="flex items-center gap-2">
               {currentUser?.role !== 'USER' && (
                 <>
@@ -2123,6 +2159,16 @@ export default function AdminMediaPage() {
                 )}
               </button>
             </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsRootMediaExpanded(false)}
+              className="px-3.5 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-charcoal-700 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs self-start sm:self-auto"
+              title="Thu gọn danh sách ảnh gốc"
+            >
+              <span>Thu Gọn</span>
+              <ChevronUp className="w-4 h-4 text-stone-500" />
+            </button>
           )}
         </div>
 
@@ -2752,40 +2798,24 @@ export default function AdminMediaPage() {
 
                       {/* AI Chunk Status Badge */}
                       {processingMediaIds.includes(item.id || item.url) || item.chunkStatus === 'PROCESSING' || item.aiStatus === 'RUNNING' || (aiJob?.status === 'RUNNING' && (aiJob?.currentFileName?.includes(item.name) || aiJob?.currentFileName?.includes(item.filename))) ? (
-                        <span className="relative z-20 pointer-events-auto px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
+                        <span className="relative z-10 px-2 py-0.5 rounded-md bg-amber-500/95 backdrop-blur-xs text-white text-[9px] font-medium flex items-center gap-1 shadow-xs animate-pulse">
                           <Loader2 className="w-2.5 h-2.5 animate-spin" />
                           <span>⟳ Đang xử lý...</span>
                         </span>
                       ) : (item.chunkStatus === 'CHUNKED' || Boolean(item.chunkTitle) || item.aiStatus === 'DONE') ? (
                         <div className="flex flex-col items-start gap-1">
-                          <div className="flex items-center gap-1">
-                            <span
-                              className="px-2 py-0.5 rounded-md bg-emerald-700/95 backdrop-blur-xs text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs"
-                              title={`Đã chunk: ${item.chunkTitle || item.chunkName || 'Ảnh cưới'}${item.aiContext ? `\nNgữ cảnh: ${item.aiContext}` : ''}${item.pineconeSynced ? '\n🌲 Đã đồng bộ Pinecone Vector DB' : ''}`}
-                            >
-                              <Check className="w-2.5 h-2.5 stroke-[3]" />
-                              <span>✓ Đã Chunk</span>
-                              {item.pineconeSynced && (
-                                <span title="Đã lưu vector vào Pinecone Vector DB" className="text-[10px]">
-                                  🌲
-                                </span>
-                              )}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleConvertSingleImage(item);
-                              }}
-                              disabled={processingMediaIds.includes(item.id || item.url)}
-                              className="relative z-20 pointer-events-auto px-1.5 py-0.5 rounded bg-black/60 hover:bg-black/90 text-stone-200 hover:text-white text-[8.5px] font-medium flex items-center gap-0.5 transition-colors cursor-pointer disabled:opacity-50"
-                              title="Chạy lại AI để cập nhật lại ngữ cảnh & chunk cho ảnh này"
-                            >
-                              <RotateCcw className="w-2.5 h-2.5" />
-                              <span>Re-chunk</span>
-                            </button>
-                          </div>
+                          <span
+                            className="px-2 py-0.5 rounded-md bg-emerald-700/95 backdrop-blur-xs text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs"
+                            title={`Đã chunk: ${item.chunkTitle || item.chunkName || 'Ảnh cưới'}${item.aiContext ? `\nNgữ cảnh: ${item.aiContext}` : ''}${item.pineconeSynced ? '\n🌲 Đã đồng bộ Pinecone Vector DB' : ''}`}
+                          >
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            <span>✓ Đã Chunk</span>
+                            {item.pineconeSynced && (
+                              <span title="Đã lưu vector vào Pinecone Vector DB" className="text-[10px]">
+                                🌲
+                              </span>
+                            )}
+                          </span>
                           {(item.chunkTitle || item.chunkName) && (
                             <span
                               className="px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-emerald-200 text-[8.5px] font-medium max-w-[160px] truncate shadow-2xs"
@@ -2796,25 +2826,9 @@ export default function AdminMediaPage() {
                           )}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1">
-                          <span className="px-2 py-0.5 rounded-md bg-stone-700/90 backdrop-blur-xs text-stone-200 text-[9px] font-medium shadow-xs">
-                            Chưa Chunk
-                          </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleConvertSingleImage(item);
-                            }}
-                            disabled={processingMediaIds.includes(item.id || item.url)}
-                            className="relative z-20 pointer-events-auto px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
-                            title="Bấm để AI đọc ngữ cảnh và tạo chunk cho tấm ảnh này"
-                          >
-                            <Sparkles className="w-2.5 h-2.5 text-amber-200" />
-                            <span>Convert Chunks</span>
-                          </button>
-                        </div>
+                        <span className="px-2 py-0.5 rounded-md bg-stone-700/90 backdrop-blur-xs text-stone-200 text-[9px] font-medium shadow-xs">
+                          Chưa Chunk
+                        </span>
                       )}
                     </div>
 
@@ -2899,7 +2913,7 @@ export default function AdminMediaPage() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     {processingMediaIds.includes(item.id || item.url) ? (
-                      <span className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shrink-0 animate-pulse">
+                      <span className="relative z-20 pointer-events-auto py-1.5 px-2.5 rounded-lg text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shrink-0 animate-pulse">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         <span>Đang xử lý...</span>
                       </span>
@@ -2912,11 +2926,11 @@ export default function AdminMediaPage() {
                           handleConvertSingleImage(item);
                         }}
                         disabled={processingMediaIds.includes(item.id || item.url)}
-                        className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
-                        title="Tạo chunk ngữ cảnh cho ảnh này"
+                        className="relative z-20 pointer-events-auto py-1.5 px-2.5 rounded-lg text-[11px] font-semibold bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+                        title="Bấm để AI đọc ngữ cảnh và tạo chunk cho tấm ảnh này"
                       >
-                        <Sparkles className="w-3 h-3 text-amber-600" />
-                        <span>Chunk</span>
+                        <Sparkles className="w-3 h-3 text-amber-200" />
+                        <span>Convert Chunks</span>
                       </button>
                     ) : (
                       <button
@@ -2927,7 +2941,7 @@ export default function AdminMediaPage() {
                           handleConvertSingleImage(item);
                         }}
                         disabled={processingMediaIds.includes(item.id || item.url)}
-                        className="relative z-20 pointer-events-auto py-1.5 px-2 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
+                        className="relative z-20 pointer-events-auto py-1.5 px-2.5 rounded-lg text-[11px] font-medium bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200 transition-all flex items-center gap-1 cursor-pointer shrink-0 disabled:opacity-50"
                         title="Chạy lại AI để cập nhật ngữ cảnh chunk cho ảnh này"
                       >
                         <RotateCcw className="w-3 h-3 text-stone-500" />
@@ -3008,6 +3022,7 @@ export default function AdminMediaPage() {
       </>
       )}
     </div>
+  )}
 
       {/* MODAL 1: CREATE FOLDER */}
       <Modal
