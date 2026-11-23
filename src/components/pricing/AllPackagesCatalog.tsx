@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Sparkles } from 'lucide-react';
 import { PackageCard } from '@/components/packages/PackageCard';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 import type { PricingPackageData } from './LuxuryPricingSection';
 
 // Dynamic load PackageDetailModal on demand
@@ -243,8 +244,9 @@ export function AllPackagesCatalog({
             }`}
           >
             {filteredPackages.map((pkg, index) => (
-              <div
+              <EditorialReveal
                 key={pkg.id}
+                delay={(index % 3) * 80}
                 className="shrink-0 w-[84vw] max-w-[340px] snap-center md:shrink md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
               >
                 <PackageCard
@@ -253,7 +255,7 @@ export function AllPackagesCatalog({
                   isSummary={isSummary}
                   onSelect={(selected) => setSelectedPackage(selected)}
                 />
-              </div>
+              </EditorialReveal>
             ))}
           </div>
 

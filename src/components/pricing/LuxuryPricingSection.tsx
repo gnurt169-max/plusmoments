@@ -60,8 +60,8 @@ export interface PricingPackageData {
   slug: string;
   category: string;
   subtitle?: string | null;
-  price: number | string;
-  originalPrice?: number | string | null;
+  price: number;
+  originalPrice?: number | null;
   unit: string;
   coverImage?: string;
   demoImages?: string | null;

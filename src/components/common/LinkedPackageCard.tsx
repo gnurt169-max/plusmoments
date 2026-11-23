@@ -16,8 +16,8 @@ export interface LinkedPackageData {
   id: string;
   name: string;
   slug: string;
-  price: number | string | any;
-  originalPrice?: number | string | any | null;
+  price: number;
+  originalPrice?: number | null;
   unit?: string | null;
   category?: string | null;
   subtitle?: string | null;

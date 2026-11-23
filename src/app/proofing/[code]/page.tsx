@@ -22,8 +22,12 @@ import {
   ShieldCheck,
   Check,
   Filter,
+  Columns,
+  Grid3X3,
+  Layers,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 
 interface GalleryMeta {
   id: string;
@@ -46,6 +50,9 @@ interface PhotoItem {
   thumbUrl: string;
   smallUrl: string;
   sizeBytes: number;
+  width?: number;
+  height?: number;
+  orientation?: 'landscape' | 'portrait';
 }
 
 interface SelectionState {
@@ -82,6 +89,7 @@ export default function ClientProofingPage({
 
   // Active View Filter
   const [activeFilter, setActiveFilter] = useState<'all' | 'photobook' | 'portrait' | 'notes' | 'unselected'>('all');
+  const [proofOrientation, setProofOrientation] = useState<'all' | 'landscape' | 'portrait'>('all');
 
   // Active Note Modal
   const [editingNotePhoto, setEditingNotePhoto] = useState<PhotoItem | null>(null);
@@ -317,6 +325,33 @@ export default function ClientProofingPage({
       return true;
     });
   }, [photos, selections, activeFilter]);
+
+  // Split into indexed landscape and portrait lists for row-balanced layout
+  const landscapePhotos = useMemo(
+    () =>
+      displayedPhotos
+        .map((photo, originalIndex) => ({ photo, originalIndex }))
+        .filter(({ photo }) => {
+          const orient =
+            photo.orientation ||
+            (photo.width && photo.height && photo.width >= photo.height ? 'landscape' : 'portrait');
+          return orient === 'landscape';
+        }),
+    [displayedPhotos]
+  );
+
+  const portraitPhotos = useMemo(
+    () =>
+      displayedPhotos
+        .map((photo, originalIndex) => ({ photo, originalIndex }))
+        .filter(({ photo }) => {
+          const orient =
+            photo.orientation ||
+            (photo.width && photo.height && photo.width >= photo.height ? 'landscape' : 'portrait');
+          return orient === 'portrait';
+        }),
+    [displayedPhotos]
+  );
 
   // Lightbox keyboard navigation
   useEffect(() => {
@@ -646,136 +681,393 @@ export default function ClientProofingPage({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-            {displayedPhotos.map((photo, idx) => {
-              const sel = selections[photo.fileName];
-              const isPhotobook = Boolean(sel?.photobook);
-              const isPortrait = Boolean(sel?.portrait);
-              const hasNote = Boolean(sel?.note?.trim());
-
-              return (
-                <div
-                  key={photo.fileName}
-                  className={`group relative rounded-2xl overflow-hidden bg-stone-900 border transition-all flex flex-col justify-between ${
-                    isPhotobook
-                      ? 'border-rose-500/80 ring-2 ring-rose-500/30'
-                      : isPortrait
-                      ? 'border-amber-500/80 ring-2 ring-amber-500/30'
-                      : 'border-stone-800/80 hover:border-stone-700'
+          <div className="space-y-8 sm:space-y-10">
+            {/* SUB-FILTER: HƯỚNG ẢNH TRONG CỔNG PROOFING */}
+            {landscapePhotos.length > 0 && portraitPhotos.length > 0 && (
+              <div className="flex items-center justify-center sm:justify-start gap-2 pt-1 pb-1">
+                <button
+                  type="button"
+                  onClick={() => setProofOrientation('all')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    proofOrientation === 'all'
+                      ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                      : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
                   }`}
                 >
-                  {/* Photo Container */}
-                  <div
-                    onClick={() => setLightboxIndex(idx)}
-                    className="relative aspect-[3/4] w-full overflow-hidden cursor-zoom-in bg-stone-950 flex items-center justify-center"
-                  >
-                    <img
-                      src={photo.thumbUrl}
-                      alt={photo.fileName}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 select-none"
-                      loading="lazy"
-                    />
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Tất Cả ({displayedPhotos.length})</span>
+                </button>
 
-                    {/* Gradient Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                <button
+                  type="button"
+                  onClick={() => setProofOrientation('landscape')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    proofOrientation === 'landscape'
+                      ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                      : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <Grid3X3 className="w-3.5 h-3.5" />
+                  <span>Ảnh Ngang ({landscapePhotos.length})</span>
+                </button>
 
-                    {/* Top Status Icons */}
-                    <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
-                      {isPhotobook && (
-                        <span className="p-1.5 rounded-full bg-rose-600 text-white shadow-lg flex items-center justify-center">
-                          <Heart className="w-3.5 h-3.5 fill-white text-white" />
-                        </span>
-                      )}
-                      {isPortrait && (
-                        <span className="p-1.5 rounded-full bg-amber-500 text-stone-950 shadow-lg flex items-center justify-center font-bold">
-                          <ImageIcon className="w-3.5 h-3.5" />
-                        </span>
-                      )}
-                    </div>
+                <button
+                  type="button"
+                  onClick={() => setProofOrientation('portrait')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    proofOrientation === 'portrait'
+                      ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                      : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <Columns className="w-3.5 h-3.5" />
+                  <span>Ảnh Đứng / Dọc ({portraitPhotos.length})</span>
+                </button>
+              </div>
+            )}
 
-                    {/* Center Zoom Hint (Hover) */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <span className="p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white shadow-xl">
-                        <Maximize2 className="w-4 h-4" />
-                      </span>
-                    </div>
+            {/* 1. KHU VỰC ẢNH NGANG (LANDSCAPE PROOFING - ROW BALANCED 100% WIDTH) */}
+            {(proofOrientation === 'all' || proofOrientation === 'landscape') && landscapePhotos.length > 0 && (
+              <section className="space-y-3">
+                {proofOrientation === 'all' && portraitPhotos.length > 0 && (
+                  <div className="flex items-center justify-between border-b border-stone-800/80 pb-2">
+                    <span className="text-xs font-semibold text-amber-400/90 tracking-wider uppercase flex items-center gap-1.5">
+                      <Grid3X3 className="w-3.5 h-3.5" />
+                      <span>Ảnh Khổ Ngang ({landscapePhotos.length})</span>
+                    </span>
+                    <span className="text-[11px] text-stone-500 font-mono">Tỷ lệ 3:2</span>
                   </div>
+                )}
 
-                  {/* Action Bar Beneath Card */}
-                  <div className="p-2 sm:p-2.5 bg-stone-950/90 border-t border-stone-800/80 space-y-1.5">
-                    {/* Filename & Note indicator */}
-                    <div className="flex items-center justify-between text-[10px] font-mono text-stone-400">
-                      <span className="truncate pr-1 font-light" title={photo.fileName}>
-                        {photo.fileName}
-                      </span>
-                      {hasNote && (
-                        <span className="text-blue-400 font-sans text-[10px] font-semibold flex items-center gap-0.5">
-                          💬 Đã ghi chú
-                        </span>
-                      )}
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 [overflow-anchor:none]">
+                  {landscapePhotos.map(({ photo, originalIndex }, idx) => {
+                    const isLandscapeOdd = landscapePhotos.length % 2 === 1;
+                    const isHero = isLandscapeOdd && idx === 0;
+                    const aspectClass = isHero ? 'aspect-[16/9]' : 'aspect-[3/2]';
+                    const isPriority = originalIndex < 2;
 
-                    {/* Buttons: Heart, Portrait, Note, Download */}
-                    <div className="grid grid-cols-3 gap-1 pt-0.5">
-                      {/* 1. Photobook Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleSelection(photo.fileName, 'photobook', isPhotobook);
-                        }}
-                        className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                    const sel = selections[photo.fileName];
+                    const isPhotobook = Boolean(sel?.photobook);
+                    const isPortrait = Boolean(sel?.portrait);
+                    const hasNote = Boolean(sel?.note?.trim());
+
+                    return (
+                      <div
+                        key={photo.fileName}
+                        className={`group relative rounded-2xl overflow-hidden bg-stone-900 border transition-all flex flex-col justify-between ${
+                          isHero ? 'md:col-span-2' : ''
+                        } ${
                           isPhotobook
-                            ? 'bg-rose-600 text-white font-bold shadow-xs'
-                            : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                            ? 'border-rose-500/80 ring-2 ring-rose-500/30'
+                            : isPortrait
+                            ? 'border-amber-500/80 ring-2 ring-amber-500/30'
+                            : 'border-stone-800/80 hover:border-stone-700'
                         }`}
-                        title="Chọn in vào cuốn Photobook"
                       >
-                        <Heart className={`w-3.5 h-3.5 ${isPhotobook ? 'fill-white text-white' : ''}`} />
-                        <span className="text-[10px]">Cuốn</span>
-                      </button>
+                        {/* Photo Container */}
+                        <div
+                          onClick={() => setLightboxIndex(originalIndex)}
+                          className={`relative w-full ${aspectClass} overflow-hidden cursor-zoom-in bg-stone-950 flex items-center justify-center`}
+                        >
+                          <ProgressiveImage
+                            src={photo.thumbUrl || photo.url}
+                            alt={photo.fileName}
+                            priority={isPriority}
+                            orientation="landscape"
+                            aspectRatio={isHero ? '16/9' : '3/2'}
+                            aspectClassName={aspectClass}
+                            sizes={isHero ? '100vw' : '(max-width: 768px) 100vw, 640px'}
+                            className="w-full h-full"
+                            imageClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 select-none"
+                          />
 
-                      {/* 2. Portrait Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleSelection(photo.fileName, 'portrait', isPortrait);
-                        }}
-                        className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                          isPortrait
-                            ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
-                            : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
-                        }`}
-                        title="Chọn làm Ảnh Cổng / Khung Lớn"
-                      >
-                        <ImageIcon className="w-3.5 h-3.5" />
-                        <span className="text-[10px]">Cổng</span>
-                      </button>
+                          {/* Gradient Overlay on Hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                      {/* 3. Note Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingNotePhoto(photo);
-                          setNoteText(sel?.note || '');
-                        }}
-                        className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                          hasNote
-                            ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
-                            : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
-                        }`}
-                        title="Ghi chú chỉnh sửa riêng cho tấm này"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span className="text-[10px]">Sửa</span>
-                      </button>
-                    </div>
-                  </div>
+                          {/* Top Status Icons */}
+                          <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
+                            {isPhotobook && (
+                              <span className="p-1.5 rounded-full bg-rose-600 text-white shadow-lg flex items-center justify-center">
+                                <Heart className="w-3.5 h-3.5 fill-white text-white" />
+                              </span>
+                            )}
+                            {isPortrait && (
+                              <span className="p-1.5 rounded-full bg-amber-500 text-stone-950 shadow-lg flex items-center justify-center font-bold">
+                                <ImageIcon className="w-3.5 h-3.5" />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Center Zoom Hint (Hover) */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <span className="p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white shadow-xl">
+                              <Maximize2 className="w-4 h-4" />
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Bar Beneath Card */}
+                        <div className="p-2 sm:p-2.5 bg-stone-950/90 border-t border-stone-800/80 space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-stone-400">
+                            <span className="truncate pr-1 font-light" title={photo.fileName}>
+                              {photo.fileName}
+                            </span>
+                            {hasNote && (
+                              <span className="text-blue-400 font-sans text-[10px] font-semibold flex items-center gap-0.5">
+                                💬 Đã ghi chú
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-1 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSelection(photo.fileName, 'photobook', isPhotobook);
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                isPhotobook
+                                  ? 'bg-rose-600 text-white font-bold shadow-xs'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Chọn in vào cuốn Photobook"
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${isPhotobook ? 'fill-white text-white' : ''}`} />
+                              <span className="text-[10px]">Cuốn</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSelection(photo.fileName, 'portrait', isPortrait);
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                isPortrait
+                                  ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Chọn làm Ảnh Cổng / Khung Lớn"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">Cổng</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingNotePhoto(photo);
+                                setNoteText(sel?.note || '');
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                hasNote
+                                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Ghi chú chỉnh sửa riêng cho tấm này"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">Sửa</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </section>
+            )}
+
+            {/* 2. KHU VỰC ẢNH DỌC (PORTRAIT PROOFING - ROW BALANCED & CENTERED REMAINDER) */}
+            {(proofOrientation === 'all' || proofOrientation === 'portrait') && portraitPhotos.length > 0 && (
+              <section className="space-y-3">
+                {proofOrientation === 'all' && landscapePhotos.length > 0 && (
+                  <div className="flex items-center justify-between border-b border-stone-800/80 pb-2 pt-2">
+                    <span className="text-xs font-semibold text-amber-400/90 tracking-wider uppercase flex items-center gap-1.5">
+                      <Columns className="w-3.5 h-3.5" />
+                      <span>Ảnh Khổ Đứng / Dọc ({portraitPhotos.length})</span>
+                    </span>
+                    <span className="text-[11px] text-stone-500 font-mono">Tỷ lệ 3:4</span>
+                  </div>
+                )}
+
+                {(() => {
+                  const portraitRemainderCount = portraitPhotos.length % 3;
+                  const portraitFullCount =
+                    portraitRemainderCount === 0
+                      ? portraitPhotos.length
+                      : portraitPhotos.length - portraitRemainderCount;
+
+                  const fullPortraits = portraitPhotos.slice(0, portraitFullCount);
+                  const remPortraits = portraitPhotos.slice(portraitFullCount);
+
+                  const renderCardInner = ({ photo, originalIndex }: { photo: PhotoItem; originalIndex: number }) => {
+                    const sel = selections[photo.fileName];
+                    const isPhotobook = Boolean(sel?.photobook);
+                    const isPortrait = Boolean(sel?.portrait);
+                    const hasNote = Boolean(sel?.note?.trim());
+
+                    return (
+                      <div
+                        key={photo.fileName}
+                        className={`group relative rounded-2xl overflow-hidden bg-stone-900 border transition-all flex flex-col justify-between w-full ${
+                          isPhotobook
+                            ? 'border-rose-500/80 ring-2 ring-rose-500/30'
+                            : isPortrait
+                            ? 'border-amber-500/80 ring-2 ring-amber-500/30'
+                            : 'border-stone-800/80 hover:border-stone-700'
+                        }`}
+                      >
+                        {/* Photo Container */}
+                        <div
+                          onClick={() => setLightboxIndex(originalIndex)}
+                          className="relative w-full aspect-[3/4] overflow-hidden cursor-zoom-in bg-stone-950 flex items-center justify-center"
+                        >
+                          <ProgressiveImage
+                            src={photo.thumbUrl || photo.url}
+                            alt={photo.fileName}
+                            priority={originalIndex < 3}
+                            orientation="portrait"
+                            aspectRatio="3/4"
+                            aspectClassName="aspect-[3/4]"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
+                            className="w-full h-full"
+                            imageClassName="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 select-none"
+                          />
+
+                          {/* Gradient Overlay on Hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                          {/* Top Status Icons */}
+                          <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
+                            {isPhotobook && (
+                              <span className="p-1.5 rounded-full bg-rose-600 text-white shadow-lg flex items-center justify-center">
+                                <Heart className="w-3.5 h-3.5 fill-white text-white" />
+                              </span>
+                            )}
+                            {isPortrait && (
+                              <span className="p-1.5 rounded-full bg-amber-500 text-stone-950 shadow-lg flex items-center justify-center font-bold">
+                                <ImageIcon className="w-3.5 h-3.5" />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Center Zoom Hint (Hover) */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <span className="p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white shadow-xl">
+                              <Maximize2 className="w-4 h-4" />
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Bar Beneath Card */}
+                        <div className="p-2 sm:p-2.5 bg-stone-950/90 border-t border-stone-800/80 space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-stone-400">
+                            <span className="truncate pr-1 font-light" title={photo.fileName}>
+                              {photo.fileName}
+                            </span>
+                            {hasNote && (
+                              <span className="text-blue-400 font-sans text-[10px] font-semibold flex items-center gap-0.5">
+                                💬 Đã ghi chú
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-1 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSelection(photo.fileName, 'photobook', isPhotobook);
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                isPhotobook
+                                  ? 'bg-rose-600 text-white font-bold shadow-xs'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Chọn in vào cuốn Photobook"
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${isPhotobook ? 'fill-white text-white' : ''}`} />
+                              <span className="text-[10px]">Cuốn</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSelection(photo.fileName, 'portrait', isPortrait);
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                isPortrait
+                                  ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Chọn làm Ảnh Cổng / Khung Lớn"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">Cổng</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingNotePhoto(photo);
+                                setNoteText(sel?.note || '');
+                              }}
+                              className={`py-1 px-1.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                                hasNote
+                                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
+                                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white border border-stone-800'
+                              }`}
+                              title="Ghi chú chỉnh sửa riêng cho tấm này"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span className="text-[10px]">Sửa</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  };
+
+                  return (
+                    <div className="space-y-4">
+                      {fullPortraits.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 md:gap-4 [overflow-anchor:none]">
+                          {fullPortraits.map(renderCardInner)}
+                        </div>
+                      )}
+
+                      {/* Centered Remainder if 1 item */}
+                      {remPortraits.length === 1 && (
+                        <div className="flex justify-center pt-1 [overflow-anchor:none]">
+                          <div className="w-full max-w-[calc(50%-0.5rem)] md:max-w-[calc(33.333%-1rem)]">
+                            {renderCardInner(remPortraits[0])}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Centered Remainder if 2 items */}
+                      {remPortraits.length === 2 && (
+                        <div className="flex justify-center gap-3.5 md:gap-4 pt-1 [overflow-anchor:none]">
+                          {remPortraits.map((entry) => (
+                            <div
+                              key={entry.photo.fileName}
+                              className="w-[calc(50%-0.5rem)] md:w-[calc(33.333%-1rem)]"
+                            >
+                              {renderCardInner(entry)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </section>
+            )}
           </div>
         )}
       </main>

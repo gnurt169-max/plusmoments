@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Star } from 'lucide-react';
 import { FloatingCard } from '@/components/motion/FloatingCard';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 
 export interface TestimonialItem {
   id: string;
@@ -51,48 +52,53 @@ export function TestimonialsSection({
           const contentText = test.content || test.reviewContent || '';
 
           return (
-            <FloatingCard
+            <EditorialReveal
               key={test.id}
-              delay={index * 0.5}
-              reverse={index % 2 === 1}
-              className="bg-white p-8 rounded-2xl border border-champagne-dark/30 shadow-luxury flex flex-col justify-between"
+              delay={index * 100}
+              className="flex"
             >
-              <div>
-                <div className="flex items-center gap-1 text-amber-500 mb-4">
-                  {[...Array(test.rating || 5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
-                  ))}
-                </div>
-                <blockquote className="font-serif text-lg sm:text-xl font-light text-charcoal-900 italic mb-4">
-                  "{test.quote}"
-                </blockquote>
-                <p className="text-xs text-charcoal-600 font-light leading-relaxed mb-6">
-                  {contentText}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4 pt-4 border-t border-champagne-light">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-champagne-light shrink-0">
-                  <Image
-                    src={avatar}
-                    alt={test.coupleNames}
-                    fill
-                    sizes="48px"
-                    className="object-cover"
-                  />
-                </div>
+              <FloatingCard
+                delay={index * 0.5}
+                reverse={index % 2 === 1}
+                className="w-full bg-white p-8 rounded-2xl border border-champagne-dark/30 shadow-luxury flex flex-col justify-between"
+              >
                 <div>
-                  <h3 className="font-serif text-sm font-medium text-charcoal-900">
-                    {test.coupleNames}
-                  </h3>
-                  {test.weddingDate && (
-                    <p className="text-[11px] text-charcoal-600 font-mono">
-                      {test.weddingDate}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-1 text-amber-500 mb-4">
+                    {[...Array(test.rating || 5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    ))}
+                  </div>
+                  <blockquote className="font-serif text-lg sm:text-xl font-light text-charcoal-900 italic mb-4">
+                    "{test.quote}"
+                  </blockquote>
+                  <p className="text-xs text-charcoal-600 font-light leading-relaxed mb-6">
+                    {contentText}
+                  </p>
                 </div>
-              </div>
-            </FloatingCard>
+
+                <div className="flex items-center gap-4 pt-4 border-t border-champagne-light">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden bg-champagne-light shrink-0">
+                    <Image
+                      src={avatar}
+                      alt={test.coupleNames}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-sm font-medium text-charcoal-900">
+                      {test.coupleNames}
+                    </h3>
+                    {test.weddingDate && (
+                      <p className="text-[11px] text-charcoal-600 font-mono">
+                        {test.weddingDate}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </FloatingCard>
+            </EditorialReveal>
           );
         })}
       </div>

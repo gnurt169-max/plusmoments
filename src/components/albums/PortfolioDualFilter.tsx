@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlbumCard, AlbumCardData } from './AlbumCard';
-import { Sparkles, MapPin, Film, RotateCcw, ArrowRight } from 'lucide-react';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
+import { Sparkles, MapPin, Film, RotateCcw, ArrowRight, Loader2 } from 'lucide-react';
 
 interface PortfolioDualFilterProps {
   albums: AlbumCardData[];
@@ -181,6 +182,42 @@ export function PortfolioDualFilter({
     (selectedConcept && selectedConcept !== 'Tất Cả') ||
     (selectedLocation && selectedLocation !== 'Tất Cả' && selectedLocation !== 'Tất Cả Địa Điểm') ||
     videoOnly;
+
+  // Progressive Infinite Loading: Initial 8 albums, batch load 8 more on scroll
+  const [visibleCount, setVisibleCount] = useState<number>(8);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Reset visibleCount whenever user filters change
+  useEffect(() => {
+    setVisibleCount(8);
+  }, [selectedConcept, selectedLocation, videoOnly]);
+
+  // Sentinel IntersectionObserver for progressive loading
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((prev) => Math.min(filteredAlbums.length, prev + 8));
+        }
+      },
+      {
+        rootMargin: '400px 0px',
+        threshold: 0.05,
+      }
+    );
+
+    observer.observe(sentinel);
+    return () => {
+      observer.disconnect();
+    };
+  }, [filteredAlbums.length]);
+
+  const visibleAlbums = useMemo(() => {
+    return filteredAlbums.slice(0, visibleCount);
+  }, [filteredAlbums, visibleCount]);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -420,15 +457,49 @@ export function PortfolioDualFilter({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
-          {filteredAlbums.map((album, idx) => (
-            <AlbumCard
-              key={album.id}
-              album={album}
-              priority={idx < 4}
-              idx={idx}
-            />
-          ))}
+        <div className="space-y-8 [overflow-anchor:none]">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 [overflow-anchor:none]">
+            {visibleAlbums.map((album, idx) => (
+              <EditorialReveal
+                key={album.id}
+                delay={(idx % 4) * 60}
+                className="h-full"
+              >
+                <AlbumCard
+                  album={album}
+                  priority={idx < 4}
+                  idx={idx}
+                />
+              </EditorialReveal>
+            ))}
+          </div>
+
+          {/* PROGRESSIVE INFINITE SENTINEL & STATUS BAR */}
+          {visibleCount < filteredAlbums.length && (
+            <div ref={sentinelRef} className="pt-6 pb-2 text-center space-y-3">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-xs font-mono shadow-2xs">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-luxury-600" />
+                <span>
+                  Đang hiển thị <strong>{visibleAlbums.length}</strong> / {filteredAlbums.length} bộ sưu tập
+                </span>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => Math.min(filteredAlbums.length, prev + 8))}
+                  className="text-xs text-charcoal-700 hover:text-charcoal-900 font-medium underline underline-offset-4 cursor-pointer active:scale-95 transition-transform"
+                >
+                  Tải thêm {Math.min(8, filteredAlbums.length - visibleAlbums.length)} bộ sưu tập tiếp theo
+                </button>
+              </div>
+            </div>
+          )}
+
+          {visibleCount >= filteredAlbums.length && filteredAlbums.length > 8 && (
+            <div className="pt-6 pb-2 text-center text-xs text-stone-400 font-mono tracking-wide">
+              ✓ Đã hiển thị toàn bộ {filteredAlbums.length} / {filteredAlbums.length} bộ sưu tập
+            </div>
+          )}
         </div>
       )}
     </div>

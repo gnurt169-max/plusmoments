@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { Sparkles, Eye, ArrowRight } from 'lucide-react';
 import { formatVND } from '@/lib/utils';
 import { extractPackageHighlights } from '@/lib/package-features';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 
 export interface PackageCardProps {
@@ -73,16 +73,15 @@ export function PackageCard({
       {/* 1. COVER IMAGE */}
       <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] md:aspect-[4/3] shrink-0 overflow-hidden bg-[#F3EFEA]">
         {coverImg ? (
-          <Image
+          <ProgressiveImage
             src={coverImg}
             alt={pkg.name}
-            fill
             priority={priority}
-            fetchPriority={priority ? 'high' : 'auto'}
-            onError={() => setHasError(true)}
-            quality={65}
+            aspectClassName="aspect-[16/10] sm:aspect-[16/11] md:aspect-[4/3]"
             sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-            className="object-cover opacity-100 group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
+            className="w-full h-full"
+            imageClassName="object-cover group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
+            onError={() => setHasError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-[#1E1C1A] text-stone-400">

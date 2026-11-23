@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 import { MapPin, Phone, Mail, Clock, Sparkles, Building, ExternalLink } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -40,7 +41,7 @@ export default async function ContactPage() {
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-      <div className="text-center max-w-2xl mx-auto space-y-3">
+      <EditorialReveal className="text-center max-w-2xl mx-auto space-y-3">
         <p className="text-xs uppercase tracking-[0.25em] text-luxury-600 font-semibold">
           Ghé Thăm Studio
         </p>
@@ -50,15 +51,16 @@ export default async function ContactPage() {
         <p className="text-sm text-charcoal-600 font-light leading-relaxed">
           Chúng tôi rất hân hạnh được đón tiếp bạn và người thương tại studio để cùng nhau tạo nên những trang nhật ký tình yêu đẹp nhất.
         </p>
-      </div>
+      </EditorialReveal>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Dynamic Studio Locations Cards */}
         <div className="lg:col-span-5 space-y-6">
           {locations.length > 0 ? (
-            locations.map((loc) => (
-              <div
+            locations.map((loc, idx) => (
+              <EditorialReveal
                 key={loc.id}
+                delay={idx * 90}
                 className="bg-white p-7 rounded-3xl border border-champagne-dark/30 shadow-luxury space-y-5"
               >
                 <div className="flex items-center justify-between border-b border-stone-100 pb-3">
@@ -119,11 +121,11 @@ export default async function ContactPage() {
                     </div>
                   )}
                 </div>
-              </div>
+              </EditorialReveal>
             ))
           ) : (
             /* Fallback Card from System Settings */
-            <div className="bg-white p-8 rounded-3xl border border-champagne-dark/30 shadow-luxury space-y-5">
+            <EditorialReveal className="bg-white p-8 rounded-3xl border border-champagne-dark/30 shadow-luxury space-y-5">
               <h2 className="font-serif text-2xl font-light text-charcoal-900">
                 PlusMoments Studio
               </h2>
@@ -139,11 +141,14 @@ export default async function ContactPage() {
                   </a>
                 </div>
               </div>
-            </div>
+            </EditorialReveal>
           )}
 
           {/* Quick Chat Support */}
-          <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 flex items-center justify-between">
+          <EditorialReveal
+            delay={(locations.length || 1) * 90}
+            className="bg-stone-50 border border-stone-200 rounded-3xl p-6 flex items-center justify-between"
+          >
             <div>
               <p className="font-serif text-sm font-medium text-charcoal-900">
                 Chat Tư Vấn Ngay Qua Zalo
@@ -160,11 +165,14 @@ export default async function ContactPage() {
             >
               Chat Zalo
             </a>
-          </div>
+          </EditorialReveal>
         </div>
 
         {/* Consultation Form Container */}
-        <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl border border-champagne-dark/30 shadow-luxury">
+        <EditorialReveal
+          delay={120}
+          className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl border border-champagne-dark/30 shadow-luxury"
+        >
           <div className="space-y-2 mb-8">
             <div className="inline-flex items-center gap-1.5 text-luxury-600 text-xs uppercase tracking-widest font-semibold">
               <Sparkles className="w-4 h-4" />
@@ -179,7 +187,7 @@ export default async function ContactPage() {
           </div>
 
           <ConsultationForm />
-        </div>
+        </EditorialReveal>
       </div>
     </div>
   );

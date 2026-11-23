@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Film } from 'lucide-react';
 import { FloatingCard } from '@/components/motion/FloatingCard';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 
 export interface AlbumCardData {
   id: string;
@@ -29,15 +29,11 @@ export interface AlbumCardProps {
 }
 
 export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) {
-  const [hasError, setHasError] = useState(false);
-
   const rawSrc =
     (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
     album?.photos?.[0]?.url ||
     album?.media?.[0]?.url ||
     '/placeholder.jpg';
-
-  const originalSrc = hasError ? '/placeholder.jpg' : rawSrc;
 
   return (
     <FloatingCard
@@ -51,16 +47,14 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
         className="flex flex-col h-full bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-2xl shadow-luxury hover:shadow-luxury-hover border border-champagne-dark/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2"
       >
         <div className="relative aspect-[3/4] w-full rounded-lg sm:rounded-xl overflow-hidden mb-2 sm:mb-4 bg-[#F3EFEA]">
-          <Image
-            src={originalSrc}
+          <ProgressiveImage
+            src={rawSrc}
             alt={album.title || 'PlusMoments Album'}
-            fill
+            aspectRatio="3/4"
             priority={priority}
-            fetchPriority={priority ? 'high' : 'auto'}
-            onError={() => setHasError(true)}
-            quality={75}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
-            className="object-cover opacity-100 group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
+            className="w-full h-full rounded-lg sm:rounded-xl"
+            imageClassName="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out select-none pointer-events-none"
           />
           {album.concept && (
             <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-charcoal-900/80 backdrop-blur-sm rounded-full text-[9px] sm:text-[10px] tracking-widest uppercase text-champagne-light font-medium line-clamp-1 max-w-[85%]">
@@ -78,6 +72,11 @@ export function AlbumCard({ album, priority = false, idx = 0 }: AlbumCardProps) 
               {album.location}
             </div>
           )}
+          {/* Subtle Hover Reveal Story Badge */}
+          <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-charcoal-900/90 backdrop-blur-md rounded-full text-[9px] sm:text-[10px] tracking-wider uppercase font-medium text-amber-200 border border-amber-500/20 shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none flex items-center gap-1">
+            <span>Khám phá câu chuyện</span>
+            <span>→</span>
+          </div>
         </div>
 
         <div className="space-y-1 sm:space-y-1.5 px-1 sm:px-2 pb-0.5 sm:pb-1 mt-auto">

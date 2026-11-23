@@ -1,7 +1,8 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Clock, Calendar } from 'lucide-react';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 
 export interface PostItem {
   id: string;
@@ -41,7 +42,7 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
 
         {/* 3-Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.slice(0, 3).map((post) => {
+          {posts.slice(0, 3).map((post, index) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString('vi-VN', {
               day: '2-digit',
               month: '2-digit',
@@ -50,31 +51,35 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
             const excerptText = post.excerpt || post.summary || '';
 
             return (
-              <article
+              <EditorialReveal
                 key={post.id}
-                className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-[#E8E2D9] shadow-sm hover:shadow-md transition-all duration-300"
+                delay={(index % 3) * 80}
+                className="flex"
               >
-                {/* Thumbnail Container */}
-                <Link
-                  href={`/blog/${post.slug}`}
-                  className="relative aspect-[16/10] w-full overflow-hidden bg-[#1E1C1A] block"
-                  title={post.title}
-                  aria-label={`Xem bài viết: ${post.title}`}
+                <article
+                  className="group flex flex-col w-full bg-white rounded-2xl overflow-hidden border border-[#E8E2D9] shadow-sm hover:shadow-md transition-all duration-300"
                 >
-                  <Image
-                    src={post.coverImage || '/placeholder.jpg'}
-                    alt={post.title}
-                    fill
-                    quality={65}
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
-                  />
-                  {post.category && (
-                    <span className="absolute top-3 left-3 z-20 px-3 py-1 bg-white/90 backdrop-blur-md text-[11px] font-medium tracking-wider uppercase text-[#2E2824] rounded-full shadow-sm pointer-events-none">
-                      {post.category}
-                    </span>
-                  )}
-                </Link>
+                  {/* Thumbnail Container */}
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="relative aspect-[16/10] w-full overflow-hidden bg-[#1E1C1A] block"
+                    title={post.title}
+                    aria-label={`Xem bài viết: ${post.title}`}
+                  >
+                    <ProgressiveImage
+                      src={post.coverImage || '/placeholder.jpg'}
+                      alt={post.title}
+                      aspectRatio="16/10"
+                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
+                      className="w-full h-full"
+                      imageClassName="object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
+                    />
+                    {post.category && (
+                      <span className="absolute top-3 left-3 z-20 px-3 py-1 bg-white/90 backdrop-blur-md text-[11px] font-medium tracking-wider uppercase text-[#2E2824] rounded-full shadow-sm pointer-events-none">
+                        {post.category}
+                      </span>
+                    )}
+                  </Link>
 
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1">
@@ -119,7 +124,8 @@ export function FeaturedBlogSection({ posts }: FeaturedBlogSectionProps) {
                   </div>
                 </div>
               </article>
-            );
+            </EditorialReveal>
+          );
           })}
         </div>
 

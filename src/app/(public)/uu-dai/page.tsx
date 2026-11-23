@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSystemSettings } from '@/lib/settings';
 import { serializePackage } from '@/lib/cached-queries';
+import { serializeAlbumForClient } from '@/lib/album-utils';
 import { LandingPageClientView } from './LandingPageClientView';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,7 +54,9 @@ export default async function GoogleAdsLandingPage() {
       where: { published: true },
       orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
       take: 6,
-    }).catch(() => []),
+    })
+      .then((albs) => albs.map(serializeAlbumForClient).filter(Boolean))
+      .catch(() => []),
     prisma.testimonial.findMany({
       where: { published: true },
       orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],

@@ -233,6 +233,13 @@ export default function AdminMediaPage() {
   const prevJobProgressRef = useRef<{ processed: number; status: string }>({ processed: 0, status: 'IDLE' });
   const currentFolderRef = useRef<FolderItem | null>(null);
   currentFolderRef.current = currentFolder;
+  const onRefreshMediaListRef = useRef<(silent?: boolean) => void>(() => {});
+  const hasRefetchedOnCompleteRef = useRef<string | null>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Active folder key for stable string dependency comparisons
+  const activeFolderKey = currentFolder?.id || currentFolder?.slug || '';
+  const lastFolderKeyRef = useRef<string>('');
 
   // Create Album from Chunk Modal state
   const [createAlbumModalOpen, setCreateAlbumModalOpen] = useState(false);
@@ -244,19 +251,25 @@ export default function AdminMediaPage() {
   const [visibleCount, setVisibleCount] = useState(24);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // Show Toast
-  const showToast = (msg: string) => {
+  // Show Toast - memoized to prevent downstream callback recreation
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
+      toastTimeoutRef.current = null;
     }, 3500);
-  };
+  }, []);
 
-  // Fetch all media and folders from backend
-  const fetchMedia = useCallback(async () => {
+  // Fetch all media and folders from backend (silent = true prevents full-screen skeleton flash)
+  const fetchMedia = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
-      setErrorMessage('');
+      if (!silent) {
+        setLoading(true);
+        setErrorMessage('');
+      }
 
       const res = await fetch(`/api/admin/media?t=${Date.now()}`, {
         cache: 'no-store',
@@ -272,46 +285,93 @@ export default function AdminMediaPage() {
       setAllMedia(data.media || []);
       setStats(data.stats || null);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Lỗi khi tải kho lưu trữ media.');
+      if (!silent) {
+        setErrorMessage(err.message || 'Lỗi khi tải kho lưu trữ media.');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
 
-  // Fetch images in a specific folder
-  const fetchFolderContent = useCallback(async (slug: string) => {
-    try {
-      setFolderLoading(true);
-      const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(slug)}?t=${Date.now()}`, {
-        cache: 'no-store',
-      });
-      const data = await res.json();
+  // Fetch images in a specific folder (silent = true prevents full-screen skeleton flash)
+  const fetchFolderContent = useCallback(
+    async (slug: string, silent = false) => {
+      try {
+        if (!silent) {
+          setFolderLoading(true);
+        }
+        const res = await fetch(`/api/admin/media/folders/${encodeURIComponent(slug)}?t=${Date.now()}`, {
+          cache: 'no-store',
+        });
+        const data = await res.json();
 
-      if (data.success) {
-        setFolderImages(data.images || []);
-        if (data.folder) {
-          setCurrentFolder(data.folder);
+        if (data.success) {
+          const newImages = data.images || [];
+          // Shallow diff on key properties to prevent unnecessary re-render of image cards
+          setFolderImages((prevImages) => {
+            if (prevImages.length !== newImages.length) return newImages;
+            const hasChanged = newImages.some((img: any, idx: number) => {
+              const prev = prevImages[idx];
+              if (!prev) return true;
+              return (
+                prev.id !== img.id ||
+                prev.chunkStatus !== img.chunkStatus ||
+                prev.chunkTitle !== img.chunkTitle ||
+                prev.aiStatus !== img.aiStatus ||
+                prev.url !== img.url
+              );
+            });
+            return hasChanged ? newImages : prevImages;
+          });
+
+          if (data.folder) {
+            // Keep object reference stable if folder metadata hasn't changed
+            setCurrentFolder((prev) => {
+              if (
+                prev &&
+                prev.id === data.folder.id &&
+                prev.slug === data.folder.slug &&
+                prev.name === data.folder.name &&
+                prev.imageCount === data.folder.imageCount
+              ) {
+                return prev;
+              }
+              return data.folder;
+            });
+          }
+        } else {
+          throw new Error(data.error || 'Không thể tải chi tiết thư mục.');
+        }
+      } catch (err: any) {
+        if (!silent) {
+          showToast(`Lỗi tải thư mục: ${err.message}`);
+        }
+      } finally {
+        if (!silent) {
+          setFolderLoading(false);
+        }
+      }
+    },
+    [showToast]
+  );
+
+  // Background refresh callback defaults to silent = true to avoid unmounting the image grid
+  const onRefreshMediaList = useCallback(
+    (silent = true) => {
+      if (currentFolderRef.current) {
+        const targetSlug = currentFolderRef.current.slug || currentFolderRef.current.id;
+        if (targetSlug) {
+          fetchFolderContent(targetSlug, silent);
         }
       } else {
-        throw new Error(data.error || 'Không thể tải chi tiết thư mục.');
+        fetchMedia(silent);
       }
-    } catch (err: any) {
-      showToast(`Lỗi tải thư mục: ${err.message}`);
-    } finally {
-      setFolderLoading(false);
-    }
-  }, [showToast]);
-
-  const onRefreshMediaList = useCallback(() => {
-    if (currentFolderRef.current) {
-      const targetSlug = currentFolderRef.current.slug || currentFolderRef.current.id;
-      if (targetSlug) {
-        fetchFolderContent(targetSlug);
-      }
-    } else {
-      fetchMedia();
-    }
-  }, [fetchFolderContent, fetchMedia]);
+    },
+    [fetchFolderContent, fetchMedia]
+  );
+  onRefreshMediaListRef.current = onRefreshMediaList;
 
   useEffect(() => {
     fetchMedia();
@@ -325,6 +385,7 @@ export default function AdminMediaPage() {
       .catch(() => {});
   }, [fetchMedia]);
 
+  // Completely stable fetchAiJobStatus callback: uses ref for onRefreshMediaList to break dependency cycles
   const fetchAiJobStatus = useCallback(async (targetFolderId?: string, targetJobId?: string) => {
     try {
       const q = new URLSearchParams();
@@ -335,30 +396,44 @@ export default function AdminMediaPage() {
         cache: 'no-store',
       });
       if (!res.ok) {
-        setAiJob(null);
+        setAiJob((prev) => (prev === null ? null : null));
         return null;
       }
       const data = await res.json();
       if (data.success && data.job) {
-        setAiJob(data.job);
+        // Prevent state update if job properties are identical
+        setAiJob((prevJob) => {
+          if (
+            prevJob &&
+            prevJob.jobId === data.job.jobId &&
+            prevJob.status === data.job.status &&
+            prevJob.processed === data.job.processed &&
+            prevJob.total === data.job.total &&
+            (prevJob.chunksCreated?.length || 0) === (data.job.chunksCreated?.length || 0)
+          ) {
+            return prevJob;
+          }
+          return data.job;
+        });
+
         const prev = prevJobProgressRef.current;
         if (
           data.job.processed !== prev.processed ||
           (data.job.status === 'COMPLETED' && prev.status !== 'COMPLETED')
         ) {
           prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
-          onRefreshMediaList();
+          onRefreshMediaListRef.current(true);
         }
         return data.job;
       } else {
-        setAiJob(null);
+        setAiJob((prev) => (prev === null ? null : null));
         return null;
       }
     } catch {
-      setAiJob(null);
+      setAiJob((prev) => (prev === null ? null : null));
       return null;
     }
-  }, [onRefreshMediaList]);
+  }, []);
 
   const triggerAiChunkJob = useCallback(
     async (
@@ -368,14 +443,15 @@ export default function AdminMediaPage() {
     ) => {
       setIsStartingAi(true);
       try {
-        const folderParam = targetFolderId || currentFolder?.id || currentFolder?.slug;
+        const folder = currentFolderRef.current;
+        const folderParam = targetFolderId || folder?.id || folder?.slug;
         const res = await fetch('/api/admin/media/ai-chunk-jobs/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mediaIds: mediaIds && mediaIds.length > 0 ? mediaIds : undefined,
             folderId: folderParam,
-            folderSlug: currentFolder?.slug,
+            folderSlug: folder?.slug,
             items: items && items.length > 0 ? items : undefined,
           }),
         });
@@ -385,7 +461,7 @@ export default function AdminMediaPage() {
           setIsAiDrawerExpanded(true);
           prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
           showToast(`Đã khởi chạy phân tích AI cho ${data.job.total} ảnh.`);
-          onRefreshMediaList();
+          onRefreshMediaListRef.current(true);
         } else if (data.message) {
           showToast(data.message);
         }
@@ -395,34 +471,36 @@ export default function AdminMediaPage() {
         setIsStartingAi(false);
       }
     },
-    [currentFolder, showToast, onRefreshMediaList]
+    [showToast]
   );
 
   const handleCancelAiJob = useCallback(async () => {
     if (!aiJob) return;
+    const folder = currentFolderRef.current;
     try {
       await fetch('/api/admin/media/ai-chunk-jobs/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId: aiJob.jobId, folderId: currentFolder?.id }),
+        body: JSON.stringify({ jobId: aiJob.jobId, folderId: folder?.id }),
       });
       showToast('Đã tạm dừng tiến trình phân tích AI.');
-      fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
-      onRefreshMediaList();
+      fetchAiJobStatus(folder?.id, aiJob.jobId);
+      onRefreshMediaListRef.current(true);
     } catch (err: any) {
       showToast(`Lỗi khi dừng: ${err.message}`);
     }
-  }, [aiJob, currentFolder, fetchAiJobStatus, onRefreshMediaList, showToast]);
+  }, [aiJob, fetchAiJobStatus, showToast]);
 
   const handleRetryAiJob = useCallback(async () => {
     try {
       setIsStartingAi(true);
+      const folder = currentFolderRef.current;
       const res = await fetch('/api/admin/media/ai-chunk-jobs/retry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jobId: aiJob?.jobId,
-          folderId: currentFolder?.id,
+          folderId: folder?.id,
         }),
       });
       const data = await res.json();
@@ -431,19 +509,20 @@ export default function AdminMediaPage() {
         setIsAiDrawerExpanded(true);
         prevJobProgressRef.current = { processed: data.job.processed, status: data.job.status };
         showToast(`Đã bắt đầu chạy lại phân tích AI cho ${data.job.total} ảnh.`);
-        onRefreshMediaList();
+        onRefreshMediaListRef.current(true);
       }
     } catch (err: any) {
       showToast(`Lỗi khi chạy lại: ${err.message}`);
     } finally {
       setIsStartingAi(false);
     }
-  }, [aiJob, currentFolder, onRefreshMediaList, showToast]);
+  }, [aiJob?.jobId, showToast]);
 
   const handleDismissAiJob = useCallback(async () => {
     if (!aiJob) return;
     const currentJobId = aiJob.jobId;
-    const currentFolderId = currentFolder?.id || currentFolder?.slug;
+    const folder = currentFolderRef.current;
+    const currentFolderId = folder?.id || folder?.slug;
     setAiJob(null);
     try {
       await fetch('/api/admin/media/ai-chunk-jobs/dismiss', {
@@ -454,7 +533,7 @@ export default function AdminMediaPage() {
     } catch (err) {
       console.warn('[DISMISS_AI_JOB_ERROR]:', err);
     }
-  }, [aiJob, currentFolder]);
+  }, [aiJob]);
 
   const handleConvertSingleImage = useCallback(
     async (item: any) => {
@@ -465,13 +544,14 @@ export default function AdminMediaPage() {
       showToast(`Đang phân tích AI và tạo chunk cho ảnh "${item.name || item.filename}"...`);
 
       try {
-        const folderParam = item.folderId || currentFolder?.id || currentFolder?.slug;
+        const folder = currentFolderRef.current;
+        const folderParam = item.folderId || folder?.id || folder?.slug;
         const res = await fetch('/api/admin/media/ai-chunk-jobs/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             folderId: folderParam,
-            folderSlug: currentFolder?.slug,
+            folderSlug: folder?.slug,
             items: [{ id: item.id, url: item.url, filename: item.filename, name: item.name }],
           }),
         });
@@ -498,7 +578,7 @@ export default function AdminMediaPage() {
               isDone = true;
             }
           }
-          onRefreshMediaList();
+          onRefreshMediaListRef.current(true);
           showToast(`✓ Đã tạo Chunk thành công cho "${item.name || item.filename}"!`);
         }
       } catch (err: any) {
@@ -507,32 +587,50 @@ export default function AdminMediaPage() {
         setProcessingMediaIds((prev) => prev.filter((id) => id !== targetKey));
       }
     },
-    [currentFolder, fetchAiJobStatus, onRefreshMediaList, processingMediaIds, showToast]
+    [fetchAiJobStatus, processingMediaIds, showToast]
   );
 
-  // Poll AI job progress every 1.5s when RUNNING
+  // Poll AI job progress every 2s ONLY when RUNNING
+  const isJobRunning = aiJob?.status === 'RUNNING';
+  const runningJobId = aiJob?.jobId;
+
   useEffect(() => {
     if (aiPollTimerRef.current) {
       clearTimeout(aiPollTimerRef.current);
       aiPollTimerRef.current = null;
     }
 
-    if (aiJob?.status === 'RUNNING') {
-      aiPollTimerRef.current = setTimeout(async () => {
-        const updated = await fetchAiJobStatus(currentFolder?.id, aiJob.jobId);
-        onRefreshMediaList();
-      }, 1500);
+    if (!isJobRunning || !runningJobId) {
+      // If completed or failed, make sure we refresh once silently if we haven't yet for this job
+      if (
+        (aiJob?.status === 'COMPLETED' || aiJob?.status === 'FAILED') &&
+        hasRefetchedOnCompleteRef.current !== aiJob.jobId
+      ) {
+        hasRefetchedOnCompleteRef.current = aiJob.jobId;
+        onRefreshMediaListRef.current(true);
+      }
+      return;
     }
+
+    aiPollTimerRef.current = setTimeout(async () => {
+      await fetchAiJobStatus(activeFolderKey, runningJobId);
+    }, 2000);
 
     return () => {
       if (aiPollTimerRef.current) {
         clearTimeout(aiPollTimerRef.current);
+        aiPollTimerRef.current = null;
       }
     };
-  }, [aiJob, currentFolder, fetchAiJobStatus, onRefreshMediaList]);
+  }, [isJobRunning, runningJobId, activeFolderKey, aiJob?.status, fetchAiJobStatus]);
 
   // When changing folder, reset previous job state immediately, then fetch new folder's job
   useEffect(() => {
+    if (lastFolderKeyRef.current === activeFolderKey) {
+      return;
+    }
+    lastFolderKeyRef.current = activeFolderKey;
+
     setAiJob(null);
     setSelectedChunkFilter('ALL');
     setIsStartingAi(false);
@@ -541,9 +639,10 @@ export default function AdminMediaPage() {
       aiPollTimerRef.current = null;
     }
 
-    const targetFolderId = currentFolder?.id || currentFolder?.slug;
-    fetchAiJobStatus(targetFolderId);
-  }, [currentFolder?.id, currentFolder?.slug, fetchAiJobStatus]);
+    if (activeFolderKey) {
+      fetchAiJobStatus(activeFolderKey);
+    }
+  }, [activeFolderKey, fetchAiJobStatus]);
 
   // Handle open create album from active chunk
   const handleOpenCreateAlbumModal = useCallback((chunkName: string) => {
@@ -618,28 +717,29 @@ export default function AdminMediaPage() {
   useEffect(() => {
     const handleBackgroundImportComplete = (e: any) => {
       const detail = e?.detail;
+      const folder = currentFolderRef.current;
       if (detail?.isFinal) {
         showToast(
           `Đã lưu ${detail.totalImages} ảnh vào kho thành công!`
         );
-        fetchMedia();
-        if (currentFolder) {
-          fetchFolderContent(currentFolder.slug);
+        fetchMedia(true);
+        if (folder) {
+          fetchFolderContent(folder.slug, true);
         }
         if (detail?.importedMediaIds && detail.importedMediaIds.length > 0) {
-          triggerAiChunkJob(detail.importedMediaIds, currentFolder?.id);
+          triggerAiChunkJob(detail.importedMediaIds, folder?.id);
         }
       } else if (detail?.isPartial && detail?.folderName) {
         showToast(`Đã lưu ảnh thư mục: ${detail.folderName}`);
-        fetchMedia();
-        if (currentFolder) {
-          fetchFolderContent(currentFolder.slug);
+        fetchMedia(true);
+        if (folder) {
+          fetchFolderContent(folder.slug, true);
         }
       } else {
         showToast('Đồng bộ nền Google Drive hoàn tất!');
-        fetchMedia();
-        if (currentFolder) {
-          fetchFolderContent(currentFolder.slug);
+        fetchMedia(true);
+        if (folder) {
+          fetchFolderContent(folder.slug, true);
         }
       }
     };
@@ -650,12 +750,12 @@ export default function AdminMediaPage() {
       window.removeEventListener('media-library-updated', handleBackgroundImportComplete);
       window.removeEventListener('media-job-completed', handleBackgroundImportComplete);
     };
-  }, [fetchMedia, fetchFolderContent, currentFolder, triggerAiChunkJob, showToast]);
+  }, [fetchMedia, fetchFolderContent, triggerAiChunkJob, showToast]);
 
-  // Reset visibleCount whenever currentFolder, searchQuery, selectedFormat, selectedOrientation, or sortBy changes
+  // Reset visibleCount whenever activeFolderKey, searchQuery, selectedFormat, selectedOrientation, or sortBy changes
   useEffect(() => {
     setVisibleCount(24);
-  }, [currentFolder, searchQuery, selectedFormat, selectedOrientation, sortBy]);
+  }, [activeFolderKey, searchQuery, selectedFormat, selectedOrientation, sortBy]);
 
   // Client-side fallback for dimensions & orientation
   const handleImageLoad = (url: string, naturalWidth: number, naturalHeight: number) => {

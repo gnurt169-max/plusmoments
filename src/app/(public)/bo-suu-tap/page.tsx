@@ -7,6 +7,8 @@ import { PortfolioDualFilter } from '@/components/albums/PortfolioDualFilter';
 import { serializeAlbumForClient } from '@/lib/album-utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { toAbsoluteUrl } from '@/lib/utils';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
+import { ScrollCue } from '@/components/ui/ScrollCue';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 const ConsultationForm = dynamic(
@@ -105,7 +107,7 @@ export default async function BoSuuTapPage({
       />
 
       {/* HEADER SECTION */}
-      <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-4">
+      <EditorialReveal className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border border-stone-200 bg-stone-50/80 backdrop-blur-sm">
           <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
           <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.25em] text-stone-600 uppercase font-medium">
@@ -120,17 +122,23 @@ export default async function BoSuuTapPage({
         <p className="text-xs sm:text-base text-charcoal-600 font-light leading-relaxed max-w-2xl mx-auto line-clamp-2 sm:line-clamp-none">
           Nơi lưu giữ những nụ cười rạng rỡ và cảm xúc thuần khiết của hàng trăm cặp đôi qua ngôn ngữ ánh sáng điện ảnh tinh tế.
         </p>
-      </div>
+
+        <div className="pt-3">
+          <ScrollCue label="CUỘN ĐỂ KHÁM PHÁ" variant="light" targetId="portfolio-filter-grid" />
+        </div>
+      </EditorialReveal>
 
       {/* DUAL INTERACTIVE FILTER & GALLERY GRID */}
-      <PortfolioDualFilter
-        albums={serializedAlbums}
-        initialConcept={selectedConcept || 'Tất Cả'}
-        initialLocation={selectedLocation || 'Tất Cả'}
-      />
+      <div id="portfolio-filter-grid">
+        <PortfolioDualFilter
+          albums={serializedAlbums}
+          initialConcept={selectedConcept || 'Tất Cả'}
+          initialLocation={selectedLocation || 'Tất Cả'}
+        />
+      </div>
 
       {/* CONSULTATION CTA SECTION */}
-      <div className="pt-12 border-t border-stone-200/60">
+      <EditorialReveal className="pt-12 border-t border-stone-200/60">
         <div className="max-w-2xl mx-auto text-center space-y-4 mb-8">
           <p className="text-xs uppercase tracking-[0.25em] text-[#7A6243] font-semibold">
             Đồng Hành Cùng Bạn
@@ -145,7 +153,7 @@ export default async function BoSuuTapPage({
         <div className="max-w-xl mx-auto">
           <ConsultationForm />
         </div>
-      </div>
+      </EditorialReveal>
     </div>
   );
 }

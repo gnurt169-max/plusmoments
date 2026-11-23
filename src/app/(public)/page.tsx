@@ -23,6 +23,9 @@ import {
   extractPackageInclusions,
 } from '@/lib/package-features';
 import { toAbsoluteUrl } from '@/lib/utils';
+import { serializeAlbumForClient } from '@/lib/album-utils';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
+import { ScrollCue } from '@/components/ui/ScrollCue';
 import {
   Sparkles,
   ArrowRight,
@@ -130,8 +133,8 @@ export default async function HomePage() {
     createdAt: post.createdAt,
   }));
 
-  // 1. Featured Albums (Top 5)
-  const albums = featuredAlbumsRaw;
+  // 1. Featured Albums (Top 5) - Strictly serialized for Client Component
+  const albums = featuredAlbumsRaw.map((a) => serializeAlbumForClient(a)).filter(Boolean);
 
   // 2. Packages list
   const packages = allPackagesRaw;
@@ -171,8 +174,8 @@ export default async function HomePage() {
       slug: pkg.slug,
       category: pkg.category,
       subtitle: pkg.subtitle,
-      price: Number(pkg.price),
-      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
+      price: pkg.price !== null && pkg.price !== undefined ? Number(pkg.price) : 0,
+      originalPrice: pkg.originalPrice !== null && pkg.originalPrice !== undefined ? Number(pkg.originalPrice) : null,
       unit: pkg.unit,
       coverImage: pkg.coverImage,
       demoImages: pkg.demoImages,
@@ -329,16 +332,21 @@ export default async function HomePage() {
             )}
           </div>
         </div>
+
+        {/* LỚP 4: ANIMATED SCROLL CUE AT BOTTOM */}
+        <div className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-20">
+          <ScrollCue label="CUỘN ĐỂ KHÁM PHÁ" variant="dark" targetId="explore-content" />
+        </div>
       </section>
 
       {/* =========================================================================
           MAIN PAGE CONTENT SECTIONS (PORTFOLIO, PRICING, BLOG, TESTIMONIALS, CONSULTATION)
       ========================================================================= */}
-      <div className="space-y-24 sm:space-y-32 py-24 sm:py-32 overflow-hidden">
+      <div id="explore-content" className="space-y-24 sm:space-y-32 py-24 sm:py-32 overflow-hidden">
         {/* =========================================================================
             FEATURED ALBUMS WITH ANTIGRAVITY FLOATING MOTION
         ========================================================================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <EditorialReveal as="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto space-y-2.5 sm:space-y-3 mb-10 sm:mb-16 px-4">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#7A6243]">
               Portfolio Tuyệt Tác
@@ -355,12 +363,12 @@ export default async function HomePage() {
             albums={albums as any}
             totalAlbumsCount={totalAlbumsCount}
           />
-        </section>
+        </EditorialReveal>
 
       {/* =========================================================================
           PRICING & PACKAGES SECTION (3-Column Grid & Detail Modal)
       ========================================================================= */}
-      <section className="bg-gradient-to-b from-[#1E1A17] via-[#241F1C] to-[#1E1A17] text-white py-20 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-y border-[#3E3630]/40">
+      <EditorialReveal as="section" className="bg-gradient-to-b from-[#1E1A17] via-[#241F1C] to-[#1E1A17] text-white py-20 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-y border-[#3E3630]/40">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-luxury-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto">
@@ -378,28 +386,35 @@ export default async function HomePage() {
             * Cần điều chỉnh lịch trình hoặc chụp ở nước ngoài? Liên hệ Hotline để nhận báo giá thiết kế riêng.
           </div>
         </div>
-      </section>
+      </EditorialReveal>
 
       {/* =========================================================================
           FEATURED BLOG & WEDDING JOURNAL (Cẩm Nang Cưới - Chỉ hiển thị khi có bài viết)
       ========================================================================= */}
-      {featuredPosts.length > 0 && <FeaturedBlogSection posts={featuredPosts} />}
+      {featuredPosts.length > 0 && (
+        <EditorialReveal as="div">
+          <FeaturedBlogSection posts={featuredPosts} />
+        </EditorialReveal>
+      )}
 
       {/* =========================================================================
           TESTIMONIALS (Floating Love Stories)
       ========================================================================= */}
       {(homeConfig?.showTestimonials ?? true) && testimonials.length > 0 && (
-        <TestimonialsSection
-          testimonials={testimonials}
-          title={homeConfig?.testimonialsTitle}
-          subtitle={homeConfig?.testimonialsSubtitle}
-        />
+        <EditorialReveal as="div">
+          <TestimonialsSection
+            testimonials={testimonials}
+            title={homeConfig?.testimonialsTitle}
+            subtitle={homeConfig?.testimonialsSubtitle}
+          />
+        </EditorialReveal>
       )}
 
       {/* =========================================================================
           HIGH-CONVERTING CONSULTATION SECTION (#tu-van)
       ========================================================================= */}
-      <section
+      <EditorialReveal
+        as="section"
         id="tu-van"
         className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-28"
       >
@@ -421,7 +436,7 @@ export default async function HomePage() {
             <ConsultationForm />
           </div>
         </div>
-      </section>
+      </EditorialReveal>
       </div>
     </>
   );

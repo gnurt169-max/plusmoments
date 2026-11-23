@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { scanProofingFolderImages } from '@/lib/proofing-fs';
+import { resolveMediaListDimensions } from '@/lib/server-image-dimensions';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,8 @@ export async function GET(_request: Request, { params }: Props) {
       return NextResponse.json({ success: false, error: 'Không tìm thấy dự án.' }, { status: 404 });
     }
 
-    const photos = scanProofingFolderImages(gallery.folderSlug);
+    const rawPhotos = scanProofingFolderImages(gallery.folderSlug);
+    const photos = await resolveMediaListDimensions(rawPhotos);
 
     let selections: Record<string, { photobook?: boolean; portrait?: boolean; note?: string }> = {};
     try {

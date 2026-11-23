@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { PackageCard } from '@/components/packages/PackageCard';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 
 // Chỉ tải JS + CSS của Modal khi người dùng bấm mở
@@ -224,8 +225,9 @@ export function PricingSection({
             }`}
           >
             {packages.map((pkg, index) => (
-              <div
+              <EditorialReveal
                 key={pkg.id}
+                delay={(index % 3) * 80}
                 className="shrink-0 w-[84vw] max-w-[340px] snap-center md:shrink md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.34rem)] flex"
               >
                 <PackageCard
@@ -234,7 +236,7 @@ export function PricingSection({
                   isSummary={isSummary}
                   onSelect={(selected) => setSelectedPackage(selected)}
                 />
-              </div>
+              </EditorialReveal>
             ))}
           </div>
 

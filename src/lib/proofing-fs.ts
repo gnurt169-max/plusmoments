@@ -7,6 +7,9 @@ export interface ProofingImageFile {
   thumbUrl: string;
   smallUrl: string;
   sizeBytes: number;
+  width?: number;
+  height?: number;
+  orientation?: 'landscape' | 'portrait';
 }
 
 export function resolveFolderPhysicalDir(folderSlug: string): { dir: string; baseUrl: string } | null {

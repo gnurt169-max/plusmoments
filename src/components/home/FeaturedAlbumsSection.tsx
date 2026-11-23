@@ -3,8 +3,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { SafeImage } from '@/components/common/SafeImage';
 import { FloatingCard } from '@/components/motion/FloatingCard';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 
 export interface FeaturedAlbumItem {
   id: string;
@@ -193,13 +194,14 @@ export function FeaturedAlbumsSection({
                   aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
                   className="group block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md active:scale-[0.98] transition-all duration-300 bg-[#1E1C1A] select-none"
                 >
-                  <SafeImage
+                  <ProgressiveImage
                     src={coverImageSrc}
                     alt={album?.title || 'PlusMoments Wedding Album'}
-                    fill
-                    quality={75}
+                    aspectRatio="3/4"
+                    priority={idx === 0}
                     sizes="(max-width: 640px) 84vw, 340px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none select-none"
+                    className="w-full h-full rounded-2xl"
+                    imageClassName="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none select-none"
                   />
 
                   {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
@@ -282,8 +284,9 @@ export function FeaturedAlbumsSection({
           const conceptText = album?.concept?.trim();
 
           return (
-            <div
+            <EditorialReveal
               key={album?.id || idx}
+              delay={(idx % 3) * 80}
               className="w-full md:w-[calc(33.333%-1.25rem)] max-w-[380px]"
             >
               <FloatingCard
@@ -296,13 +299,14 @@ export function FeaturedAlbumsSection({
                   aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
                   className="group/card block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 bg-[#1E1C1A]"
                 >
-                  <SafeImage
+                  <ProgressiveImage
                     src={coverImageSrc}
                     alt={album?.title || 'PlusMoments Wedding Album'}
-                    fill
-                    quality={75}
+                    aspectRatio="3/4"
+                    priority={idx < 2}
                     sizes="(max-width: 1024px) 33vw, 420px"
-                    className="object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
+                    className="w-full h-full rounded-2xl"
+                    imageClassName="object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                   />
 
                   {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
@@ -326,7 +330,7 @@ export function FeaturedAlbumsSection({
                   </div>
                 </Link>
               </FloatingCard>
-            </div>
+            </EditorialReveal>
           );
         })}
       </div>

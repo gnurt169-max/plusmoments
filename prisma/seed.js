@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED DATABASE SEED SNAPSHOT (CommonJS)
- * Exported at: 2026-11-11T01:54:44.857Z
+ * Exported at: 2026-11-23T02:15:40.536Z
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -8,7 +8,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const snapshot = {
-  "exportedAt": "2026-11-11T01:54:44.857Z",
+  "exportedAt": "2026-11-23T02:15:40.536Z",
   "superAdminPasswordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
   "adminUser": [
     {
@@ -19,9 +19,9 @@ const snapshot = {
       "passwordHash": "$2b$12$pdyWDpxT2yfoUqgFptpJnO2dTb2r5Icy8mQCUNrbjfVGgRE/R9tEC",
       "role": "SUPER_ADMIN",
       "isActive": true,
-      "lastLoginAt": "2026-11-09T04:53:44.683Z",
+      "lastLoginAt": "2026-11-23T02:15:04.264Z",
       "createdAt": "2026-11-07T12:02:18.479Z",
-      "updatedAt": "2026-11-09T16:20:20.447Z"
+      "updatedAt": "2026-11-23T02:15:04.265Z"
     },
     {
       "id": "cmw6d6j2b000111xefru0nut1",
@@ -31,9 +31,9 @@ const snapshot = {
       "passwordHash": "$2b$12$B8GJidmjGaDqkgJvgwKK8uF2xoC/uUkufONbObTDw/FYh8BJ5SNMC",
       "role": "ADMIN",
       "isActive": true,
-      "lastLoginAt": "2026-11-10T14:03:06.254Z",
+      "lastLoginAt": "2026-11-23T02:14:09.992Z",
       "createdAt": "2026-11-07T12:13:01.571Z",
-      "updatedAt": "2026-11-10T14:03:06.254Z"
+      "updatedAt": "2026-11-23T02:14:09.993Z"
     },
     {
       "id": "cmw6d7aiu000211xe6vz1bd7h",
@@ -45,7 +45,7 @@ const snapshot = {
       "isActive": true,
       "lastLoginAt": "2026-11-09T08:47:41.690Z",
       "createdAt": "2026-11-07T12:13:37.158Z",
-      "updatedAt": "2026-11-09T16:20:20.446Z"
+      "updatedAt": "2026-11-11T07:40:42.020Z"
     }
   ],
   "systemSetting": [
@@ -107,9 +107,12 @@ const snapshot = {
       "driveFolderId": "10vXpZxaTVwfY9grzA15T_O-VJo19-rLE",
       "googleDriveApiKey": "",
       "geminiApiKey": "",
-      "geminiModel": "gemini-3.1-flash-lite",
+      "geminiModel": "gemini-3.5-flash",
       "geminiTemperature": 0.85,
       "geminiTone": "LUXURY_CINEMATIC",
+      "pineconeApiKey": "",
+      "pineconeIndexHost": "",
+      "pineconeNamespace": "plusmoments-media",
       "bankBin": "970432",
       "bankShortName": "VPBank",
       "bankAccountNumber": "0933877747",
@@ -214,7 +217,8 @@ const snapshot = {
           "label": "Quy Trình & Hợp Đồng"
         }
       ],
-      "updatedAt": "2026-11-09T16:20:20.448Z",
+      "pricingFaqs": null,
+      "updatedAt": "2026-11-23T02:15:40.531Z",
       "createdAt": "2026-11-06T01:49:07.595Z"
     }
   ],
@@ -231,7 +235,7 @@ const snapshot = {
       "showTestimonials": true,
       "testimonialsTitle": "Cảm Xúc Của Các Dâu Rể",
       "testimonialsSubtitle": "Hạnh phúc của bạn chính là niềm tự hào lớn nhất của ekip sáng tạo PlusMoments",
-      "updatedAt": "2026-11-09T16:20:20.452Z",
+      "updatedAt": "2026-11-11T07:40:42.029Z",
       "createdAt": "2026-11-06T01:49:07.597Z"
     }
   ],
@@ -245,7 +249,7 @@ const snapshot = {
       "adminReceiverEmail": "booking@plusmoments.vn",
       "zaloWebhookUrl": "",
       "createdAt": "2026-11-04T02:50:16.604Z",
-      "updatedAt": "2026-11-09T16:20:20.454Z"
+      "updatedAt": "2026-11-11T07:40:42.030Z"
     }
   ],
   "studioLocation": [],
@@ -269,7 +273,7 @@ const snapshot = {
       "inclusions": "[\"Chụp không giới hạn số lượng file suốt buổi chụp\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế concept độc bản, khắc họa trọn vẹn từng nhịp đập cảm xúc điện ảnh\",\"02 Váy cưới cao cấp & 02 Vest Ý thiết kế riêng cho dâu rể\",\"Chuyên viên trang điểm nghệ thuật & làm tóc thay đổi theo từng trang phục\",\"01 Hoa cầm tay tươi cao cấp & hoa cài áo chú rể theo concept\",\"01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu (30x30 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)\",\"01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc\"]",
       "deliverables": "01 Album Photobook Fine Art cao cấp (30x30 cm, 30 trang) bọc da thủ công nhập khẩu; 02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng; 01 Video Slide Highlight Cinematic 4K; Toàn bộ File ảnh gốc và File đã chỉnh sửa màu nghệ thuật độ phân giải cao.",
       "createdAt": "2026-11-08T05:35:03.442Z",
-      "updatedAt": "2026-11-09T16:20:20.460Z"
+      "updatedAt": "2026-11-11T07:40:42.036Z"
     },
     {
       "id": "cmwbt69fr000012i64zv8xwnb",
@@ -289,8 +293,8 @@ const snapshot = {
       "highlightPoints": "[\"02 Concept độc bản (Studio + Ngoại cảnh) & Xe đưa đón nội thành\",\"02 Váy cưới Luxury cao cấp & 02 Vest Ý thiết kế\",\"01 Album Photobook 30x30cm & 02 Ảnh cổng Pha lê 60x90cm\"]",
       "inclusions": "[\"Chụp không giới hạn số lượng file suốt ngày chụp (6-8 giờ)\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế 02 concept độc bản (01 Studio + 01 Ngoại cảnh nội thành)\",\"02 Váy cưới cao cấp dòng Luxury & 02 Vest Ý thiết kế riêng cho dâu rể\",\"Chuyên viên trang điểm nghệ thuật & làm tóc đổi phong cách theo từng bối cảnh\",\"01 Hoa cầm tay tươi cao cấp & hoa cài áo chú rể theo concept\",\"01 Album Photobook Fine Art mở phẳng 30 trang bọc da thủ công nhập khẩu (30x30 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (60x90 cm)\",\"01 Video Slide Highlight Cinematic 4K chiếu tại sảnh tiệc\",\"Xe 16 chỗ đưa đón ekip và dâu rể các điểm chụp nội thành\"]",
       "deliverables": "01 Album Photobook Fine Art 30x30cm; 02 Ảnh cổng Pha lê 60x90cm; Toàn bộ File gốc và 45 ảnh retouch chuyên sâu.",
-      "createdAt": "2026-11-08T05:35:03.442Z",
-      "updatedAt": "2026-11-09T16:20:20.460Z"
+      "createdAt": "2026-11-11T07:39:33.832Z",
+      "updatedAt": "2026-11-11T07:40:42.038Z"
     },
     {
       "id": "cmwbt69ft000112i6ev187rk0",
@@ -310,8 +314,8 @@ const snapshot = {
       "highlightPoints": "[\"Ekip riêng biệt với Nhiếp ảnh gia & Nghệ sĩ makeup hàng đầu\",\"03 Váy cưới Haute Couture kiệt tác & 02 Vest Ý cao cấp\",\"01 Album Photobook 35x35cm, 02 Ảnh cổng 70x105cm & Video 4K\"]",
       "inclusions": "[\"Chụp không giới hạn file với ekip riêng biệt (Nhiếp ảnh gia hàng đầu)\",\"Toàn bộ file gốc chất lượng cao chỉnh màu cơ bản bàn giao trong 24h\",\"Thiết kế concept độc bản Couture cá nhân hóa 100% câu chuyện tình yêu\",\"03 Váy cưới Haute Couture kiệt tác & 02 Vest Ý cao cấp\",\"Nghệ sĩ trang điểm và làm tóc riêng biệt đi cùng dâu rể suốt hành trình\",\"02 Hoa tươi cầm tay thiết kế nghệ thuật cao cấp\",\"01 Album Photobook Fine Art mở phẳng 40 trang bọc da thủ công nhập khẩu (35x35 cm)\",\"02 Ảnh cổng Pha lê tráng gương khung hợp kim sang trọng (70x105 cm)\",\"01 Video Clip Cinematic Pre-Wedding 4K biên tập nghệ thuật chuyên nghiệp\",\"Xe Limousine đưa đón dâu rể & toàn bộ vé vào cổng các điểm quay chụp\"]",
       "deliverables": "01 Album Photobook Fine Art 35x35cm; 02 Ảnh cổng 70x105cm; 01 Video Clip 4K; Toàn bộ File gốc và 60 ảnh retouch đỉnh cao.",
-      "createdAt": "2026-11-08T05:35:03.442Z",
-      "updatedAt": "2026-11-09T16:20:20.460Z"
+      "createdAt": "2026-11-11T07:39:33.834Z",
+      "updatedAt": "2026-11-11T07:40:42.039Z"
     }
   ],
   "album": [
@@ -332,10 +336,11 @@ const snapshot = {
       "views": 0,
       "metaTitle": "Chụp Ảnh Cưới Áo Dài Đỏ Truyền Thống Đẹp | PlusMoments",
       "metaDescription": "Khám phá bộ sưu tập ảnh cưới áo dài đỏ truyền thống sang trọng, đính kết tinh xảo trong lễ vu quy của cặp đôi Minh & Phương tại PlusMoments.",
+      "videoUrl": null,
       "packageId": "cmw7eel8y00019m43k5s86wev",
       "createdById": "cmw6d6j2b000111xefru0nut1",
       "createdAt": "2026-11-09T06:16:14.196Z",
-      "updatedAt": "2026-11-09T16:20:20.466Z",
+      "updatedAt": "2026-11-16T01:50:23.576Z",
       "media": [
         {
           "id": "cmw8vbvnu000hw5ehbj4j1vpy",
@@ -538,10 +543,11 @@ const snapshot = {
       "views": 0,
       "metaTitle": "Ảnh cưới đen trắng phong cách Cinematic sang trọng | PlusMoments",
       "metaDescription": "Khám phá bộ ảnh cưới đen trắng nghệ thuật, đậm chất điện ảnh tại PlusMoments. Vẻ đẹp sang trọng, tối giản và đầy cảm xúc của cặp đôi Ngọc & Phong.",
+      "videoUrl": null,
       "packageId": "cmw7eel8y00019m43k5s86wev",
       "createdById": "cmw6d6j2b000111xefru0nut1",
       "createdAt": "2026-11-09T08:31:18.011Z",
-      "updatedAt": "2026-11-09T16:20:20.473Z",
+      "updatedAt": "2026-11-11T07:40:42.052Z",
       "media": [
         {
           "id": "cmw905jyx000hah7xfv1arpiw",
@@ -988,17 +994,8 @@ const snapshot = {
         }
       ],
       "createdAt": "2026-11-09T05:27:35.871Z",
-      "updatedAt": "2026-11-09T16:20:20.479Z",
+      "updatedAt": "2026-11-11T07:40:42.059Z",
       "images": [
-        {
-          "id": "cmw8tkukg0005swgntmqblp3c",
-          "postId": "cmw8tkukf0000swgni59zz7hi",
-          "url": "/uploads/folders/tai-nguyen-8/-699-thu-nhan-1793938418362-swn1.webp",
-          "alt": "Cô dâu chú rể trao nụ hôn ngọt ngào rạng rỡ giữa không gian ruy-băng rực rỡ cùng bạn bè - Hành",
-          "caption": "Khoảnh khắc vỡ òa hạnh phúc và đong đầy tiếng cười bên những người bạn thân thương ngày trọng đại.",
-          "orderIndex": 4,
-          "createdAt": "2026-11-09T05:27:35.871Z"
-        },
         {
           "id": "cmw8tkukg0006swgnxfti49nv",
           "postId": "cmw8tkukf0000swgni59zz7hi",
@@ -1162,12 +1159,12 @@ const snapshot = {
           "createdAt": "2026-11-09T05:27:35.871Z"
         },
         {
-          "id": "cmw8tkukg000qswgnd5kluqah",
+          "id": "cmw8tkukg0005swgntmqblp3c",
           "postId": "cmw8tkukf0000swgni59zz7hi",
-          "url": "/uploads/folders/tai-nguyen-8/-336-thu-nhan-1793938110028-8n5y.webp",
-          "alt": "Cô dâu chú rể trong trang phục áo dài truyền thống cùng mẹ trong ngày cưới - Hành Trình Tình Yê",
-          "caption": "Khoảnh khắc hạnh phúc ngày chung đôi, nụ cười rạng rỡ bên gia đình thân yêu.",
-          "orderIndex": 25,
+          "url": "/uploads/folders/tai-nguyen-8/-699-thu-nhan-1793938418362-swn1.webp",
+          "alt": "Cô dâu chú rể trao nụ hôn ngọt ngào rạng rỡ giữa không gian ruy-băng rực rỡ cùng bạn bè - Hành",
+          "caption": "Khoảnh khắc vỡ òa hạnh phúc và đong đầy tiếng cười bên những người bạn thân thương ngày trọng đại.",
+          "orderIndex": 4,
           "createdAt": "2026-11-09T05:27:35.871Z"
         },
         {
@@ -1333,21 +1330,12 @@ const snapshot = {
           "createdAt": "2026-11-09T05:27:35.871Z"
         },
         {
-          "id": "cmw8tkukg000oswgn6ao77igr",
+          "id": "cmw8tkukg000qswgnd5kluqah",
           "postId": "cmw8tkukf0000swgni59zz7hi",
-          "url": "/uploads/folders/tai-nguyen-8/-341-thu-nhan-1793938137510-9q9m.webp",
-          "alt": "Khoảnh khắc hạnh phúc của cô dâu, chú rể và mẹ trong lễ rước dâu truyền thống - Hành Trình Tình",
-          "caption": "Khoảnh khắc rạng rỡ ngày chung đôi, nụ cười hạnh phúc lan tỏa trong ngày vui trọng đại.",
-          "orderIndex": 23,
-          "createdAt": "2026-11-09T05:27:35.871Z"
-        },
-        {
-          "id": "cmw8tkukg0001swgntxf050dg",
-          "postId": "cmw8tkukf0000swgni59zz7hi",
-          "url": "/uploads/folders/tai-nguyen-8/-739-thu-nhan-1793938473936-vl5d.webp",
-          "alt": "Cái nắm tay dịu dàng và đầy gắn kết của cô dâu chú rể trong trang phục cưới cao cấp - Hành Trìn",
-          "caption": "Dưới ánh sáng ấm áp, cái nắm tay dịu dàng là lời hứa hẹn ngọt ngào cho một hành trình hạnh phúc vĩnh cửu.",
-          "orderIndex": 0,
+          "url": "/uploads/folders/tai-nguyen-8/-336-thu-nhan-1793938110028-8n5y.webp",
+          "alt": "Cô dâu chú rể trong trang phục áo dài truyền thống cùng mẹ trong ngày cưới - Hành Trình Tình Yê",
+          "caption": "Khoảnh khắc hạnh phúc ngày chung đôi, nụ cười rạng rỡ bên gia đình thân yêu.",
+          "orderIndex": 25,
           "createdAt": "2026-11-09T05:27:35.871Z"
         },
         {
@@ -1367,6 +1355,24 @@ const snapshot = {
           "caption": "Đội hình bê tráp lịch lãm, sẵn sàng cho ngày vui trọng đại. Chúc mừng hạnh phúc đôi uyên ương!",
           "orderIndex": 41,
           "createdAt": "2026-11-09T05:27:35.871Z"
+        },
+        {
+          "id": "cmw8tkukg000oswgn6ao77igr",
+          "postId": "cmw8tkukf0000swgni59zz7hi",
+          "url": "/uploads/folders/tai-nguyen-8/-341-thu-nhan-1793938137510-9q9m.webp",
+          "alt": "Khoảnh khắc hạnh phúc của cô dâu, chú rể và mẹ trong lễ rước dâu truyền thống - Hành Trình Tình",
+          "caption": "Khoảnh khắc rạng rỡ ngày chung đôi, nụ cười hạnh phúc lan tỏa trong ngày vui trọng đại.",
+          "orderIndex": 23,
+          "createdAt": "2026-11-09T05:27:35.871Z"
+        },
+        {
+          "id": "cmw8tkukg0001swgntxf050dg",
+          "postId": "cmw8tkukf0000swgni59zz7hi",
+          "url": "/uploads/folders/tai-nguyen-8/-739-thu-nhan-1793938473936-vl5d.webp",
+          "alt": "Cái nắm tay dịu dàng và đầy gắn kết của cô dâu chú rể trong trang phục cưới cao cấp - Hành Trìn",
+          "caption": "Dưới ánh sáng ấm áp, cái nắm tay dịu dàng là lời hứa hẹn ngọt ngào cho một hành trình hạnh phúc vĩnh cửu.",
+          "orderIndex": 0,
+          "createdAt": "2026-11-09T05:27:35.871Z"
         }
       ]
     }
@@ -1377,7 +1383,7 @@ const snapshot = {
       "name": "Bảng giá Plus Moments",
       "slug": "bang-gia-plus-moments",
       "createdAt": "2026-11-06T03:22:49.963Z",
-      "updatedAt": "2026-11-09T16:20:20.462Z",
+      "updatedAt": "2026-11-11T07:40:42.040Z",
       "files": [
         {
           "id": "cmw4et5zx0006tcwsh6pv7flf",
@@ -1389,11 +1395,16 @@ const snapshot = {
           "height": 3621,
           "folderId": "cmw4esuej0000tcwsur57bi36",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1eulHrDwM3bbJkIZaoc4TQdUkq39w98GH",
           "md5Checksum": "c5234d22ef2fe1b8315a3567e50ee89f",
           "createdAt": "2026-11-06T03:23:04.989Z",
-          "updatedAt": "2026-11-09T16:20:20.498Z"
+          "updatedAt": "2026-11-11T07:40:42.081Z"
         },
         {
           "id": "cmw4et2ow0004tcwsq5ddh6hu",
@@ -1405,11 +1416,16 @@ const snapshot = {
           "height": 3621,
           "folderId": "cmw4esuej0000tcwsur57bi36",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "14W0nAPxRop3WEuLNHDG-xvY9rORiDC5M",
           "md5Checksum": "ecb45b76e0f2c27fc3d87834497a90b5",
           "createdAt": "2026-11-06T03:23:00.705Z",
-          "updatedAt": "2026-11-09T16:20:20.498Z"
+          "updatedAt": "2026-11-11T07:40:42.082Z"
         },
         {
           "id": "cmw4esywp0002tcws43pd8r4t",
@@ -1421,11 +1437,16 @@ const snapshot = {
           "height": 3621,
           "folderId": "cmw4esuej0000tcwsur57bi36",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1AmMQnsj5yilgShSxkZ9ottvoVGbmanO3",
           "md5Checksum": "17704a516002cfe464b02cb5dec22fa7",
           "createdAt": "2026-11-06T03:22:55.802Z",
-          "updatedAt": "2026-11-09T16:20:20.499Z"
+          "updatedAt": "2026-11-11T07:40:42.083Z"
         }
       ]
     },
@@ -1434,7 +1455,7 @@ const snapshot = {
       "name": "1",
       "slug": "tai-nguyen-1",
       "createdAt": "2026-11-06T03:23:38.641Z",
-      "updatedAt": "2026-11-09T16:20:20.463Z",
+      "updatedAt": "2026-11-11T07:40:42.040Z",
       "files": [
         {
           "id": "cmw4ew30o0019tcws9r0orpj6",
@@ -1459,11 +1480,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào ngày chung đôi, tình yêu đơm hoa trong sắc đỏ truyền thống.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc lãng mạn trong lễ ăn hỏi truyền thống Việt Nam. Cô dâu và chú rể mặc áo dài đỏ rực rỡ, đang trao nhau nụ hôn nhẹ nhàng, cô dâu cầm bó hoa sen trắng tinh khôi. Xung quanh là dàn bê tráp nam và nữ mặc áo dài trắng, tay cầm phong bao lì xì đỏ có chữ Hỷ, tạo nên sự tương phản màu sắc nổi bật. Bối cảnh được trang trí hoa tươi rực rỡ, không khí ấm cúng và tràn đầy hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong trang phục áo dài đỏ truyền thống trao nhau nụ hôn lãng mạn",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc lãng mạn trong lễ ăn hỏi truyền thống Việt Nam. Cô dâu và chú rể mặc áo dài đỏ rực rỡ, đang trao nhau nụ hôn nhẹ nhàng, cô dâu cầm bó hoa sen trắng tinh khôi. Xung quanh là dàn bê tráp nam và nữ mặc áo dài trắng, tay cầm phong bao lì xì đỏ có chữ Hỷ, tạo nên sự tương phản màu sắc nổi bật. Bối cảnh được trang trí hoa tươi rực rỡ, không khí ấm cúng và tràn đầy hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ZleNZpQImsV_clHydpy0W4Ta24uO1NPC",
           "md5Checksum": "fed77b7f55190bc97b2a5e3b5dd0a94e",
           "createdAt": "2026-11-06T03:25:21.096Z",
-          "updatedAt": "2026-11-09T16:20:20.500Z"
+          "updatedAt": "2026-11-16T09:16:09.683Z"
         },
         {
           "id": "cmw4evxc00017tcwsnt2l3dru",
@@ -1488,11 +1514,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc vỡ òa của chú rể trong ngày lễ Vu Quy trọng đại.",
             "visualDescription": "Một chú rể Việt Nam đang cười rạng rỡ trong lễ Vu Quy, mặc áo dài truyền thống màu đỏ rực rỡ với họa tiết thêu tinh tế ở ngực. Anh đang giơ cao bó hoa cưới cầm tay, tạo dáng đầy phấn khích và hạnh phúc. Bối cảnh xung quanh được trang trí bằng hoa tươi rực rỡ, bảng hiệu 'LỄ VU QUY' nổi bật, không khí buổi lễ ấm cúng với sự hiện diện của khách mời phía dưới."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chú rể mặc áo dài đỏ rạng rỡ trong lễ Vu Quy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một chú rể Việt Nam đang cười rạng rỡ trong lễ Vu Quy, mặc áo dài truyền thống màu đỏ rực rỡ với họa tiết thêu tinh tế ở ngực. Anh đang giơ cao bó hoa cưới cầm tay, tạo dáng đầy phấn khích và hạnh phúc. Bối cảnh xung quanh được trang trí bằng hoa tươi rực rỡ, bảng hiệu 'LỄ VU QUY' nổi bật, không khí buổi lễ ấm cúng với sự hiện diện của khách mời phía dưới.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1A3VWTtuzJlKLbLwgSx1hDrhKh6KLjDYB",
           "md5Checksum": "7da658312527b02e3811bf27188eba4e",
           "createdAt": "2026-11-06T03:25:13.728Z",
-          "updatedAt": "2026-11-09T16:20:20.500Z"
+          "updatedAt": "2026-11-16T09:16:09.654Z"
         },
         {
           "id": "cmw4evs400015tcwsyfkupo9r",
@@ -1517,11 +1548,16 @@ const snapshot = {
             "suggestedCaption": "Ngày chung đôi rạng rỡ, khởi đầu cho hành trình hạnh phúc viên mãn. Chúc mừng ngày vui của hai bạn!",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc rạng rỡ trong lễ Vu Quy truyền thống. Chú rể mặc áo dài đỏ nổi bật, tay giơ cao bó hoa cưới, đứng dưới cổng hoa trang trí rực rỡ với tông màu đỏ, cam và trắng. Phía trước là đội ngũ bê tráp nam mặc áo dài trắng và nữ mặc áo dài trắng cách tân đang trao nhận các mâm quả cưới được bọc vải đỏ. Không gian tràn ngập sắc hoa tươi, tạo nên bầu không khí hân hoan, ấm cúng và đầy tính nghi lễ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chú rể trong trang phục áo dài đỏ truyền thống cùng đội ngũ bê tráp trong lễ Vu Quy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc rạng rỡ trong lễ Vu Quy truyền thống. Chú rể mặc áo dài đỏ nổi bật, tay giơ cao bó hoa cưới, đứng dưới cổng hoa trang trí rực rỡ với tông màu đỏ, cam và trắng. Phía trước là đội ngũ bê tráp nam mặc áo dài trắng và nữ mặc áo dài trắng cách tân đang trao nhận các mâm quả cưới được bọc vải đỏ. Không gian tràn ngập sắc hoa tươi, tạo nên bầu không khí hân hoan, ấm cúng và đầy tính nghi lễ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ylF97uTq0yktK6IZq-y-H1gwkq_fJwQX",
           "md5Checksum": "85937e0cc53dd6b4cf5086dac05abd4a",
           "createdAt": "2026-11-06T03:25:06.961Z",
-          "updatedAt": "2026-11-09T16:20:20.501Z"
+          "updatedAt": "2026-11-16T09:16:09.686Z"
         },
         {
           "id": "cmw4evmql0013tcws7u5m0iam",
@@ -1546,11 +1582,16 @@ const snapshot = {
             "suggestedCaption": "Nét duyên thầm trong tà áo dài đỏ, gửi trao trọn vẹn hạnh phúc ngày chung đôi.",
             "visualDescription": "Cô dâu mặc áo dài cưới màu đỏ rực rỡ với chi tiết đính kết đá pha lê tinh xảo ở cổ áo và tay áo. Cô dâu đang cầm một chiếc quạt xếp bằng gỗ màu nâu nhạt, che một phần khuôn mặt, để lộ nụ cười rạng rỡ với son môi đỏ cùng tông. Bộ móng tay được sơn màu nhũ vàng sang trọng, làm nổi bật vẻ đẹp đài các, truyền thống nhưng không kém phần hiện đại."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu mặc áo dài đỏ đính đá cầm quạt gỗ",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu mặc áo dài cưới màu đỏ rực rỡ với chi tiết đính kết đá pha lê tinh xảo ở cổ áo và tay áo. Cô dâu đang cầm một chiếc quạt xếp bằng gỗ màu nâu nhạt, che một phần khuôn mặt, để lộ nụ cười rạng rỡ với son môi đỏ cùng tông. Bộ móng tay được sơn màu nhũ vàng sang trọng, làm nổi bật vẻ đẹp đài các, truyền thống nhưng không kém phần hiện đại.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "160h0u3ejUpI81iNzIDMMlv1d56UEf0Vr",
           "md5Checksum": "4672d9e738a683687431627d527eee39",
           "createdAt": "2026-11-06T03:24:59.997Z",
-          "updatedAt": "2026-11-09T16:20:20.501Z"
+          "updatedAt": "2026-11-16T09:16:09.623Z"
         },
         {
           "id": "cmw4evhiy0011tcws51hc3kd7",
@@ -1576,11 +1617,16 @@ const snapshot = {
             "suggestedCaption": "Nét đẹp truyền thống rạng rỡ của cô dâu trong ngày Lễ Vu Quy trọng đại.",
             "visualDescription": "Cô dâu Việt Nam trong trang phục áo dài cưới truyền thống màu đỏ rực rỡ, đính kết họa tiết tinh xảo ở ngực và phụ kiện mấn đội đầu cùng tông màu. Cô dâu trang điểm phong cách thanh lịch với son môi đỏ, đang đứng cạnh bàn tiệc được trang trí hoa tươi, trái cây và bảng tên 'Lễ Vu Quy'. Phông nền phía sau là backdrop tròn màu hồng pastel kết hợp hoa tươi đỏ và trắng, tạo nên không gian lễ cưới ấm cúng, sang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong trang phục áo dài cưới truyền thống màu đỏ",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu Việt Nam trong trang phục áo dài cưới truyền thống màu đỏ rực rỡ, đính kết họa tiết tinh xảo ở ngực và phụ kiện mấn đội đầu cùng tông màu. Cô dâu trang điểm phong cách thanh lịch với son môi đỏ, đang đứng cạnh bàn tiệc được trang trí hoa tươi, trái cây và bảng tên 'Lễ Vu Quy'. Phông nền phía sau là backdrop tròn màu hồng pastel kết hợp hoa tươi đỏ và trắng, tạo nên không gian lễ cưới ấm cúng, sang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "16_7GSuzooRakww6yQ5h5i1JbOwWkM-_p",
           "md5Checksum": "245cc5734a50edced2376f3d672b92ef",
           "createdAt": "2026-11-06T03:24:53.242Z",
-          "updatedAt": "2026-11-09T16:20:20.502Z"
+          "updatedAt": "2026-11-16T09:16:09.666Z"
         },
         {
           "id": "cmw4evc18000ztcwsg3jor3od",
@@ -1605,11 +1651,16 @@ const snapshot = {
             "suggestedCaption": "Sắc đỏ nồng nàn, nét duyên dáng của cô dâu trong ngày trọng đại. Một vẻ đẹp truyền thống đầy cuốn hút.",
             "visualDescription": "Cô dâu mặc áo dài cưới truyền thống màu đỏ rực rỡ, chất liệu lụa cao cấp với điểm nhấn là họa tiết hoa sen đính kết đá pha lê thủ công tinh xảo ở ngực và cổ tay. Cô dâu đội mấn đỏ đồng bộ, trang điểm với son môi đỏ quyến rũ, tay cầm chiếc quạt gỗ nhỏ xinh xắn. Bối cảnh studio tối giản với phông nền trung tính, làm nổi bật sắc đỏ sang trọng của trang phục."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong trang phục áo dài cưới đỏ đính kết thủ công",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu mặc áo dài cưới truyền thống màu đỏ rực rỡ, chất liệu lụa cao cấp với điểm nhấn là họa tiết hoa sen đính kết đá pha lê thủ công tinh xảo ở ngực và cổ tay. Cô dâu đội mấn đỏ đồng bộ, trang điểm với son môi đỏ quyến rũ, tay cầm chiếc quạt gỗ nhỏ xinh xắn. Bối cảnh studio tối giản với phông nền trung tính, làm nổi bật sắc đỏ sang trọng của trang phục.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xhuOndxbXDT2Hd8pysZyIXs7ctyRMlUu",
           "md5Checksum": "efa8ce621b404b4ed6ff7dc1c864149b",
           "createdAt": "2026-11-06T03:24:46.124Z",
-          "updatedAt": "2026-11-09T16:20:20.503Z"
+          "updatedAt": "2026-11-16T09:16:09.583Z"
         },
         {
           "id": "cmw4ev6nr000xtcwsxoad9oo4",
@@ -1634,11 +1685,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào trong ngày trọng đại, khởi đầu cho hành trình hạnh phúc viên mãn.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ Vu Quy truyền thống Việt Nam. Cô dâu chú rể mặc áo dài đỏ rực rỡ, chú rể đang trao nụ hôn má ngọt ngào cho cô dâu trước sự chứng kiến của gia đình. Phông nền trang trí hoa tươi tông đỏ-trắng sang trọng với bảng tên dập nổi. Bàn tiệc trà được bày biện chỉn chu với tháp bánh, trái cây và ấm chén sứ cao cấp. Ánh sáng ấm áp lan tỏa, làm nổi bật không khí sum vầy, trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc chú rể hôn má cô dâu trong lễ Vu Quy truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ Vu Quy truyền thống Việt Nam. Cô dâu chú rể mặc áo dài đỏ rực rỡ, chú rể đang trao nụ hôn má ngọt ngào cho cô dâu trước sự chứng kiến của gia đình. Phông nền trang trí hoa tươi tông đỏ-trắng sang trọng với bảng tên dập nổi. Bàn tiệc trà được bày biện chỉn chu với tháp bánh, trái cây và ấm chén sứ cao cấp. Ánh sáng ấm áp lan tỏa, làm nổi bật không khí sum vầy, trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1x2HiLhCdSB7YVC6lCTdgNXWR2Q2dCvuk",
           "md5Checksum": "eff2dc3ea620413aa5dd811eef1c39e4",
           "createdAt": "2026-11-06T03:24:39.160Z",
-          "updatedAt": "2026-11-09T16:20:20.503Z"
+          "updatedAt": "2026-11-16T09:16:09.668Z"
         },
         {
           "id": "cmw4ev0mk000vtcwsace1l2vh",
@@ -1663,11 +1719,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào ngày trọng đại cùng những người chị em thân thiết.",
             "visualDescription": "Cô dâu mặc áo dài đỏ nổi bật với mấn đội đầu truyền thống, đang đứng cùng dàn phụ dâu mặc áo dài cách tân màu trắng thanh lịch. Phía sau là rạp cưới trang trí hoa tươi rực rỡ với bảng chữ Lễ Vu Quy truyền thống."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu áo dài đỏ và dàn phụ dâu áo dài trắng trong lễ vu quy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu mặc áo dài đỏ nổi bật với mấn đội đầu truyền thống, đang đứng cùng dàn phụ dâu mặc áo dài cách tân màu trắng thanh lịch. Phía sau là rạp cưới trang trí hoa tươi rực rỡ với bảng chữ Lễ Vu Quy truyền thống.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1caE4qYsFpodTSmBa_xrWkZCnHmAUzcH8",
           "md5Checksum": "d32c7cb624fdd8d8b5e61d3aeb0208fc",
           "createdAt": "2026-11-06T03:24:31.340Z",
-          "updatedAt": "2026-11-09T16:20:20.504Z"
+          "updatedAt": "2026-11-16T09:16:09.585Z"
         },
         {
           "id": "cmw4euv3s000ttcwsqwqk0k3v",
@@ -1693,11 +1754,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc rạng rỡ của cô dâu và dàn phù dâu xinh đẹp trong ngày Lễ Vu Quy trọng đại.",
             "visualDescription": "Bức ảnh chụp cô dâu mặc áo dài đỏ truyền thống cùng đội hình phù dâu mặc áo dài trắng tinh khôi trong ngày Lễ Vu Quy. Cô dâu nổi bật ở vị trí trung tâm với mấn đội đầu, tay cầm quạt xếp, trang điểm sắc sảo. Các phù dâu đứng hai bên với tư thế khoanh tay đồng nhất. Bối cảnh là cổng hoa cưới trang trí tông màu pastel và hoa tươi rực rỡ tại không gian ngoài trời."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong trang phục áo dài đỏ truyền thống cùng dàn phù dâu áo dài trắng",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh chụp cô dâu mặc áo dài đỏ truyền thống cùng đội hình phù dâu mặc áo dài trắng tinh khôi trong ngày Lễ Vu Quy. Cô dâu nổi bật ở vị trí trung tâm với mấn đội đầu, tay cầm quạt xếp, trang điểm sắc sảo. Các phù dâu đứng hai bên với tư thế khoanh tay đồng nhất. Bối cảnh là cổng hoa cưới trang trí tông màu pastel và hoa tươi rực rỡ tại không gian ngoài trời.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1R_0wPJmZLMOwHmOcAt3yjcC2GokgrwTj",
           "md5Checksum": "c6e7f98994b431d717584e3638891fd4",
           "createdAt": "2026-11-06T03:24:24.185Z",
-          "updatedAt": "2026-11-09T16:20:20.504Z"
+          "updatedAt": "2026-11-16T09:16:09.639Z"
         },
         {
           "id": "cmw4euq0w000rtcwsemgzvzmf",
@@ -1723,11 +1789,16 @@ const snapshot = {
             "suggestedCaption": "Nét duyên dáng của cô dâu trong tà áo dài đỏ ngày Lễ Vu Quy. Hạnh phúc bắt đầu từ những khoảnh khắc giản đơn.",
             "visualDescription": "Cô dâu Việt Nam trong ngày Lễ Vu Quy, mặc áo dài lụa đỏ truyền thống với chi tiết đính kết tinh tế ở cổ tay. Cô dâu đội mấn đỏ đồng bộ, đang xoay nhẹ tà áo dài tạo chuyển động mềm mại. Bối cảnh là cổng hoa cưới rực rỡ với các tông màu đỏ, cam, trắng và hồng, tạo không gian lễ cưới ấm cúng và trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong trang phục áo dài đỏ truyền thống tại Lễ Vu Quy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu Việt Nam trong ngày Lễ Vu Quy, mặc áo dài lụa đỏ truyền thống với chi tiết đính kết tinh tế ở cổ tay. Cô dâu đội mấn đỏ đồng bộ, đang xoay nhẹ tà áo dài tạo chuyển động mềm mại. Bối cảnh là cổng hoa cưới rực rỡ với các tông màu đỏ, cam, trắng và hồng, tạo không gian lễ cưới ấm cúng và trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1F9pCJdNakJ47D9eW50-iT5Bv6Y5ORCqy",
           "md5Checksum": "8336bcf14b1406d4f5fe81eaf4a82909",
           "createdAt": "2026-11-06T03:24:17.600Z",
-          "updatedAt": "2026-11-09T16:20:20.505Z"
+          "updatedAt": "2026-11-16T09:16:09.670Z"
         },
         {
           "id": "cmw4eukkx000ptcws91rrv0jc",
@@ -1753,11 +1824,16 @@ const snapshot = {
             "suggestedCaption": "Sắc đỏ nồng nàn cho ngày hạnh phúc thêm trọn vẹn. Một vẻ đẹp truyền thống đầy tinh tế.",
             "visualDescription": "Cô dâu mặc áo dài cưới truyền thống màu đỏ rực rỡ với chất liệu lụa cao cấp, cổ áo và cổ tay được đính kết đá pha lê tỉ mỉ. Cô dâu đội mấn đỏ đồng bộ, trang điểm với son môi đỏ nổi bật, nụ cười rạng rỡ. Bối cảnh là không gian tiệc cưới ấm cúng, sang trọng với tông màu trung tính làm nền, tạo sự tập trung tối đa vào vẻ đẹp của trang phục."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong trang phục áo dài cưới đỏ đính đá sang trọng",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu mặc áo dài cưới truyền thống màu đỏ rực rỡ với chất liệu lụa cao cấp, cổ áo và cổ tay được đính kết đá pha lê tỉ mỉ. Cô dâu đội mấn đỏ đồng bộ, trang điểm với son môi đỏ nổi bật, nụ cười rạng rỡ. Bối cảnh là không gian tiệc cưới ấm cúng, sang trọng với tông màu trung tính làm nền, tạo sự tập trung tối đa vào vẻ đẹp của trang phục.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ER5zDVDRZXqCzndxODu7DMncbHBaiFuI",
           "md5Checksum": "f4bef6bfa352ced0ce062c9d327a9c1b",
           "createdAt": "2026-11-06T03:24:10.545Z",
-          "updatedAt": "2026-11-09T16:20:20.505Z"
+          "updatedAt": "2026-11-16T09:16:09.640Z"
         },
         {
           "id": "cmw4euewj000ntcwst0xvn6h1",
@@ -1782,11 +1858,16 @@ const snapshot = {
             "suggestedCaption": "Nét đẹp truyền thống dịu dàng và đằm thắm trong ngày trọng đại.",
             "visualDescription": "Cô dâu xinh đẹp mặc áo dài đỏ truyền thống đính kết tinh xảo, đội mấn đồng màu và tay cầm quạt giấy che nửa khuôn mặt tạo dáng duyên dáng, thanh lịch trong lễ vu quy với backdrop hoa tươi rực rỡ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu mặc áo dài đỏ truyền thống cầm quạt giấy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu xinh đẹp mặc áo dài đỏ truyền thống đính kết tinh xảo, đội mấn đồng màu và tay cầm quạt giấy che nửa khuôn mặt tạo dáng duyên dáng, thanh lịch trong lễ vu quy với backdrop hoa tươi rực rỡ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "12auQrC61DSkzs8Pa6HYGyJAUGKZxyki0",
           "md5Checksum": "49aecf803f631c381e26307940f7fc09",
           "createdAt": "2026-11-06T03:24:03.187Z",
-          "updatedAt": "2026-11-09T16:20:20.506Z"
+          "updatedAt": "2026-11-16T09:16:09.656Z"
         },
         {
           "id": "cmw4eu7ue000ltcwsb83am6wn",
@@ -1811,11 +1892,16 @@ const snapshot = {
             "suggestedCaption": "Những nụ cười rạng rỡ của bạn bè là mảnh ghép hạnh phúc nhất trong ngày trọng đại.",
             "visualDescription": "Bức ảnh chụp góc nhìn qua khung hình tạo bởi cô dâu chú rể trong trang phục áo dài đỏ truyền thống ở tiền cảnh, làm mờ để tập trung vào nhóm bạn trẻ phía sau. Nhóm bạn gồm 4 người (2 nam, 2 nữ) đang hào hứng, che miệng cười rạng rỡ, thể hiện sự chúc phúc trong một buổi lễ đính hôn hoặc đám cưới ngoài trời. Phía trước là bó hoa sen trắng làm tiền cảnh mờ ảo. Bối cảnh trang trí hoa tươi, không gian ấm cúng, gần gũi."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Nhóm bạn trẻ hào hứng chúc phúc trong lễ cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh chụp góc nhìn qua khung hình tạo bởi cô dâu chú rể trong trang phục áo dài đỏ truyền thống ở tiền cảnh, làm mờ để tập trung vào nhóm bạn trẻ phía sau. Nhóm bạn gồm 4 người (2 nam, 2 nữ) đang hào hứng, che miệng cười rạng rỡ, thể hiện sự chúc phúc trong một buổi lễ đính hôn hoặc đám cưới ngoài trời. Phía trước là bó hoa sen trắng làm tiền cảnh mờ ảo. Bối cảnh trang trí hoa tươi, không gian ấm cúng, gần gũi.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xmoa8MVOKMbeVPBTkc4Cjas0S6ssjaJW",
           "md5Checksum": "910b040f4f2dba4aa89e8982d85cc5ec",
           "createdAt": "2026-11-06T03:23:54.039Z",
-          "updatedAt": "2026-11-09T16:20:20.506Z"
+          "updatedAt": "2026-11-16T09:16:09.587Z"
         },
         {
           "id": "cmw4eu23h000jtcws5ly59h9h",
@@ -1840,11 +1926,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào ngày Vu Quy, khi tình yêu thăng hoa giữa sắc đỏ hạnh phúc.",
             "visualDescription": "Khoảnh khắc hạnh phúc trong lễ Vu Quy với cô dâu chú rể mặc áo dài truyền thống màu đỏ rực rỡ. Cô dâu đội mấn đỏ, chú rể mặc áo dài đỏ phối quần đen, cả hai đang ôm nhau tình tứ giữa không gian tràn ngập dải ruy băng màu sắc và pháo giấy tung bay. Phía sau là cổng hoa cưới trang trí rực rỡ với bảng hiệu 'LỄ VU QUY', xung quanh là người thân đang chúc mừng với bao lì xì đỏ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong trang phục áo dài đỏ truyền thống ngày cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc hạnh phúc trong lễ Vu Quy với cô dâu chú rể mặc áo dài truyền thống màu đỏ rực rỡ. Cô dâu đội mấn đỏ, chú rể mặc áo dài đỏ phối quần đen, cả hai đang ôm nhau tình tứ giữa không gian tràn ngập dải ruy băng màu sắc và pháo giấy tung bay. Phía sau là cổng hoa cưới trang trí rực rỡ với bảng hiệu 'LỄ VU QUY', xung quanh là người thân đang chúc mừng với bao lì xì đỏ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "13SHfrPfg6k2by2R8SWRJ0U8FlasI8wgd",
           "md5Checksum": "192cd75fcf6193aeb4ecded4d0c41cc1",
           "createdAt": "2026-11-06T03:23:46.589Z",
-          "updatedAt": "2026-11-09T16:20:20.507Z"
+          "updatedAt": "2026-11-16T09:16:09.688Z"
         }
       ]
     },
@@ -1853,7 +1944,7 @@ const snapshot = {
       "name": "2",
       "slug": "tai-nguyen-2",
       "createdAt": "2026-11-06T03:23:38.642Z",
-      "updatedAt": "2026-11-09T16:20:20.463Z",
+      "updatedAt": "2026-11-11T07:40:42.041Z",
       "files": [
         {
           "id": "cmw4eyshx001ztcws3yrpxrvy",
@@ -1878,11 +1969,16 @@ const snapshot = {
             "suggestedCaption": "Vẻ đẹp thuần khiết tựa như đóa hoa lan, dịu dàng trong ngày trọng đại.",
             "visualDescription": "Bức ảnh đen trắng cận cảnh góc nghiêng phía sau của cô dâu với mái tóc búi thấp tinh tế. Điểm nhấn là những bông hoa lan trắng tươi tắn được cài khéo léo trên tóc, tạo nên vẻ đẹp thanh lịch và tự nhiên. Ánh sáng tương phản mạnh làm nổi bật đường nét bờ vai và kết cấu mềm mại của cánh hoa."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chi tiết hoa lan cài tóc cô dâu",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng cận cảnh góc nghiêng phía sau của cô dâu với mái tóc búi thấp tinh tế. Điểm nhấn là những bông hoa lan trắng tươi tắn được cài khéo léo trên tóc, tạo nên vẻ đẹp thanh lịch và tự nhiên. Ánh sáng tương phản mạnh làm nổi bật đường nét bờ vai và kết cấu mềm mại của cánh hoa.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Pn5mYNWlAS_ImKx5OkeFrPiBxrV8Ky0P",
           "md5Checksum": "f2250145aab693e52d226713a2f437fb",
           "createdAt": "2026-11-06T03:27:27.429Z",
-          "updatedAt": "2026-11-09T16:20:20.507Z"
+          "updatedAt": "2026-11-16T09:16:09.672Z"
         },
         {
           "id": "cmw4eykzq001xtcwsugbcb0rv",
@@ -1908,11 +2004,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc rạng ngời, nơi vẻ đẹp tinh khôi hòa quyện cùng nghệ thuật nhiếp ảnh.",
             "visualDescription": "Bức ảnh đen trắng nghệ thuật chụp cô dâu từ góc nhìn từ trên cao xuống (high-angle shot). Cô dâu mặc chiếc váy cưới ren cầu kỳ với họa tiết hoa văn tinh xảo, tay cầm bó hoa cưới dáng dài (cascading bouquet) kết hợp từ nhiều loại hoa nhỏ. Cô dâu đang nhẹ nhàng tung bay chiếc khăn voan dài, tạo nên chuyển động mềm mại. Layout makeup tập trung vào sự thanh thoát, tóc búi gọn gàng sang trọng. Bối cảnh studio được trang trí với rèm vải xếp nếp và tường gạch, tạo chiều sâu cho khung hình."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong chiếc váy cưới ren tinh tế đang tung khăn voan",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng nghệ thuật chụp cô dâu từ góc nhìn từ trên cao xuống (high-angle shot). Cô dâu mặc chiếc váy cưới ren cầu kỳ với họa tiết hoa văn tinh xảo, tay cầm bó hoa cưới dáng dài (cascading bouquet) kết hợp từ nhiều loại hoa nhỏ. Cô dâu đang nhẹ nhàng tung bay chiếc khăn voan dài, tạo nên chuyển động mềm mại. Layout makeup tập trung vào sự thanh thoát, tóc búi gọn gàng sang trọng. Bối cảnh studio được trang trí với rèm vải xếp nếp và tường gạch, tạo chiều sâu cho khung hình.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lk8z6UyC_Ftt5vGsoLI8BMo2UijhByp7",
           "md5Checksum": "60fa29b0332cdcf6584fe994177132e2",
           "createdAt": "2026-11-06T03:27:17.702Z",
-          "updatedAt": "2026-11-09T16:20:20.508Z"
+          "updatedAt": "2026-11-16T09:16:09.711Z"
         },
         {
           "id": "cmw4eychb001vtcwsju6dci67",
@@ -1938,11 +2039,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc trong chiếc váy cưới ren tinh khôi, lưu giữ vẻ đẹp vượt thời gian.",
             "visualDescription": "Bức ảnh đen trắng ghi lại khoảnh khắc cô dâu xinh đẹp trong chiếc váy cưới ren xòe lộng lẫy với họa tiết hoa văn tinh xảo. Cô dâu cầm bó hoa cưới cầm tay, đứng duyên dáng bên cạnh cổng hoa trang trí bằng vải voan mềm mại và hoa tươi. Khăn voan dài thướt tha tạo nên vẻ đẹp cổ điển, sang trọng. Bối cảnh là không gian tiệc cưới ngoài trời với nền gạch đá và ánh sáng dịu nhẹ, tạo nên bầu không khí lãng mạn và đầy cảm xúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong chiếc váy cưới ren xòe lộng lẫy bên cổng hoa trang trí",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng ghi lại khoảnh khắc cô dâu xinh đẹp trong chiếc váy cưới ren xòe lộng lẫy với họa tiết hoa văn tinh xảo. Cô dâu cầm bó hoa cưới cầm tay, đứng duyên dáng bên cạnh cổng hoa trang trí bằng vải voan mềm mại và hoa tươi. Khăn voan dài thướt tha tạo nên vẻ đẹp cổ điển, sang trọng. Bối cảnh là không gian tiệc cưới ngoài trời với nền gạch đá và ánh sáng dịu nhẹ, tạo nên bầu không khí lãng mạn và đầy cảm xúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-xx5Jcd6QvCxScZLFy5mMiMi1rFRlMWS",
           "md5Checksum": "2b7af763c97de710aefda1dea0a498f6",
           "createdAt": "2026-11-06T03:27:06.671Z",
-          "updatedAt": "2026-11-09T16:20:20.509Z"
+          "updatedAt": "2026-11-16T09:16:09.713Z"
         },
         {
           "id": "cmw4ey53k001ttcwsqcvt18c9",
@@ -1968,11 +2074,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tình yêu thăng hoa dưới ánh đèn lung linh. Một kỷ niệm đẹp tại PlusMoments Wedding Studio.",
             "visualDescription": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong không gian tiệc cưới sang trọng. Cô dâu diện váy cưới xòe bồng bềnh với họa tiết ren tinh xảo, tay cầm bó hoa cưới, trong khi chú rể lịch lãm trong bộ vest tối màu. Cặp đôi đứng giữa sân khấu dưới ánh đèn lung linh và hiệu ứng bong bóng bay lơ lửng, tạo nên khung cảnh cổ tích. Phía sau là màn hình LED lớn hiển thị tên cô dâu chú rể, kết hợp với kiến trúc trần nhà lắp kính và hệ thống đèn treo nghệ thuật."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc lãng mạn của cô dâu chú rể trong không gian tiệc cưới sang trọng",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong không gian tiệc cưới sang trọng. Cô dâu diện váy cưới xòe bồng bềnh với họa tiết ren tinh xảo, tay cầm bó hoa cưới, trong khi chú rể lịch lãm trong bộ vest tối màu. Cặp đôi đứng giữa sân khấu dưới ánh đèn lung linh và hiệu ứng bong bóng bay lơ lửng, tạo nên khung cảnh cổ tích. Phía sau là màn hình LED lớn hiển thị tên cô dâu chú rể, kết hợp với kiến trúc trần nhà lắp kính và hệ thống đèn treo nghệ thuật.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1VIDv6rUOZtTe0iZ-WpN51w7ztp78DUYj",
           "md5Checksum": "f3405bfad2b9b8b1a43ef2237d0f8538",
           "createdAt": "2026-11-06T03:26:57.104Z",
-          "updatedAt": "2026-11-09T16:20:20.510Z"
+          "updatedAt": "2026-11-16T09:16:09.591Z"
         },
         {
           "id": "cmw4exv9a001rtcwse9ibzk24",
@@ -1997,11 +2108,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tình yêu thăng hoa dưới ánh đèn lung linh. Một kỷ niệm vĩnh cửu tại PlusMoments.",
             "visualDescription": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới xòe bồng bềnh với họa tiết ren tinh xảo, chú rể mặc vest lịch lãm. Cả hai đang trao nhau nụ hôn ngọt ngào giữa không gian tiệc tối được trang trí bằng hàng ngàn bóng đèn dây tóc lung linh, tạo hiệu ứng bokeh huyền ảo phía sau."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc hôn nhau lãng mạn của cô dâu chú rể dưới ánh đèn lung linh",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới xòe bồng bềnh với họa tiết ren tinh xảo, chú rể mặc vest lịch lãm. Cả hai đang trao nhau nụ hôn ngọt ngào giữa không gian tiệc tối được trang trí bằng hàng ngàn bóng đèn dây tóc lung linh, tạo hiệu ứng bokeh huyền ảo phía sau.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Ji_bbeDlnNR32VvdcF_wOjkugaJoTZKk",
           "md5Checksum": "f3c7f563eedb74bb5ce9f6df7eae7b6d",
           "createdAt": "2026-11-06T03:26:44.350Z",
-          "updatedAt": "2026-11-09T16:20:20.510Z"
+          "updatedAt": "2026-11-16T09:16:09.676Z"
         },
         {
           "id": "cmw4exlzx001ptcwsqjlydypl",
@@ -2026,11 +2142,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tình yêu tỏa sáng giữa không gian tiệc cưới lung linh. Một kỷ niệm mãi mãi.",
             "visualDescription": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới ren họa tiết hoa cầu kỳ, khoác khăn voan mỏng manh, đang ôm chú rể trong bộ vest lịch lãm. Bối cảnh phía sau là không gian tiệc tối với hệ thống đèn dây treo lung linh tạo hiệu ứng bokeh huyền ảo, mang đậm chất điện ảnh."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc khiêu vũ lãng mạn của cô dâu chú rể dưới ánh đèn lung linh",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng ghi lại khoảnh khắc lãng mạn của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới ren họa tiết hoa cầu kỳ, khoác khăn voan mỏng manh, đang ôm chú rể trong bộ vest lịch lãm. Bối cảnh phía sau là không gian tiệc tối với hệ thống đèn dây treo lung linh tạo hiệu ứng bokeh huyền ảo, mang đậm chất điện ảnh.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1_0tJ7fJStr_5Vnk16P5mPscE_G0IpLks",
           "md5Checksum": "618238b0f67151dbca80d0358ad701d2",
           "createdAt": "2026-11-06T03:26:32.349Z",
-          "updatedAt": "2026-11-09T16:20:20.511Z"
+          "updatedAt": "2026-11-16T09:16:09.570Z"
         },
         {
           "id": "cmw4exca1001ntcwslbogb6u8",
@@ -2055,11 +2176,16 @@ const snapshot = {
             "suggestedCaption": "Nụ hôn ngọt ngào đánh dấu khoảnh khắc hạnh phúc vĩnh cửu tại PlusMoments.",
             "visualDescription": "Khoảnh khắc ngọt ngào khi cô dâu mặc chiếc váy cưới ren lộng lẫy ôm trọn đường cong, đội khăn voan tinh tế, đang say đắm trao nụ hôn tình tứ cho chú đang mặc vest lịch lãm. Bối cảnh tiệc cưới lung linh với hàng ngàn ánh đèn fairy light lấp lánh như bầu trời sao, mang đậm phong cách điện ảnh lãng mạn."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trao nụ hôn ngọt ngào dưới bầu trời đèn lung linh",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc ngọt ngào khi cô dâu mặc chiếc váy cưới ren lộng lẫy ôm trọn đường cong, đội khăn voan tinh tế, đang say đắm trao nụ hôn tình tứ cho chú đang mặc vest lịch lãm. Bối cảnh tiệc cưới lung linh với hàng ngàn ánh đèn fairy light lấp lánh như bầu trời sao, mang đậm phong cách điện ảnh lãng mạn.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1IZ3rRquNzIuThL_Dw7YZWb9UGL5k2xwn",
           "md5Checksum": "bc3c2edc67719b3f958dcc1d85a6cc04",
           "createdAt": "2026-11-06T03:26:19.753Z",
-          "updatedAt": "2026-11-09T16:20:20.512Z"
+          "updatedAt": "2026-11-16T09:16:09.594Z"
         },
         {
           "id": "cmw4ex34r001ltcwscgui81bk",
@@ -2084,11 +2210,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc vỡ òa, nơi tình yêu thăng hoa cùng những ánh đèn lung linh.",
             "visualDescription": "Bức ảnh đen trắng ghi lại khoảnh khắc hạnh phúc của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới xòe bồng bềnh với chi tiết ren tinh tế, chú rể lịch lãm trong bộ vest tối màu. Cả hai đang cùng tạo hình trái tim bằng tay đầy tình tứ giữa không gian tràn ngập bong bóng xà phòng. Phía trên là hệ thống đèn trang trí lung linh tạo hiệu ứng ánh sáng tỏa tia nghệ thuật, kết hợp với logo tên viết tắt của cặp đôi được chiếu sáng nổi bật trên sàn."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu chú rể tạo hình trái tim giữa không gian tiệc cưới lung linh",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng ghi lại khoảnh khắc hạnh phúc của cô dâu chú rể trong tiệc cưới. Cô dâu mặc váy cưới xòe bồng bềnh với chi tiết ren tinh tế, chú rể lịch lãm trong bộ vest tối màu. Cả hai đang cùng tạo hình trái tim bằng tay đầy tình tứ giữa không gian tràn ngập bong bóng xà phòng. Phía trên là hệ thống đèn trang trí lung linh tạo hiệu ứng ánh sáng tỏa tia nghệ thuật, kết hợp với logo tên viết tắt của cặp đôi được chiếu sáng nổi bật trên sàn.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1HAPjjHTAyuQU5jdHZhNOpLIjp_sfqy4q",
           "md5Checksum": "4bc0b38b5c4f7e242e3013d39a208775",
           "createdAt": "2026-11-06T03:26:07.899Z",
-          "updatedAt": "2026-11-09T16:20:20.512Z"
+          "updatedAt": "2026-11-16T09:16:09.681Z"
         },
         {
           "id": "cmw4ewsd2001jtcwslhysfhsa",
@@ -2113,11 +2244,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào, nơi tình yêu thăng hoa cùng những bong bóng hạnh phúc.",
             "visualDescription": "Bức ảnh đen trắng nghệ thuật chụp từ góc cao, ghi lại khoảnh khắc cô dâu chú rể đang cùng nhau rót rượu trong tiệc cưới. Cô dâu mặc váy cưới ren tinh tế với khăn voan dài, chú rể lịch lãm trong bộ vest tuxedo. Không gian xung quanh được bao phủ bởi những bong bóng xà phòng bay bổng dưới ánh đèn spotlight chiếu rọi, tạo nên hiệu ứng thị giác lung linh và huyền ảo."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu chú rể rót rượu trong không gian tiệc cưới đầy bong bóng",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng nghệ thuật chụp từ góc cao, ghi lại khoảnh khắc cô dâu chú rể đang cùng nhau rót rượu trong tiệc cưới. Cô dâu mặc váy cưới ren tinh tế với khăn voan dài, chú rể lịch lãm trong bộ vest tuxedo. Không gian xung quanh được bao phủ bởi những bong bóng xà phòng bay bổng dưới ánh đèn spotlight chiếu rọi, tạo nên hiệu ứng thị giác lung linh và huyền ảo.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1d-fSACRuc4Qkd15vtV4VkObvYC6UlTnR",
           "md5Checksum": "e809e95ae37ac6d059d0e54d3650e781",
           "createdAt": "2026-11-06T03:25:53.943Z",
-          "updatedAt": "2026-11-09T16:20:20.513Z"
+          "updatedAt": "2026-11-16T09:16:09.716Z"
         },
         {
           "id": "cmw4ewgnd001htcws3fk6rehr",
@@ -2142,11 +2278,16 @@ const snapshot = {
             "suggestedCaption": "N & P - Khởi đầu cho một hành trình tình yêu đầy cảm xúc và nghệ thuật.",
             "visualDescription": "Một tác phẩm nghệ thuật đồ họa tối giản trên nền đen sâu thẳm, nổi bật với các chữ cái viết tắt 'N' và 'P' được cách điệu tinh tế. Hiệu ứng chuyển động (motion blur) tạo ra các vệt sáng trắng mờ ảo, mang lại cảm giác hiện đại, sang trọng và đầy tính điện ảnh."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Logo chữ cái viết tắt N và P cách điệu với hiệu ứng chuyển động nghệ thuật",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một tác phẩm nghệ thuật đồ họa tối giản trên nền đen sâu thẳm, nổi bật với các chữ cái viết tắt 'N' và 'P' được cách điệu tinh tế. Hiệu ứng chuyển động (motion blur) tạo ra các vệt sáng trắng mờ ảo, mang lại cảm giác hiện đại, sang trọng và đầy tính điện ảnh.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1fYYv3KQAHuS9b_fajoPb2nfD8DjnCf8T",
           "md5Checksum": "6fafa203925922a1ca82235d11498450",
           "createdAt": "2026-11-06T03:25:38.761Z",
-          "updatedAt": "2026-11-09T16:20:20.514Z"
+          "updatedAt": "2026-11-16T09:16:09.650Z"
         },
         {
           "id": "cmw4ewfjx001ftcwsds5avfh2",
@@ -2171,11 +2312,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tỏa sáng trong đêm tiệc, nơi tình yêu trở thành tâm điểm của mọi ánh nhìn.",
             "visualDescription": "Bức ảnh đen trắng chụp từ góc cao, ghi lại khoảnh khắc cô dâu trong chiếc váy cưới ren dài thướt tha với phần đuôi xòe rộng. Ánh sáng từ đèn sân khấu tạo nên những đốm sáng bokeh lung linh, huyền ảo đổ bóng lên nền gạch, làm nổi bật họa tiết ren tinh xảo trên váy. Cô dâu đứng giữa không gian tiệc tối, tạo nên vẻ đẹp sang trọng, bí ẩn và đầy tính nghệ thuật."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chi tiết đuôi váy cưới ren dài và hiệu ứng ánh sáng bokeh nghệ thuật",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng chụp từ góc cao, ghi lại khoảnh khắc cô dâu trong chiếc váy cưới ren dài thướt tha với phần đuôi xòe rộng. Ánh sáng từ đèn sân khấu tạo nên những đốm sáng bokeh lung linh, huyền ảo đổ bóng lên nền gạch, làm nổi bật họa tiết ren tinh xảo trên váy. Cô dâu đứng giữa không gian tiệc tối, tạo nên vẻ đẹp sang trọng, bí ẩn và đầy tính nghệ thuật.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Zjqh5H5lOkVg937NbX720tfTusL6OSVA",
           "md5Checksum": "c63522acc9c4c748a6512792ae3404b0",
           "createdAt": "2026-11-06T03:25:37.341Z",
-          "updatedAt": "2026-11-09T16:20:20.514Z"
+          "updatedAt": "2026-11-16T09:16:09.691Z"
         },
         {
           "id": "cmw4ewaku001dtcwsadnb22y9",
@@ -2200,11 +2346,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tình yêu vĩnh cửu, nơi thời gian như ngừng lại trong từng đường nét tinh tế.",
             "visualDescription": "Bức ảnh đen trắng nghệ thuật ghi lại khoảnh khắc cô dâu chú rể trong trang phục cưới sang trọng. Cô dâu mặc váy cưới ren tinh tế với khăn voan dài, mái tóc búi gọn gàng, gương mặt trang điểm nhẹ nhàng đang cúi nhìn bó hoa cưới cầm tay. Chú rể mặc vest tuxedo lịch lãm, xuất hiện mờ ảo ở phía dưới, tạo chiều sâu cho khung hình. Ánh sáng mạnh từ phía sau tạo hiệu ứng viền sáng (rim light) quanh chủ thể, làm nổi bật đường nét gương mặt và chi tiết ren trên váy."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu chú rể trong trang phục cưới sang trọng với ánh sáng nghệ thuật",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng nghệ thuật ghi lại khoảnh khắc cô dâu chú rể trong trang phục cưới sang trọng. Cô dâu mặc váy cưới ren tinh tế với khăn voan dài, mái tóc búi gọn gàng, gương mặt trang điểm nhẹ nhàng đang cúi nhìn bó hoa cưới cầm tay. Chú rể mặc vest tuxedo lịch lãm, xuất hiện mờ ảo ở phía dưới, tạo chiều sâu cho khung hình. Ánh sáng mạnh từ phía sau tạo hiệu ứng viền sáng (rim light) quanh chủ thể, làm nổi bật đường nét gương mặt và chi tiết ren trên váy.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "113Ly5GOfRPNYqz7mNSdpEcLc15lvJnhI",
           "md5Checksum": "57805e6198dd47160e7a64e2f9c2fb16",
           "createdAt": "2026-11-06T03:25:30.895Z",
-          "updatedAt": "2026-11-09T16:20:20.515Z"
+          "updatedAt": "2026-11-16T09:16:09.597Z"
         },
         {
           "id": "cmw4ew7aa001btcwsigbmt0ay",
@@ -2229,11 +2380,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tình yêu vĩnh cửu, nơi mỗi chi tiết nhỏ đều kể một câu chuyện hạnh phúc.",
             "visualDescription": "Bức ảnh đen trắng cận cảnh khoảnh khắc lãng mạn của cô dâu chú rể. Cô dâu mặc váy cưới cúp ngực ren tinh xảo, tay đeo vòng tay mảnh và nhẫn cưới, nhẹ nhàng đặt lên ngực chú rể. Chú rể lịch lãm trong bộ vest tuxedo tối màu, thắt nơ đen chỉn chu. Phía trước là bó hoa cưới cầm tay được làm từ các loại hoa dại và hoa hồng, tạo nên bố cục hài hòa, sang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc tình tứ của cô dâu chú rể với chi tiết váy ren và nhẫn cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh đen trắng cận cảnh khoảnh khắc lãng mạn của cô dâu chú rể. Cô dâu mặc váy cưới cúp ngực ren tinh xảo, tay đeo vòng tay mảnh và nhẫn cưới, nhẹ nhàng đặt lên ngực chú rể. Chú rể lịch lãm trong bộ vest tuxedo tối màu, thắt nơ đen chỉn chu. Phía trước là bó hoa cưới cầm tay được làm từ các loại hoa dại và hoa hồng, tạo nên bố cục hài hòa, sang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1tHeMwIjm23z_EyKVwYl9ks9JdjIDKB7I",
           "md5Checksum": "068704a08af0a921e81679cf05f7d33c",
           "createdAt": "2026-11-06T03:25:26.626Z",
-          "updatedAt": "2026-11-09T16:20:20.515Z"
+          "updatedAt": "2026-11-16T09:16:09.674Z"
         }
       ]
     },
@@ -2242,7 +2398,7 @@ const snapshot = {
       "name": "3",
       "slug": "tai-nguyen-3",
       "createdAt": "2026-11-06T03:23:38.642Z",
-      "updatedAt": "2026-11-09T16:20:20.464Z",
+      "updatedAt": "2026-11-11T07:40:42.041Z",
       "files": [
         {
           "id": "cmw4f1pw5002jtcwsg5y2ail8",
@@ -2254,11 +2410,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1erbQo3HuesfP-FEc1BuelCOd1C7MD797",
           "md5Checksum": "7080bc88efd35239ecae1fdc8548d2d8",
           "createdAt": "2026-11-06T03:29:44.021Z",
-          "updatedAt": "2026-11-09T16:20:20.516Z"
+          "updatedAt": "2026-11-11T07:40:42.101Z"
         },
         {
           "id": "cmw4f1ewb002htcwswuhcngbd",
@@ -2270,11 +2431,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1pNkqf6U-sfDv5pCw2eyZPjcxiyVLfwWI",
           "md5Checksum": "ee1eb5b3002d17a6c710d023023a1898",
           "createdAt": "2026-11-06T03:29:29.772Z",
-          "updatedAt": "2026-11-09T16:20:20.516Z"
+          "updatedAt": "2026-11-11T07:40:42.101Z"
         },
         {
           "id": "cmw4f160k002ftcwsf1p4dchj",
@@ -2286,11 +2452,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Zzai_4EJQGB7TCXLcV_l0oCcpIhpO_xW",
           "md5Checksum": "9ed7526555d11317f068499796e72cb2",
           "createdAt": "2026-11-06T03:29:18.261Z",
-          "updatedAt": "2026-11-09T16:20:20.516Z"
+          "updatedAt": "2026-11-11T07:40:42.101Z"
         },
         {
           "id": "cmw4f0v1s002dtcwsi5d554fe",
@@ -2302,11 +2473,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Dxy3wMTo4RAYGusHPgSv8PZlwpyB6HZ5",
           "md5Checksum": "1d33454b1181bd8e6a26c402b92fe2f8",
           "createdAt": "2026-11-06T03:29:04.049Z",
-          "updatedAt": "2026-11-09T16:20:20.517Z"
+          "updatedAt": "2026-11-11T07:40:42.102Z"
         },
         {
           "id": "cmw4f0jfy002btcwsufdny4rf",
@@ -2318,11 +2494,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1jYhBwc9Gg6X--5CCUDXA--Zm-ZBxYUiv",
           "md5Checksum": "466be17e915fb4387772c256206406ac",
           "createdAt": "2026-11-06T03:28:49.006Z",
-          "updatedAt": "2026-11-09T16:20:20.517Z"
+          "updatedAt": "2026-11-11T07:40:42.102Z"
         },
         {
           "id": "cmw4f07ly0029tcws0he9gvoi",
@@ -2334,11 +2515,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-7DE_Sbayj37mxuBoxGfEDuKkEH4SxgI",
           "md5Checksum": "06d7fa0782ac002ec5bf656d30ee4d37",
           "createdAt": "2026-11-06T03:28:33.670Z",
-          "updatedAt": "2026-11-09T16:20:20.518Z"
+          "updatedAt": "2026-11-11T07:40:42.103Z"
         },
         {
           "id": "cmw4ezutx0027tcwsavpw1l9g",
@@ -2350,11 +2536,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1f66H9CSEvT7Gm6eOF_kqwL1UbOtK1uaq",
           "md5Checksum": "7e065ef8177a1eea8a33ef82092563e4",
           "createdAt": "2026-11-06T03:28:17.109Z",
-          "updatedAt": "2026-11-09T16:20:20.518Z"
+          "updatedAt": "2026-11-11T07:40:42.103Z"
         },
         {
           "id": "cmw4ezjhn0025tcwsfu46tui5",
@@ -2366,11 +2557,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1OXENt5R9oOK8joRi_3ws2cuNsoLi4KWx",
           "md5Checksum": "6285cb313c32bd85afe811b6a78b8295",
           "createdAt": "2026-11-06T03:28:02.412Z",
-          "updatedAt": "2026-11-09T16:20:20.518Z"
+          "updatedAt": "2026-11-11T07:40:42.104Z"
         },
         {
           "id": "cmw4ezah50023tcws75ya24ws",
@@ -2382,11 +2578,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1JKe6jXCKN8P6CWB_dDfsKtPWh-H-9yze",
           "md5Checksum": "c6e6ba09c0c1735b53d0d788a4bab50f",
           "createdAt": "2026-11-06T03:27:50.729Z",
-          "updatedAt": "2026-11-09T16:20:20.519Z"
+          "updatedAt": "2026-11-11T07:40:42.104Z"
         },
         {
           "id": "cmw4ez1n90021tcwsxe1x2fjn",
@@ -2398,11 +2599,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyq000btcws9vaf4li6",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1_XaToCTVTRlr_xYWH48BtUcnxCTtkmpu",
           "md5Checksum": "9b23941cb5d2b55f9b9a6888f26fa567",
           "createdAt": "2026-11-06T03:27:39.280Z",
-          "updatedAt": "2026-11-09T16:20:20.519Z"
+          "updatedAt": "2026-11-11T07:40:42.104Z"
         }
       ]
     },
@@ -2411,7 +2617,7 @@ const snapshot = {
       "name": "4",
       "slug": "tai-nguyen-4",
       "createdAt": "2026-11-06T03:23:38.643Z",
-      "updatedAt": "2026-11-09T16:20:20.464Z",
+      "updatedAt": "2026-11-11T07:40:42.042Z",
       "files": [
         {
           "id": "cmw4f5age0037tcws9bmxfbrq",
@@ -2422,12 +2628,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:46.410Z",
+            "mainSubject": "HD_03179",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1X989nxmyE29feiQfW1CsdW59b0tyKOY5",
           "md5Checksum": "9cee89013dda1d39d2ee805078127dc1",
           "createdAt": "2026-11-06T03:32:30.638Z",
-          "updatedAt": "2026-11-09T16:20:20.520Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f4xvv0035tcwsay0bemrl",
@@ -2438,12 +2663,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:46.621Z",
+            "mainSubject": "HD_03161",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03161.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1v1qch6_OGf914Ol8Tk7HlKsfCL1R7v5d",
           "md5Checksum": "f10abce0e06e2854265168f2371c7d8b",
           "createdAt": "2026-11-06T03:32:14.347Z",
-          "updatedAt": "2026-11-09T16:20:20.520Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f4od10033tcwsx25avp00",
@@ -2454,12 +2698,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:46.833Z",
+            "mainSubject": "HD_03156",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03156.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1_GXjDla7ljFl-WjDAguyVq4VQyNeaymt",
           "md5Checksum": "812e0819c8d3fbbd5b47312f3ae0a6b2",
           "createdAt": "2026-11-06T03:32:02.005Z",
-          "updatedAt": "2026-11-09T16:20:20.520Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f4fwr0031tcws4iqfza6t",
@@ -2470,12 +2733,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:47.043Z",
+            "mainSubject": "HD_03130",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03130.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "11Fwo92ZJ1MnKSeDjpaM3i8720N4vNxjm",
           "md5Checksum": "68366ace7d40bd1a31750cb6ac614409",
           "createdAt": "2026-11-06T03:31:51.052Z",
-          "updatedAt": "2026-11-09T16:20:20.521Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f44h8002ztcwsvse282xk",
@@ -2486,12 +2768,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:47.256Z",
+            "mainSubject": "HD_03116",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03116.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1w8eZlCmh0iUI3_c7MscYim1qguDlJCOg",
           "md5Checksum": "e599da910ecd41e9c45b29f0b55d0dd8",
           "createdAt": "2026-11-06T03:31:36.237Z",
-          "updatedAt": "2026-11-09T16:20:20.521Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f3u96002xtcwsz3i1jvuk",
@@ -2502,12 +2803,31 @@ const snapshot = {
           "width": 2560,
           "height": 1707,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:47.470Z",
+            "mainSubject": "HD_03113",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03113.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lcV1u55ILcCnZq9ovH-k2GLl7y4vGDj3",
           "md5Checksum": "35e41559ad96d7df86e5cc6c22ddef03",
           "createdAt": "2026-11-06T03:31:22.987Z",
-          "updatedAt": "2026-11-09T16:20:20.521Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f3ic2002vtcwssi9d1bza",
@@ -2518,12 +2838,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:47.681Z",
+            "mainSubject": "HD_03088",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03088.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1rpzRC-7lJoMmr-6woOB4C7UQWCdbJCAJ",
           "md5Checksum": "0334bd72deddc0fbfbbf98a8c1d4680e",
           "createdAt": "2026-11-06T03:31:07.538Z",
-          "updatedAt": "2026-11-09T16:20:20.522Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f36i7002ttcwso9cw5zx4",
@@ -2534,12 +2873,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:47.894Z",
+            "mainSubject": "HD_03007",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03007.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1JJMy3PP803rWzAnxeSr7uzikVq_HFJLj",
           "md5Checksum": "c6e50fe6f20077628b796883c1576190",
           "createdAt": "2026-11-06T03:30:52.207Z",
-          "updatedAt": "2026-11-09T16:20:20.522Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f2v79002rtcws3cxy8mao",
@@ -2550,12 +2908,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:48.104Z",
+            "mainSubject": "HD_02991",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_02991.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1IrbpenOJrN0cv8PCqN2mrlV3HUigahBx",
           "md5Checksum": "50612d1389de2cd530aa9641cbe590f6",
           "createdAt": "2026-11-06T03:30:37.558Z",
-          "updatedAt": "2026-11-09T16:20:20.522Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f2moa002ptcws731sdgb7",
@@ -2566,12 +2943,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:48.316Z",
+            "mainSubject": "HD_02985",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_02985.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1twCVCnUWV5efdiOyz6F-g5B2hSvYnzp0",
           "md5Checksum": "c4bb52f00f5167c69b783558c89a2e01",
           "createdAt": "2026-11-06T03:30:26.506Z",
-          "updatedAt": "2026-11-09T16:20:20.523Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f2c9k002ntcwsul4w3rv8",
@@ -2582,12 +2978,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:48.527Z",
+            "mainSubject": "HD_02974",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_02974.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1sgMPDkcDUEX4-FDuc1TmEinR19HC6Rkv",
           "md5Checksum": "a682dabeca7539a7d503cdaa0874326a",
           "createdAt": "2026-11-06T03:30:13.017Z",
-          "updatedAt": "2026-11-09T16:20:20.523Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         },
         {
           "id": "cmw4f21xp002ltcwsulsjfzk9",
@@ -2598,12 +3013,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyq000ctcwsdyeykxfx",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-22T23:12:48.737Z",
+            "mainSubject": "HD_02886",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 4",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_02886.jpg)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" (HD_03179.jpg).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "159hnPJhzva28hcJ_95-BX-VALd5N17Uv",
           "md5Checksum": "659f92c8f2accf79afc9dbc33d7b45d3",
           "createdAt": "2026-11-06T03:29:59.630Z",
-          "updatedAt": "2026-11-09T16:20:20.523Z"
+          "updatedAt": "2026-11-23T02:14:20.751Z"
         }
       ]
     },
@@ -2612,7 +3046,7 @@ const snapshot = {
       "name": "5",
       "slug": "tai-nguyen-5",
       "createdAt": "2026-11-06T03:23:38.643Z",
-      "updatedAt": "2026-11-09T16:20:20.464Z",
+      "updatedAt": "2026-11-11T07:40:42.042Z",
       "files": [
         {
           "id": "cmw4fsa0q0075tcwsv00ye0h7",
@@ -2624,11 +3058,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1avRpVPvwQpCcTmcITRILTtgGP906fvUB",
           "md5Checksum": "02faeabce611b5001a635e133ed8f474",
           "createdAt": "2026-11-06T03:50:23.162Z",
-          "updatedAt": "2026-11-09T16:20:20.524Z"
+          "updatedAt": "2026-11-11T07:40:42.110Z"
         },
         {
           "id": "cmw4fruuv0073tcwsxjda5518",
@@ -2640,11 +3079,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1F4tSfeRwdbssf31ARPiizco4rn-7deCE",
           "md5Checksum": "ffb00130f61736aef2e37fb911d6d4f5",
           "createdAt": "2026-11-06T03:50:03.511Z",
-          "updatedAt": "2026-11-09T16:20:20.524Z"
+          "updatedAt": "2026-11-11T07:40:42.111Z"
         },
         {
           "id": "cmw4frgu60071tcwsl1ibhqrj",
@@ -2656,11 +3100,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1hmiZvL7vQ1ZoY4a7Gc_V0S17LqN7YxAq",
           "md5Checksum": "b958a45442e86fd9d790c0c10a076cb3",
           "createdAt": "2026-11-06T03:49:45.343Z",
-          "updatedAt": "2026-11-09T16:20:20.525Z"
+          "updatedAt": "2026-11-11T07:40:42.111Z"
         },
         {
           "id": "cmw4fr4mq006ztcwsonikpexc",
@@ -2672,11 +3121,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "15nTyhBiGfoAGVpTVhxWX3Ekw9zdPNmic",
           "md5Checksum": "f399c63dae2e1166d4b42bdceaf13fe0",
           "createdAt": "2026-11-06T03:49:29.522Z",
-          "updatedAt": "2026-11-09T16:20:20.525Z"
+          "updatedAt": "2026-11-11T07:40:42.112Z"
         },
         {
           "id": "cmw4fqpbq006xtcws2u3gpmgs",
@@ -2688,11 +3142,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "18j8Tfvf1rXmtBQODpuDCGRboD8667e8w",
           "md5Checksum": "9edac4cc2114be535db9792298b0bc36",
           "createdAt": "2026-11-06T03:49:09.686Z",
-          "updatedAt": "2026-11-09T16:20:20.525Z"
+          "updatedAt": "2026-11-11T07:40:42.112Z"
         },
         {
           "id": "cmw4fq8jm006vtcwsya0a3s2x",
@@ -2704,11 +3163,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1mZTVelwXaESx5dINqvr8vBOMDd3IKn0M",
           "md5Checksum": "5c4367ae126f2419f18b5ad503eeec08",
           "createdAt": "2026-11-06T03:48:47.939Z",
-          "updatedAt": "2026-11-09T16:20:20.526Z"
+          "updatedAt": "2026-11-11T07:40:42.113Z"
         },
         {
           "id": "cmw4fptxt006ttcwsi5hyi9cu",
@@ -2720,11 +3184,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "13Vyp5UJYDmaPc6PElaaFj6M7bwZmUUze",
           "md5Checksum": "895619e19c312ba2eb01ae0ed26782dc",
           "createdAt": "2026-11-06T03:48:29.009Z",
-          "updatedAt": "2026-11-09T16:20:20.526Z"
+          "updatedAt": "2026-11-11T07:40:42.113Z"
         },
         {
           "id": "cmw4fph4y006rtcwspeyo4zt5",
@@ -2736,11 +3205,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1q5pojM0DepnsKZrHqwdbdsPrG_ZFjSOV",
           "md5Checksum": "239cc28b0d38bad76463a05d7330c189",
           "createdAt": "2026-11-06T03:48:12.418Z",
-          "updatedAt": "2026-11-09T16:20:20.526Z"
+          "updatedAt": "2026-11-11T07:40:42.113Z"
         },
         {
           "id": "cmw4fp441006ptcws8x7otxb5",
@@ -2752,11 +3226,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1M6SLe0FyRbiFMK027UDKlG6114NDCg8w",
           "md5Checksum": "9a4b5dff57cfc8c3a78e08167f302ac7",
           "createdAt": "2026-11-06T03:47:55.537Z",
-          "updatedAt": "2026-11-09T16:20:20.527Z"
+          "updatedAt": "2026-11-11T07:40:42.114Z"
         },
         {
           "id": "cmw4fotxx006ntcwsdh4id7lr",
@@ -2768,11 +3247,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1oi50jPfyl7HE09NFkBFNM_R-U7NPEvsi",
           "md5Checksum": "b26feb235b024c246acbc29f89c80259",
           "createdAt": "2026-11-06T03:47:42.357Z",
-          "updatedAt": "2026-11-09T16:20:20.527Z"
+          "updatedAt": "2026-11-11T07:40:42.114Z"
         },
         {
           "id": "cmw4foj4k006ltcwsy9pow2nk",
@@ -2784,11 +3268,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1tX3dZdiUnjkDVbKxrfxo0prr872sYvgu",
           "md5Checksum": "ce970428e44a31e9f98b716c88cf96ff",
           "createdAt": "2026-11-06T03:47:28.340Z",
-          "updatedAt": "2026-11-09T16:20:20.527Z"
+          "updatedAt": "2026-11-11T07:40:42.115Z"
         },
         {
           "id": "cmw4fo6yn006jtcwsnbob0ko3",
@@ -2800,11 +3289,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "15WAzo2YcVYTQ9u9fv9_US00L61c3QFsD",
           "md5Checksum": "fda25196177ab411f4feb3b5cfa14114",
           "createdAt": "2026-11-06T03:47:12.576Z",
-          "updatedAt": "2026-11-09T16:20:20.528Z"
+          "updatedAt": "2026-11-11T07:40:42.115Z"
         },
         {
           "id": "cmw4fnw6t006htcwstagjqkdn",
@@ -2816,11 +3310,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ExGreaSyczddqeCvtAT6W0eVD4sxBIc2",
           "md5Checksum": "0acb3f8a09564dc255998e83b1a3694f",
           "createdAt": "2026-11-06T03:46:58.613Z",
-          "updatedAt": "2026-11-09T16:20:20.528Z"
+          "updatedAt": "2026-11-11T07:40:42.115Z"
         },
         {
           "id": "cmw4fnj7q006ftcwsldk58i7h",
@@ -2832,11 +3331,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-WFcnxqqXDIO2awqeB7mDdlxKVJCeEmM",
           "md5Checksum": "6de30a24eee46c06b43c42e1e25b28a0",
           "createdAt": "2026-11-06T03:46:41.798Z",
-          "updatedAt": "2026-11-09T16:20:20.529Z"
+          "updatedAt": "2026-11-11T07:40:42.116Z"
         },
         {
           "id": "cmw4fn7wy006dtcwsjkgvazz9",
@@ -2848,11 +3352,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Tsm5GiOlt_o9IV3hE2TV7n7UTcWONMUz",
           "md5Checksum": "a0905285824e5f1bf83afd4b2d0a9fff",
           "createdAt": "2026-11-06T03:46:27.154Z",
-          "updatedAt": "2026-11-09T16:20:20.529Z"
+          "updatedAt": "2026-11-11T07:40:42.116Z"
         },
         {
           "id": "cmw4fmvun006btcwsb3yyeybk",
@@ -2864,11 +3373,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1uJGeakmfXCkSO0GHH9b5NN5tCwn06OVL",
           "md5Checksum": "e3b55c3a838a05cfdd4a0ad66953bb49",
           "createdAt": "2026-11-06T03:46:11.520Z",
-          "updatedAt": "2026-11-09T16:20:20.529Z"
+          "updatedAt": "2026-11-11T07:40:42.117Z"
         },
         {
           "id": "cmw4fmipf0069tcws4secyj3a",
@@ -2880,11 +3394,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "18vyO-OEGL-tiC0CXEYI-g0epDsq72GWr",
           "md5Checksum": "620f2cbbfff768e7aa009e6fafc50be4",
           "createdAt": "2026-11-06T03:45:54.483Z",
-          "updatedAt": "2026-11-09T16:20:20.530Z"
+          "updatedAt": "2026-11-11T07:40:42.117Z"
         },
         {
           "id": "cmw4fm8mg0067tcwsrbqdaeqj",
@@ -2896,11 +3415,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1h87EjN-IjURj1Kk3O-plV1Nl0NxIsG5A",
           "md5Checksum": "fa4a416cb0c238f581940e943f017bd8",
           "createdAt": "2026-11-06T03:45:41.416Z",
-          "updatedAt": "2026-11-09T16:20:20.530Z"
+          "updatedAt": "2026-11-11T07:40:42.117Z"
         },
         {
           "id": "cmw4flxp10065tcwsrqx1lk3k",
@@ -2912,11 +3436,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1vhiOjUEkpmRRfjjNkLi1TpSzQfy1Jifm",
           "md5Checksum": "87497cb9f59f8b803da74b676d3b882d",
           "createdAt": "2026-11-06T03:45:27.253Z",
-          "updatedAt": "2026-11-09T16:20:20.530Z"
+          "updatedAt": "2026-11-11T07:40:42.118Z"
         },
         {
           "id": "cmw4flkgt0063tcwsqoqmuo5s",
@@ -2928,11 +3457,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1CJE4ixBPfMyFdJTvpAeXohLIm5D1K2vV",
           "md5Checksum": "b03b01d43e9d0acb1c11e793d8bef5be",
           "createdAt": "2026-11-06T03:45:10.110Z",
-          "updatedAt": "2026-11-09T16:20:20.531Z"
+          "updatedAt": "2026-11-11T07:40:42.118Z"
         },
         {
           "id": "cmw4fl99b0061tcwsw88p0pul",
@@ -2944,11 +3478,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1wzE5xLPuwO86gnO15ZlsGXJyQAj0hb3f",
           "md5Checksum": "33a380489cf15b949a233c23d7c771bb",
           "createdAt": "2026-11-06T03:44:55.583Z",
-          "updatedAt": "2026-11-09T16:20:20.531Z"
+          "updatedAt": "2026-11-11T07:40:42.119Z"
         },
         {
           "id": "cmw4fkupc005ztcwsalmv3mdi",
@@ -2960,11 +3499,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1SaLISwMpLggN7gyRqYmaSZT2NOHbD1kb",
           "md5Checksum": "9a17cf576b5c5a9816ccd2a24474dd9c",
           "createdAt": "2026-11-06T03:44:36.720Z",
-          "updatedAt": "2026-11-09T16:20:20.531Z"
+          "updatedAt": "2026-11-11T07:40:42.119Z"
         },
         {
           "id": "cmw4fki24005xtcws4af48gap",
@@ -2976,11 +3520,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1HnNg6nbYLeJeGBLI1cLDyoFR6-HoI7Ea",
           "md5Checksum": "5267868d282d5de4537ec70eac4b6f10",
           "createdAt": "2026-11-06T03:44:20.333Z",
-          "updatedAt": "2026-11-09T16:20:20.532Z"
+          "updatedAt": "2026-11-11T07:40:42.120Z"
         },
         {
           "id": "cmw4fk7kt005vtcws85lsaopd",
@@ -2992,11 +3541,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1mbUOTYNLRscFO2hE8otZM_BvLIoNUZUY",
           "md5Checksum": "a88d606d0a5da02027e06c095808a72b",
           "createdAt": "2026-11-06T03:44:06.749Z",
-          "updatedAt": "2026-11-09T16:20:20.532Z"
+          "updatedAt": "2026-11-11T07:40:42.120Z"
         },
         {
           "id": "cmw4fjuyi005ttcwsm5dehg8n",
@@ -3008,11 +3562,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1abtiO6GH3feB5zWB2TFAjzNh5SDXj1d8",
           "md5Checksum": "5ac2ae3c76d11d6688dd586485f092b2",
           "createdAt": "2026-11-06T03:43:50.389Z",
-          "updatedAt": "2026-11-09T16:20:20.532Z"
+          "updatedAt": "2026-11-11T07:40:42.120Z"
         },
         {
           "id": "cmw4fjidu005rtcws663zhxxj",
@@ -3024,11 +3583,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Odv-rPLBvzl6FGM01Fmyw9VPxjyw5SPR",
           "md5Checksum": "f0486f5d93b659c1f5b45c86e35c0404",
           "createdAt": "2026-11-06T03:43:34.098Z",
-          "updatedAt": "2026-11-09T16:20:20.533Z"
+          "updatedAt": "2026-11-11T07:40:42.121Z"
         },
         {
           "id": "cmw4fj4mb005ptcwsqlva6r37",
@@ -3040,11 +3604,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DvrMnei2-AYslTFz4P1GaeKC1PSnwUP6",
           "md5Checksum": "98709520847b774bf7ee62b63426a0dd",
           "createdAt": "2026-11-06T03:43:16.260Z",
-          "updatedAt": "2026-11-09T16:20:20.533Z"
+          "updatedAt": "2026-11-11T07:40:42.121Z"
         },
         {
           "id": "cmw4firf6005ntcws00zfalug",
@@ -3056,11 +3625,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "11d3pj7ZdfDP8rFs_C6BOQNt-lvbsYuht",
           "md5Checksum": "4c7d7cdc6be1f4d8bf199fb6fdfb5327",
           "createdAt": "2026-11-06T03:42:59.146Z",
-          "updatedAt": "2026-11-09T16:20:20.534Z"
+          "updatedAt": "2026-11-11T07:40:42.122Z"
         },
         {
           "id": "cmw4fifkv005ltcwsbxnltezp",
@@ -3072,11 +3646,16 @@ const snapshot = {
           "height": 3240,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1telQq2OHOKZ8NG_y8Fr0jYpnjlVHxgb2",
           "md5Checksum": "b6c3c4972be4676b1a9d1a3981199d76",
           "createdAt": "2026-11-06T03:42:43.808Z",
-          "updatedAt": "2026-11-09T16:20:20.534Z"
+          "updatedAt": "2026-11-11T07:40:42.122Z"
         },
         {
           "id": "cmw4fi4rj005jtcwsic2ua1gq",
@@ -3088,11 +3667,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "16jrYDlT4tx8vZtFTykOGFtVBoOJhYGMr",
           "md5Checksum": "b4656aa3b787d857948ed57617919895",
           "createdAt": "2026-11-06T03:42:29.791Z",
-          "updatedAt": "2026-11-09T16:20:20.534Z"
+          "updatedAt": "2026-11-11T07:40:42.122Z"
         },
         {
           "id": "cmw4fhszk005htcwscy4f693y",
@@ -3104,11 +3688,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "15QuUEe9wQtR56nCm5poO4h4fs8qiSCuV",
           "md5Checksum": "4a36cbf3f004904f08892b91e14edd39",
           "createdAt": "2026-11-06T03:42:14.528Z",
-          "updatedAt": "2026-11-09T16:20:20.535Z"
+          "updatedAt": "2026-11-11T07:40:42.123Z"
         },
         {
           "id": "cmw4fhgok005ftcwsy94aagu0",
@@ -3120,11 +3709,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1r_BK4IDbkLP_xKLb8K53Hk2dC6r4yKYf",
           "md5Checksum": "b8654fd7c937a6cf660d4183e29712cc",
           "createdAt": "2026-11-06T03:41:58.581Z",
-          "updatedAt": "2026-11-09T16:20:20.535Z"
+          "updatedAt": "2026-11-11T07:40:42.124Z"
         },
         {
           "id": "cmw4fh3ag005dtcws319u78m7",
@@ -3136,11 +3730,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1fImrdj18PtDJUs94-BTqx3jokUyORtma",
           "md5Checksum": "d11dbbcc1885fc9f52a232574d2756e8",
           "createdAt": "2026-11-06T03:41:41.225Z",
-          "updatedAt": "2026-11-09T16:20:20.535Z"
+          "updatedAt": "2026-11-11T07:40:42.124Z"
         },
         {
           "id": "cmw4fgspt005btcwsq6jusq8w",
@@ -3152,11 +3751,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1w7ga6EYB0J0QjmxXOjwDomuP6YyzSXNA",
           "md5Checksum": "2940ad45df6729d8a41377b18d7cdc61",
           "createdAt": "2026-11-06T03:41:27.521Z",
-          "updatedAt": "2026-11-09T16:20:20.536Z"
+          "updatedAt": "2026-11-11T07:40:42.124Z"
         },
         {
           "id": "cmw4fgibk0059tcwsg57cmw3y",
@@ -3168,11 +3772,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1qs7aoF4iWCkYezqGxHDr9PNjtArmNwrf",
           "md5Checksum": "65ea6b9a6e74c9adef6209e528d7bda3",
           "createdAt": "2026-11-06T03:41:14.048Z",
-          "updatedAt": "2026-11-09T16:20:20.536Z"
+          "updatedAt": "2026-11-11T07:40:42.125Z"
         },
         {
           "id": "cmw4fg6nj0057tcwsiiuhfn91",
@@ -3184,11 +3793,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1e103IP_oaW0u-QBOe_hcw43gcUnWtjXj",
           "md5Checksum": "91ad1a28cc98c8a8a35a4d22280cf435",
           "createdAt": "2026-11-06T03:40:58.927Z",
-          "updatedAt": "2026-11-09T16:20:20.537Z"
+          "updatedAt": "2026-11-11T07:40:42.125Z"
         },
         {
           "id": "cmw4ffwng0055tcws5vtb2x9j",
@@ -3200,11 +3814,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xdY4wZb9aLygnj9WkufzffcDqSIV6GBT",
           "md5Checksum": "934ab6a37867f67947308f0ed7126b3a",
           "createdAt": "2026-11-06T03:40:45.964Z",
-          "updatedAt": "2026-11-09T16:20:20.537Z"
+          "updatedAt": "2026-11-11T07:40:42.126Z"
         },
         {
           "id": "cmw4fflrd0053tcwsk52jf8eh",
@@ -3216,11 +3835,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lW20AFNB4I6gDVBZNN-E44k_gyaodQgv",
           "md5Checksum": "d90b0bae7b47392f54762ec73f93e155",
           "createdAt": "2026-11-06T03:40:31.849Z",
-          "updatedAt": "2026-11-09T16:20:20.537Z"
+          "updatedAt": "2026-11-11T07:40:42.126Z"
         },
         {
           "id": "cmw4ffc5y0051tcwsmttzl5bm",
@@ -3232,11 +3856,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1LZJ0eICrwIsdUEL_JqV3B9CzL8pfbqwD",
           "md5Checksum": "85af96cfcd3da64faa0bfb86022c560a",
           "createdAt": "2026-11-06T03:40:19.414Z",
-          "updatedAt": "2026-11-09T16:20:20.538Z"
+          "updatedAt": "2026-11-11T07:40:42.126Z"
         },
         {
           "id": "cmw4ff1at004ztcwsp3w454zu",
@@ -3248,11 +3877,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1yPe-di7lOxEI9gS9GEeX9Dyx8N1XGPsW",
           "md5Checksum": "31b30309df8c8e31db480d2022e16bdc",
           "createdAt": "2026-11-06T03:40:05.333Z",
-          "updatedAt": "2026-11-09T16:20:20.538Z"
+          "updatedAt": "2026-11-11T07:40:42.126Z"
         },
         {
           "id": "cmw4ferph004xtcwso262nolw",
@@ -3264,11 +3898,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1V5uu2QyV6Lezu_eMc577rv6F4Ag7IqfE",
           "md5Checksum": "cad89102f1bdc0b898d6f8a46042efa8",
           "createdAt": "2026-11-06T03:39:52.901Z",
-          "updatedAt": "2026-11-09T16:20:20.538Z"
+          "updatedAt": "2026-11-11T07:40:42.127Z"
         },
         {
           "id": "cmw4feeeq004vtcwsoyyleos1",
@@ -3280,11 +3919,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xKmbXw79j5yfqvLG3fkm_REBzivUQjqg",
           "md5Checksum": "bcb862da1c34ea240ab4e6fbfa901bbb",
           "createdAt": "2026-11-06T03:39:35.666Z",
-          "updatedAt": "2026-11-09T16:20:20.539Z"
+          "updatedAt": "2026-11-11T07:40:42.127Z"
         },
         {
           "id": "cmw4fe1n8004ttcwsl4ukprz0",
@@ -3296,11 +3940,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-BzmflJywxmuPkhCPnnzJEydIn84gsQD",
           "md5Checksum": "ab71a0016a1485070687141eee370e36",
           "createdAt": "2026-11-06T03:39:19.124Z",
-          "updatedAt": "2026-11-09T16:20:20.539Z"
+          "updatedAt": "2026-11-11T07:40:42.128Z"
         },
         {
           "id": "cmw4fdp90004rtcws79zut8io",
@@ -3312,11 +3961,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1CIecYvjD9vCaxUKXyGwwpItphcoBrY00",
           "md5Checksum": "1a20661f378b63e214f60e568305d356",
           "createdAt": "2026-11-06T03:39:03.060Z",
-          "updatedAt": "2026-11-09T16:20:20.539Z"
+          "updatedAt": "2026-11-11T07:40:42.128Z"
         },
         {
           "id": "cmw4fddfo004ptcwst1ss2voi",
@@ -3328,11 +3982,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1zP8ig0HnCmoAxrMJspEP5Og3dJO50GnB",
           "md5Checksum": "27b12956e64bfb9edc9498c3afa34340",
           "createdAt": "2026-11-06T03:38:47.749Z",
-          "updatedAt": "2026-11-09T16:20:20.540Z"
+          "updatedAt": "2026-11-11T07:40:42.129Z"
         },
         {
           "id": "cmw4fd2ee004ntcwsozh662q4",
@@ -3344,11 +4003,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1pE-ZzJBLUV2dZTRPzOMwVDd3gxeU_4lr",
           "md5Checksum": "d216d83a6d7bebc5a0aba14094abdc64",
           "createdAt": "2026-11-06T03:38:33.446Z",
-          "updatedAt": "2026-11-09T16:20:20.540Z"
+          "updatedAt": "2026-11-11T07:40:42.129Z"
         },
         {
           "id": "cmw4fcrbu004ltcwsbh1b4jyi",
@@ -3360,11 +4024,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1rDbgY2UqM_kKnkVrSbr8u6_Nu6Z9pyqo",
           "md5Checksum": "fdca24ec178618f26642e27474651170",
           "createdAt": "2026-11-06T03:38:19.099Z",
-          "updatedAt": "2026-11-09T16:20:20.540Z"
+          "updatedAt": "2026-11-11T07:40:42.129Z"
         },
         {
           "id": "cmw4fccxp004jtcwsw3cotkwy",
@@ -3376,11 +4045,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lkZ43x6jh4FDv_-3ch3N0N83-Lvl-CRi",
           "md5Checksum": "71b87e938a811e3ad6093bf2aa12e221",
           "createdAt": "2026-11-06T03:38:00.446Z",
-          "updatedAt": "2026-11-09T16:20:20.541Z"
+          "updatedAt": "2026-11-11T07:40:42.130Z"
         },
         {
           "id": "cmw4fc2x7004htcwsuvjj64mr",
@@ -3392,11 +4066,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1GuA3mRiYTsWeo3klioXdxXxlMfXDuktY",
           "md5Checksum": "39436c99df0eaf0ca9ea96d1d47a0e97",
           "createdAt": "2026-11-06T03:37:47.465Z",
-          "updatedAt": "2026-11-09T16:20:20.541Z"
+          "updatedAt": "2026-11-11T07:40:42.130Z"
         },
         {
           "id": "cmw4fbs2y004ftcwsemd9gav5",
@@ -3408,11 +4087,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1oevVCHJSxJVejaSoKtTn144FsVrpCGWZ",
           "md5Checksum": "0797c1a7f9d3b4120dee961cdead59e2",
           "createdAt": "2026-11-06T03:37:33.418Z",
-          "updatedAt": "2026-11-09T16:20:20.541Z"
+          "updatedAt": "2026-11-11T07:40:42.131Z"
         },
         {
           "id": "cmw4fbfcm004dtcws5u6ecgk5",
@@ -3424,11 +4108,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1d6jJ1bobsZuGOQMolR8jd2aC7PIt7F2R",
           "md5Checksum": "5f5adce542f3ece9c919e264bc5e782d",
           "createdAt": "2026-11-06T03:37:16.919Z",
-          "updatedAt": "2026-11-09T16:20:20.542Z"
+          "updatedAt": "2026-11-11T07:40:42.131Z"
         },
         {
           "id": "cmw4fb526004btcwsrj0z86u9",
@@ -3440,11 +4129,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1cjJExUIngj7HdIIPQq86YtQi70HPlZcf",
           "md5Checksum": "38809009d9f2d02320cbd6066ad75f9e",
           "createdAt": "2026-11-06T03:37:03.582Z",
-          "updatedAt": "2026-11-09T16:20:20.542Z"
+          "updatedAt": "2026-11-11T07:40:42.131Z"
         },
         {
           "id": "cmw4fasms0049tcwszb8c42oh",
@@ -3456,11 +4150,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1tb7V2MZcOF4bHzgbP0ZmRFU7fpDPB1hX",
           "md5Checksum": "0477b760f7580106895b3013850e5c76",
           "createdAt": "2026-11-06T03:36:47.476Z",
-          "updatedAt": "2026-11-09T16:20:20.542Z"
+          "updatedAt": "2026-11-11T07:40:42.132Z"
         },
         {
           "id": "cmw4fagdo0047tcws275nd2m6",
@@ -3472,11 +4171,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1tegioTLvXizC2kQcAc4WUfEvPjlQ2xKI",
           "md5Checksum": "3575a0ddade51ab88069c1f0cc81cc28",
           "createdAt": "2026-11-06T03:36:31.597Z",
-          "updatedAt": "2026-11-09T16:20:20.543Z"
+          "updatedAt": "2026-11-11T07:40:42.132Z"
         },
         {
           "id": "cmw4fa6gs0045tcwss0o8tsa6",
@@ -3488,11 +4192,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1B_C4kCipBEwdHlmsju3PMg4BXwAW_pS9",
           "md5Checksum": "214df413d1c02a448c722e6df231aef0",
           "createdAt": "2026-11-06T03:36:18.749Z",
-          "updatedAt": "2026-11-09T16:20:20.543Z"
+          "updatedAt": "2026-11-11T07:40:42.133Z"
         },
         {
           "id": "cmw4f9u8j0043tcwstf0fb4kn",
@@ -3504,11 +4213,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1SjSm0T46OKj7AQLhsHArr2zkbFw7LLYQ",
           "md5Checksum": "20451b362f256ab9f2b0fa9be473a7c4",
           "createdAt": "2026-11-06T03:36:02.900Z",
-          "updatedAt": "2026-11-09T16:20:20.544Z"
+          "updatedAt": "2026-11-11T07:40:42.133Z"
         },
         {
           "id": "cmw4f9krw0041tcws0iscw2dg",
@@ -3520,11 +4234,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1L5Z55svxAvusE-O9qM2byVwUnHWy-N3u",
           "md5Checksum": "b6010fed2c8ac63811d9c56a651e021c",
           "createdAt": "2026-11-06T03:35:50.636Z",
-          "updatedAt": "2026-11-09T16:20:20.544Z"
+          "updatedAt": "2026-11-11T07:40:42.133Z"
         },
         {
           "id": "cmw4f9ait003ztcwsicxz580f",
@@ -3536,11 +4255,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1On20sh-NAvKaNE03VJI3Mo1dlaPY2P1y",
           "md5Checksum": "c5478803234dfa7101a9421afaa314b9",
           "createdAt": "2026-11-06T03:35:37.349Z",
-          "updatedAt": "2026-11-09T16:20:20.544Z"
+          "updatedAt": "2026-11-11T07:40:42.134Z"
         },
         {
           "id": "cmw4f91a5003xtcwskj7hefgv",
@@ -3552,11 +4276,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ih43xEfkytl07UQWJanSI_2ZdB0JlkQQ",
           "md5Checksum": "bb4bb7e33b084fc182b37225a75b4a53",
           "createdAt": "2026-11-06T03:35:25.373Z",
-          "updatedAt": "2026-11-09T16:20:20.545Z"
+          "updatedAt": "2026-11-11T07:40:42.134Z"
         },
         {
           "id": "cmw4f8q0e003vtcws17lg9u3l",
@@ -3568,11 +4297,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1MtHSHvfkRRsk6gel-XdrzsXAmUd2tF5w",
           "md5Checksum": "ec2c9c75a8340a365afe24fa50a3d56e",
           "createdAt": "2026-11-06T03:35:10.767Z",
-          "updatedAt": "2026-11-09T16:20:20.545Z"
+          "updatedAt": "2026-11-11T07:40:42.135Z"
         },
         {
           "id": "cmw4f8em6003ttcwsrbdds9kg",
@@ -3584,11 +4318,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1abwcN4YFI6gkJQbxuQdV9REzXoBBxdpU",
           "md5Checksum": "9a3d61a293e8fa35d9c6c0dadffb169f",
           "createdAt": "2026-11-06T03:34:55.998Z",
-          "updatedAt": "2026-11-09T16:20:20.545Z"
+          "updatedAt": "2026-11-11T07:40:42.135Z"
         },
         {
           "id": "cmw4f84l0003rtcwsklq9frp2",
@@ -3600,11 +4339,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1z8KBSn-Zb7MAHMmnURKBN9e2DNo6TZ61",
           "md5Checksum": "15e61d15d4410ec50a9ea94b244d4b0a",
           "createdAt": "2026-11-06T03:34:42.997Z",
-          "updatedAt": "2026-11-09T16:20:20.545Z"
+          "updatedAt": "2026-11-11T07:40:42.136Z"
         },
         {
           "id": "cmw4f7ss0003ptcws7c8rvjm2",
@@ -3616,11 +4360,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "10aIMPDnzA4kAIAR8gcvyKmsiER2QeUht",
           "md5Checksum": "c042ea670a11bb48affca815921b037b",
           "createdAt": "2026-11-06T03:34:27.696Z",
-          "updatedAt": "2026-11-09T16:20:20.546Z"
+          "updatedAt": "2026-11-11T07:40:42.136Z"
         },
         {
           "id": "cmw4f7kiu003ntcwsizgga2c5",
@@ -3632,11 +4381,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Qa2RRJ4BPY4yeyF90mcLJcQZeSSqFi3P",
           "md5Checksum": "d3796522a8c090f68158ad2fcca91135",
           "createdAt": "2026-11-06T03:34:16.998Z",
-          "updatedAt": "2026-11-09T16:20:20.546Z"
+          "updatedAt": "2026-11-11T07:40:42.136Z"
         },
         {
           "id": "cmw4f7919003ltcwsbmhea6tu",
@@ -3648,11 +4402,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1XoWjAYjLHZTwGRtWKoPAt9kkdSLJq2Ml",
           "md5Checksum": "66193b6d21de3942370763472d14dd00",
           "createdAt": "2026-11-06T03:34:02.109Z",
-          "updatedAt": "2026-11-09T16:20:20.547Z"
+          "updatedAt": "2026-11-11T07:40:42.137Z"
         },
         {
           "id": "cmw4f6y93003jtcwsm2t9a9ve",
@@ -3664,11 +4423,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1TOcU-JBl9f_-F6OOtuE9jUE6GcsjmZnf",
           "md5Checksum": "fd02efa6d7c7603dcfa15953ae1fc60b",
           "createdAt": "2026-11-06T03:33:48.136Z",
-          "updatedAt": "2026-11-09T16:20:20.547Z"
+          "updatedAt": "2026-11-11T07:40:42.137Z"
         },
         {
           "id": "cmw4f6nib003htcwsijyxls9d",
@@ -3680,11 +4444,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1EB84-jXmKXckUla4NIocdMlfLpiqDqZ0",
           "md5Checksum": "9f0db3aa28d75ace63bd1db07426c79a",
           "createdAt": "2026-11-06T03:33:34.211Z",
-          "updatedAt": "2026-11-09T16:20:20.547Z"
+          "updatedAt": "2026-11-11T07:40:42.137Z"
         },
         {
           "id": "cmw4f6aoi003ftcwsjgh4yu3s",
@@ -3696,11 +4465,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1kQWGc4-hJiWael37cYkzx4HxGepfxHOP",
           "md5Checksum": "b393c2689e843500ce70b09dc576c325",
           "createdAt": "2026-11-06T03:33:17.586Z",
-          "updatedAt": "2026-11-09T16:20:20.548Z"
+          "updatedAt": "2026-11-11T07:40:42.138Z"
         },
         {
           "id": "cmw4f61uf003dtcws0b9sdpw7",
@@ -3712,11 +4486,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1R15op2wz2xt4gl36NZWMFtONssBwz7Yl",
           "md5Checksum": "148dad58b0f6faef9b8d286b1ca95dd0",
           "createdAt": "2026-11-06T03:33:06.135Z",
-          "updatedAt": "2026-11-09T16:20:20.548Z"
+          "updatedAt": "2026-11-11T07:40:42.138Z"
         },
         {
           "id": "cmw4f5tny003btcwsuvkoi3ze",
@@ -3728,11 +4507,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1A5gLTpSxlI9CCcAjc9_KIYcBPCypnIyh",
           "md5Checksum": "21534d1b75b4ff5c5671140391164315",
           "createdAt": "2026-11-06T03:32:55.535Z",
-          "updatedAt": "2026-11-09T16:20:20.548Z"
+          "updatedAt": "2026-11-11T07:40:42.139Z"
         },
         {
           "id": "cmw4f5km20039tcwsbyy606su",
@@ -3744,11 +4528,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000dtcwsmuuleoje",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-O0oOAs42Kn3GdNa0FovP6BcU_RRYsn4",
           "md5Checksum": "cf61cb10c26c53517ac3d69e1ca7611d",
           "createdAt": "2026-11-06T03:32:43.796Z",
-          "updatedAt": "2026-11-09T16:20:20.549Z"
+          "updatedAt": "2026-11-11T07:40:42.139Z"
         }
       ]
     },
@@ -3757,7 +4546,7 @@ const snapshot = {
       "name": "6",
       "slug": "tai-nguyen-6",
       "createdAt": "2026-11-06T03:23:38.644Z",
-      "updatedAt": "2026-11-09T16:20:20.464Z",
+      "updatedAt": "2026-11-11T07:40:42.042Z",
       "files": [
         {
           "id": "cmw4fwx81007vtcws5z5oehu1",
@@ -3769,11 +4558,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xY2CtVSvZ8sj1BD23pKN2I_qakNiSm5E",
           "md5Checksum": "d71992fb723a09cb42ff95473be9d420",
           "createdAt": "2026-11-06T03:53:59.857Z",
-          "updatedAt": "2026-11-09T16:20:20.549Z"
+          "updatedAt": "2026-11-11T07:40:42.140Z"
         },
         {
           "id": "cmw4fwitk007ttcwsgqbo26ww",
@@ -3785,11 +4579,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DdknZds5g0nD-tqn6819JoqmSJSe5Zux",
           "md5Checksum": "a397d3387fbe823099e073cd62f3cdbd",
           "createdAt": "2026-11-06T03:53:41.193Z",
-          "updatedAt": "2026-11-09T16:20:20.549Z"
+          "updatedAt": "2026-11-11T07:40:42.140Z"
         },
         {
           "id": "cmw4fw7ng007rtcwstnlylb9u",
@@ -3801,11 +4600,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Q20RxMLkify_TpdHmOz5_n_Ipu1noK87",
           "md5Checksum": "5f18d3a504d37c1e675031aad3e1e003",
           "createdAt": "2026-11-06T03:53:26.717Z",
-          "updatedAt": "2026-11-09T16:20:20.550Z"
+          "updatedAt": "2026-11-11T07:40:42.140Z"
         },
         {
           "id": "cmw4fvwcb007ptcwsjuorrk44",
@@ -3817,11 +4621,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "18Xe-mvzM8wa_1EqWaUcKhpTCUxbULsey",
           "md5Checksum": "628ece84bbdc6b6117fc4f37c3f47995",
           "createdAt": "2026-11-06T03:53:12.059Z",
-          "updatedAt": "2026-11-09T16:20:20.550Z"
+          "updatedAt": "2026-11-11T07:40:42.141Z"
         },
         {
           "id": "cmw4fvgeu007ntcwsk31ocpne",
@@ -3833,11 +4642,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1885gtCYLzkAZfWBdjKZXMl0u3ofOOHL9",
           "md5Checksum": "5c03c6711768c6115c61e380fc3cd323",
           "createdAt": "2026-11-06T03:52:51.415Z",
-          "updatedAt": "2026-11-09T16:20:20.550Z"
+          "updatedAt": "2026-11-11T07:40:42.141Z"
         },
         {
           "id": "cmw4fv57y007ltcwsjj817ck3",
@@ -3849,11 +4663,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1bn-j0py12ayV-UTDOu9aabywyfXXmRwJ",
           "md5Checksum": "df76682592a2cf9ed7bdb595f1cf9aff",
           "createdAt": "2026-11-06T03:52:36.910Z",
-          "updatedAt": "2026-11-09T16:20:20.551Z"
+          "updatedAt": "2026-11-11T07:40:42.142Z"
         },
         {
           "id": "cmw4futf0007jtcwslezgfzaw",
@@ -3865,11 +4684,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Q63gU_xKibn1COPexRXSgW-AP1zpPECr",
           "md5Checksum": "b74081df726db7d06462cde1cef9df6e",
           "createdAt": "2026-11-06T03:52:21.612Z",
-          "updatedAt": "2026-11-09T16:20:20.551Z"
+          "updatedAt": "2026-11-11T07:40:42.142Z"
         },
         {
           "id": "cmw4fufur007htcwsxealzzz6",
@@ -3881,11 +4705,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1jxXHdL9IFuXq3iPgHJps0HKis0uFWvCY",
           "md5Checksum": "d2d40554e6b1893c6ef79cb3fe6ac5d9",
           "createdAt": "2026-11-06T03:52:04.035Z",
-          "updatedAt": "2026-11-09T16:20:20.551Z"
+          "updatedAt": "2026-11-11T07:40:42.142Z"
         },
         {
           "id": "cmw4fu30p007ftcwszvo9f1nl",
@@ -3897,11 +4726,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1byuefVCTx07ERkUm5VGMyHYA3aboAE1x",
           "md5Checksum": "ba6994d5b8dd4b2761d081bfd45f8592",
           "createdAt": "2026-11-06T03:51:47.401Z",
-          "updatedAt": "2026-11-09T16:20:20.552Z"
+          "updatedAt": "2026-11-11T07:40:42.143Z"
         },
         {
           "id": "cmw4ftnse007dtcws4t8pvyp1",
@@ -3913,11 +4747,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1tUg6y8j3PQsT8UnxT4EzAXjjiMYfgND8",
           "md5Checksum": "90fc70752a99e42f8cfb4dbd704fa1d3",
           "createdAt": "2026-11-06T03:51:27.662Z",
-          "updatedAt": "2026-11-09T16:20:20.552Z"
+          "updatedAt": "2026-11-11T07:40:42.143Z"
         },
         {
           "id": "cmw4ftbi3007btcws6b5vb95g",
@@ -3929,11 +4768,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1r6-szhHpbLCi9Ztx_PTznEx3kDegLhrN",
           "md5Checksum": "29d9b0107229ddbd1196490e8eda347a",
           "createdAt": "2026-11-06T03:51:11.740Z",
-          "updatedAt": "2026-11-09T16:20:20.552Z"
+          "updatedAt": "2026-11-11T07:40:42.144Z"
         },
         {
           "id": "cmw4ft0pw0079tcwseswyokzk",
@@ -3945,11 +4789,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "11OyGJDj05CrDfN4_1trTE70pWLdVu1D5",
           "md5Checksum": "3f9fd35a9d2dd6545021b7263bef91aa",
           "createdAt": "2026-11-06T03:50:57.765Z",
-          "updatedAt": "2026-11-09T16:20:20.553Z"
+          "updatedAt": "2026-11-11T07:40:42.144Z"
         },
         {
           "id": "cmw4fsmwk0077tcwsz28a5ok3",
@@ -3961,11 +4810,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvyr000etcwstzza2lum",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "15OrTwD93PWbWPbhaDzmurYseLFamSTN0",
           "md5Checksum": "795cc5b63e86d70e59d60cc71e90401f",
           "createdAt": "2026-11-06T03:50:39.860Z",
-          "updatedAt": "2026-11-09T16:20:20.553Z"
+          "updatedAt": "2026-11-11T07:40:42.144Z"
         }
       ]
     },
@@ -3974,7 +4828,7 @@ const snapshot = {
       "name": "7",
       "slug": "tai-nguyen-7",
       "createdAt": "2026-11-06T03:23:38.644Z",
-      "updatedAt": "2026-11-09T16:20:20.465Z",
+      "updatedAt": "2026-11-11T07:40:42.043Z",
       "files": [
         {
           "id": "cmw4gaffl00a2tcwstl3i6qav",
@@ -3986,11 +4840,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "15Y_HUitXwH7nhasuTYp3z8PEIaZY9Chl",
           "md5Checksum": "3536d1afd287267297ba3fd60305d796",
           "createdAt": "2026-11-06T04:04:29.985Z",
-          "updatedAt": "2026-11-09T16:20:20.553Z"
+          "updatedAt": "2026-11-11T07:40:42.145Z"
         },
         {
           "id": "cmw4ga52m00a0tcwsekbm492m",
@@ -4002,11 +4861,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "194tx2c0DJP0jX128aVH3rXJXfU0CjL9h",
           "md5Checksum": "b9b5c1bb79a99407901ff55233e57fde",
           "createdAt": "2026-11-06T04:04:16.559Z",
-          "updatedAt": "2026-11-09T16:20:20.554Z"
+          "updatedAt": "2026-11-11T07:40:42.145Z"
         },
         {
           "id": "cmw4g9un9009ytcwstlsj9jav",
@@ -4018,11 +4882,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1KbEBeJlFvW6mELFelq5KalOVZ_0JFJVz",
           "md5Checksum": "f0e425ccd612d5097564fd1865d29bdd",
           "createdAt": "2026-11-06T04:04:03.045Z",
-          "updatedAt": "2026-11-09T16:20:20.554Z"
+          "updatedAt": "2026-11-11T07:40:42.146Z"
         },
         {
           "id": "cmw4g9mp4009wtcwsok395k7z",
@@ -4034,11 +4903,16 @@ const snapshot = {
           "height": 3391,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1jtiUxow36iQpSubiPcPw6iEq_63Ly4L8",
           "md5Checksum": "3cd06b8d3baa049b4f3178e464935199",
           "createdAt": "2026-11-06T04:03:52.744Z",
-          "updatedAt": "2026-11-09T16:20:20.554Z"
+          "updatedAt": "2026-11-11T07:40:42.146Z"
         },
         {
           "id": "cmw4g9ews009utcws6z64frxj",
@@ -4050,11 +4924,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1laRCkjm3-crCkaLTb8aDg2HVgyOh4-ZV",
           "md5Checksum": "7988c237cdbdf5b3e6597ed8a1ad3072",
           "createdAt": "2026-11-06T04:03:42.652Z",
-          "updatedAt": "2026-11-09T16:20:20.555Z"
+          "updatedAt": "2026-11-11T07:40:42.146Z"
         },
         {
           "id": "cmw4g95pe009stcwsnxy0dpj8",
@@ -4066,11 +4945,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1UUen5DAF6MY_89Bu9K8llGPk9a0QJQ4q",
           "md5Checksum": "383c6985abe0cc16015b6eff9aa0083d",
           "createdAt": "2026-11-06T04:03:30.722Z",
-          "updatedAt": "2026-11-09T16:20:20.555Z"
+          "updatedAt": "2026-11-11T07:40:42.147Z"
         },
         {
           "id": "cmw4g8uu7009qtcws3yyrf53b",
@@ -4082,11 +4966,16 @@ const snapshot = {
           "height": 1708,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DHzBlIJxo-3J80ZFgBgHyDJOJjJVGrhn",
           "md5Checksum": "62343fc2b6eb07138d72dc06d144f8b9",
           "createdAt": "2026-11-06T04:03:16.639Z",
-          "updatedAt": "2026-11-09T16:20:20.555Z"
+          "updatedAt": "2026-11-11T07:40:42.147Z"
         },
         {
           "id": "cmw4g8iux009otcwsphnfq3uy",
@@ -4098,11 +4987,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1OvXLgARZ3NjpgtuTWk-RaK_SuYdfPOh9",
           "md5Checksum": "cd4f0c23a27967e729264ae17631ac54",
           "createdAt": "2026-11-06T04:03:01.114Z",
-          "updatedAt": "2026-11-09T16:20:20.556Z"
+          "updatedAt": "2026-11-11T07:40:42.148Z"
         },
         {
           "id": "cmw4g86h2009mtcws6c9lqg9s",
@@ -4114,11 +5008,16 @@ const snapshot = {
           "height": 1708,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1GP9z2xEj_kwvbm1w8K22Ny2q4tAKjsGv",
           "md5Checksum": "84a585117bde5babf4975108dfbb892e",
           "createdAt": "2026-11-06T04:02:45.063Z",
-          "updatedAt": "2026-11-09T16:20:20.556Z"
+          "updatedAt": "2026-11-11T07:40:42.148Z"
         },
         {
           "id": "cmw4g7t4w009ktcwstw7i19bs",
@@ -4130,11 +5029,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ysvsMfAOpbEANoXwj_cQ2wi6Jnu1pzUn",
           "md5Checksum": "22230dfabe99d2e935b92ad568f657aa",
           "createdAt": "2026-11-06T04:02:27.777Z",
-          "updatedAt": "2026-11-09T16:20:20.556Z"
+          "updatedAt": "2026-11-11T07:40:42.149Z"
         },
         {
           "id": "cmw4g7hiv009itcwsyjkk625f",
@@ -4146,11 +5050,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ox2iQe1grzlkfe8vO5Wr33c8BL-cow_g",
           "md5Checksum": "f6a70e2cb8107f7bb3de047cf36c5921",
           "createdAt": "2026-11-06T04:02:12.728Z",
-          "updatedAt": "2026-11-09T16:20:20.557Z"
+          "updatedAt": "2026-11-11T07:40:42.149Z"
         },
         {
           "id": "cmw4g78dy009gtcwsb14v0xub",
@@ -4162,11 +5071,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ENdoxztVbEkbRe4ilpKWP0XvcmTQO7oB",
           "md5Checksum": "ef195783ee66b3d967f074fb3d9d260e",
           "createdAt": "2026-11-06T04:02:00.886Z",
-          "updatedAt": "2026-11-09T16:20:20.557Z"
+          "updatedAt": "2026-11-11T07:40:42.149Z"
         },
         {
           "id": "cmw4g6z8w009etcwsgikxe3h8",
@@ -4178,11 +5092,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1GWa8bJQiZIX9N-I-eKZuCEPgm9iOsN5Z",
           "md5Checksum": "6249d87f3b9375de569ce4d3e697b201",
           "createdAt": "2026-11-06T04:01:49.041Z",
-          "updatedAt": "2026-11-09T16:20:20.557Z"
+          "updatedAt": "2026-11-11T07:40:42.150Z"
         },
         {
           "id": "cmw4g6ilh009ctcwsppu0o6bw",
@@ -4194,11 +5113,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lkmjlhsMbBJBEbVNZVUEcRHpXUu2rXwh",
           "md5Checksum": "422f121ca9e69d31dd009082277f7792",
           "createdAt": "2026-11-06T04:01:27.461Z",
-          "updatedAt": "2026-11-09T16:20:20.558Z"
+          "updatedAt": "2026-11-11T07:40:42.150Z"
         },
         {
           "id": "cmw4g650x009atcwsu7j1ygwp",
@@ -4210,11 +5134,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1h0wu68n53x-5LxqFTXW9oIbpauN2ue_a",
           "md5Checksum": "45ac2ed743c90fc9d223ec43d92519f1",
           "createdAt": "2026-11-06T04:01:09.874Z",
-          "updatedAt": "2026-11-09T16:20:20.558Z"
+          "updatedAt": "2026-11-11T07:40:42.150Z"
         },
         {
           "id": "cmw4g5tkl0098tcwscqctkilw",
@@ -4226,11 +5155,16 @@ const snapshot = {
           "height": 1708,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1USQk1Ry293DlBstREDrfvRouC1q-D9ln",
           "md5Checksum": "2267c3a3d86b96adc9b995bc1a45fab7",
           "createdAt": "2026-11-06T04:00:55.030Z",
-          "updatedAt": "2026-11-09T16:20:20.558Z"
+          "updatedAt": "2026-11-11T07:40:42.151Z"
         },
         {
           "id": "cmw4g5hgc0096tcwsmlixv5ij",
@@ -4242,11 +5176,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1AtQjyn7CnlVE5tmqWJqYHInonpjes3s-",
           "md5Checksum": "e2ec2a36ce7431ab24b492ce76003d77",
           "createdAt": "2026-11-06T04:00:39.324Z",
-          "updatedAt": "2026-11-09T16:20:20.559Z"
+          "updatedAt": "2026-11-11T07:40:42.151Z"
         },
         {
           "id": "cmw4g575q0094tcwsmfjrc2ll",
@@ -4258,11 +5197,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1s3nj6FC1uQ0OUphtY5Wj8OtmoKGzS__N",
           "md5Checksum": "1b1a02d6a4b1fe7ec23c302e99141538",
           "createdAt": "2026-11-06T04:00:25.983Z",
-          "updatedAt": "2026-11-09T16:20:20.559Z"
+          "updatedAt": "2026-11-11T07:40:42.152Z"
         },
         {
           "id": "cmw4g4uw60092tcwsiqqeunhb",
@@ -4274,11 +5218,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1SXgkc5-iw8tznIphktsQa2xZIegwh7p1",
           "md5Checksum": "42a03610bf406f45d1a2f277150cb9cd",
           "createdAt": "2026-11-06T04:00:10.086Z",
-          "updatedAt": "2026-11-09T16:20:20.560Z"
+          "updatedAt": "2026-11-11T07:40:42.152Z"
         },
         {
           "id": "cmw4g4j7r0090tcwsuh6de55z",
@@ -4290,11 +5239,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1RIyhBysBNps0oXcVfCA44TgNfv5g8aPw",
           "md5Checksum": "01fb83538cc4632077eeb4c485b9ef4d",
           "createdAt": "2026-11-06T03:59:54.952Z",
-          "updatedAt": "2026-11-09T16:20:20.560Z"
+          "updatedAt": "2026-11-11T07:40:42.152Z"
         },
         {
           "id": "cmw4g45y6008ytcws7gy896i2",
@@ -4306,11 +5260,16 @@ const snapshot = {
           "height": 1708,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1L7OA5U-rJUwSeto5k4hAeSRPur02pK-Z",
           "md5Checksum": "9eff5ae005c2e67b539cf932688175bd",
           "createdAt": "2026-11-06T03:59:37.759Z",
-          "updatedAt": "2026-11-09T16:20:20.560Z"
+          "updatedAt": "2026-11-11T07:40:42.153Z"
         },
         {
           "id": "cmw4g3rce008wtcwszf3819vu",
@@ -4322,11 +5281,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "17bS0uBMJDiz3AyqhwttSI_SR3TmCzoEo",
           "md5Checksum": "50391781febce80c68c603d21d8d9411",
           "createdAt": "2026-11-06T03:59:18.831Z",
-          "updatedAt": "2026-11-09T16:20:20.561Z"
+          "updatedAt": "2026-11-11T07:40:42.153Z"
         },
         {
           "id": "cmw4g3htr008utcws4j0jmzk8",
@@ -4338,11 +5302,16 @@ const snapshot = {
           "height": 1708,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1C9zmUwS8L4z2yYXGIu4376TifuzzQIRb",
           "md5Checksum": "bb4c56c01295e68e379c03cee1c3ecae",
           "createdAt": "2026-11-06T03:59:06.495Z",
-          "updatedAt": "2026-11-09T16:20:20.561Z"
+          "updatedAt": "2026-11-11T07:40:42.154Z"
         },
         {
           "id": "cmw4g371y008stcwst2tgwki5",
@@ -4354,11 +5323,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xtzMKSDtAmn2suE2bWope0j0QwlakUoi",
           "md5Checksum": "bbbb988c636ebb5d905329febba2ae3d",
           "createdAt": "2026-11-06T03:58:52.534Z",
-          "updatedAt": "2026-11-09T16:20:20.562Z"
+          "updatedAt": "2026-11-11T07:40:42.154Z"
         },
         {
           "id": "cmw4g2u2z008qtcws2bkkt8ao",
@@ -4370,11 +5344,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "10oAuYA8tpRzy3DuUfpXAcpsT6TZhASgx",
           "md5Checksum": "baa6e5c5dbdc4c667fd967e8c3f816a5",
           "createdAt": "2026-11-06T03:58:35.723Z",
-          "updatedAt": "2026-11-09T16:20:20.562Z"
+          "updatedAt": "2026-11-11T07:40:42.154Z"
         },
         {
           "id": "cmw4g2glf008otcwsl6t3jmqc",
@@ -4386,11 +5365,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lQkFd_-09LvRbyYiSHQsC3EwHh-EaqT9",
           "md5Checksum": "7e82ab0511f92a3338b5e160cc2b01c5",
           "createdAt": "2026-11-06T03:58:18.243Z",
-          "updatedAt": "2026-11-09T16:20:20.562Z"
+          "updatedAt": "2026-11-11T07:40:42.155Z"
         },
         {
           "id": "cmw4g1zei008mtcwsnkyg2atl",
@@ -4402,11 +5386,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1CqkzoQPyKuZql4HlcNZyhK-4X2aFklgq",
           "md5Checksum": "11ff9f11a0451ad2c5f83d52a3e7b496",
           "createdAt": "2026-11-06T03:57:55.962Z",
-          "updatedAt": "2026-11-09T16:20:20.563Z"
+          "updatedAt": "2026-11-11T07:40:42.155Z"
         },
         {
           "id": "cmw4g1n08008ktcws5uzc2h8n",
@@ -4418,11 +5407,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1z9F8hXDSAosvLSd15SfgEM5GHudnBN3D",
           "md5Checksum": "ee75ffcb9eee0dd2e4e4aeb3fee3fa1f",
           "createdAt": "2026-11-06T03:57:39.896Z",
-          "updatedAt": "2026-11-09T16:20:20.563Z"
+          "updatedAt": "2026-11-11T07:40:42.155Z"
         },
         {
           "id": "cmw4g1b9m008itcwsa6pzgfqr",
@@ -4434,11 +5428,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1bwcPscG8GDI-shGPS2_12Ny2P7_Y4tU7",
           "md5Checksum": "31613ec9fef04aeb54e9da1c3b7cdeb7",
           "createdAt": "2026-11-06T03:57:24.682Z",
-          "updatedAt": "2026-11-09T16:20:20.563Z"
+          "updatedAt": "2026-11-11T07:40:42.156Z"
         },
         {
           "id": "cmw4g0wfe008gtcwsjitogr6x",
@@ -4450,11 +5449,16 @@ const snapshot = {
           "height": 1707,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1a6hgUGaWRw7eIiXvaWRg3-vnvGCv_6pp",
           "md5Checksum": "344dae0c9767050b341df44b8c5db371",
           "createdAt": "2026-11-06T03:57:05.451Z",
-          "updatedAt": "2026-11-09T16:20:20.564Z"
+          "updatedAt": "2026-11-11T07:40:42.156Z"
         },
         {
           "id": "cmw4g0k87008etcwsn61k7m9a",
@@ -4466,11 +5470,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "126M-laRKHVDTG8qZeloFMRYyABtMv0wM",
           "md5Checksum": "96cb527cd3fbba5c543498aee2090bd1",
           "createdAt": "2026-11-06T03:56:49.639Z",
-          "updatedAt": "2026-11-09T16:20:20.564Z"
+          "updatedAt": "2026-11-11T07:40:42.156Z"
         },
         {
           "id": "cmw4g09pd008ctcwsxefcopi8",
@@ -4482,11 +5491,16 @@ const snapshot = {
           "height": 3838,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-hnbdJhpFgJZygFdG-k7LcfCxG2ngQSg",
           "md5Checksum": "5040d1fec2dc955587ef0292018ab4a1",
           "createdAt": "2026-11-06T03:56:36.001Z",
-          "updatedAt": "2026-11-09T16:20:20.564Z"
+          "updatedAt": "2026-11-11T07:40:42.157Z"
         },
         {
           "id": "cmw4fzzj1008atcwsecdcpcgx",
@@ -4498,11 +5512,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1nY2ZNdeDMq56MtN9exchB1ZR6iEwAjvY",
           "md5Checksum": "41bcc3d2feb32c9d632ffc963dbc1b73",
           "createdAt": "2026-11-06T03:56:22.813Z",
-          "updatedAt": "2026-11-09T16:20:20.565Z"
+          "updatedAt": "2026-11-11T07:40:42.157Z"
         },
         {
           "id": "cmw4fx7j3007xtcwshjjjeipr",
@@ -4514,11 +5533,16 @@ const snapshot = {
           "height": 3840,
           "folderId": "cmw4etvys000ftcws35mhlmu8",
           "aiContextChunk": null,
+          "chunkStatus": "NOT_CHUNKED",
+          "chunkTitle": null,
+          "chunkGroup": null,
+          "aiContext": null,
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "14Hk2cJ_fd5wpzxx7ovXR7FdNgu5_X0mE",
           "md5Checksum": "f77d31045987127052b06110efffac4a",
           "createdAt": "2026-11-06T03:54:13.215Z",
-          "updatedAt": "2026-11-09T16:20:20.565Z"
+          "updatedAt": "2026-11-11T07:40:42.158Z"
         }
       ]
     },
@@ -4527,7 +5551,7 @@ const snapshot = {
       "name": "8",
       "slug": "tai-nguyen-8",
       "createdAt": "2026-11-06T03:23:38.645Z",
-      "updatedAt": "2026-11-09T16:20:20.465Z",
+      "updatedAt": "2026-11-11T07:40:42.043Z",
       "files": [
         {
           "id": "cmw4gndue00cetcwsvij6jf5e",
@@ -4553,11 +5577,16 @@ const snapshot = {
             "suggestedCaption": "Dưới ánh sáng ấm áp, cái nắm tay dịu dàng là lời hứa hẹn ngọt ngào cho một hành trình hạnh phúc vĩnh cửu.",
             "visualDescription": "Cận cảnh khoảnh khắc lãng mạn và tinh tế khi chú rể dịu dàng nắm lấy bàn tay cô dâu. Chú rể diện bộ vest tuxedo màu đen lịch lãm kết hợp áo sơ mi trắng chỉn chu. Cô dâu khoác lên mình chiếc váy cưới thiết kế cúp ngực quyến rũ với chất liệu ren cao cấp thêu họa tiết nổi tỉ mỉ và phần chân váy lụa xòe nhẹ lấp lánh. Ánh sáng studio dạng cinematic dịu nhẹ chiếu rọi vào hai bàn tay đan chặt, hòa cùng hậu cảnh mờ ảo tông màu kem vàng ấm áp, tạo nên không gian vô cùng riêng tư và tình cảm."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cái nắm tay dịu dàng và đầy gắn kết của cô dâu chú rể trong trang phục cưới cao cấp",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cận cảnh khoảnh khắc lãng mạn và tinh tế khi chú rể dịu dàng nắm lấy bàn tay cô dâu. Chú rể diện bộ vest tuxedo màu đen lịch lãm kết hợp áo sơ mi trắng chỉn chu. Cô dâu khoác lên mình chiếc váy cưới thiết kế cúp ngực quyến rũ với chất liệu ren cao cấp thêu họa tiết nổi tỉ mỉ và phần chân váy lụa xòe nhẹ lấp lánh. Ánh sáng studio dạng cinematic dịu nhẹ chiếu rọi vào hai bàn tay đan chặt, hòa cùng hậu cảnh mờ ảo tông màu kem vàng ấm áp, tạo nên không gian vô cùng riêng tư và tình cảm.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "12njwMajvq4BOsgx6nvVCS7pzsXuKuCcb",
           "md5Checksum": "26cbfdcefc288ad1e4651339d635a5fe",
           "createdAt": "2026-11-06T04:14:34.454Z",
-          "updatedAt": "2026-11-09T16:20:20.565Z"
+          "updatedAt": "2026-11-16T09:16:09.601Z"
         },
         {
           "id": "cmw4gn31f00cctcwsu8gw8cta",
@@ -4582,11 +5611,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tràn ngập tiếng cười và niềm hạnh phúc đong đầy bên người bạn thân thiết trong ngày trọng đại.",
             "visualDescription": "Cô dâu lộng lẫy trong chiếc váy cưới cúp ngực ren trắng tinh khôi kết hợp khăn voan cài tóc mềm mại, nở nụ cười rạng rỡ tràn ngập hạnh phúc. Bên cạnh là người bạn thân diện chiếc đầm đen tầng thanh lịch, tay cầm bó hoa cầm tay gam màu trắng xanh tươi mát. Cả hai ôm nhau thân thiết và nhấc chân tạo dáng nhí nhảnh trước phông nền check-in đám cưới được trang trí hoa cẩm tú cầu xanh bồng bềnh cùng bảng tên chữ dập nổi 'Nhân & Thu'."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu rạng rỡ ôm bạn thân tạo dáng nhí nhảnh trong ngày cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu lộng lẫy trong chiếc váy cưới cúp ngực ren trắng tinh khôi kết hợp khăn voan cài tóc mềm mại, nở nụ cười rạng rỡ tràn ngập hạnh phúc. Bên cạnh là người bạn thân diện chiếc đầm đen tầng thanh lịch, tay cầm bó hoa cầm tay gam màu trắng xanh tươi mát. Cả hai ôm nhau thân thiết và nhấc chân tạo dáng nhí nhảnh trước phông nền check-in đám cưới được trang trí hoa cẩm tú cầu xanh bồng bềnh cùng bảng tên chữ dập nổi 'Nhân & Thu'.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1NsfWkx2YYPSdiP5sVE1mE_RHvzrKYTzn",
           "md5Checksum": "42e6883bd97037958a4a1dbf9a46e47f",
           "createdAt": "2026-11-06T04:14:20.451Z",
-          "updatedAt": "2026-11-09T16:20:20.566Z"
+          "updatedAt": "2026-11-16T09:16:09.624Z"
         },
         {
           "id": "cmw4gmsbq00catcwsjv1hwogd",
@@ -4611,11 +5645,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tung hoa cưới tràn ngập niềm vui và tiếng cười – nơi hạnh phúc được lan tỏa ngọt ngào.",
             "visualDescription": "Khoảnh khắc tự nhiên, đầy năng lượng khi cô dâu trong chiếc váy cưới xòe lấp lánh và khăn voan thướt tha đang quay lưng tung hoa cưới cho nhóm bạn thân. Chú rể mặc vest đen lịch lãm đứng bên cạnh nở nụ cười rạng rỡ. Phía sau, dàn khách mời trẻ trung thể hiện sự hào hứng, phấn khích nhảy lên để bắt lấy chiếc hoa cầm tay tone trắng. Bối cảnh là sảnh tiệc sang trọng với kiến trúc vòm hiện đại, trang trí hoa tươi tinh tế và ánh đèn neon ấm áp."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu tung hoa cưới sôi động và bắt trọn cảm xúc vỡ òa của dàn khách mời",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc tự nhiên, đầy năng lượng khi cô dâu trong chiếc váy cưới xòe lấp lánh và khăn voan thướt tha đang quay lưng tung hoa cưới cho nhóm bạn thân. Chú rể mặc vest đen lịch lãm đứng bên cạnh nở nụ cười rạng rỡ. Phía sau, dàn khách mời trẻ trung thể hiện sự hào hứng, phấn khích nhảy lên để bắt lấy chiếc hoa cầm tay tone trắng. Bối cảnh là sảnh tiệc sang trọng với kiến trúc vòm hiện đại, trang trí hoa tươi tinh tế và ánh đèn neon ấm áp.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1vFOd5sFwyTY1I5Jo6WvPiDazBhsHnRpR",
           "md5Checksum": "b05418c8fd161415c6b53bb2b43cda6b",
           "createdAt": "2026-11-06T04:14:06.567Z",
-          "updatedAt": "2026-11-09T16:20:20.566Z"
+          "updatedAt": "2026-11-16T09:16:09.628Z"
         },
         {
           "id": "cmw4gmgsg00c8tcwskxdqz6fx",
@@ -4640,11 +5679,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc tung hoa đầy ắp tiếng cười, gửi gắm trọn vẹn niềm hạnh phúc đến những người thương yêu.",
             "visualDescription": "Khoảnh khắc bùng nổ cảm xúc khi cô dâu trong chiếc váy cưới cúp ngực đính ren lấp lánh dáng xòe A-line nhẹ nhàng, kết hợp khăn voan cài tóc dịu dàng, cùng chú rể diện bộ vest tuxedo đen lịch lãm tung bó hoa cầm tay lên không trung. Phía sau là dàn khách mời và bạn bè hào hứng hò reo chờ bắt lấy may mắn. Bối cảnh tiệc cưới mang phong cách hiện đại với tone trắng chủ đạo, vòm hoa trang trí tinh tế phối sắc hoa cẩm tú cầu xanh và hoa hồng phấn cùng bảng tên chữ 'Nhan & Thu'."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc tung hoa cưới rộn rã năng lượng của cô dâu chú rể cùng dàn khách mời",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc bùng nổ cảm xúc khi cô dâu trong chiếc váy cưới cúp ngực đính ren lấp lánh dáng xòe A-line nhẹ nhàng, kết hợp khăn voan cài tóc dịu dàng, cùng chú rể diện bộ vest tuxedo đen lịch lãm tung bó hoa cầm tay lên không trung. Phía sau là dàn khách mời và bạn bè hào hứng hò reo chờ bắt lấy may mắn. Bối cảnh tiệc cưới mang phong cách hiện đại với tone trắng chủ đạo, vòm hoa trang trí tinh tế phối sắc hoa cẩm tú cầu xanh và hoa hồng phấn cùng bảng tên chữ 'Nhan & Thu'.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DURf6t0_Q3n6XJO4gC9N6EqYV39f9NzZ",
           "md5Checksum": "c1dd3f805336e76683f74e9970f49e7a",
           "createdAt": "2026-11-06T04:13:51.616Z",
-          "updatedAt": "2026-11-09T16:20:20.567Z"
+          "updatedAt": "2026-11-16T09:16:09.626Z"
         },
         {
           "id": "cmw4gm70j00c6tcwsa0cka9oj",
@@ -4669,11 +5713,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc vỡ òa hạnh phúc và đong đầy tiếng cười bên những người bạn thân thương ngày trọng đại.",
             "visualDescription": "Khoảnh khắc ngọt ngào và rạng rỡ khi chú rể hôn nhẹ lên má cô dâu ở trung tâm bức ảnh, xung quanh là nhóm bạn thân hò reo vô cùng hào hứng, giăng những sợi dây ruy-băng đan sắc màu (vàng, xanh, hồng, đỏ) đan xen sống động quanh cặp đôi. Cô dâu khoác lên mình chiếc váy cưới cúp ngực xòe lụa bồng bềnh cùng khăn voan dịu dàng và bó hoa hồng trắng tinh khôi; chú rể diện vest đen lịch lãm. Bối cảnh tiệc cưới mang phong cách hiện đại với phông nền uốn lượn đính đèn LED ấm áp cùng dòng chữ tên cặp đôi. Bức ảnh tràn ngập năng lượng tuổi trẻ, niềm vui vỡ òa và tình cảm chân thành."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trao nụ hôn ngọt ngào rạng rỡ giữa không gian ruy-băng rực rỡ cùng bạn bè",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc ngọt ngào và rạng rỡ khi chú rể hôn nhẹ lên má cô dâu ở trung tâm bức ảnh, xung quanh là nhóm bạn thân hò reo vô cùng hào hứng, giăng những sợi dây ruy-băng đan sắc màu (vàng, xanh, hồng, đỏ) đan xen sống động quanh cặp đôi. Cô dâu khoác lên mình chiếc váy cưới cúp ngực xòe lụa bồng bềnh cùng khăn voan dịu dàng và bó hoa hồng trắng tinh khôi; chú rể diện vest đen lịch lãm. Bối cảnh tiệc cưới mang phong cách hiện đại với phông nền uốn lượn đính đèn LED ấm áp cùng dòng chữ tên cặp đôi. Bức ảnh tràn ngập năng lượng tuổi trẻ, niềm vui vỡ òa và tình cảm chân thành.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1apPDjBI-ox3RWM9Ev-lBIBEzourJUIIY",
           "md5Checksum": "ed510c30f383ec6a76cc05e0c339c564",
           "createdAt": "2026-11-06T04:13:38.947Z",
-          "updatedAt": "2026-11-09T16:20:20.568Z"
+          "updatedAt": "2026-11-16T09:16:09.662Z"
         },
         {
           "id": "cmw4glvem00c4tcwspai8n2d0",
@@ -4699,11 +5748,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc vỡ òa niềm vui và nhí nhố bên hội bạn thân trong ngày trọng đại của Nhân & Thu.",
             "visualDescription": "Hình ảnh cô dâu Thu trong chiếc váy cưới cúp ngực lộng lẫy kết hợp khăn voan mỏng dịu dàng cùng chú rể Nhân bảnh bao trong bộ suit đen lịch lãm, đang rạng rỡ chụp ảnh kỷ niệm cùng dàn bạn thân tại tiệc cưới. Bối cảnh là không gian tiệc sang trọng với backdrop vòm trang trí dải đèn LED và hoa tươi hiện đại khắc tên 'Nhân & Thu'. Cả nhóm cùng tạo dáng nhí nhố, bắn tim và chỉ tay về phía ống kính, lan tỏa không khí ngập tràn tiếng cười và niềm hạnh phúc tuổi trẻ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể chụp ảnh nhí nhố cùng hội bạn thân tại backdrop tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Hình ảnh cô dâu Thu trong chiếc váy cưới cúp ngực lộng lẫy kết hợp khăn voan mỏng dịu dàng cùng chú rể Nhân bảnh bao trong bộ suit đen lịch lãm, đang rạng rỡ chụp ảnh kỷ niệm cùng dàn bạn thân tại tiệc cưới. Bối cảnh là không gian tiệc sang trọng với backdrop vòm trang trí dải đèn LED và hoa tươi hiện đại khắc tên 'Nhân & Thu'. Cả nhóm cùng tạo dáng nhí nhố, bắn tim và chỉ tay về phía ống kính, lan tỏa không khí ngập tràn tiếng cười và niềm hạnh phúc tuổi trẻ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1fTUDwCBWaXYHRY2SODVQcAun-Qo9adps",
           "md5Checksum": "bd1fb20987e938abc9749ee102312125",
           "createdAt": "2026-11-06T04:13:23.903Z",
-          "updatedAt": "2026-11-09T16:20:20.568Z"
+          "updatedAt": "2026-11-16T09:16:09.693Z"
         },
         {
           "id": "cmw4glklf00c2tcws2eplgu6x",
@@ -4728,11 +5782,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào và tự nhiên của cô dâu bên những người bạn thân thương trong ngày trọng đại.",
             "visualDescription": "Cô dâu trong chiếc váy cưới cúp ngực lấp lánh, đội mạn che tóc ngắn và tay cầm bó hoa hồng trắng, đang hào hứng tạo dáng nhí nhảnh cùng hai người bạn thân. Cô bạn bên trái giơ điện thoại chụp ảnh selfie, trong khi cô bạn bên phải diện váy trễ vai trắng dịu dàng mỉm cười. Bối cảnh phía sau là backdrop cưới sang trọng tạo hình dải quạt trắng mềm mại, điểm xuyết hoa tươi màu xanh pastel - hồng - trắng và dòng chữ uốn lượn 'Nhân & Thu'."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu cùng hội bạn thân chụp ảnh selfie vui tươi tại phông tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu trong chiếc váy cưới cúp ngực lấp lánh, đội mạn che tóc ngắn và tay cầm bó hoa hồng trắng, đang hào hứng tạo dáng nhí nhảnh cùng hai người bạn thân. Cô bạn bên trái giơ điện thoại chụp ảnh selfie, trong khi cô bạn bên phải diện váy trễ vai trắng dịu dàng mỉm cười. Bối cảnh phía sau là backdrop cưới sang trọng tạo hình dải quạt trắng mềm mại, điểm xuyết hoa tươi màu xanh pastel - hồng - trắng và dòng chữ uốn lượn 'Nhân & Thu'.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xELdQKQTn_Q__syRPkKivh5TXkSu9Jhs",
           "md5Checksum": "dada8d47d186401f6f0663b650e5607e",
           "createdAt": "2026-11-06T04:13:09.891Z",
-          "updatedAt": "2026-11-09T16:20:20.569Z"
+          "updatedAt": "2026-11-16T09:16:09.634Z"
         },
         {
           "id": "cmw4glazq00c0tcws7djhvcle",
@@ -4758,11 +5817,16 @@ const snapshot = {
             "suggestedCaption": "Hạnh phúc ngày chung đôi thêm vẹn tròn với những khoảnh khắc nhí nhố bên cạ cứng!",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc vô cùng nhí nhố và tự nhiên giữa cô dâu và bạn thân tại khu vực backdrop tiệc cưới. Cô dâu tỏa sáng trong chiếc váy cưới cúp ngực ren trắng tinh khôi dáng xòe nhẹ, kết hợp khăn voan cài tóc dịu dàng và tay cầm bó hoa cưới tone trắng xanh nhỏ nhắn. Người bạn thân bên cạnh diện đầm xòe ngắn màu đen cổ yếm quyến rũ, kết hợp quần tất đen và giày cao gót đính ngọc trai, đang tạo dáng tinh nghịch với nụ cười rạng rỡ. Phía sau là backdrop cưới nghệ thuật thiết kế hình vòm với tên chữ nổi 'Nhân & Thu', được trang trí hoa tươi rực rỡ kết hợp giữa cẩm tú cầu xanh pastel, hoa hồng phấn, hoa baby trắng và lá xanh tươi mát."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc vui tươi tinh nghịch của cô dâu bên bạn thân tại backdrop tiệc cưới hoa tươi",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc vô cùng nhí nhố và tự nhiên giữa cô dâu và bạn thân tại khu vực backdrop tiệc cưới. Cô dâu tỏa sáng trong chiếc váy cưới cúp ngực ren trắng tinh khôi dáng xòe nhẹ, kết hợp khăn voan cài tóc dịu dàng và tay cầm bó hoa cưới tone trắng xanh nhỏ nhắn. Người bạn thân bên cạnh diện đầm xòe ngắn màu đen cổ yếm quyến rũ, kết hợp quần tất đen và giày cao gót đính ngọc trai, đang tạo dáng tinh nghịch với nụ cười rạng rỡ. Phía sau là backdrop cưới nghệ thuật thiết kế hình vòm với tên chữ nổi 'Nhân & Thu', được trang trí hoa tươi rực rỡ kết hợp giữa cẩm tú cầu xanh pastel, hoa hồng phấn, hoa baby trắng và lá xanh tươi mát.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1V_5j67C4ZUOCf6hx60bk0arlUrDI7XQe",
           "md5Checksum": "18f9fea76e668419170e58c21256e3a6",
           "createdAt": "2026-11-06T04:12:57.446Z",
-          "updatedAt": "2026-11-09T16:20:20.569Z"
+          "updatedAt": "2026-11-16T09:16:09.635Z"
         },
         {
           "id": "cmw4gkycx00bytcwscow114uv",
@@ -4787,11 +5851,16 @@ const snapshot = {
             "suggestedCaption": "Nụ cười trọn vẹn và khoảnh khắc vô giá bên những người bạn thân yêu trong ngày chung đôi.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc vô cùng tươi vui và tự nhiên của cô dâu bên hai người bạn thân tại sảnh tiệc cưới. Cô dâu tỏa sáng ở trung tâm trong chiếc váy cưới xòe công chúa lộng lẫy bằng chất liệu ren thêu tinh xảo, kết hợp khăn voan mỏng manh và bó hoa cầm tay tone trắng thanh lịch. Cô dâu đang cười thả ga đầy hạnh phúc cùng hai nữ khách mời diện trang phục màu đen hiện đại. Phông nền tiệc cưới được trang trí vòm hoa tươi kết hợp dòng chữ tên chú rể cô dâu 'Nhân & Thu'."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu rạng rỡ vỡ òa hạnh phúc bên bạn thân trong ngày cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc vô cùng tươi vui và tự nhiên của cô dâu bên hai người bạn thân tại sảnh tiệc cưới. Cô dâu tỏa sáng ở trung tâm trong chiếc váy cưới xòe công chúa lộng lẫy bằng chất liệu ren thêu tinh xảo, kết hợp khăn voan mỏng manh và bó hoa cầm tay tone trắng thanh lịch. Cô dâu đang cười thả ga đầy hạnh phúc cùng hai nữ khách mời diện trang phục màu đen hiện đại. Phông nền tiệc cưới được trang trí vòm hoa tươi kết hợp dòng chữ tên chú rể cô dâu 'Nhân & Thu'.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "17CYLLqVvSPrxhUm1N5yQmo6pQtOfHuuW",
           "md5Checksum": "03f682a7ba310f368f3421d3fddcd38a",
           "createdAt": "2026-11-06T04:12:41.074Z",
-          "updatedAt": "2026-11-09T16:20:20.570Z"
+          "updatedAt": "2026-11-16T09:16:09.637Z"
         },
         {
           "id": "cmw4gkolh00bwtcwshxwgx137",
@@ -4816,11 +5885,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc vỡ òa hạnh phúc và năng lượng tích cực của cô dâu chú rể bên những người thân yêu trong ngày trọng đại.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc quẩy tiệc cưới ngập tràn tiếng cười và năng lượng tích cực. Cô dâu tỏa sáng trong chiếc váy cưới cúp ngực trắng tinh khôi kết hợp voan cài tóc dịu dàng, chú rể diện suit lịch lãm rạng rỡ bên cạnh. Dàn bạn bè xung quanh hào hứng giơ cao những chùm hoa baby trắng tung hô, cùng hai bé trai tinh nghịch tạo dáng ngộ nghĩnh ở tiền cảnh. Bối cảnh tiệc cưới lung linh với ánh đèn nghệ thuật ấm áp phía sau backdrop sân khấu."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc quẩy tiệc cưới sôi động và tự nhiên của cô dâu chú rể cùng bạn bè",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc quẩy tiệc cưới ngập tràn tiếng cười và năng lượng tích cực. Cô dâu tỏa sáng trong chiếc váy cưới cúp ngực trắng tinh khôi kết hợp voan cài tóc dịu dàng, chú rể diện suit lịch lãm rạng rỡ bên cạnh. Dàn bạn bè xung quanh hào hứng giơ cao những chùm hoa baby trắng tung hô, cùng hai bé trai tinh nghịch tạo dáng ngộ nghĩnh ở tiền cảnh. Bối cảnh tiệc cưới lung linh với ánh đèn nghệ thuật ấm áp phía sau backdrop sân khấu.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1iXEohckTpeeGtes6r61FK0NEb6fWnPuj",
           "md5Checksum": "8511215bc7558228497d885da17286d1",
           "createdAt": "2026-11-06T04:12:28.414Z",
-          "updatedAt": "2026-11-09T16:20:20.570Z"
+          "updatedAt": "2026-11-16T09:16:09.678Z"
         },
         {
           "id": "cmw4gke2j00butcwsthqn4h09",
@@ -4845,11 +5919,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc rạng rỡ, tràn đầy năng lượng trong ngày trọng đại. Lưu giữ mọi cảm xúc chân thật nhất cùng PlusMoments.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc vui vẻ, náo nhiệt trong tiệc cưới. Cô dâu mặc váy cưới trắng cúp ngực đính ren tinh tế, đội khăn voan dài, đang cầm bó hoa baby trắng che mặt. Chú rể mặc vest tuxedo đen lịch lãm, đeo kính, đang nắm tay cô dâu và cùng di chuyển trong không gian tiệc. Xung quanh là bạn bè đang cầm hoa baby, tạo nên bầu không khí sôi động, tự nhiên và tràn đầy năng lượng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu chú rể di chuyển trong tiệc cưới với bó hoa baby trắng",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc vui vẻ, náo nhiệt trong tiệc cưới. Cô dâu mặc váy cưới trắng cúp ngực đính ren tinh tế, đội khăn voan dài, đang cầm bó hoa baby trắng che mặt. Chú rể mặc vest tuxedo đen lịch lãm, đeo kính, đang nắm tay cô dâu và cùng di chuyển trong không gian tiệc. Xung quanh là bạn bè đang cầm hoa baby, tạo nên bầu không khí sôi động, tự nhiên và tràn đầy năng lượng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Sr4Tjjis417FV3qkDQ-IRUeKM1IYvdq7",
           "md5Checksum": "3986d24d100da547c62e4bcd30505cb4",
           "createdAt": "2026-11-06T04:12:14.780Z",
-          "updatedAt": "2026-11-09T16:20:20.571Z"
+          "updatedAt": "2026-11-16T09:16:09.696Z"
         },
         {
           "id": "cmw4gk3d600bstcwsql7vvttc",
@@ -4874,11 +5953,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc vỡ òa hạnh phúc và nụ cười rạng rỡ trong bữa tiệc cưới bùng nổ cảm xúc cùng PlusMoments.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc After-Party tiệc cưới bùng nổ năng lượng và ngập tràn niềm vui với kỹ thuật chụp chuyển động (motion blur). Cô dâu xinh đẹp nổi bật trong chiếc váy cưới cúp ngực xòe nhẹ đính ren cao cấp, kết hợp khăn voan ngắn tinh tế và makeup tông tự nhiên rạng rỡ. Cô dâu nở nụ cười hạnh phúc rạng ngời bên chú rể và bạn bè, người thân cùng các bé nhỏ đang tung hoa, nâng ly chúc mừng. Bối cảnh không gian tiệc tối hiện đại với hiệu ứng ánh sáng đèn flash dải vệt đầy tính nghệ thuật điện ảnh, truyền tải trọn vẹn cảm xúc chân thật, tự do và phấn khích của ngày vui."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu rạng rỡ cùng chú rể và người thân trong khoảnh khắc After-Party tiệc cưới đầy sôi động",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc After-Party tiệc cưới bùng nổ năng lượng và ngập tràn niềm vui với kỹ thuật chụp chuyển động (motion blur). Cô dâu xinh đẹp nổi bật trong chiếc váy cưới cúp ngực xòe nhẹ đính ren cao cấp, kết hợp khăn voan ngắn tinh tế và makeup tông tự nhiên rạng rỡ. Cô dâu nở nụ cười hạnh phúc rạng ngời bên chú rể và bạn bè, người thân cùng các bé nhỏ đang tung hoa, nâng ly chúc mừng. Bối cảnh không gian tiệc tối hiện đại với hiệu ứng ánh sáng đèn flash dải vệt đầy tính nghệ thuật điện ảnh, truyền tải trọn vẹn cảm xúc chân thật, tự do và phấn khích của ngày vui.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1X1qQ4zc0jPYEo7F3iOgXkb8uhoRygd2f",
           "md5Checksum": "929e452626bd8c5954497d9f54c4cf14",
           "createdAt": "2026-11-06T04:12:00.906Z",
-          "updatedAt": "2026-11-09T16:20:20.571Z"
+          "updatedAt": "2026-11-16T09:16:09.718Z"
         },
         {
           "id": "cmw4gjqhq00bqtcwskjz4l3fx",
@@ -4904,11 +5988,16 @@ const snapshot = {
             "suggestedCaption": "Nụ cười sảng khoái và những khoảnh khắc quẩy hết mình cùng hội bạn thân trong đêm tiệc cưới đáng nhớ.",
             "visualDescription": "Khoảnh khắc ngập tràn niềm vui của cô dâu trong chiếc váy cưới cúp ngực đính ren hoa li ti cùng voan cài tóc mềm mại. Cô dâu một tay nâng ly champagne sóng sánh, tay kia cầm bó hoa thạch thảo trắng nhẹ nhàng, cười thả ga đầy tự nhiên bên cạnh người bạn thân mặc đầm đen quyến rũ. Bối cảnh không gian tiệc cưới buổi đêm lung linh với kỹ thuật chụp flash bắt vệt sáng (light trails) sống động, phía sau thấp thoáng chữ Hỷ (囍) màu vàng đồng ấm áp."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu rạng rỡ nâng ly champagne và đùa vui cùng bạn bè trong tiệc cưới đêm",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc ngập tràn niềm vui của cô dâu trong chiếc váy cưới cúp ngực đính ren hoa li ti cùng voan cài tóc mềm mại. Cô dâu một tay nâng ly champagne sóng sánh, tay kia cầm bó hoa thạch thảo trắng nhẹ nhàng, cười thả ga đầy tự nhiên bên cạnh người bạn thân mặc đầm đen quyến rũ. Bối cảnh không gian tiệc cưới buổi đêm lung linh với kỹ thuật chụp flash bắt vệt sáng (light trails) sống động, phía sau thấp thoáng chữ Hỷ (囍) màu vàng đồng ấm áp.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "151b5d4_YnCR1Cgaw828HrltmZ7n4N_Hw",
           "md5Checksum": "cfdcdd4239ae56d5100d2926b6b598c1",
           "createdAt": "2026-11-06T04:11:44.222Z",
-          "updatedAt": "2026-11-09T16:20:20.572Z"
+          "updatedAt": "2026-11-16T09:16:09.699Z"
         },
         {
           "id": "cmw4gjf2k00botcws7qps8ljp",
@@ -4934,11 +6023,16 @@ const snapshot = {
             "suggestedCaption": "Cháy hết mình trong đêm tiệc after-party – nơi tình yêu và niềm vui thăng hoa trọn vẹn cùng PlusMoments.",
             "visualDescription": "Khoảnh khắc bùng nổ tại đêm tiệc cưới (after-party) được ghi lại với kỹ thuật hiệu ứng mờ nhòe chuyển động (shutter drag) đầy nghệ thuật. Chú rể diện áo vest xanh navy lịch lãm khoác ngoài sơ mi họa tiết xanh trắng, đeo kính và đang say sưa cất tiếng hát vào micro, tay cầm chùm hoa baby trắng. Phía sau, cô dâu lộng lẫy trong thiết kế váy cưới cúp ngực ren lấp lánh phối khăn voan mỏng, tay cầm ly champagne, nở nụ cười rạng rỡ và hòa mình vào điệu nhảy sôi động cùng bạn bè."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chú rể say sưa hát tặng cô dâu cùng không khí tiệc cưới after-party bùng nổ cảm xúc",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc bùng nổ tại đêm tiệc cưới (after-party) được ghi lại với kỹ thuật hiệu ứng mờ nhòe chuyển động (shutter drag) đầy nghệ thuật. Chú rể diện áo vest xanh navy lịch lãm khoác ngoài sơ mi họa tiết xanh trắng, đeo kính và đang say sưa cất tiếng hát vào micro, tay cầm chùm hoa baby trắng. Phía sau, cô dâu lộng lẫy trong thiết kế váy cưới cúp ngực ren lấp lánh phối khăn voan mỏng, tay cầm ly champagne, nở nụ cười rạng rỡ và hòa mình vào điệu nhảy sôi động cùng bạn bè.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1H4Cb6yQjNsJJ30STO2T0ULaaVR1XzCEO",
           "md5Checksum": "2afb7b90ad5efbf459f8fbc92f53dd6c",
           "createdAt": "2026-11-06T04:11:29.420Z",
-          "updatedAt": "2026-11-09T16:20:20.573Z"
+          "updatedAt": "2026-11-16T09:16:09.614Z"
         },
         {
           "id": "cmw4gj34600bmtcws9u7zwzo5",
@@ -4963,11 +6057,16 @@ const snapshot = {
             "suggestedCaption": "Giai điệu hạnh phúc cất lên đầy thăng hoa, ghi dấu khoảnh khắc vui tươi khó quên trong đêm tiệc cưới.",
             "visualDescription": "Khoảnh khắc bùng nổ cảm xúc và đong đầy niềm vui trong đêm tiệc cưới khi cặp đôi hòa giọng song ca trên sân khấu. Phía bên phải, người nam đeo kính cận lịch lãm trong trang phục vest xanh navy kết hợp áo sơ mi họa tiết xanh trắng tươi trẻ, đang say sưa hát vào micro với gương mặt rạng rỡ. Phía bên trái, người nữ diện đầm đen quyến rũ, tóc uốn sóng bồng bềnh, son môi đỏ nổi bật, tay cầm bó hoa thạch thảo trắng nhỏ xinh cùng chiếc micro hòa giọng đầy ngẫu hứng. Ánh sáng đèn tiệc lung linh cùng hiệu ứng bắt chuyển động bắt trọn không khí náo nhiệt, ấm áp và đong đầy hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Màn song ca đầy thăng hoa và tràn ngập niềm vui của cặp đôi trong đêm tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc bùng nổ cảm xúc và đong đầy niềm vui trong đêm tiệc cưới khi cặp đôi hòa giọng song ca trên sân khấu. Phía bên phải, người nam đeo kính cận lịch lãm trong trang phục vest xanh navy kết hợp áo sơ mi họa tiết xanh trắng tươi trẻ, đang say sưa hát vào micro với gương mặt rạng rỡ. Phía bên trái, người nữ diện đầm đen quyến rũ, tóc uốn sóng bồng bềnh, son môi đỏ nổi bật, tay cầm bó hoa thạch thảo trắng nhỏ xinh cùng chiếc micro hòa giọng đầy ngẫu hứng. Ánh sáng đèn tiệc lung linh cùng hiệu ứng bắt chuyển động bắt trọn không khí náo nhiệt, ấm áp và đong đầy hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1yMPwE5abOgYkUM8J3NXcb_Z_Ev3gb91H",
           "md5Checksum": "03dbf76e307edeb5e451dc7a8dae8979",
           "createdAt": "2026-11-06T04:11:13.927Z",
-          "updatedAt": "2026-11-09T16:20:20.573Z"
+          "updatedAt": "2026-11-16T09:16:09.616Z"
         },
         {
           "id": "cmw4gisuv00bktcws3tuxlvvq",
@@ -4992,11 +6091,16 @@ const snapshot = {
             "suggestedCaption": "Đêm tiệc after-party bùng nổ, nơi cảm xúc thăng hoa và niềm vui kéo dài bất tận cùng PlusMoments.",
             "visualDescription": "Khoảnh khắc tiệc cưới after-party bùng nổ và tràn đầy năng lượng. Cô dâu diện chiếc váy cưới ren cúp ngực xòe bồng cùng voan cài đầu, vừa nhấc vạt váy vừa cầm ly champagne nhún nhảy. Chú rể cực phong cách trong bộ vest xanh khoác ngoài sơ mi họa tiết, tay cầm micro ca hát say sưa cùng bó hoa baby trắng. Xung quanh là dàn bạn bè nhảy múa nhiệt tình. Bức ảnh sử dụng kỹ thuật bắt vệt sáng (motion blur / slow sync flash) tạo nên không khí tiệc đêm điện ảnh, phóng khoáng và tràn ngập niềm vui."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể cùng bạn bè quậy hết mình trong tiệc cưới after-party sôi động",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc tiệc cưới after-party bùng nổ và tràn đầy năng lượng. Cô dâu diện chiếc váy cưới ren cúp ngực xòe bồng cùng voan cài đầu, vừa nhấc vạt váy vừa cầm ly champagne nhún nhảy. Chú rể cực phong cách trong bộ vest xanh khoác ngoài sơ mi họa tiết, tay cầm micro ca hát say sưa cùng bó hoa baby trắng. Xung quanh là dàn bạn bè nhảy múa nhiệt tình. Bức ảnh sử dụng kỹ thuật bắt vệt sáng (motion blur / slow sync flash) tạo nên không khí tiệc đêm điện ảnh, phóng khoáng và tràn ngập niềm vui.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1rvb5zKVsc_dwMd0ufzhmrdeo3L-OR5vz",
           "md5Checksum": "bc1e89ca82baaca71753a3550c9abd75",
           "createdAt": "2026-11-06T04:11:00.632Z",
-          "updatedAt": "2026-11-09T16:20:20.574Z"
+          "updatedAt": "2026-11-16T09:16:09.620Z"
         },
         {
           "id": "cmw4giizh00bitcwsqcirsl8g",
@@ -5022,11 +6126,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc trong ngày trọng đại, nơi tình yêu tỏa sáng rạng ngời.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc cô dâu trong chiếc váy cưới trắng tinh khôi với họa tiết ren chìm lấp lánh, kết hợp cùng khăn voan dài phủ vai và phụ kiện cài tóc hoa trắng tinh tế. Cô dâu đứng nghiêng, tạo dáng thanh thoát trong không gian tiệc cưới ấm cúng. Bên cạnh là chú rể mặc trang phục sơ mi trắng và quần tây sáng màu, tạo nên sự đồng điệu. Bối cảnh xung quanh là bàn tiệc với khăn trải bàn màu champagne, ly thủy tinh và ánh sáng đèn vàng tạo hiệu ứng mờ ảo, chân thực của một buổi tiệc tối."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong váy cưới ren lấp lánh và khăn voan trắng tại tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc cô dâu trong chiếc váy cưới trắng tinh khôi với họa tiết ren chìm lấp lánh, kết hợp cùng khăn voan dài phủ vai và phụ kiện cài tóc hoa trắng tinh tế. Cô dâu đứng nghiêng, tạo dáng thanh thoát trong không gian tiệc cưới ấm cúng. Bên cạnh là chú rể mặc trang phục sơ mi trắng và quần tây sáng màu, tạo nên sự đồng điệu. Bối cảnh xung quanh là bàn tiệc với khăn trải bàn màu champagne, ly thủy tinh và ánh sáng đèn vàng tạo hiệu ứng mờ ảo, chân thực của một buổi tiệc tối.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1VvluqlJ8Bx0PYvMrpsu1F2E68lswq_Qv",
           "md5Checksum": "c8298fb04c96001988836e29fd220353",
           "createdAt": "2026-11-06T04:10:47.838Z",
-          "updatedAt": "2026-11-09T16:20:20.575Z"
+          "updatedAt": "2026-11-16T09:16:09.642Z"
         },
         {
           "id": "cmw4gi7l400bgtcws1vt3v98g",
@@ -5051,11 +6160,16 @@ const snapshot = {
             "suggestedCaption": "Nâng ly chúc mừng hạnh phúc, lưu giữ những khoảnh khắc rộn ràng nhất cùng những người thân yêu.",
             "visualDescription": "Một bức ảnh chụp khoảnh khắc tiệc cưới thân mật, nơi cô dâu chú rể cùng bạn bè đang nâng ly chúc mừng quanh bàn tiệc tròn. Cô dâu mặc váy cưới trắng tinh khôi, chú rể mặc vest lịch lãm, xung quanh là bạn bè trong trang phục dự tiệc hiện đại. Bàn tiệc bày biện các món ăn, đồ uống và bia Tiger. Ánh sáng đèn flash trực diện tạo cảm giác chân thực, sống động của một buổi tiệc tối."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc nâng ly chúc mừng của cô dâu chú rể và bạn bè trong tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một bức ảnh chụp khoảnh khắc tiệc cưới thân mật, nơi cô dâu chú rể cùng bạn bè đang nâng ly chúc mừng quanh bàn tiệc tròn. Cô dâu mặc váy cưới trắng tinh khôi, chú rể mặc vest lịch lãm, xung quanh là bạn bè trong trang phục dự tiệc hiện đại. Bàn tiệc bày biện các món ăn, đồ uống và bia Tiger. Ánh sáng đèn flash trực diện tạo cảm giác chân thực, sống động của một buổi tiệc tối.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DoaAVlLNsmB6tEn_mZ4dsLi4-sRC9avc",
           "md5Checksum": "b618f733635a451fbe0659ad7b14bbd8",
           "createdAt": "2026-11-06T04:10:33.064Z",
-          "updatedAt": "2026-11-09T16:20:20.575Z"
+          "updatedAt": "2026-11-16T09:16:09.619Z"
         },
         {
           "id": "cmw4ghvkt00betcwszewqb52s",
@@ -5080,11 +6194,16 @@ const snapshot = {
             "suggestedCaption": "Nâng ly chúc mừng hạnh phúc, lưu giữ khoảnh khắc rạng rỡ nhất cùng những người thân yêu.",
             "visualDescription": "Một khoảnh khắc tiệc cưới sôi động với góc chụp rộng, cô dâu mặc váy cưới cúp ngực ren trắng tinh khôi cùng khăn voan cài đầu, chú rể mặc vest tối màu lịch lãm. Cả hai đang cùng bạn bè nâng ly chúc mừng trong không gian tiệc tối sang trọng. Ánh sáng đèn trần tạo hiệu ứng vệt sáng nghệ thuật, làm nổi bật nụ cười rạng rỡ và không khí vui vẻ, náo nhiệt của buổi tiệc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể nâng ly chúc mừng cùng bạn bè trong tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một khoảnh khắc tiệc cưới sôi động với góc chụp rộng, cô dâu mặc váy cưới cúp ngực ren trắng tinh khôi cùng khăn voan cài đầu, chú rể mặc vest tối màu lịch lãm. Cả hai đang cùng bạn bè nâng ly chúc mừng trong không gian tiệc tối sang trọng. Ánh sáng đèn trần tạo hiệu ứng vệt sáng nghệ thuật, làm nổi bật nụ cười rạng rỡ và không khí vui vẻ, náo nhiệt của buổi tiệc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1FrKgg2hzS7HSe-o18FgLzWyNX2in0SQj",
           "md5Checksum": "e92ef768a44284d99186d888299035d9",
           "createdAt": "2026-11-06T04:10:17.501Z",
-          "updatedAt": "2026-11-09T16:20:20.576Z"
+          "updatedAt": "2026-11-16T09:16:09.580Z"
         },
         {
           "id": "cmw4ghitj00bctcwsnpdrgqxy",
@@ -5109,11 +6228,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc vỡ òa cùng những người thân yêu. Chúc mừng ngày chung đôi!",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc vui vẻ, náo nhiệt trong tiệc cưới. Cô dâu mặc váy cưới trắng tinh khôi, đội khăn voan ren, chú rể mặc vest đen lịch lãm. Cả hai cùng bạn bè, người thân đang nâng ly chúc mừng, gương mặt rạng rỡ, cười tươi đầy phấn khích. Bối cảnh là không gian tiệc cưới trong nhà với ánh sáng tự nhiên, ấm áp, tập trung vào sự kết nối và niềm vui của mọi người."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể cùng bạn bè nâng ly chúc mừng trong tiệc cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc vui vẻ, náo nhiệt trong tiệc cưới. Cô dâu mặc váy cưới trắng tinh khôi, đội khăn voan ren, chú rể mặc vest đen lịch lãm. Cả hai cùng bạn bè, người thân đang nâng ly chúc mừng, gương mặt rạng rỡ, cười tươi đầy phấn khích. Bối cảnh là không gian tiệc cưới trong nhà với ánh sáng tự nhiên, ấm áp, tập trung vào sự kết nối và niềm vui của mọi người.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "10qQb7NsKQSTWiUXR5B4CLPzDgoxarZCJ",
           "md5Checksum": "61a341c607a78fd64a33adc1f20cbc93",
           "createdAt": "2026-11-06T04:10:00.967Z",
-          "updatedAt": "2026-11-09T16:20:20.577Z"
+          "updatedAt": "2026-11-16T09:16:09.644Z"
         },
         {
           "id": "cmw4gh8j100batcwsaf55b1ft",
@@ -5138,11 +6262,16 @@ const snapshot = {
             "suggestedCaption": "Gia đình là điểm tựa, là nơi bắt đầu cho hành trình hạnh phúc của đôi lứa.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc trang trọng trong lễ cưới với cô dâu chú rể đứng giữa, xung quanh là cha mẹ hai bên. Cô dâu mặc váy cưới cúp ngực đính ren tinh tế, đội khăn voan dài thêu hoa, tay cầm bó hoa hồng trắng. Chú rể mặc vest đen lịch lãm. Cha mẹ cô dâu chú rể mặc áo dài truyền thống (xanh và đỏ) và vest, tạo nên không khí gia đình ấm cúng, thiêng liêng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc gia đình hai bên trong lễ cưới truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc trang trọng trong lễ cưới với cô dâu chú rể đứng giữa, xung quanh là cha mẹ hai bên. Cô dâu mặc váy cưới cúp ngực đính ren tinh tế, đội khăn voan dài thêu hoa, tay cầm bó hoa hồng trắng. Chú rể mặc vest đen lịch lãm. Cha mẹ cô dâu chú rể mặc áo dài truyền thống (xanh và đỏ) và vest, tạo nên không khí gia đình ấm cúng, thiêng liêng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1vBXmlc3E3PhHv_4aHv9vLlYcys851J57",
           "md5Checksum": "7e4972bcdf93e18d7d0273affc476f51",
           "createdAt": "2026-11-06T04:09:47.629Z",
-          "updatedAt": "2026-11-09T16:20:20.577Z"
+          "updatedAt": "2026-11-16T09:16:09.605Z"
         },
         {
           "id": "cmw4ggwyc00b8tcws1pmw18h2",
@@ -5167,11 +6296,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc vỡ òa trong ngày trọng đại. Chúc hai bạn mãi mãi bên nhau!",
             "visualDescription": "Khoảnh khắc hạnh phúc trong lễ cưới truyền thống với cô dâu mặc áo dài đỏ rực rỡ, đeo trang sức vàng, cầm bó hoa cưới tone trắng tinh tế. Chú rể mặc vest xanh navy lịch lãm, bên cạnh là người thân trong tà áo dài hồng. Cả ba đang bước đi giữa cơn mưa pháo giấy lấp lánh, nụ cười rạng rỡ và ánh mắt tràn đầy niềm vui."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong lễ rước dâu truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc hạnh phúc trong lễ cưới truyền thống với cô dâu mặc áo dài đỏ rực rỡ, đeo trang sức vàng, cầm bó hoa cưới tone trắng tinh tế. Chú rể mặc vest xanh navy lịch lãm, bên cạnh là người thân trong tà áo dài hồng. Cả ba đang bước đi giữa cơn mưa pháo giấy lấp lánh, nụ cười rạng rỡ và ánh mắt tràn đầy niềm vui.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1CYxyqYVqPAWLmHzpgR1ECd_78vrszexd",
           "md5Checksum": "fd522a00184f6513abef1503cb5d0eca",
           "createdAt": "2026-11-06T04:09:32.629Z",
-          "updatedAt": "2026-11-09T16:20:20.578Z"
+          "updatedAt": "2026-11-16T09:16:09.632Z"
         },
         {
           "id": "cmw4ggj5n00b6tcwsu1lo1t1n",
@@ -5196,11 +6330,16 @@ const snapshot = {
             "suggestedCaption": "Ngày chung đôi rực rỡ, khởi đầu cho hành trình hạnh phúc vẹn tròn.",
             "visualDescription": "Khoảnh khắc hạnh phúc trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, cầm bó hoa cưới tone trắng, tay nắm chặt chú rể mặc vest lịch lãm. Bên cạnh là người thân đang hân hoan chúc mừng. Không gian tràn ngập những mảnh giấy kim tuyến lấp lánh rơi xuống, tạo nên hiệu ứng thị giác sống động và đầy năng lượng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong lễ rước dâu truyền thống với pháo giấy kim tuyến",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc hạnh phúc trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, cầm bó hoa cưới tone trắng, tay nắm chặt chú rể mặc vest lịch lãm. Bên cạnh là người thân đang hân hoan chúc mừng. Không gian tràn ngập những mảnh giấy kim tuyến lấp lánh rơi xuống, tạo nên hiệu ứng thị giác sống động và đầy năng lượng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1X9iwC3LiouHnNmw2wnj_EliWquO4p82Z",
           "md5Checksum": "07bfc9f0066832eae1f7214cb16d6ce3",
           "createdAt": "2026-11-06T04:09:14.748Z",
-          "updatedAt": "2026-11-09T16:20:20.578Z"
+          "updatedAt": "2026-11-16T09:16:09.611Z"
         },
         {
           "id": "cmw4gg6au00b4tcwslm7b2p9o",
@@ -5225,11 +6364,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc rạng rỡ ngày chung đôi, nụ cười hạnh phúc lan tỏa trong ngày vui trọng đại.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ rước dâu truyền thống. Cô dâu mặc áo dài đỏ rực rỡ, tay cầm bó hoa cưới baby trắng, đang nắm tay mẹ chồng (mặc áo dài hồng cánh sen sang trọng) và chú rể (mặc vest xanh navy lịch lãm). Cả ba nhân vật đều cười rạng rỡ. Không gian xung quanh tràn ngập pháo giấy kim tuyến lấp lánh tạo hiệu ứng bokeh đẹp mắt, làm nổi bật không khí lễ hội vui tươi."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc hạnh phúc của cô dâu, chú rể và mẹ trong lễ rước dâu truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ rước dâu truyền thống. Cô dâu mặc áo dài đỏ rực rỡ, tay cầm bó hoa cưới baby trắng, đang nắm tay mẹ chồng (mặc áo dài hồng cánh sen sang trọng) và chú rể (mặc vest xanh navy lịch lãm). Cả ba nhân vật đều cười rạng rỡ. Không gian xung quanh tràn ngập pháo giấy kim tuyến lấp lánh tạo hiệu ứng bokeh đẹp mắt, làm nổi bật không khí lễ hội vui tươi.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1pdcHemDW_3v5Iha36AL2zZQVphI0G6LG",
           "md5Checksum": "725e7d190fc1668d1c01ce971152da32",
           "createdAt": "2026-11-06T04:08:58.087Z",
-          "updatedAt": "2026-11-09T16:20:20.579Z"
+          "updatedAt": "2026-11-16T09:16:09.607Z"
         },
         {
           "id": "cmw4gfwxr00b2tcwsthlxmdyp",
@@ -5254,11 +6398,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc rạng rỡ ngày chung đôi, khởi đầu cho hành trình hạnh phúc viên mãn.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ rước dâu truyền thống. Cô dâu mặc áo dài đỏ đính kết tinh tế, cầm bó hoa cưới hồng trắng, tay trong tay cùng chú rể mặc vest xanh đen lịch lãm. Bên cạnh là người thân trong trang phục áo dài hồng rực rỡ đang vẫy tay chào. Bối cảnh ngoài trời với cửa sắt xám và cây xanh, không khí vui tươi, náo nhiệt."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong lễ rước dâu truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ rước dâu truyền thống. Cô dâu mặc áo dài đỏ đính kết tinh tế, cầm bó hoa cưới hồng trắng, tay trong tay cùng chú rể mặc vest xanh đen lịch lãm. Bên cạnh là người thân trong trang phục áo dài hồng rực rỡ đang vẫy tay chào. Bối cảnh ngoài trời với cửa sắt xám và cây xanh, không khí vui tươi, náo nhiệt.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1KSzkFwcz21stxdjPDQb1PFe_Zpu5NAo7",
           "md5Checksum": "18949ed9f139088e11609c0dd179a54d",
           "createdAt": "2026-11-06T04:08:45.952Z",
-          "updatedAt": "2026-11-09T16:20:20.579Z"
+          "updatedAt": "2026-11-16T09:16:09.621Z"
         },
         {
           "id": "cmw4gfl9600b0tcwsaen5p737",
@@ -5283,11 +6432,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc ngày chung đôi, nụ cười rạng rỡ bên gia đình thân yêu.",
             "visualDescription": "Một bức ảnh cưới ngoài trời ghi lại khoảnh khắc cô dâu chú rể cùng mẹ đang bước đi trên phố. Cô dâu mặc áo dài đỏ truyền thống đính kết tinh tế, chú rể lịch lãm trong bộ vest xanh đen, tay cầm bó hoa cưới màu trắng. Người mẹ đi bên cạnh mặc áo dài hồng cánh sen thêu họa tiết sang trọng. Cả ba đều nở nụ cười rạng rỡ, chú rể đang vẫy tay chào, tạo nên không khí gia đình ấm áp và hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong trang phục áo dài truyền thống cùng mẹ trong ngày cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một bức ảnh cưới ngoài trời ghi lại khoảnh khắc cô dâu chú rể cùng mẹ đang bước đi trên phố. Cô dâu mặc áo dài đỏ truyền thống đính kết tinh tế, chú rể lịch lãm trong bộ vest xanh đen, tay cầm bó hoa cưới màu trắng. Người mẹ đi bên cạnh mặc áo dài hồng cánh sen thêu họa tiết sang trọng. Cả ba đều nở nụ cười rạng rỡ, chú rể đang vẫy tay chào, tạo nên không khí gia đình ấm áp và hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1V3i8_aHPXFWWkomLUNqZjz0p-TwZEnEz",
           "md5Checksum": "a7aa56dbd213c7f78e5f9d1a635b3a30",
           "createdAt": "2026-11-06T04:08:30.810Z",
-          "updatedAt": "2026-11-09T16:20:20.580Z"
+          "updatedAt": "2026-11-16T09:16:09.646Z"
         },
         {
           "id": "cmw4gfcv800aytcws5gshpi2u",
@@ -5313,11 +6467,16 @@ const snapshot = {
             "suggestedCaption": "Ngày chung đôi rạng rỡ, khởi đầu cho hành trình hạnh phúc trọn vẹn. Chúc mừng ngày vui của hai bạn!",
             "visualDescription": "Cô dâu chú rể trong trang phục cưới truyền thống Việt Nam, đang mỉm cười rạng rỡ trong ngày lễ ăn hỏi. Cô dâu mặc áo dài đỏ đính ngọc trai, tay cầm bó hoa cưới trắng và xòe quạt tiền mệnh giá 50.000 VNĐ, tay kia cầm phong bao lì xì đỏ. Chú rể mặc vest đen lịch lãm, cài hoa trắng trên ngực, tay cầm phong bao lì xì. Bối cảnh được trang trí bằng vải voan đỏ rực rỡ, tạo không khí lễ hội ấm cúng và hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong lễ ăn hỏi truyền thống với phong bao lì xì đỏ và áo dài đỏ",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Cô dâu chú rể trong trang phục cưới truyền thống Việt Nam, đang mỉm cười rạng rỡ trong ngày lễ ăn hỏi. Cô dâu mặc áo dài đỏ đính ngọc trai, tay cầm bó hoa cưới trắng và xòe quạt tiền mệnh giá 50.000 VNĐ, tay kia cầm phong bao lì xì đỏ. Chú rể mặc vest đen lịch lãm, cài hoa trắng trên ngực, tay cầm phong bao lì xì. Bối cảnh được trang trí bằng vải voan đỏ rực rỡ, tạo không khí lễ hội ấm cúng và hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1KFmWGOjh1_PURTbiYnCpcbIi46hQvlVA",
           "md5Checksum": "6d010b5a428a73bc1128b66abe7de726",
           "createdAt": "2026-11-06T04:08:19.941Z",
-          "updatedAt": "2026-11-09T16:20:20.581Z"
+          "updatedAt": "2026-11-16T09:16:09.703Z"
         },
         {
           "id": "cmw4gf2a600awtcws41ruiuqi",
@@ -5342,11 +6501,16 @@ const snapshot = {
             "suggestedCaption": "Ngày vui trọn vẹn, nụ cười rạng rỡ bên những người thân yêu nhất. Chúc mừng hạnh phúc đôi uyên ương!",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ ăn hỏi với cô dâu mặc áo dài đỏ truyền thống, cầm bó hoa sen trắng và quạt cầm tay trang trí tinh xảo. Bên cạnh là chú rể lịch lãm trong bộ vest đen, sơ mi trắng và cà vạt. Một người bạn thân thiết trong trang phục áo dài hồng pastel đang ôm và hôn má cô dâu. Bối cảnh được trang trí rực rỡ với hoa tươi tông đỏ và trắng, tạo không khí ấm cúng, trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong lễ ăn hỏi truyền thống cùng bạn thân",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc hạnh phúc trong lễ ăn hỏi với cô dâu mặc áo dài đỏ truyền thống, cầm bó hoa sen trắng và quạt cầm tay trang trí tinh xảo. Bên cạnh là chú rể lịch lãm trong bộ vest đen, sơ mi trắng và cà vạt. Một người bạn thân thiết trong trang phục áo dài hồng pastel đang ôm và hôn má cô dâu. Bối cảnh được trang trí rực rỡ với hoa tươi tông đỏ và trắng, tạo không khí ấm cúng, trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1cD2hD3yANHpRKNiKn7EKRj8VlIFLaKgY",
           "md5Checksum": "3be9d3e5b0f947f85c7bb2fdbe04fa8a",
           "createdAt": "2026-11-06T04:08:06.222Z",
-          "updatedAt": "2026-11-09T16:20:20.582Z"
+          "updatedAt": "2026-11-16T09:16:09.648Z"
         },
         {
           "id": "cmw4geqac00autcws4rbee2tk",
@@ -5371,11 +6535,16 @@ const snapshot = {
             "suggestedCaption": "Nụ cười rạng rỡ ngày chung đôi, khởi đầu cho hành trình hạnh phúc viên mãn.",
             "visualDescription": "Khoảnh khắc ấm áp trong lễ đính hôn truyền thống. Cô dâu mặc áo dài đỏ rạng rỡ, đeo vòng cổ tiền mặt, đang cười hạnh phúc khi được người thân và chú rể đeo trang sức. Chú rể mặc vest đen lịch lãm, cài hoa hồng trắng. Bối cảnh trang trí hoa tươi rực rỡ tông đỏ và trắng, không khí gia đình sum vầy, tràn ngập niềm vui."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu chú rể trong nghi thức trao trang sức ngày cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc ấm áp trong lễ đính hôn truyền thống. Cô dâu mặc áo dài đỏ rạng rỡ, đeo vòng cổ tiền mặt, đang cười hạnh phúc khi được người thân và chú rể đeo trang sức. Chú rể mặc vest đen lịch lãm, cài hoa hồng trắng. Bối cảnh trang trí hoa tươi rực rỡ tông đỏ và trắng, không khí gia đình sum vầy, tràn ngập niềm vui.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1T660sglK_uzms-rFQmE9HcjV03LwwoVF",
           "md5Checksum": "9a6f0a813cbf0fe2aea15132b931c9dc",
           "createdAt": "2026-11-06T04:07:50.677Z",
-          "updatedAt": "2026-11-09T16:20:20.582Z"
+          "updatedAt": "2026-11-16T09:16:09.609Z"
         },
         {
           "id": "cmw4gegdq00astcwsf0ur01md",
@@ -5400,11 +6569,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc thiêng liêng trong tà áo dài đỏ, gửi gắm trọn vẹn tình yêu và sự gắn kết.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, đính ngọc trai tinh tế, tay cầm bó hoa sen trắng kết hợp hoa baby. Bên cạnh là người thân trong trang phục áo dài xanh lục họa tiết chìm sang trọng và chú rể mặc vest tối màu lịch lãm với hoa cài áo là hoa sen trắng. Các chi tiết trang sức vàng như vòng cổ và lắc tay của cô dâu tạo điểm nhấn quý phái."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong tà áo dài đỏ cầm bó hoa sen trắng trong lễ cưới truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, đính ngọc trai tinh tế, tay cầm bó hoa sen trắng kết hợp hoa baby. Bên cạnh là người thân trong trang phục áo dài xanh lục họa tiết chìm sang trọng và chú rể mặc vest tối màu lịch lãm với hoa cài áo là hoa sen trắng. Các chi tiết trang sức vàng như vòng cổ và lắc tay của cô dâu tạo điểm nhấn quý phái.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1_stnKeDi9CqB-nQbsU9103NTOZaw7TJ0",
           "md5Checksum": "ffc948a1c6cc5224ea0c74b95003901f",
           "createdAt": "2026-11-06T04:07:37.838Z",
-          "updatedAt": "2026-11-09T16:20:20.583Z"
+          "updatedAt": "2026-11-16T09:16:09.719Z"
         },
         {
           "id": "cmw4ge7co00aqtcws7dgzsrc9",
@@ -5429,11 +6603,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc thiêng liêng khi tình yêu được kết nối bằng chiếc nhẫn cưới trao tay.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc thiêng liêng trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ với trang sức vàng sang trọng, chú rể mặc vest đen lịch lãm. Người thân (mẹ cô dâu) đang ân cần trao nhẫn cho cô dâu. Bối cảnh được trang trí với hoa tươi màu đỏ và trắng, tạo không gian ấm cúng, hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc mẹ trao nhẫn cưới cho cô dâu trong lễ đính hôn truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc thiêng liêng trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ với trang sức vàng sang trọng, chú rể mặc vest đen lịch lãm. Người thân (mẹ cô dâu) đang ân cần trao nhẫn cho cô dâu. Bối cảnh được trang trí với hoa tươi màu đỏ và trắng, tạo không gian ấm cúng, hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1VhZyZ01jP2vroUvRdDW7dtYM9GMFKZu9",
           "md5Checksum": "05de9f7b27e2420f8a4d9bdec68f3f64",
           "createdAt": "2026-11-06T04:07:26.132Z",
-          "updatedAt": "2026-11-09T16:20:20.584Z"
+          "updatedAt": "2026-11-16T09:16:09.701Z"
         },
         {
           "id": "cmw4gdxbc00aotcws5vlemtrs",
@@ -5458,11 +6637,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc yêu thương đong đầy trong ngày trọng đại. Chúc mừng hạnh phúc Tuyết Thu & Đình Nhân!",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc ấm áp trong lễ đính hôn truyền thống. Cô dâu mặc áo dài đỏ rực rỡ đang hôn lên má mẹ, tay cầm bó hoa cưới tone trắng tinh khôi. Chú rể mặc vest đen lịch lãm đứng cạnh, cùng bố mẹ hai bên trong không gian trang trí tiệc cưới với hoa tươi đỏ và trắng, phông nền tròn có tên cô dâu chú rể 'Tuyết Thu & Đình Nhân' cùng ngày tháng 13.07.2025."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc cô dâu hôn má mẹ trong lễ đính hôn truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc ấm áp trong lễ đính hôn truyền thống. Cô dâu mặc áo dài đỏ rực rỡ đang hôn lên má mẹ, tay cầm bó hoa cưới tone trắng tinh khôi. Chú rể mặc vest đen lịch lãm đứng cạnh, cùng bố mẹ hai bên trong không gian trang trí tiệc cưới với hoa tươi đỏ và trắng, phông nền tròn có tên cô dâu chú rể 'Tuyết Thu & Đình Nhân' cùng ngày tháng 13.07.2025.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1DLWcWNjYrtXQrkd-7Em_2gbh2TwrCeSY",
           "md5Checksum": "1f6bd59d68617af32871e2ec454c1f0b",
           "createdAt": "2026-11-06T04:07:13.128Z",
-          "updatedAt": "2026-11-09T16:20:20.584Z"
+          "updatedAt": "2026-11-16T09:16:09.707Z"
         },
         {
           "id": "cmw4gdm3n00amtcwstri0trtl",
@@ -5487,11 +6671,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc trao gửi yêu thương, khởi đầu cho hành trình hạnh phúc viên mãn.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc thiêng liêng trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, đeo vòng cổ vàng sang trọng, đang được một người phụ nữ mặc áo dài xanh đeo vòng tay. Chú rể mặc vest đen lịch lãm, thắt cà vạt, cài hoa sen trắng trên ngực áo, ánh mắt trìu mến nhìn cô dâu. Bối cảnh trang trí hoa tươi rực rỡ phía sau tạo không gian ấm cúng, trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc trao quà cưới trong lễ ăn hỏi truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc thiêng liêng trong lễ cưới truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, đeo vòng cổ vàng sang trọng, đang được một người phụ nữ mặc áo dài xanh đeo vòng tay. Chú rể mặc vest đen lịch lãm, thắt cà vạt, cài hoa sen trắng trên ngực áo, ánh mắt trìu mến nhìn cô dâu. Bối cảnh trang trí hoa tươi rực rỡ phía sau tạo không gian ấm cúng, trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1iuSTfnNExH6br_LzcnAEe_wo2fLbPsia",
           "md5Checksum": "d5c598c41bcb516d722a6b5aa9e12e84",
           "createdAt": "2026-11-06T04:06:58.596Z",
-          "updatedAt": "2026-11-09T16:20:20.585Z"
+          "updatedAt": "2026-11-16T09:16:09.653Z"
         },
         {
           "id": "cmw4gdaqm00aktcws26phhrpk",
@@ -5516,11 +6705,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc hạnh phúc ngày chung đôi, trọn vẹn nét đẹp truyền thống Việt Nam.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc ấm áp trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, tay cầm bó hoa sen trắng tinh khôi, đang được người thân đeo trang sức vàng. Chú rể đứng cạnh mặc vest đen lịch lãm, ánh mắt trìu mến nhìn cô dâu. Bối cảnh được trang trí với hoa tươi tông đỏ và trắng, tạo nên không khí trang trọng, hạnh phúc."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc trao trang sức vàng cho cô dâu trong lễ đính hôn truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc ấm áp trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, tay cầm bó hoa sen trắng tinh khôi, đang được người thân đeo trang sức vàng. Chú rể đứng cạnh mặc vest đen lịch lãm, ánh mắt trìu mến nhìn cô dâu. Bối cảnh được trang trí với hoa tươi tông đỏ và trắng, tạo nên không khí trang trọng, hạnh phúc.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1j75VDBU6FYzb7UUI8s03k1xs-0-bAfYy",
           "md5Checksum": "e0e2ca56f60abfde467389c00a4501b7",
           "createdAt": "2026-11-06T04:06:43.870Z",
-          "updatedAt": "2026-11-09T16:20:20.585Z"
+          "updatedAt": "2026-11-16T09:16:09.603Z"
         },
         {
           "id": "cmw4gd15u00aitcwssv5a3rxw",
@@ -5545,11 +6739,16 @@ const snapshot = {
             "suggestedCaption": "Gói trọn khoảnh khắc sum vầy, ấm áp trong ngày vui trọng đại.",
             "visualDescription": "Một khoảnh khắc chân thực trong lễ ăn hỏi truyền thống Việt Nam. Các thành viên gia đình và khách mời đang ngồi quanh bàn tròn phủ khăn đỏ, trên bàn có bình hoa tươi, nước suối và bánh kẹo. Cô dâu mặc áo dài vàng nhạt, chú rể mặc sơ mi sáng màu, cả hai đều cài hoa hồng đỏ trước ngực. Bối cảnh diễn ra trong không gian nhà riêng với rèm trắng và cửa gỗ, không khí ấm cúng, trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Gia đình và cô dâu chú rể trong lễ ăn hỏi truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một khoảnh khắc chân thực trong lễ ăn hỏi truyền thống Việt Nam. Các thành viên gia đình và khách mời đang ngồi quanh bàn tròn phủ khăn đỏ, trên bàn có bình hoa tươi, nước suối và bánh kẹo. Cô dâu mặc áo dài vàng nhạt, chú rể mặc sơ mi sáng màu, cả hai đều cài hoa hồng đỏ trước ngực. Bối cảnh diễn ra trong không gian nhà riêng với rèm trắng và cửa gỗ, không khí ấm cúng, trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1dG6rwmLFguR29NMlSEm371BbZK5cWsRR",
           "md5Checksum": "fe6b52a5275174713c3bb403bf960438",
           "createdAt": "2026-11-06T04:06:31.458Z",
-          "updatedAt": "2026-11-09T16:20:20.586Z"
+          "updatedAt": "2026-11-16T09:16:09.719Z"
         },
         {
           "id": "cmw4gcp1s00agtcwsteruoyjr",
@@ -5574,11 +6773,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc thiêng liêng trong ngày trọng đại, nơi tình yêu bắt đầu hành trình mới.",
             "visualDescription": "Một góc nhìn từ phía sau đám đông khách mời hướng về phía cô dâu chú rể đang thực hiện nghi thức trao nhẫn trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, chú rể mặc vest tối màu lịch lãm. Không gian được trang trí với tông màu đỏ chủ đạo, hoa tươi, mâm quả và các chi tiết mang đậm nét văn hóa Á Đông. Ánh sáng ấm áp tập trung vào cặp đôi, tạo nên bầu không khí trang trọng và ấm cúng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Nghi thức trao nhẫn trong lễ đính hôn truyền thống với cô dâu chú rể trong trang phục áo dài đỏ",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một góc nhìn từ phía sau đám đông khách mời hướng về phía cô dâu chú rể đang thực hiện nghi thức trao nhẫn trong lễ đính hôn truyền thống Việt Nam. Cô dâu mặc áo dài đỏ rực rỡ, chú rể mặc vest tối màu lịch lãm. Không gian được trang trí với tông màu đỏ chủ đạo, hoa tươi, mâm quả và các chi tiết mang đậm nét văn hóa Á Đông. Ánh sáng ấm áp tập trung vào cặp đôi, tạo nên bầu không khí trang trọng và ấm cúng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1nWQH-dbJxFDhK0GgGChkzKujl8gE4QXj",
           "md5Checksum": "167c5b9613aa5e79ac779df7bba3680e",
           "createdAt": "2026-11-06T04:06:15.761Z",
-          "updatedAt": "2026-11-09T16:20:20.586Z"
+          "updatedAt": "2026-11-16T09:16:09.622Z"
         },
         {
           "id": "cmw4gcekc00aetcws108lva50",
@@ -5603,11 +6807,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc dịu dàng, nơi tình yêu bắt đầu từ những cử chỉ nhỏ nhất.",
             "visualDescription": "Bức ảnh cận cảnh ghi lại khoảnh khắc chú rể đang ân cần đeo bông tai vàng cho cô dâu trong ngày cưới. Cô dâu mặc áo dài đỏ truyền thống, trang điểm nhẹ nhàng, tự nhiên với nụ cười rạng rỡ và ánh mắt hạnh phúc. Chú rể xuất hiện ở tiền cảnh với góc nhìn mờ (bokeh), tập trung sự chú ý vào đôi bàn tay đang chăm chút cho cô dâu. Chi tiết bông tai vàng hình hoa tinh xảo nổi bật trên nền áo dài đỏ, tạo nên không khí ấm áp và đầy tình cảm."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc chú rể đeo bông tai vàng cho cô dâu trong trang phục áo dài cưới truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh cận cảnh ghi lại khoảnh khắc chú rể đang ân cần đeo bông tai vàng cho cô dâu trong ngày cưới. Cô dâu mặc áo dài đỏ truyền thống, trang điểm nhẹ nhàng, tự nhiên với nụ cười rạng rỡ và ánh mắt hạnh phúc. Chú rể xuất hiện ở tiền cảnh với góc nhìn mờ (bokeh), tập trung sự chú ý vào đôi bàn tay đang chăm chút cho cô dâu. Chi tiết bông tai vàng hình hoa tinh xảo nổi bật trên nền áo dài đỏ, tạo nên không khí ấm áp và đầy tình cảm.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Q5rXBRTfL5hrJVg4r1DUzbYtsdlxvqcn",
           "md5Checksum": "d554d30504c036adad9f0ddee7fcb5c9",
           "createdAt": "2026-11-06T04:06:02.172Z",
-          "updatedAt": "2026-11-09T16:20:20.587Z"
+          "updatedAt": "2026-11-16T09:16:09.709Z"
         },
         {
           "id": "cmw4gc32r00actcwsi3n6ith6",
@@ -5632,11 +6841,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc ngọt ngào và hạnh phúc trong ngày trọng đại.",
             "visualDescription": "Khoảnh khắc hạnh phúc trong lễ ăn hỏi truyền thống Việt Nam. Cô dâu mặc áo dài đỏ truyền thống đính hạt tinh tế, tay cầm bó hoa cưới sen trắng kết hợp hoa hồng và baby ngọt ngào. Chú rể mặc vest lịch lãm cùng người thân đang ân cần đeo hoa tai và trang sức chúc phúc cho cô dâu trong nụ cười rạng rỡ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu áo dài đỏ nhận trang sức trong lễ ăn hỏi",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Khoảnh khắc hạnh phúc trong lễ ăn hỏi truyền thống Việt Nam. Cô dâu mặc áo dài đỏ truyền thống đính hạt tinh tế, tay cầm bó hoa cưới sen trắng kết hợp hoa hồng và baby ngọt ngào. Chú rể mặc vest lịch lãm cùng người thân đang ân cần đeo hoa tai và trang sức chúc phúc cho cô dâu trong nụ cười rạng rỡ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1HF6OdYySDr5VH4UyWjkcti-TGCjC8-yC",
           "md5Checksum": "8dbc7d343e7ed895ff80ee6199756ac9",
           "createdAt": "2026-11-06T04:05:47.283Z",
-          "updatedAt": "2026-11-09T16:20:20.587Z"
+          "updatedAt": "2026-11-16T09:16:09.658Z"
         },
         {
           "id": "cmw4gbti100aatcwse0i9agmj",
@@ -5661,11 +6875,16 @@ const snapshot = {
             "suggestedCaption": "Những nụ cười rạng rỡ và khoảnh khắc đáng nhớ cùng người thân trong ngày trọng đại.",
             "visualDescription": "Một bức ảnh chụp khoảnh khắc đời thường trong lễ cưới tại Việt Nam. Nhóm khách mời và người thân đứng xếp hàng trong không gian nhà riêng, với một người đàn ông mặc sơ mi trắng thắt nơ đứng ở tiền cảnh bên phải đang che mặt cười ngượng ngùng. Phía sau là các phụ nữ mặc áo dài truyền thống màu hồng pastel và xanh ngọc, cùng các khách mời nam mặc trang phục lịch sự. Bối cảnh có cửa xếp kim loại đặc trưng của nhà phố Việt Nam, ánh sáng tự nhiên từ cửa chính tạo nên không khí vui vẻ, gần gũi."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Khoảnh khắc vui vẻ, tự nhiên của gia đình và bạn bè trong lễ cưới truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một bức ảnh chụp khoảnh khắc đời thường trong lễ cưới tại Việt Nam. Nhóm khách mời và người thân đứng xếp hàng trong không gian nhà riêng, với một người đàn ông mặc sơ mi trắng thắt nơ đứng ở tiền cảnh bên phải đang che mặt cười ngượng ngùng. Phía sau là các phụ nữ mặc áo dài truyền thống màu hồng pastel và xanh ngọc, cùng các khách mời nam mặc trang phục lịch sự. Bối cảnh có cửa xếp kim loại đặc trưng của nhà phố Việt Nam, ánh sáng tự nhiên từ cửa chính tạo nên không khí vui vẻ, gần gũi.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1nZ-ElcFEbTz_E8TbH6BP2QTfToPVSNv2",
           "md5Checksum": "946de0db330cff8d8035eac57f93fed4",
           "createdAt": "2026-11-06T04:05:34.873Z",
-          "updatedAt": "2026-11-09T16:20:20.588Z"
+          "updatedAt": "2026-11-16T09:16:09.652Z"
         },
         {
           "id": "cmw4gbgeq00a8tcws4z1r3wwj",
@@ -5690,11 +6909,16 @@ const snapshot = {
             "suggestedCaption": "Khoảnh khắc rạng rỡ của cô dâu trong ngày trọng đại, khởi đầu cho hành trình hạnh phúc.",
             "visualDescription": "Bức ảnh ghi lại khoảnh khắc cô dâu trong tà áo dài đỏ truyền thống, tay cầm quạt tròn thêu họa tiết, đang vén rèm bước ra cùng người thân. Cô dâu trang điểm nhẹ nhàng, tóc búi thấp cài hoa, nụ cười rạng rỡ. Phía trước là góc nhìn từ phía chú rể (lấy nét mờ) và một người đàn ông mặc vest đang ngồi. Bối cảnh trang trí lễ cưới với hoa tươi và rèm trắng, tạo không gian ấm cúng, trang trọng."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Cô dâu trong tà áo dài đỏ truyền thống và khoảnh khắc xuất hiện trong lễ cưới",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Bức ảnh ghi lại khoảnh khắc cô dâu trong tà áo dài đỏ truyền thống, tay cầm quạt tròn thêu họa tiết, đang vén rèm bước ra cùng người thân. Cô dâu trang điểm nhẹ nhàng, tóc búi thấp cài hoa, nụ cười rạng rỡ. Phía trước là góc nhìn từ phía chú rể (lấy nét mờ) và một người đàn ông mặc vest đang ngồi. Bối cảnh trang trí lễ cưới với hoa tươi và rèm trắng, tạo không gian ấm cúng, trang trọng.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1flhHXnDdR5zSHzMPvXCeKMQrL7czVx6c",
           "md5Checksum": "556a4bb217a5576bed5eb37a36534af7",
           "createdAt": "2026-11-06T04:05:17.907Z",
-          "updatedAt": "2026-11-09T16:20:20.588Z"
+          "updatedAt": "2026-11-16T09:16:09.721Z"
         },
         {
           "id": "cmw4gb4eu00a6tcwsr7tu2hj5",
@@ -5719,11 +6943,16 @@ const snapshot = {
             "suggestedCaption": "Dàn phù dâu xinh xắn trong sắc hồng ngọt ngào, cùng chung vui ngày hạnh phúc của cô dâu chú rể.",
             "visualDescription": "Một nhóm 5 cô gái trẻ trong vai trò phù dâu đang tạo dáng vui vẻ tại một lễ Vu Quy. Các cô gái mặc áo dài cách tân màu hồng pastel nhẹ nhàng, phối cùng quần lụa trắng và cài tóc ngọc trai đồng bộ. Họ đang đứng và ngồi xung quanh một tấm bảng 'Save the Date' in ảnh cưới của cô dâu chú rể. Bối cảnh là không gian tiệc cưới ngoài trời với cổng hoa đỏ rực rỡ, phông màn đỏ truyền thống và thảm cỏ nhân tạo."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Nhóm phù dâu xinh xắn trong trang phục áo dài hồng pastel tại lễ Vu Quy",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một nhóm 5 cô gái trẻ trong vai trò phù dâu đang tạo dáng vui vẻ tại một lễ Vu Quy. Các cô gái mặc áo dài cách tân màu hồng pastel nhẹ nhàng, phối cùng quần lụa trắng và cài tóc ngọc trai đồng bộ. Họ đang đứng và ngồi xung quanh một tấm bảng 'Save the Date' in ảnh cưới của cô dâu chú rể. Bối cảnh là không gian tiệc cưới ngoài trời với cổng hoa đỏ rực rỡ, phông màn đỏ truyền thống và thảm cỏ nhân tạo.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1aKrA9big3qvOiFRuNRs8o-rEqSVTmfP9",
           "md5Checksum": "605bd11a56ef6aad180153cb84e99285",
           "createdAt": "2026-11-06T04:05:02.359Z",
-          "updatedAt": "2026-11-09T16:20:20.589Z"
+          "updatedAt": "2026-11-16T09:16:09.660Z"
         },
         {
           "id": "cmw4garzw00a4tcwsf5uenjhy",
@@ -5748,11 +6977,16 @@ const snapshot = {
             "suggestedCaption": "Đội hình bê tráp lịch lãm, sẵn sàng cho ngày vui trọng đại. Chúc mừng hạnh phúc đôi uyên ương!",
             "visualDescription": "Một hàng các chàng trai bê tráp trong lễ ăn hỏi truyền thống Việt Nam. Các nam thanh niên mặc sơ mi trắng, quần tây đen và thắt nơ lịch lãm, đang cầm trên tay các mâm quả cưới được trang trí cầu kỳ với hoa tươi, trái cây và hình tượng rồng phượng nghệ thuật. Bối cảnh là một con phố nhỏ, không khí tươi vui, rạng rỡ."
           },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Đội hình bê tráp nam trong lễ ăn hỏi với mâm quả rồng phượng truyền thống",
+          "chunkGroup": "Ảnh cưới",
+          "aiContext": "Một hàng các chàng trai bê tráp trong lễ ăn hỏi truyền thống Việt Nam. Các nam thanh niên mặc sơ mi trắng, quần tây đen và thắt nơ lịch lãm, đang cầm trên tay các mâm quả cưới được trang trí cầu kỳ với hoa tươi, trái cây và hình tượng rồng phượng nghệ thuật. Bối cảnh là một con phố nhỏ, không khí tươi vui, rạng rỡ.",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1OeuJ6knLWP1yv7sAmLx4INQ8KtFtTqQs",
           "md5Checksum": "58a04d91a44f9dc58ecab1f48052df1a",
           "createdAt": "2026-11-06T04:04:46.269Z",
-          "updatedAt": "2026-11-09T16:20:20.590Z"
+          "updatedAt": "2026-11-16T09:16:09.721Z"
         }
       ]
     },
@@ -5761,7 +6995,7 @@ const snapshot = {
       "name": "9",
       "slug": "tai-nguyen-9",
       "createdAt": "2026-11-06T03:23:38.646Z",
-      "updatedAt": "2026-11-09T16:20:20.465Z",
+      "updatedAt": "2026-11-11T07:40:42.043Z",
       "files": [
         {
           "id": "cmw4h71fe00fqtcwsido2eqpc",
@@ -5772,12 +7006,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:20.808Z",
+            "mainSubject": "[0060] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0060] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xU_PWwFw4PQGvHsjsPw1-dtF3SzBs3db",
           "md5Checksum": "a9e452afe37fc2dd8caa08a7492e17df",
           "createdAt": "2026-11-06T04:29:51.483Z",
-          "updatedAt": "2026-11-09T16:20:20.590Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h6onu00fotcwsx7bg5wvk",
@@ -5788,12 +7041,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:20.809Z",
+            "mainSubject": "[0059] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1bfAOtmEsaphvn_g_K97pqkWMFbbs-fFj",
           "md5Checksum": "3acb562ea911d0e44445eaef117b9065",
           "createdAt": "2026-11-06T04:29:34.938Z",
-          "updatedAt": "2026-11-09T16:20:20.590Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h6ahu00fmtcws512gnb6v",
@@ -5804,12 +7076,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.129Z",
+            "mainSubject": "[0058] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0058] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ODcQH-EqcyWYjFtJxE0lFdhP_VEkeKbP",
           "md5Checksum": "a1a3c7aef5d168c31a88119c5e4970ea",
           "createdAt": "2026-11-06T04:29:16.579Z",
-          "updatedAt": "2026-11-09T16:20:20.591Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h5ylj00fktcwsy4izxgep",
@@ -5820,12 +7111,31 @@ const snapshot = {
           "width": 2560,
           "height": 1707,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.130Z",
+            "mainSubject": "[0057] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0057] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1cF2VSmK2OfOP3g3Vse585vbUdSpnJeI4",
           "md5Checksum": "9167fc1457126b7033bd41a22113b8dd",
           "createdAt": "2026-11-06T04:29:01.159Z",
-          "updatedAt": "2026-11-09T16:20:20.591Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h5qrs00fitcws21qj1zb9",
@@ -5836,12 +7146,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.445Z",
+            "mainSubject": "[0056] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0056] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1eha3GEygOrrmr2iMbriE-8s5aI3jCWbX",
           "md5Checksum": "a7060eccab935020a0c180d34b45fe0a",
           "createdAt": "2026-11-06T04:28:51.016Z",
-          "updatedAt": "2026-11-09T16:20:20.592Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h5fzn00fgtcws430oy2hs",
@@ -5852,12 +7181,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.445Z",
+            "mainSubject": "[0055] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0055] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1dIND0kpIyYzYJyq77z46CUuTzWQojf8k",
           "md5Checksum": "5e51814efc47b7f7703be8c087c553a9",
           "createdAt": "2026-11-06T04:28:37.044Z",
-          "updatedAt": "2026-11-09T16:20:20.592Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h52fd00fetcwslrn8fa4y",
@@ -5868,12 +7216,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.758Z",
+            "mainSubject": "[0054] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0054] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1-O67ndYSHth6VCQF_a1mARvFHN2w_lWC",
           "md5Checksum": "d0c98c39de5a8e17d2db8c48146b6525",
           "createdAt": "2026-11-06T04:28:19.465Z",
-          "updatedAt": "2026-11-09T16:20:20.592Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h4q1a00fctcws8h4d4glf",
@@ -5884,12 +7251,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:21.758Z",
+            "mainSubject": "[0053] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0053] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "17zlM6PXXhvWWYOcGFcpKPBiTC-9rxw9B",
           "md5Checksum": "b7fb38e340afcc3c4fc256273bbf43e7",
           "createdAt": "2026-11-06T04:28:03.406Z",
-          "updatedAt": "2026-11-09T16:20:20.593Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h4dr100fatcwsz3ov0s40",
@@ -5900,12 +7286,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.072Z",
+            "mainSubject": "[0052] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0052] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1wNWWEH9E1JMo9mYE8kE_ZiaWn0R8MhFD",
           "md5Checksum": "894b9544424b5f48366b6685ccb1f028",
           "createdAt": "2026-11-06T04:27:47.480Z",
-          "updatedAt": "2026-11-09T16:20:20.593Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h43c300f8tcwsm599jx90",
@@ -5916,12 +7321,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.073Z",
+            "mainSubject": "[0051] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0051] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ME1VluXuA9-nWkNVI453lJ3u9aLcASXM",
           "md5Checksum": "32fa8663b98e23ad8d9956f90842e956",
           "createdAt": "2026-11-06T04:27:33.987Z",
-          "updatedAt": "2026-11-09T16:20:20.593Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h3qa000f6tcwsat0f2zg7",
@@ -5932,12 +7356,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.389Z",
+            "mainSubject": "[0050] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0050] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1qhJim4p8xJ31dN0ILz2wl7CWI7qpLLjc",
           "md5Checksum": "06533d4ffd3bbbb63228efcb2683f0bc",
           "createdAt": "2026-11-06T04:27:17.064Z",
-          "updatedAt": "2026-11-09T16:20:20.594Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h3ckq00f4tcwsr3reido4",
@@ -5948,12 +7391,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.390Z",
+            "mainSubject": "[0049] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0049] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1jL5f1YR-mThxEqnn1XtuFjjVZXziE_pK",
           "md5Checksum": "4559d4fdb79c8ea59c5ac7bc97311d1d",
           "createdAt": "2026-11-06T04:26:59.307Z",
-          "updatedAt": "2026-11-09T16:20:20.594Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h31em00f2tcwszjlwimx5",
@@ -5964,12 +7426,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.708Z",
+            "mainSubject": "[0048] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0048] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1LbSFhFjmLhngtzapS6wg6u04Z884Csn0",
           "md5Checksum": "f7839f7f9cc57ceff2b8ea94e29f7f61",
           "createdAt": "2026-11-06T04:26:44.830Z",
-          "updatedAt": "2026-11-09T16:20:20.594Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h2q0600f0tcwslig5buv7",
@@ -5980,12 +7461,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:22.709Z",
+            "mainSubject": "[0047] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0047] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1AZRTZio2md5DoRFzhH6Y42xIInJsdg6G",
           "md5Checksum": "f09c256254bea7e52e1ae68c18d47053",
           "createdAt": "2026-11-06T04:26:30.054Z",
-          "updatedAt": "2026-11-09T16:20:20.595Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h2deq00eytcwszv6zh4yt",
@@ -5996,12 +7496,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.024Z",
+            "mainSubject": "[0046] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0046] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1MGrN6LZZ512CIsFNH7BMBNJzTxGzz0c4",
           "md5Checksum": "812ebb91c03650ee41043326473ebe9f",
           "createdAt": "2026-11-06T04:26:13.731Z",
-          "updatedAt": "2026-11-09T16:20:20.595Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h22vo00ewtcws7zruludz",
@@ -6012,12 +7531,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.025Z",
+            "mainSubject": "[0045] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0045] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Dw2zp9K-CESUu3zCnfvdNOKzIJORnlAY",
           "md5Checksum": "af246378712fe4c081c5c3bfebbd8342",
           "createdAt": "2026-11-06T04:26:00.085Z",
-          "updatedAt": "2026-11-09T16:20:20.595Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h1rih00eutcws4mjp5wuj",
@@ -6028,12 +7566,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.336Z",
+            "mainSubject": "[0044] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0044] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1QjkpgtjPxjPTvGzgKHTY17TR94NP9U5u",
           "md5Checksum": "427d8ffbff420282a861a2cb83e0567a",
           "createdAt": "2026-11-06T04:25:45.353Z",
-          "updatedAt": "2026-11-09T16:20:20.596Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h1gna00estcwsx0qx6d4o",
@@ -6044,12 +7601,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.336Z",
+            "mainSubject": "[0043] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0043] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ddxLKZeY9RZoRBcNTDM6pWJbuua5RQUW",
           "md5Checksum": "076357d44f963094a5c075bc016fdfb2",
           "createdAt": "2026-11-06T04:25:31.270Z",
-          "updatedAt": "2026-11-09T16:20:20.596Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h140z00eqtcwsysbcwa1l",
@@ -6060,12 +7636,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.650Z",
+            "mainSubject": "[0042] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0042] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1LcUpD5m2d3v7_qcjenWcVshF1TVQvtVp",
           "md5Checksum": "d2f7026413336292a3fd77b21c9e36af",
           "createdAt": "2026-11-06T04:25:14.915Z",
-          "updatedAt": "2026-11-09T16:20:20.597Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h0s7t00eotcwsy7cfvxr3",
@@ -6076,12 +7671,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.650Z",
+            "mainSubject": "[0041] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0041] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1lI_9KlS6PHfoqdfkFWcSThhYxxJmFrzu",
           "md5Checksum": "ed6de258988800313b1bb4923da85c85",
           "createdAt": "2026-11-06T04:24:59.609Z",
-          "updatedAt": "2026-11-09T16:20:20.597Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h0d3300emtcwszzd53lim",
@@ -6092,12 +7706,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.961Z",
+            "mainSubject": "[0040] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0040] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1II8GmlxRJPQwBzd4VBE6A933rL3Pi8Nt",
           "md5Checksum": "a769e0ac9590f8d92dc9e785c8a4b907",
           "createdAt": "2026-11-06T04:24:39.999Z",
-          "updatedAt": "2026-11-09T16:20:20.597Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4h031d00ektcwst0r7nu3d",
@@ -6108,12 +7741,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:23.962Z",
+            "mainSubject": "[0039] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0039] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "107y1vs8qiNd9NeeKLkSPXuxPWavlT01u",
           "md5Checksum": "69bc398dc32b76babc938e236cb79758",
           "createdAt": "2026-11-06T04:24:26.977Z",
-          "updatedAt": "2026-11-09T16:20:20.598Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gzpfp00eitcws6kmiyfn3",
@@ -6124,12 +7776,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.276Z",
+            "mainSubject": "[0038] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0038] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1eCaY_xKtxS0IWOpuQyaOVvJuBTI2gHkG",
           "md5Checksum": "f2c105e6ba096d7f389ec2a5581262f5",
           "createdAt": "2026-11-06T04:24:09.349Z",
-          "updatedAt": "2026-11-09T16:20:20.598Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gzblt00egtcws9tx4hgch",
@@ -6140,12 +7811,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.277Z",
+            "mainSubject": "[0037] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0037] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1sTV6m_ISCLCJrLOCObX5VzJMFoB_j3jo",
           "md5Checksum": "0aa3e299f0ea02e584b21f297c15fdfb",
           "createdAt": "2026-11-06T04:23:51.421Z",
-          "updatedAt": "2026-11-09T16:20:20.598Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gyx2100eetcwsunjup95t",
@@ -6156,12 +7846,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.596Z",
+            "mainSubject": "[0036] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0036] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1wMru9MbrL3cNn0A-Ml97PkoQJBsq3-3o",
           "md5Checksum": "d7003aa7911443529ba5980cb0081bf6",
           "createdAt": "2026-11-06T04:23:32.569Z",
-          "updatedAt": "2026-11-09T16:20:20.599Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gymz900ectcwsvkz0njph",
@@ -6172,12 +7881,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.597Z",
+            "mainSubject": "[0035] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0035] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1JDLQrd9255LevbvzupDlouGRFPFrVM1D",
           "md5Checksum": "906bba73fc4d541c3f0cec033eb5115a",
           "createdAt": "2026-11-06T04:23:19.509Z",
-          "updatedAt": "2026-11-09T16:20:20.599Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gy8zp00eatcwsywb4ytqd",
@@ -6188,12 +7916,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.913Z",
+            "mainSubject": "[0034] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0034] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1kpSbnYUtr2pkHqr50O5JQMGkX4HzQ5mD",
           "md5Checksum": "8b3b5f78b0386fad40a673421288859f",
           "createdAt": "2026-11-06T04:23:01.381Z",
-          "updatedAt": "2026-11-09T16:20:20.599Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gxxin00e8tcwshiqsxamm",
@@ -6204,12 +7951,31 @@ const snapshot = {
           "width": 2560,
           "height": 1707,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:24.913Z",
+            "mainSubject": "[0033] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0033] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1sd1VH6IlV7BeDLf1S5eL74MWp7YizMfq",
           "md5Checksum": "17058066f74234caf84e5387abeb6223",
           "createdAt": "2026-11-06T04:22:46.507Z",
-          "updatedAt": "2026-11-09T16:20:20.600Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gxlje00e6tcwspi4ebmzl",
@@ -6220,12 +7986,31 @@ const snapshot = {
           "width": 2560,
           "height": 1707,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.228Z",
+            "mainSubject": "[0032] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0032] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Q2Iz0DLUfQF1HxRSsGnqskeqIwC1BSIL",
           "md5Checksum": "75d34ba0e764a80d45d4d03b7f9c7e28",
           "createdAt": "2026-11-06T04:22:30.987Z",
-          "updatedAt": "2026-11-09T16:20:20.600Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gx8kn00e4tcwsgox9ikoi",
@@ -6236,12 +8021,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.228Z",
+            "mainSubject": "[0031] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0031] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1pTtVdQyH_KcZ8YCQL1zzxEHjp6zqM-Ut",
           "md5Checksum": "dd24ac864bdb684c43bf7c52bf70191e",
           "createdAt": "2026-11-06T04:22:14.183Z",
-          "updatedAt": "2026-11-09T16:20:20.600Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gwy8x00e2tcwsiltmxndn",
@@ -6252,12 +8056,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.545Z",
+            "mainSubject": "[0030] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0030] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1fdbswC-vu1bAAPlpRtd97oKrPlFQucGb",
           "md5Checksum": "1d893db0c0bea5bce49f5962574a3a17",
           "createdAt": "2026-11-06T04:22:00.802Z",
-          "updatedAt": "2026-11-09T16:20:20.601Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gwnfd00e0tcws7yttim0w",
@@ -6268,12 +8091,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.545Z",
+            "mainSubject": "[0029] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0029] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1xNr8NBf_Saqagm42KLHUeWDvUvJX-I0J",
           "md5Checksum": "52aec82d026d0cf6b09f07ee7408f4bb",
           "createdAt": "2026-11-06T04:21:46.777Z",
-          "updatedAt": "2026-11-09T16:20:20.601Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gwbbd00dytcws4qm45x25",
@@ -6284,12 +8126,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.860Z",
+            "mainSubject": "[0028] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0028] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1GmiTOz3Pi8If30JRRsZhzGz837fRm-Rm",
           "md5Checksum": "e165c15f5687e1776b2241eeb089ff2a",
           "createdAt": "2026-11-06T04:21:31.081Z",
-          "updatedAt": "2026-11-09T16:20:20.601Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gw0xc00dwtcwsqkx7p3yz",
@@ -6300,12 +8161,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:25.861Z",
+            "mainSubject": "[0027] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0027] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1WrlGIwPCMYKd_Ez8jCzTqx8vykki-ENk",
           "md5Checksum": "66b476ba8f37f0d380bca80350d4a9f9",
           "createdAt": "2026-11-06T04:21:17.617Z",
-          "updatedAt": "2026-11-09T16:20:20.602Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gvpmr00dutcwszcwookds",
@@ -6316,12 +8196,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.174Z",
+            "mainSubject": "[0026] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0026] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1naQmoXJptBz0HFB2VC4ykqqjwhcCER54",
           "md5Checksum": "1500417f88a0dcc4f0945b0f4ad5adc4",
           "createdAt": "2026-11-06T04:21:02.979Z",
-          "updatedAt": "2026-11-09T16:20:20.602Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gvfc900dstcwsjat8lfdr",
@@ -6332,12 +8231,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.174Z",
+            "mainSubject": "[0025] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0025] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1L4yDHl_T64GtUC0aTJ-So_b-G-wprkhf",
           "md5Checksum": "35eec4654f4ddb2bcf4adbb30cb5fb9d",
           "createdAt": "2026-11-06T04:20:49.642Z",
-          "updatedAt": "2026-11-09T16:20:20.603Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gv5b900dqtcwsdggdokmg",
@@ -6348,12 +8266,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.489Z",
+            "mainSubject": "[0024] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0024] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1JPcNAc4O76wAvtaZf8Gs8HOzZVydjP9k",
           "md5Checksum": "abc71b75ed0b593bddbbeccde48f858e",
           "createdAt": "2026-11-06T04:20:36.645Z",
-          "updatedAt": "2026-11-09T16:20:20.603Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gurzp00dotcwstuovwhnr",
@@ -6364,12 +8301,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.490Z",
+            "mainSubject": "[0023] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0023] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1KWEouDnqWXRLqDFpjcAiFp2-3PcfcvNY",
           "md5Checksum": "e03404fe35673b91cd2c75184d869148",
           "createdAt": "2026-11-06T04:20:19.381Z",
-          "updatedAt": "2026-11-09T16:20:20.603Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4guiig00dmtcwsgt96h892",
@@ -6380,12 +8336,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.805Z",
+            "mainSubject": "[0022] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0022] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1U56cfFCRon2vibegzbflqgCcPHQSqNYJ",
           "md5Checksum": "509fe7163901e71c3ba3b21d5d5be1d5",
           "createdAt": "2026-11-06T04:20:07.097Z",
-          "updatedAt": "2026-11-09T16:20:20.604Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gu6uz00dktcwsrsc36s7o",
@@ -6396,12 +8371,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:26.806Z",
+            "mainSubject": "[0021] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0021] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1TEaSkwZxKV8L8GUAhIXUPbfq4B1bOwdd",
           "md5Checksum": "6bd69fa6d7b32fb09c2cbd04e58a2fad",
           "createdAt": "2026-11-06T04:19:51.995Z",
-          "updatedAt": "2026-11-09T16:20:20.604Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gtwh100ditcwsrlsenx4y",
@@ -6412,12 +8406,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.121Z",
+            "mainSubject": "[0020] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0020] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ooJ9r6hg_qYohBAsquIY7npbnV5h11zJ",
           "md5Checksum": "2883556846817db6d93614d00ce95f84",
           "createdAt": "2026-11-06T04:19:38.533Z",
-          "updatedAt": "2026-11-09T16:20:20.604Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gtns100dgtcws0xc2r568",
@@ -6428,12 +8441,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.121Z",
+            "mainSubject": "[0019] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0019] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1FA-OL-lRx2ZA_6j03NvGlL3PYAbLrHj-",
           "md5Checksum": "f42c860a46cab8545ace730e8e9dbe5b",
           "createdAt": "2026-11-06T04:19:27.265Z",
-          "updatedAt": "2026-11-09T16:20:20.605Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gtd9p00detcwswums4mux",
@@ -6444,12 +8476,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.435Z",
+            "mainSubject": "[0018] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0018] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1QSy_EueqDj7I-Uli2Ro2VDr2hc6MhA2B",
           "md5Checksum": "fa12155cf6cb1effbcec8555e433e013",
           "createdAt": "2026-11-06T04:19:13.645Z",
-          "updatedAt": "2026-11-09T16:20:20.605Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gt2kl00dctcws5fifnxhr",
@@ -6460,12 +8511,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.435Z",
+            "mainSubject": "[0017] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0017] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1uqlQd3ZAHcrHyYbwS0vyMixfBasxncNi",
           "md5Checksum": "9eb0e08578ddf1de277347dfadfbf4ca",
           "createdAt": "2026-11-06T04:18:59.781Z",
-          "updatedAt": "2026-11-09T16:20:20.605Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gspwi00datcws77h8f9kr",
@@ -6476,12 +8546,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.749Z",
+            "mainSubject": "[0016] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0016] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1z2H5KauaHYUC0rRO23LNT5fOqjnOu4FL",
           "md5Checksum": "735aa8c69fceaf8125fe4356e4468b85",
           "createdAt": "2026-11-06T04:18:43.363Z",
-          "updatedAt": "2026-11-09T16:20:20.606Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gsg8600d8tcwsxeigqmga",
@@ -6492,12 +8581,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:27.750Z",
+            "mainSubject": "[0015] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0015] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1a8dHTF6O9cG4NPrYhbU2o2C8UXy7u2D4",
           "md5Checksum": "8337e7c20dd0ec309d3c95da1a5cb612",
           "createdAt": "2026-11-06T04:18:30.822Z",
-          "updatedAt": "2026-11-09T16:20:20.606Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gs43k00d6tcws8ch45hpp",
@@ -6508,12 +8616,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.064Z",
+            "mainSubject": "[0014] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0014] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1QpqfPnGs2Bm0K9nsmVcybF4y-dQVpgGW",
           "md5Checksum": "3f19ba34ad1c3c107bf6d6073556d3f3",
           "createdAt": "2026-11-06T04:18:15.104Z",
-          "updatedAt": "2026-11-09T16:20:20.606Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4grtgl00d4tcws82ajlvo4",
@@ -6524,12 +8651,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.064Z",
+            "mainSubject": "[0013] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0013] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1kqKu3BPlcotn7S-rQ-Q-6DLcMXp-BA_N",
           "md5Checksum": "651f02ca1937de5d66bce870e52ace6c",
           "createdAt": "2026-11-06T04:18:01.317Z",
-          "updatedAt": "2026-11-09T16:20:20.607Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4grhjq00d2tcwsewbgg2xc",
@@ -6540,12 +8686,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.380Z",
+            "mainSubject": "[0012] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0012] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1Py4M2sodGrElg5FaYIbUkiTARMCEbfBS",
           "md5Checksum": "e86ef494a9a996401c208140598b2f02",
           "createdAt": "2026-11-06T04:17:45.879Z",
-          "updatedAt": "2026-11-09T16:20:20.607Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gr4mj00d0tcwsxud8bor1",
@@ -6556,12 +8721,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.380Z",
+            "mainSubject": "[0011] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0011] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1NwU68D52j3DutCGYFnxJrcPUD1MxY87B",
           "md5Checksum": "37ebe51db4cc363e8bffb54c9f1bc667",
           "createdAt": "2026-11-06T04:17:29.131Z",
-          "updatedAt": "2026-11-09T16:20:20.608Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gquyy00cytcws5uns00ie",
@@ -6572,12 +8756,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.696Z",
+            "mainSubject": "[0010] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0010] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1d1VUK1zZGq3SEgCn1qDSLW8lU4Y9KbxS",
           "md5Checksum": "e308c3c1f7484ea6a5526bb5e669378c",
           "createdAt": "2026-11-06T04:17:16.618Z",
-          "updatedAt": "2026-11-09T16:20:20.608Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gqkda00cwtcwstnyotcof",
@@ -6588,12 +8791,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:28.696Z",
+            "mainSubject": "[0009] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0009] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "107cc38DqzmOaJQ8LK7cj-nV4YN-eC9oz",
           "md5Checksum": "7d67dc48ac5a8e559311f5b0fc56bcdc",
           "createdAt": "2026-11-06T04:17:02.878Z",
-          "updatedAt": "2026-11-09T16:20:20.608Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gq5se00cutcws0soey12q",
@@ -6604,12 +8826,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.011Z",
+            "mainSubject": "[0008] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0008] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1oAxmrfrrGHtyQNRJiBTCL3Co9a90cClQ",
           "md5Checksum": "1e97f886b45c19f3684bf8624b19a5ce",
           "createdAt": "2026-11-06T04:16:43.983Z",
-          "updatedAt": "2026-11-09T16:20:20.609Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gpsi300cstcwsg0bz6yxy",
@@ -6620,12 +8861,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.012Z",
+            "mainSubject": "[0007] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0007] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1kJTAGn3liH3yfI8x-aXdydrgcwELEgIX",
           "md5Checksum": "614a5362a38a3d088a99d0ac1f57e5f3",
           "createdAt": "2026-11-06T04:16:26.763Z",
-          "updatedAt": "2026-11-09T16:20:20.609Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gpe7p00cqtcws6uadpukz",
@@ -6636,12 +8896,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.328Z",
+            "mainSubject": "[0006] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0006] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1iBdo9l2ws-2MIFrVUMOYNvCtsz1EpLpQ",
           "md5Checksum": "6864b59d26ca4d3b3bb15dd534dc493e",
           "createdAt": "2026-11-06T04:16:08.245Z",
-          "updatedAt": "2026-11-09T16:20:20.609Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gp2ge00cotcwsdsjx6mgl",
@@ -6652,12 +8931,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.328Z",
+            "mainSubject": "[0005] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0005] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ESN9RxRy5Tn5vYwVczGl2orbJ63SuE0Q",
           "md5Checksum": "6defe03cba312340ec4f1e1d347409ef",
           "createdAt": "2026-11-06T04:15:53.006Z",
-          "updatedAt": "2026-11-09T16:20:20.610Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gonhx00cmtcwsy18m3iw9",
@@ -6668,12 +8966,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.645Z",
+            "mainSubject": "[0004] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0004] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1mfBp1jXbqw2NlBfT0fVQOO7VOAPG-zQu",
           "md5Checksum": "58271a3943d908ba41b2ce97ead2b170",
           "createdAt": "2026-11-06T04:15:33.621Z",
-          "updatedAt": "2026-11-09T16:20:20.610Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4goaf300cktcwsrk6sgjjq",
@@ -6684,12 +9001,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.646Z",
+            "mainSubject": "[0003] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0003] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1ZZ7v5IzfasFfpy9PN7DpDQkNT95w-YJ6",
           "md5Checksum": "ec137bfd5ac5d5ecb8be3beba0dbbc98",
           "createdAt": "2026-11-06T04:15:16.672Z",
-          "updatedAt": "2026-11-09T16:20:20.610Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gnxpp00citcws0xu4prdk",
@@ -6700,12 +9036,31 @@ const snapshot = {
           "width": 2560,
           "height": 3840,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.961Z",
+            "mainSubject": "[0002] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0002] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1uhcnNvXWtz7JpytPQdX3WErEYIVSt4xA",
           "md5Checksum": "c18105a4c9e3701a5679f101e0693fd1",
           "createdAt": "2026-11-06T04:15:00.205Z",
-          "updatedAt": "2026-11-09T16:20:20.611Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         },
         {
           "id": "cmw4gnnj800cgtcwsgskumx1i",
@@ -6716,12 +9071,31 @@ const snapshot = {
           "width": 2560,
           "height": 1707,
           "folderId": "cmw4etvyt000htcwslc2e5jvl",
-          "aiContextChunk": null,
+          "aiContextChunk": {
+            "tags": [
+              "Chân Dung Cô Dâu Chú Rể",
+              "PlusMoments",
+              "Wedding"
+            ],
+            "aiStatus": "DONE",
+            "chunkName": "Chân Dung Cô Dâu Chú Rể",
+            "colorMood": "Tươi sáng & Tự nhiên",
+            "analyzedAt": "2026-11-23T02:14:29.962Z",
+            "mainSubject": "[0001] Hùng & Nhung",
+            "suggestedAlt": "Ảnh cưới Chân Dung Cô Dâu Chú Rể - PlusMoments Studio",
+            "suggestedCaption": "Khoảnh khắc đẹp tại 9",
+            "visualDescription": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0001] Hùng & Nhung.JPG)."
+          },
+          "chunkStatus": "CHUNKED",
+          "chunkTitle": "Chân Dung Cô Dâu Chú Rể",
+          "chunkGroup": "Chân Dung Cô Dâu Chú Rể",
+          "aiContext": "Hình ảnh khoảnh khắc cưới thuộc cụm \"Chân Dung Cô Dâu Chú Rể\" ([0059] Hùng & Nhung.JPG).",
+          "pineconeSynced": false,
           "uploadedById": null,
           "driveFileId": "1aWzgHNv_Xs1hTqwT_niAx_z1QuNMdEva",
           "md5Checksum": "09c3e9591a30405f9f119fcc56d52cfc",
           "createdAt": "2026-11-06T04:14:47.013Z",
-          "updatedAt": "2026-11-09T16:20:20.611Z"
+          "updatedAt": "2026-11-23T02:14:29.972Z"
         }
       ]
     }
@@ -6827,8 +9201,11 @@ const snapshot = {
       "transactionId": null,
       "paidAt": null,
       "notes": null,
+      "basePrice": null,
+      "totalEstimatedPrice": null,
+      "selectedAddons": null,
       "createdAt": "2026-11-09T08:51:51.882Z",
-      "updatedAt": "2026-11-09T16:20:20.612Z"
+      "updatedAt": "2026-11-11T07:40:42.211Z"
     },
     {
       "id": "cmw7wqsn20003sdfwdgc1vg65",
@@ -6844,8 +9221,11 @@ const snapshot = {
       "transactionId": null,
       "paidAt": null,
       "notes": null,
+      "basePrice": null,
+      "totalEstimatedPrice": null,
+      "selectedAddons": null,
       "createdAt": "2026-11-08T14:08:25.983Z",
-      "updatedAt": "2026-11-09T16:20:20.613Z"
+      "updatedAt": "2026-11-11T07:40:42.213Z"
     },
     {
       "id": "cmw7wn0mi0001sdfwdxyl0zjn",
@@ -6861,8 +9241,11 @@ const snapshot = {
       "transactionId": "MBVCB12345678",
       "paidAt": "2026-11-08T14:05:42.351Z",
       "notes": "Kiểm tra không gửi mail sớm trước khi chuyển khoản",
+      "basePrice": null,
+      "totalEstimatedPrice": null,
+      "selectedAddons": null,
       "createdAt": "2026-11-08T14:05:29.707Z",
-      "updatedAt": "2026-11-09T16:20:20.613Z"
+      "updatedAt": "2026-11-11T07:40:42.213Z"
     },
     {
       "id": "cmw7wbyns0001xcc059nue1su",
@@ -6878,8 +9261,11 @@ const snapshot = {
       "transactionId": null,
       "paidAt": null,
       "notes": null,
+      "basePrice": null,
+      "totalEstimatedPrice": null,
+      "selectedAddons": null,
       "createdAt": "2026-11-08T13:56:53.944Z",
-      "updatedAt": "2026-11-09T16:20:20.614Z"
+      "updatedAt": "2026-11-11T07:40:42.214Z"
     },
     {
       "id": "cmw7w0rw80001ugm1731n4dk6",
@@ -6895,8 +9281,11 @@ const snapshot = {
       "transactionId": null,
       "paidAt": null,
       "notes": "Ngày dự kiến: 12/2026 | Muốn chụp ngoại cảnh Đà Lạt bối cảnh hoàng hôn",
+      "basePrice": null,
+      "totalEstimatedPrice": null,
+      "selectedAddons": null,
       "createdAt": "2026-11-08T13:48:11.961Z",
-      "updatedAt": "2026-11-09T16:20:20.614Z"
+      "updatedAt": "2026-11-11T07:40:42.214Z"
     }
   ]
 };
@@ -6913,8 +9302,8 @@ async function main() {
 
   // 1.1 Khởi tạo toàn bộ AdminUser từ snapshot
   if (Array.isArray(snapshot.adminUser)) {
-    for (const u of (snapshot.adminUser)) {
-      const { createdAt, updatedAt, lastLoginAt, albums, posts, mediaFiles, ...userData } = u;
+    for (const u of (snapshot.adminUser as any[])) {
+      const { createdAt, updatedAt, lastLoginAt, albums, posts, mediaFiles, ...userData } = u as any;
       const upserted = await prisma.adminUser.upsert({
         where: { id: u.id },
         update: {
@@ -6986,8 +9375,8 @@ async function main() {
   // BƯỚC 2: CÀI ĐẶT HỆ THỐNG ĐỘC LẬP (SystemSetting, HomePageConfig, NotificationSetting)
   // =========================================================================
   if (Array.isArray(snapshot.systemSetting)) {
-    for (const item of (snapshot.systemSetting)) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.systemSetting as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.systemSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -6998,8 +9387,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.homePageConfig)) {
-    for (const item of (snapshot.homePageConfig)) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.homePageConfig as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.homePageConfig.upsert({
         where: { id: item.id },
         update: data,
@@ -7010,8 +9399,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.notificationSetting)) {
-    for (const item of (snapshot.notificationSetting)) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.notificationSetting as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.notificationSetting.upsert({
         where: { id: item.id },
         update: data,
@@ -7025,8 +9414,8 @@ async function main() {
   // BƯỚC 3: DANH MỤC TAXONOMIES & GÓI DỊCH VỤ (ServicePackage, MediaFolder)
   // =========================================================================
   if (Array.isArray(snapshot.studioLocation)) {
-    for (const item of (snapshot.studioLocation)) {
-      const { createdAt, updatedAt, ...data } = item;
+    for (const item of (snapshot.studioLocation as any[])) {
+      const { createdAt, updatedAt, ...data } = item as any;
       await prisma.studioLocation.upsert({
         where: { id: item.id },
         update: data,
@@ -7038,8 +9427,8 @@ async function main() {
 
   const validServiceCategoryIds = new Set();
   if (Array.isArray(snapshot.serviceCategory)) {
-    for (const item of (snapshot.serviceCategory)) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.serviceCategory as any[])) {
+      const { createdAt, ...data } = item as any;
       const upserted = await prisma.serviceCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -7051,8 +9440,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.albumConcept)) {
-    for (const item of (snapshot.albumConcept)) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.albumConcept as any[])) {
+      const { createdAt, ...data } = item as any;
       await prisma.albumConcept.upsert({
         where: { id: item.id },
         update: data,
@@ -7063,8 +9452,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.blogCategory)) {
-    for (const item of (snapshot.blogCategory)) {
-      const { createdAt, ...data } = item;
+    for (const item of (snapshot.blogCategory as any[])) {
+      const { createdAt, ...data } = item as any;
       await prisma.blogCategory.upsert({
         where: { id: item.id },
         update: data,
@@ -7081,8 +9470,8 @@ async function main() {
     existing.forEach((p) => validPackageIds.add(p.id));
     console.log('✓ ServicePackage: Đã có ' + existingPackagesCount + ' bản ghi, bỏ qua seed để bảo toàn 100% dữ liệu người dùng.');
   } else if (Array.isArray(snapshot.servicePackage)) {
-    for (const item of (snapshot.servicePackage)) {
-      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item;
+    for (const item of (snapshot.servicePackage as any[])) {
+      const { createdAt, updatedAt, albums, blogPosts, orders, categoryId, ...data } = item as any;
       const upserted = await prisma.servicePackage.upsert({
         where: { id: item.id },
         update: data,
@@ -7095,8 +9484,8 @@ async function main() {
 
   const validFolderIds = new Set();
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of (snapshot.mediaFolder)) {
-      const { createdAt, updatedAt, files, ...folderData } = item;
+    for (const item of (snapshot.mediaFolder as any[])) {
+      const { createdAt, updatedAt, files, ...folderData } = item as any;
       const upserted = await prisma.mediaFolder.upsert({
         where: { id: item.id },
         update: folderData,
@@ -7112,8 +9501,8 @@ async function main() {
   // =========================================================================
   const validAlbumIds = new Set();
   if (Array.isArray(snapshot.album)) {
-    for (const item of (snapshot.album)) {
-      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item;
+    for (const item of (snapshot.album as any[])) {
+      const { createdAt, updatedAt, media, package: pkgRel, createdBy: userRel, testimonials, ...albumData } = item as any;
       const safeCreatedById = (albumData.createdById && validAdminUserIds.has(albumData.createdById))
         ? albumData.createdById
         : primaryAdminId;
@@ -7135,8 +9524,8 @@ async function main() {
       validAlbumIds.add(upserted.id);
 
       if (Array.isArray(media)) {
-        for (const m of (media)) {
-          const { createdAt, updatedAt, album: albRel, ...mdata } = m;
+        for (const m of (media as any[])) {
+          const { createdAt, updatedAt, album: albRel, ...mdata } = m as any;
           await prisma.albumMedia.upsert({
             where: { id: m.id },
             update: { ...mdata, albumId: upserted.id },
@@ -7150,8 +9539,8 @@ async function main() {
 
   const validPostIds = new Set();
   if (Array.isArray(snapshot.blogPost)) {
-    for (const item of (snapshot.blogPost)) {
-      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item;
+    for (const item of (snapshot.blogPost as any[])) {
+      const { createdAt, updatedAt, images, package: pkgRel, authorUser: userRel, ...blogData } = item as any;
       const safeAuthorId = (blogData.authorId && validAdminUserIds.has(blogData.authorId))
         ? blogData.authorId
         : primaryAdminId;
@@ -7173,8 +9562,8 @@ async function main() {
       validPostIds.add(upserted.id);
 
       if (Array.isArray(images)) {
-        for (const img of (images)) {
-          const { createdAt, updatedAt, post: postRel, ...imgData } = img;
+        for (const img of (images as any[])) {
+          const { createdAt, updatedAt, post: postRel, ...imgData } = img as any;
           await prisma.postImage.upsert({
             where: { id: img.id },
             update: { ...imgData, postId: upserted.id },
@@ -7190,10 +9579,10 @@ async function main() {
   // BƯỚC 5: CÁC THỰC THỂ PHỤ THUỘC TIẾP THEO (MediaFiles, Testimonials, Leads, Orders)
   // =========================================================================
   if (Array.isArray(snapshot.mediaFolder)) {
-    for (const item of (snapshot.mediaFolder)) {
-      if (Array.isArray((item).files)) {
-        for (const f of ((item).files)) {
-          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f;
+    for (const item of (snapshot.mediaFolder as any[])) {
+      if (Array.isArray((item as any).files)) {
+        for (const f of ((item as any).files as any[])) {
+          const { createdAt, updatedAt, folder: foldRel, uploadedBy: userRel, ...fileData } = f as any;
           const safeFolderId = (fileData.folderId && validFolderIds.has(fileData.folderId))
             ? fileData.folderId
             : null;
@@ -7212,8 +9601,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.mediaFile)) {
-    for (const f of (snapshot.mediaFile)) {
-      const { createdAt, updatedAt, ...fileData } = f;
+    for (const f of (snapshot.mediaFile as any[])) {
+      const { createdAt, updatedAt, ...fileData } = f as any;
       const safeUploadedById = (fileData.uploadedById && validAdminUserIds.has(fileData.uploadedById))
         ? fileData.uploadedById
         : null;
@@ -7228,8 +9617,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.testimonial)) {
-    for (const item of (snapshot.testimonial)) {
-      const { createdAt, updatedAt, ...testData } = item;
+    for (const item of (snapshot.testimonial as any[])) {
+      const { createdAt, updatedAt, ...testData } = item as any;
       const safeAlbumId = (testData.albumId && validAlbumIds.has(testData.albumId))
         ? testData.albumId
         : null;
@@ -7247,8 +9636,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.leadBooking)) {
-    for (const item of (snapshot.leadBooking)) {
-      const { createdAt, updatedAt, package: pkgRel, ...data } = item;
+    for (const item of (snapshot.leadBooking as any[])) {
+      const { createdAt, updatedAt, package: pkgRel, ...data } = item as any;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;
@@ -7268,8 +9657,8 @@ async function main() {
   }
 
   if (Array.isArray(snapshot.order)) {
-    for (const item of (snapshot.order)) {
-      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item;
+    for (const item of (snapshot.order as any[])) {
+      const { createdAt, updatedAt, paidAt, package: pkgRel, ...data } = item as any;
       const safePackageId = (data.packageId && validPackageIds.has(data.packageId))
         ? data.packageId
         : null;

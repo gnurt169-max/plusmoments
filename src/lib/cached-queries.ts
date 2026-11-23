@@ -62,7 +62,7 @@ export const getCachedTestimonials = cache(async () => {
 const fetchAlbumsCached = unstable_cache(
   async () => {
     try {
-      return await prisma.album.findMany({
+      const albums = await prisma.album.findMany({
         where: { published: true },
         orderBy: [
           { featured: 'desc' },
@@ -74,6 +74,10 @@ const fetchAlbumsCached = unstable_cache(
           package: true,
         },
       });
+      return albums.map((a) => ({
+        ...a,
+        package: a.package ? serializeServicePackage(a.package) : null,
+      }));
     } catch {
       return [];
     }
@@ -93,11 +97,11 @@ export const getCachedAlbums = cache(async () => {
  * Serializes Prisma Decimal & Date fields to plain JavaScript types (number & string)
  * to prevent Next.js Flight warning: "Only plain objects can be passed to Client Components from Server Components"
  */
-export function serializePackage<T extends Record<string, any>>(pkg: T | null | undefined): any {
+export function serializeServicePackage<T extends Record<string, any>>(pkg: T | null | undefined): any {
   if (!pkg) return null;
   return {
     ...pkg,
-    price: Number(pkg.price) || 0,
+    price: pkg.price !== null && pkg.price !== undefined ? Number(pkg.price) : 0,
     originalPrice: pkg.originalPrice != null ? Number(pkg.originalPrice) : null,
     createdAt: pkg.createdAt instanceof Date ? pkg.createdAt.toISOString() : pkg.createdAt,
     updatedAt: pkg.updatedAt instanceof Date ? pkg.updatedAt.toISOString() : pkg.updatedAt,
@@ -119,6 +123,8 @@ export function serializePackage<T extends Record<string, any>>(pkg: T | null | 
       : [],
   };
 }
+
+export const serializePackage = serializeServicePackage;
 
 const fetchAlbumBySlugCached = unstable_cache(
   async (slug: string) => {
@@ -257,7 +263,7 @@ export const getCachedBlogs = cache(async () => {
 const fetchBlogBySlugCached = unstable_cache(
   async (slug: string) => {
     try {
-      return await prisma.blogPost.findUnique({
+      const post = await prisma.blogPost.findUnique({
         where: { slug },
         include: {
           package: true,
@@ -266,6 +272,11 @@ const fetchBlogBySlugCached = unstable_cache(
           },
         },
       });
+      if (!post) return null;
+      return {
+        ...post,
+        package: post.package ? serializeServicePackage(post.package) : null,
+      };
     } catch {
       return null;
     }

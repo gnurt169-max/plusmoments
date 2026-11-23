@@ -64,11 +64,23 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.6" },
         },
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        scrollDrop: {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "30%": { opacity: "1" },
+          "70%": { opacity: "1" },
+          "100%": { transform: "translateY(200%)", opacity: "0" },
+        },
       },
       animation: {
         float: "float 6s ease-in-out infinite",
         "float-reverse": "float-reverse 7s ease-in-out infinite",
         "pulse-slow": "pulse-slow 4s ease-in-out infinite",
+        shimmer: "shimmer 2s infinite",
+        "scroll-drop": "scrollDrop 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite",
       },
       boxShadow: {
         luxury: "0 20px 40px -15px rgba(28, 25, 23, 0.07)",

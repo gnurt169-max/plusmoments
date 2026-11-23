@@ -3,15 +3,20 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { getCachedAlbumBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
+import { getCachedAlbumBySlug, getCachedAlbums, getCachedSystemSettings } from '@/lib/cached-queries';
 import { formatDate, toAbsoluteUrl } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
 import { AlbumVideoFacade } from '@/components/albums/AlbumVideoFacade';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
+import { ScrollProgressBar } from '@/components/ui/ScrollProgressBar';
+import { FloatingStoryPill } from '@/components/ui/FloatingStoryPill';
+import { NextStoryTeaser } from '@/components/common/NextStoryTeaser';
 import { MapPin, Calendar, Heart, ArrowLeft, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { normalizeLocationLabel } from '@/lib/album-utils';
+import { resolveMediaListDimensions } from '@/lib/server-image-dimensions';
 
 const ConsultationForm = dynamic(
   () => import('@/components/home/ConsultationForm').then((mod) => mod.ConsultationForm),
@@ -77,8 +82,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BoSuuTapDetailPage({ params }: Props) {
-  const [album, settings] = await Promise.all([
+  const [album, allAlbums, settings] = await Promise.all([
     getCachedAlbumBySlug(params.slug),
+    getCachedAlbums(),
     getCachedSystemSettings(),
   ]);
 
@@ -89,8 +95,29 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const albumUrl = `${baseUrl}/bo-suu-tap/${album.slug}`;
 
+  // Find next album for the Next Story Teaser
+  const currentIdx = allAlbums.findIndex((a) => a.slug === params.slug);
+  const nextAlbum =
+    allAlbums.length > 1
+      ? allAlbums[(currentIdx + 1) % allAlbums.length]
+      : null;
+
+  // Resolve true physical dimensions (portrait vs landscape) to eliminate jumping/resizing
+  const resolvedMedia = await resolveMediaListDimensions(album.media);
+
   return (
     <div className="pt-28 pb-24">
+      {/* 1. EDITORIAL READING PROGRESS BAR */}
+      <ScrollProgressBar />
+
+      {/* 2. FLOATING STORY & CONSULTATION PILL */}
+      <FloatingStoryPill
+        title={album.title}
+        type="album"
+        conceptName={album.concept}
+        targetFormId="consultation-section"
+      />
+
       {/* Schema.org BreadcrumbList & ImageGallery */}
       <BreadcrumbJsonLd
         items={[
@@ -103,7 +130,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         name={album.title}
         description={album.description || album.title}
         url={albumUrl}
-        images={album.media.map((m) => ({
+        images={resolvedMedia.map((m) => ({
           url: m.url,
           caption: m.caption || m.altText,
           width: m.width,
@@ -124,7 +151,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         </div>
 
         {/* Album Header Info */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <EditorialReveal className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne text-luxury-800 text-xs uppercase tracking-widest font-semibold">
             <span>{album.concept}</span>
           </div>
@@ -159,7 +186,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
               {album.description}
             </p>
           )}
-        </div>
+        </EditorialReveal>
 
         {/* 1. ALBUM COVER HERO - Full Aspect Ratio Preservation (Zero Cropping) */}
         {album.coverImage && (
@@ -218,7 +245,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
             </span>
           </div>
 
-          <AlbumMasonryGallery media={album.media} albumTitle={album.title} />
+          <AlbumMasonryGallery media={resolvedMedia} albumTitle={album.title} />
         </div>
 
         {/* LINKED PRICING PACKAGE (CROSS-SELL WIDGET) */}
@@ -231,8 +258,21 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
           </div>
         )}
 
-        {/* 3. Consultation CTA tailored to this album */}
-        <div className="pt-16 max-w-2xl mx-auto">
+        {/* 3. NEXT STORY TEASER (HÀNH TRÌNH TIẾP THEO) */}
+        {nextAlbum && (
+          <NextStoryTeaser
+            type="album"
+            title={nextAlbum.title}
+            subtitle={nextAlbum.subtitle || nextAlbum.description}
+            coverImage={nextAlbum.coverImage}
+            href={`/bo-suu-tap/${nextAlbum.slug}`}
+            badge={nextAlbum.concept}
+            coupleNames={nextAlbum.coupleNames}
+          />
+        )}
+
+        {/* 4. Consultation CTA tailored to this album */}
+        <EditorialReveal id="consultation-section" className="pt-16 max-w-2xl mx-auto">
           <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-10 shadow-xl text-center space-y-4">
             <Sparkles className="w-8 h-8 text-luxury-500 mx-auto" />
             <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
@@ -245,7 +285,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
               <ConsultationForm defaultPackage={album.concept} />
             </div>
           </div>
-        </div>
+        </EditorialReveal>
       </div>
     </div>
   );

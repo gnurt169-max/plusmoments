@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getCachedBlogBySlug, getCachedSystemSettings } from '@/lib/cached-queries';
+import { getCachedBlogBySlug, getCachedBlogs, getCachedSystemSettings } from '@/lib/cached-queries';
 import { formatDate, toAbsoluteUrl } from '@/lib/utils';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
@@ -12,6 +12,11 @@ import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { isOptimizedUploadWebp } from '@/lib/image-utils';
 import { ArrowLeft, Clock, Calendar, User, Sparkles, Images } from 'lucide-react';
 import DOMPurify from 'isomorphic-dompurify';
+import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
+import { ScrollProgressBar } from '@/components/ui/ScrollProgressBar';
+import { FloatingStoryPill } from '@/components/ui/FloatingStoryPill';
+import { NextStoryTeaser } from '@/components/common/NextStoryTeaser';
+import { resolveMediaListDimensions } from '@/lib/server-image-dimensions';
 
 interface Props {
   params: { slug: string };
@@ -97,14 +102,7 @@ function formatHtmlOrMarkdown(raw: string): string {
       .replace(/<p>/gi, '<p class="text-stone-700 leading-relaxed mb-5 font-light text-base sm:text-[17px]">')
       .replace(/<ul>/gi, '<ul class="list-disc pl-5 my-4 space-y-1.5 text-stone-700">')
       .replace(/<ol>/gi, '<ol class="list-decimal pl-5 my-4 space-y-1.5 text-stone-700">')
-      .replace(/<li>/gi, '<li class="my-1 leading-relaxed">')
-      .replace(/<div class="[^"]*grid[^"]*grid-cols-2[^"]*">/gi, '<div class="columns-1 md:columns-2 gap-6 my-6">')
-      .replace(/<figure([^>]*)>/gi, (match, p1) => {
-        if (/class="/i.test(p1)) {
-          return `<figure${p1.replace(/class="([^"]*)"/i, 'class="$1 break-inside-avoid mb-6"')}>`;
-        }
-        return `<figure class="break-inside-avoid mb-6"${p1}>`;
-      });
+      .replace(/<li>/gi, '<li class="my-1 leading-relaxed">');
   }
 
   return str;
@@ -112,7 +110,16 @@ function formatHtmlOrMarkdown(raw: string): string {
 
 function renderContentWithImages(
   content: string,
-  images: Array<{ id: string; url: string; alt: string | null; caption: string | null; orderIndex: number }>,
+  images: Array<{
+    id: string;
+    url: string;
+    alt: string | null;
+    caption: string | null;
+    orderIndex: number;
+    width?: number | null;
+    height?: number | null;
+    orientation?: 'landscape' | 'portrait';
+  }>,
   postTitle: string
 ) {
   const usedIndices = new Set<number>();
@@ -141,20 +148,24 @@ function renderContentWithImages(
 
       if (targetImg) {
         usedIndices.add(imgIdx);
+        const isPortrait = targetImg.orientation === 'portrait';
         parts.push(
           <figure
             key={`sc-img-${match.index}`}
             className="my-6 flex flex-col items-center w-full break-inside-avoid"
           >
-            <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
-              <ProtectedImage
+            <div className={`w-full ${isPortrait ? 'max-w-md sm:max-w-lg' : 'max-w-3xl'}`}>
+              <ProgressiveImage
                 src={targetImg.url}
                 alt={targetImg.alt || postTitle}
-                loading="lazy"
-                decoding="async"
+                orientation={targetImg.orientation}
+                aspectRatio={isPortrait ? '3/4' : '3/2'}
+                aspectClassName={isPortrait ? 'aspect-[3/4]' : 'aspect-[3/2]'}
+                priority={false}
                 watermark
                 watermarkText="PlusMoments Photography"
-                imageClassName="w-full h-auto object-cover block transition duration-300 hover:scale-[1.01]"
+                className="rounded-2xl border border-[#E8E2D9] shadow-sm"
+                imageClassName="w-full h-full object-cover block"
               />
             </div>
             {targetImg.caption && (
@@ -173,15 +184,18 @@ function renderContentWithImages(
           key={`md-img-${match.index}`}
           className="my-6 flex flex-col items-center w-full break-inside-avoid"
         >
-          <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
-            <ProtectedImage
+          <div className="w-full max-w-3xl">
+            <ProgressiveImage
               src={mdUrl}
               alt={mdAlt || postTitle}
-              loading="lazy"
-              decoding="async"
+              orientation="landscape"
+              aspectRatio="3/2"
+              aspectClassName="aspect-[3/2]"
+              priority={false}
               watermark
               watermarkText="PlusMoments Photography"
-              imageClassName="w-full h-auto object-cover block transition duration-300 hover:scale-[1.01]"
+              className="rounded-2xl border border-[#E8E2D9] shadow-sm"
+              imageClassName="w-full h-full object-cover block"
             />
           </div>
           {mdAlt && (
@@ -210,9 +224,138 @@ function renderContentWithImages(
   return { parts, usedIndices };
 }
 
+interface BlogImageItem {
+  id: string;
+  url: string;
+  alt: string | null;
+  caption: string | null;
+  orientation?: 'landscape' | 'portrait';
+}
+
+function renderBlogFigureCard(
+  img: BlogImageItem,
+  aspectClass: string,
+  wrapperClass: string = 'w-full',
+  isPriority: boolean = false
+) {
+  const isPortrait = img.orientation === 'portrait';
+  const resolvedAspect = aspectClass || (isPortrait ? 'aspect-[3/4]' : 'aspect-[3/2]');
+
+  return (
+    <figure className={`flex flex-col items-center ${wrapperClass} overflow-hidden my-3 sm:my-4`}>
+      <ProgressiveImage
+        src={img.url}
+        alt={img.alt || 'Hình ảnh phóng sự cưới'}
+        orientation={img.orientation}
+        aspectRatio={resolvedAspect.includes('3/4') ? '3/4' : '3/2'}
+        aspectClassName={resolvedAspect}
+        priority={isPriority}
+        watermark
+        watermarkText="PlusMoments Photography"
+        className="rounded-2xl border border-[#E8E2D9] shadow-sm"
+        imageClassName="w-full h-full object-cover block"
+      />
+      {img.caption && (
+        <figcaption className="mt-2.5 sm:mt-3 text-center text-xs sm:text-sm text-[#78716C] italic font-serif max-w-xl px-4 leading-relaxed">
+          {img.caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+function renderBalancedBlogImageSection(images: BlogImageItem[]) {
+  const rows: Array<
+    | { type: 'pair-portrait'; items: [BlogImageItem, BlogImageItem] }
+    | { type: 'pair-landscape'; items: [BlogImageItem, BlogImageItem] }
+    | { type: 'single-portrait'; items: [BlogImageItem] }
+    | { type: 'single-landscape'; items: [BlogImageItem] }
+  > = [];
+
+  let i = 0;
+  while (i < images.length) {
+    const current = images[i];
+    const next = images[i + 1];
+
+    if (next && next.orientation === current.orientation) {
+      if (current.orientation === 'portrait') {
+        rows.push({ type: 'pair-portrait', items: [current, next] });
+      } else {
+        rows.push({ type: 'pair-landscape', items: [current, next] });
+      }
+      i += 2;
+    } else {
+      if (current.orientation === 'portrait') {
+        rows.push({ type: 'single-portrait', items: [current] });
+      } else {
+        rows.push({ type: 'single-landscape', items: [current] });
+      }
+      i += 1;
+    }
+  }
+
+  return (
+    <div className="space-y-4 sm:space-y-6 pt-4 [overflow-anchor:none]">
+      {rows.map((row, rowIdx) => {
+        if (row.type === 'pair-portrait') {
+          return (
+            <div
+              key={`row-pair-port-${rowIdx}-${row.items[0].id}`}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 items-start"
+            >
+              {row.items.map((img) => renderBlogFigureCard(img, 'aspect-[3/4]', 'w-full'))}
+            </div>
+          );
+        }
+
+        if (row.type === 'pair-landscape') {
+          return (
+            <div
+              key={`row-pair-land-${rowIdx}-${row.items[0].id}`}
+              className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 items-start"
+            >
+              {row.items.map((img) => renderBlogFigureCard(img, 'aspect-[3/2]', 'w-full'))}
+            </div>
+          );
+        }
+
+        if (row.type === 'single-portrait') {
+          return (
+            <div
+              key={`row-single-port-${rowIdx}-${row.items[0].id}`}
+              className="flex justify-center"
+            >
+              {renderBlogFigureCard(
+                row.items[0],
+                'aspect-[3/4]',
+                'w-full max-w-[460px] mx-auto'
+              )}
+            </div>
+          );
+        }
+
+        // single-landscape
+        return (
+          <div
+            key={`row-single-land-${rowIdx}-${row.items[0].id}`}
+            className="w-full flex justify-center"
+          >
+            {renderBlogFigureCard(
+              row.items[0],
+              'aspect-[3/2]',
+              'w-full max-w-4xl mx-auto'
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function BlogPostPage({ params }: Props) {
-  const [post, settings] = await Promise.all([
+  const [post, allBlogs, settings] = await Promise.all([
     getCachedBlogBySlug(params.slug),
+    getCachedBlogs(),
     getCachedSystemSettings(),
   ]);
 
@@ -223,13 +366,22 @@ export default async function BlogPostPage({ params }: Props) {
   const baseUrl = settings.canonicalBaseUrl || 'https://plusmoments.vn';
   const postUrl = `${baseUrl}/blog/${post.slug}`;
 
+  // Find next blog post for Next Story Teaser
+  const currentIdx = allBlogs.findIndex((b) => b.slug === params.slug);
+  const nextPost =
+    allBlogs.length > 1
+      ? allBlogs[(currentIdx + 1) % allBlogs.length]
+      : null;
+
+  const resolvedImages = await resolveMediaListDimensions(post.images || []);
+
   const { parts: renderedContent, usedIndices } = renderContentWithImages(
     post.content,
-    post.images || [],
+    resolvedImages,
     post.title
   );
 
-  const unusedImages = (post.images || []).filter((_, idx) => !usedIndices.has(idx));
+  const unusedImages = resolvedImages.filter((_, idx) => !usedIndices.has(idx));
 
   // Article JSON-LD with absolute image URL for 100% Google Rich Results validation
   const absoluteCoverImage = post.coverImage
@@ -266,6 +418,17 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article className="pt-32 pb-24">
+      {/* 1. EDITORIAL READING PROGRESS BAR */}
+      <ScrollProgressBar />
+
+      {/* 2. FLOATING STORY & CONSULTATION PILL */}
+      <FloatingStoryPill
+        title={post.title}
+        type="blog"
+        conceptName={post.category || undefined}
+        targetFormId="consultation-section"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -315,15 +478,16 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {/* Featured Cover Image */}
-        <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-luxury bg-champagne-light">
-          <SafeImage
-            src={post.coverImage}
+        <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-luxury bg-[#FAF8F5]">
+          <ProgressiveImage
+            src={post.coverImage || ''}
             alt={post.title}
-            fill
             priority={true}
-            fetchPriority="high"
+            aspectRatio="16/9"
+            aspectClassName="aspect-[16/9]"
             sizes="(max-width: 1024px) 100vw, 1024px"
-            className="object-cover"
+            className="w-full h-full"
+            imageClassName="w-full h-full object-cover"
           />
         </div>
 
@@ -354,31 +518,7 @@ export default async function BlogPostPage({ params }: Props) {
               </p>
             </div>
 
-            <div className="columns-1 md:columns-2 gap-6 space-y-6 pt-4">
-              {unusedImages.map((img, i) => (
-                <figure
-                  key={img.id || i}
-                  className="break-inside-avoid mb-6 flex flex-col items-center w-full overflow-hidden"
-                >
-                  <div className="relative w-full rounded-2xl overflow-hidden bg-[#FAF8F5] border border-[#E8E2D9] shadow-sm">
-                    <ProtectedImage
-                      src={img.url}
-                      alt={img.alt || `${post.title} - Ảnh ${i + 1}`}
-                      loading="lazy"
-                      decoding="async"
-                      watermark
-                      watermarkText="PlusMoments Photography"
-                      imageClassName="w-full h-auto object-cover block transition duration-300 hover:scale-[1.01]"
-                    />
-                  </div>
-                  {img.caption && (
-                    <figcaption className="mt-3 text-center text-xs sm:text-sm text-[#78716C] italic font-serif max-w-xl px-4">
-                      {img.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
+            {renderBalancedBlogImageSection(unusedImages)}
           </section>
         )}
 
@@ -392,8 +532,20 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
 
-        {/* Bottom Consultation Box */}
-        <div className="pt-12 border-t border-champagne-dark/30">
+        {/* 3. NEXT STORY TEASER (HÀNH TRÌNH TIẾP THEO) */}
+        {nextPost && (
+          <NextStoryTeaser
+            type="blog"
+            title={nextPost.title}
+            subtitle={nextPost.summary}
+            coverImage={nextPost.coverImage}
+            href={`/blog/${nextPost.slug}`}
+            badge={nextPost.category}
+          />
+        )}
+
+        {/* 4. Bottom Consultation Box */}
+        <div id="consultation-section" className="pt-12 border-t border-champagne-dark/30">
           <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-10 shadow-lg text-center space-y-4">
             <Sparkles className="w-8 h-8 text-luxury-500 mx-auto" />
             <h2 className="font-serif text-2xl font-light text-charcoal-900">

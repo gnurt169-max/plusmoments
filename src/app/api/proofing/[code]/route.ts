@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { getProofingCookieName, verifyProofingToken } from '@/lib/proofing-auth';
 import { scanProofingFolderImages } from '@/lib/proofing-fs';
+import { resolveMediaListDimensions } from '@/lib/server-image-dimensions';
 import { getSystemSettings } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
@@ -54,8 +55,9 @@ export async function GET(_request: Request, { params }: Props) {
       );
     }
 
-    // Authenticated: scan and return full gallery photos
-    const photos = scanProofingFolderImages(gallery.folderSlug);
+    // Authenticated: scan and return full gallery photos with physical dimensions & orientation
+    const rawPhotos = scanProofingFolderImages(gallery.folderSlug);
+    const photos = await resolveMediaListDimensions(rawPhotos);
 
     let selections: Record<string, { photobook?: boolean; portrait?: boolean; note?: string }> = {};
     try {

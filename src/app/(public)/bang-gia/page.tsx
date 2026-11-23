@@ -15,6 +15,7 @@ import {
 } from '@/components/seo/JsonLdSchema';
 import { AllPackagesCatalog } from '@/components/pricing/AllPackagesCatalog';
 import { ConsultationForm } from '@/components/home/ConsultationForm';
+import { EditorialReveal } from '@/components/ui/EditorialReveal';
 import { HelpCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import type { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import {
@@ -78,8 +79,8 @@ export default async function BangGiaPage() {
       slug: pkg.slug,
       category: pkg.category,
       subtitle: pkg.subtitle,
-      price: Number(pkg.price),
-      originalPrice: pkg.originalPrice ? Number(pkg.originalPrice) : null,
+      price: pkg.price !== null && pkg.price !== undefined ? Number(pkg.price) : 0,
+      originalPrice: pkg.originalPrice !== null && pkg.originalPrice !== undefined ? Number(pkg.originalPrice) : null,
       unit: pkg.unit,
       coverImage: pkg.coverImage,
       demoImages: pkg.demoImages,
@@ -172,7 +173,7 @@ export default async function BangGiaPage() {
       {faqs.length > 0 && <FaqJsonLd faqs={faqs} />}
 
       {/* HEADER SECTION */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <EditorialReveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.25em] px-4 py-1.5 rounded-full bg-amber-100/70 border border-amber-200 text-amber-900">
           Minh Bạch & Tối Ưu
         </span>
@@ -182,7 +183,7 @@ export default async function BangGiaPage() {
         <p className="text-xs sm:text-sm font-light text-charcoal-600 max-w-2xl mx-auto leading-relaxed">
           Khám phá tất cả các gói dịch vụ ảnh cưới cao cấp của PlusMoments. Cam kết 100% không phát sinh chi phí, bảo lưu ưu đãi 2.000.000đ khi đăng ký trực tuyến hôm nay.
         </p>
-      </div>
+      </EditorialReveal>
 
       {/* FULL CATALOG WITH CATEGORY FILTER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,7 +193,7 @@ export default async function BangGiaPage() {
 
       {/* FAQ SECTION - Only render when FAQs exist */}
       {faqs.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <EditorialReveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto pt-6 space-y-8">
             <div className="text-center space-y-2">
               <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
@@ -220,11 +221,11 @@ export default async function BangGiaPage() {
               ))}
             </div>
           </div>
-        </div>
+        </EditorialReveal>
       )}
 
       {/* CONSULTATION FORM ANCHOR */}
-      <div id="tu-van-goi" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <EditorialReveal id="tu-van-goi" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         <div className="bg-white border-2 border-champagne-gold/40 rounded-3xl p-8 sm:p-12 shadow-xl">
           <div className="text-center space-y-2 mb-8">
             <Sparkles className="w-7 h-7 text-luxury-500 mx-auto" />
@@ -237,7 +238,7 @@ export default async function BangGiaPage() {
           </div>
           <ConsultationForm />
         </div>
-      </div>
+      </EditorialReveal>
     </div>
   );
 }
