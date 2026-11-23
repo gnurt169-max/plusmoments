@@ -88,6 +88,7 @@ export default function CreateWeddingInvitationPage() {
 
   // UI States
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [previewKey, setPreviewKey] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdResult, setCreatedResult] = useState<{
@@ -949,11 +950,20 @@ export default function CreateWeddingInvitationPage() {
           {/* RIGHT COLUMN: LIVE PHONE PREVIEW (col-span-5) */}
           {/* ========================================================= */}
           <div className="hidden lg:block lg:col-span-5 sticky top-28">
-            <div className="text-center mb-3">
-              <span className="text-[11px] font-mono text-stone-500 uppercase tracking-widest flex items-center justify-center gap-1.5">
+            <div className="flex items-center justify-between mb-3 px-2">
+              <span className="text-[11px] font-mono text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
                 <Smartphone className="w-3.5 h-3.5 text-[#8C6D46]" />
-                <span>Khung Xem Trước Điện Thoại Trực Tiếp (Live Preview)</span>
+                <span>Live Preview</span>
               </span>
+              <button
+                type="button"
+                onClick={() => setPreviewKey((prev) => prev + 1)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6D46] text-[11px] font-medium transition-colors cursor-pointer"
+                title="Khởi động lại hiệu ứng mở phong bì 3D"
+              >
+                <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+                <span>Xem hiệu ứng mở phong bì</span>
+              </button>
             </div>
 
             {/* Smartphone Mockup Frame */}
@@ -963,7 +973,7 @@ export default function CreateWeddingInvitationPage() {
 
               {/* Screen Viewport with Scroll */}
               <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-white relative no-scrollbar">
-                <WeddingInvitationView data={livePreviewData} isPreview={true} />
+                <WeddingInvitationView key={previewKey} data={livePreviewData} isPreview={true} />
               </div>
             </div>
           </div>
@@ -974,7 +984,17 @@ export default function CreateWeddingInvitationPage() {
       {showMobilePreview && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col">
           <div className="p-4 bg-stone-900 text-white flex items-center justify-between">
-            <span className="text-xs font-mono uppercase tracking-wider">Xem Trước Thiệp Cưới</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono uppercase tracking-wider">Xem Trước Thiệp Cưới</span>
+              <button
+                type="button"
+                onClick={() => setPreviewKey((prev) => prev + 1)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 text-[11px]"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Thử mở phong bì</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setShowMobilePreview(false)}
@@ -984,7 +1004,7 @@ export default function CreateWeddingInvitationPage() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto">
-            <WeddingInvitationView data={livePreviewData} isPreview={true} />
+            <WeddingInvitationView key={previewKey} data={livePreviewData} isPreview={true} />
           </div>
         </div>
       )}
