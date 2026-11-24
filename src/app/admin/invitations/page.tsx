@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { INVITATION_TEMPLATES } from '@/lib/invitations/templates';
 import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
+import { AdminMediaPickerModal } from '@/components/admin/AdminMediaPickerModal';
 
 interface InvitationRsvpItem {
   id: string;
@@ -95,6 +96,19 @@ export default function AdminInvitationsPage() {
   const [selectedForDelete, setSelectedForDelete] = useState<AdminInvitationItem | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Media Picker Modal State
+  const [mediaPickerConfig, setMediaPickerConfig] = useState<{
+    isOpen: boolean;
+    multiple: boolean;
+    target: 'create-cover' | 'create-groom' | 'create-bride' | 'create-gallery' | 'edit-cover' | 'edit-groom' | 'edit-bride' | 'edit-gallery' | null;
+    title: string;
+  }>({
+    isOpen: false,
+    multiple: false,
+    target: null,
+    title: '',
+  });
 
   // Create Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -499,6 +513,94 @@ export default function AdminInvitationsPage() {
       ...prev,
       galleryImages: (prev.galleryImages || []).filter((_, idx) => idx !== indexToRemove),
     }));
+  };
+
+  // Open Media Picker for Target
+  const openMediaPicker = (
+    target: 'create-cover' | 'create-groom' | 'create-bride' | 'create-gallery' | 'edit-cover' | 'edit-groom' | 'edit-bride' | 'edit-gallery',
+    title: string,
+    multiple = false
+  ) => {
+    setMediaPickerConfig({
+      isOpen: true,
+      multiple,
+      target,
+      title,
+    });
+  };
+
+  // Handle Media Picker Selection
+  const handleMediaPickerSelect = (selectedUrls: string[], selectedItems: any[]) => {
+    if (!mediaPickerConfig.target || selectedUrls.length === 0) return;
+
+    const firstUrl = selectedUrls[0];
+
+    switch (mediaPickerConfig.target) {
+      case 'create-cover':
+        setCreateForm((prev) => ({ ...prev, coverImage: firstUrl }));
+        showToast('Đã chọn ảnh bìa từ Kho Media!');
+        break;
+      case 'create-groom':
+        setCreateForm((prev) => ({ ...prev, groomImage: firstUrl }));
+        showToast('Đã chọn ảnh Chú Rể từ Kho Media!');
+        break;
+      case 'create-bride':
+        setCreateForm((prev) => ({ ...prev, brideImage: firstUrl }));
+        showToast('Đã chọn ảnh Cô Dâu từ Kho Media!');
+        break;
+      case 'create-gallery': {
+        const currentUrls = new Set(createForm.galleryImages.map((img: any) => typeof img === 'string' ? img : img.url));
+        const newAdditions = selectedUrls
+          .filter((url) => !currentUrls.has(url))
+          .map((url) => {
+            const item = selectedItems.find((i) => i.url === url);
+            return {
+              url,
+              width: item?.width || 1200,
+              height: item?.height || 800,
+              caption: '',
+            };
+          });
+        setCreateForm((prev) => ({
+          ...prev,
+          galleryImages: [...prev.galleryImages, ...newAdditions],
+        }));
+        showToast(`Đã thêm ${newAdditions.length} ảnh từ Kho Media vào album!`);
+        break;
+      }
+      case 'edit-cover':
+        setEditForm((prev) => ({ ...prev, coverImage: firstUrl }));
+        showToast('Đã chọn ảnh bìa từ Kho Media!');
+        break;
+      case 'edit-groom':
+        setEditForm((prev) => ({ ...prev, groomImage: firstUrl }));
+        showToast('Đã chọn ảnh Chú Rể từ Kho Media!');
+        break;
+      case 'edit-bride':
+        setEditForm((prev) => ({ ...prev, brideImage: firstUrl }));
+        showToast('Đã chọn ảnh Cô Dâu từ Kho Media!');
+        break;
+      case 'edit-gallery': {
+        const currentUrls = new Set((editForm.galleryImages || []).map((img: any) => typeof img === 'string' ? img : img.url));
+        const newAdditions = selectedUrls
+          .filter((url) => !currentUrls.has(url))
+          .map((url) => {
+            const item = selectedItems.find((i) => i.url === url);
+            return {
+              url,
+              width: item?.width || 1200,
+              height: item?.height || 800,
+              caption: '',
+            };
+          });
+        setEditForm((prev) => ({
+          ...prev,
+          galleryImages: [...(prev.galleryImages || []), ...newAdditions],
+        }));
+        showToast(`Đã thêm ${newAdditions.length} ảnh từ Kho Media vào album!`);
+        break;
+      }
+    }
   };
 
   // Open Create Modal
@@ -1487,35 +1589,48 @@ export default function AdminInvitationsPage() {
 
               {/* Cover Image */}
               <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
-                <label className="block font-semibold text-stone-800 text-xs">
-                  1. Ảnh Bìa Thiệp Cưới (Hero Cover)
-                </label>
-                <p className="text-[11px] text-stone-500">
-                  💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={editForm.coverImage}
-                    onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
-                    className="flex-1 h-9 px-3 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
-                  />
-                  <label className="h-9 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
-                    {isUploadingCover ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Upload className="w-3.5 h-3.5 text-stone-600" />
-                    )}
-                    <span>{isUploadingCover ? 'Đang tải...' : 'Tải ảnh lên'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={isUploadingCover}
-                      onChange={handleUploadCover}
-                    />
-                  </label>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <div>
+                    <label className="block font-semibold text-stone-800 text-xs">
+                      1. Ảnh Bìa Thiệp Cưới (Hero Cover)
+                    </label>
+                    <p className="text-[11px] text-stone-500">
+                      💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                      {isUploadingCover ? (
+                        <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                      ) : (
+                        <Upload className="w-3 h-3 text-stone-600" />
+                      )}
+                      <span>{isUploadingCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={isUploadingCover}
+                        onChange={handleUploadCover}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker('edit-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Edit)')}
+                      className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
+                    >
+                      <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
+                      <span>Chọn từ Kho Media</span>
+                    </button>
+                  </div>
                 </div>
+
+                <input
+                  type="text"
+                  value={editForm.coverImage}
+                  onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
+                />
                 {editForm.coverImage && (
                   <div className="w-20 h-28 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
                     <img
@@ -1541,30 +1656,40 @@ export default function AdminInvitationsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Groom */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể (The Groom)</span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={editForm.groomImage}
-                        onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
-                        className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                      />
-                      <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
-                        {isUploadingGroom ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                        ) : (
-                          <Upload className="w-3 h-3 text-stone-600" />
-                        )}
-                        <span>{isUploadingGroom ? '...' : 'Tải'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={isUploadingGroom}
-                          onChange={handleUploadGroom}
-                        />
-                      </label>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
+                      <div className="flex items-center gap-1">
+                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                          {isUploadingGroom ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                          ) : (
+                            <Upload className="w-2.5 h-2.5 text-stone-600" />
+                          )}
+                          <span>{isUploadingGroom ? '...' : 'Tải'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={isUploadingGroom}
+                            onChange={handleUploadGroom}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker('edit-groom', 'Chọn Chân Dung Chú Rể (Edit)')}
+                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                        >
+                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                          <span>Kho Media</span>
+                        </button>
+                      </div>
                     </div>
+                    <input
+                      type="text"
+                      value={editForm.groomImage}
+                      onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
                     {editForm.groomImage && (
                       <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
                         <img
@@ -1584,30 +1709,40 @@ export default function AdminInvitationsPage() {
 
                   {/* Bride */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu (The Bride)</span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={editForm.brideImage}
-                        onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
-                        className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                      />
-                      <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
-                        {isUploadingBride ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                        ) : (
-                          <Upload className="w-3 h-3 text-stone-600" />
-                        )}
-                        <span>{isUploadingBride ? '...' : 'Tải'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={isUploadingBride}
-                          onChange={handleUploadBride}
-                        />
-                      </label>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
+                      <div className="flex items-center gap-1">
+                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                          {isUploadingBride ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                          ) : (
+                            <Upload className="w-2.5 h-2.5 text-stone-600" />
+                          )}
+                          <span>{isUploadingBride ? '...' : 'Tải'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={isUploadingBride}
+                            onChange={handleUploadBride}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker('edit-bride', 'Chọn Chân Dung Cô Dâu (Edit)')}
+                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                        >
+                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                          <span>Kho Media</span>
+                        </button>
+                      </div>
                     </div>
+                    <input
+                      type="text"
+                      value={editForm.brideImage}
+                      onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
                     {editForm.brideImage && (
                       <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
                         <img
@@ -1674,7 +1809,7 @@ export default function AdminInvitationsPage() {
 
               {/* Visual Gallery Image Manager */}
               <div className="space-y-2 pt-1 border-t border-stone-100">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <label className="block font-medium text-stone-700">
                       Album Ảnh Cưới & Khoảnh Khắc (Gallery)
@@ -1683,22 +1818,32 @@ export default function AdminInvitationsPage() {
                       Khách mời có thể vuốt xem và phóng to trọn màn hình
                     </p>
                   </div>
-                  <label className="h-8 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
-                    {isUploadingGallery ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5 text-stone-600" />
-                    )}
-                    <span>{isUploadingGallery ? 'Đang tải ảnh...' : 'Thêm ảnh album'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      disabled={isUploadingGallery}
-                      onChange={handleUploadGallery}
-                    />
-                  </label>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
+                      {isUploadingGallery ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5 text-stone-600" />
+                      )}
+                      <span>{isUploadingGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        disabled={isUploadingGallery}
+                        onChange={handleUploadGallery}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker('edit-gallery', 'Chọn Ảnh Cho Album (Edit)', true)}
+                      className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                      <span>Chọn từ Kho Media</span>
+                    </button>
+                  </div>
                 </div>
 
                 {(!editForm.galleryImages || editForm.galleryImages.length === 0) ? (
@@ -2061,7 +2206,7 @@ export default function AdminInvitationsPage() {
 
               {/* Cover Image */}
               <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                   <div>
                     <label className="block font-semibold text-stone-800 text-xs">
                       1. Ảnh Bìa Thiệp Cưới (Hero Cover) <span className="text-red-500">*</span>
@@ -2070,21 +2215,31 @@ export default function AdminInvitationsPage() {
                       💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
                     </p>
                   </div>
-                  <label className="h-9 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
-                    {isUploadingCreateCover ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Upload className="w-3.5 h-3.5 text-stone-600" />
-                    )}
-                    <span>{isUploadingCreateCover ? 'Đang tải...' : 'Tải ảnh lên'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={isUploadingCreateCover}
-                      onChange={handleUploadCreateCover}
-                    />
-                  </label>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                      {isUploadingCreateCover ? (
+                        <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                      ) : (
+                        <Upload className="w-3 h-3 text-stone-600" />
+                      )}
+                      <span>{isUploadingCreateCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={isUploadingCreateCover}
+                        onChange={handleUploadCreateCover}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker('create-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Tạo Mới)')}
+                      className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
+                    >
+                      <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
+                      <span>Chọn từ Kho Media</span>
+                    </button>
+                  </div>
                 </div>
                 {createForm.coverImage && (
                   <div className="w-24 h-32 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
@@ -2112,22 +2267,32 @@ export default function AdminInvitationsPage() {
                   {/* Groom */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể (The Groom)</span>
-                      <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
-                        {isUploadingCreateGroom ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                        ) : (
-                          <Upload className="w-3 h-3 text-stone-600" />
-                        )}
-                        <span>{isUploadingCreateGroom ? '...' : 'Tải ảnh'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={isUploadingCreateGroom}
-                          onChange={handleUploadCreateGroom}
-                        />
-                      </label>
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
+                      <div className="flex items-center gap-1">
+                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                          {isUploadingCreateGroom ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                          ) : (
+                            <Upload className="w-2.5 h-2.5 text-stone-600" />
+                          )}
+                          <span>{isUploadingCreateGroom ? '...' : 'Tải'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={isUploadingCreateGroom}
+                            onChange={handleUploadCreateGroom}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker('create-groom', 'Chọn Chân Dung Chú Rể (Tạo Mới)')}
+                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                        >
+                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                          <span>Kho Media</span>
+                        </button>
+                      </div>
                     </div>
                     {createForm.groomImage && (
                       <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
@@ -2152,22 +2317,32 @@ export default function AdminInvitationsPage() {
                   {/* Bride */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu (The Bride)</span>
-                      <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
-                        {isUploadingCreateBride ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                        ) : (
-                          <Upload className="w-3 h-3 text-stone-600" />
-                        )}
-                        <span>{isUploadingCreateBride ? '...' : 'Tải ảnh'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={isUploadingCreateBride}
-                          onChange={handleUploadCreateBride}
-                        />
-                      </label>
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
+                      <div className="flex items-center gap-1">
+                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                          {isUploadingCreateBride ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                          ) : (
+                            <Upload className="w-2.5 h-2.5 text-stone-600" />
+                          )}
+                          <span>{isUploadingCreateBride ? '...' : 'Tải'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={isUploadingCreateBride}
+                            onChange={handleUploadCreateBride}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker('create-bride', 'Chọn Chân Dung Cô Dâu (Tạo Mới)')}
+                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                        >
+                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                          <span>Kho Media</span>
+                        </button>
+                      </div>
                     </div>
                     {createForm.brideImage && (
                       <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
@@ -2193,7 +2368,7 @@ export default function AdminInvitationsPage() {
 
               {/* Visual Gallery Image Manager */}
               <div className="space-y-2 pt-1 border-t border-stone-100">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <label className="block font-medium text-stone-700">
                       3. Album Ảnh Cưới & Khoảnh Khắc (Gallery)
@@ -2202,22 +2377,32 @@ export default function AdminInvitationsPage() {
                       Khách mời có thể vuốt xem và phóng to trọn màn hình
                     </p>
                   </div>
-                  <label className="h-8 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
-                    {isUploadingCreateGallery ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Plus className="w-3.5 h-3.5 text-stone-600" />
-                    )}
-                    <span>{isUploadingCreateGallery ? 'Đang tải ảnh...' : 'Thêm ảnh album'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      disabled={isUploadingCreateGallery}
-                      onChange={handleUploadCreateGallery}
-                    />
-                  </label>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
+                      {isUploadingCreateGallery ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5 text-stone-600" />
+                      )}
+                      <span>{isUploadingCreateGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        disabled={isUploadingCreateGallery}
+                        onChange={handleUploadCreateGallery}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker('create-gallery', 'Chọn Ảnh Cho Album (Tạo Mới)', true)}
+                      className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                      <span>Chọn từ Kho Media</span>
+                    </button>
+                  </div>
                 </div>
 
                 {createForm.galleryImages.length === 0 ? (
@@ -2431,6 +2616,17 @@ export default function AdminInvitationsPage() {
           </div>
         </div>
       )}
+
+      {/* ============================================================= */}
+      {/* 4. ADMIN MEDIA PICKER MODAL (OVERLAY z-[80])                 */}
+      {/* ============================================================= */}
+      <AdminMediaPickerModal
+        isOpen={mediaPickerConfig.isOpen}
+        title={mediaPickerConfig.title}
+        multiple={mediaPickerConfig.multiple}
+        onClose={() => setMediaPickerConfig((prev) => ({ ...prev, isOpen: false }))}
+        onSelect={handleMediaPickerSelect}
+      />
     </div>
   );
 }
