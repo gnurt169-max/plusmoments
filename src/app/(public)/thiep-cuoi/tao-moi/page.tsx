@@ -183,14 +183,9 @@ export default function CreateWeddingInvitationPage() {
       return;
     }
 
-    if (!venueName.trim()) {
-      alert('Vui lòng nhập hoặc chọn nhà hàng / địa điểm cưới');
-      setCurrentStep(2);
-      return;
-    }
-
-    const resolvedVenueAddress = venueAddress.trim() || venueName.trim();
-    const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
+    const safeVenueName = venueName.trim() || 'Tư gia';
+    const resolvedVenueAddress = venueAddress.trim() || safeVenueName;
+    const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
 
     if (!coverImage) {
       alert('Vui lòng chọn hoặc tải lên ảnh bìa thiệp cưới');
@@ -214,7 +209,7 @@ export default function CreateWeddingInvitationPage() {
         brideBio,
         ceremonyDate,
         ceremonyTimeText,
-        venueName: venueName.trim(),
+        venueName: safeVenueName,
         venueAddress: resolvedVenueAddress,
         googleMapsUrl: resolvedVenueMapUrl,
         storyTitle,
@@ -650,13 +645,9 @@ export default function CreateWeddingInvitationPage() {
                         alert('Vui lòng nhập đầy đủ tên Cô Dâu và Chú Rể');
                         return;
                       }
-                      if (!venueName.trim()) {
-                        alert('Vui lòng nhập hoặc chọn nhà hàng / địa điểm cưới');
-                        return;
-                      }
                       // Auto fallback venueAddress if empty
                       if (!venueAddress.trim()) {
-                        setVenueAddress(venueName.trim());
+                        setVenueAddress(venueName.trim() || 'Tư gia');
                       }
                       setCurrentStep(3);
                     }}

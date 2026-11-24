@@ -73,14 +73,13 @@ export function VenueAutocompleteInput({
     setIsOpen(true);
     fetchVenues(val);
     
-    // Fallback: If user types a custom venue name (e.g. private residence) not yet selected from suggestions,
-    // automatically sync fallback address and generate Google Maps search link silently
-    if (!venueAddress || venueAddress === query) {
-      onChangeVenueAddress(val);
-    }
-    const searchTerms = [val, venueAddress || val].filter(Boolean).join(' ').trim();
+    // Automatically sync address and generate Google Maps search link instantly on every keystroke
+    onChangeVenueAddress(val);
+    const searchTerms = val.trim();
     if (searchTerms) {
       onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
+    } else {
+      onChangeGoogleMapsUrl('');
     }
   };
 

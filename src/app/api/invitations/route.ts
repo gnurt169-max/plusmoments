@@ -97,14 +97,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!venueName?.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Vui lòng nhập tên địa điểm tổ chức hôn lễ' },
-        { status: 400 }
-      );
-    }
-
-    const resolvedVenueAddress = venueAddress?.trim() || venueName.trim();
+    const safeVenueName = venueName?.trim() || 'Tư gia';
+    const resolvedVenueAddress = venueAddress?.trim() || safeVenueName;
 
     if (!ceremonyDate) {
       return NextResponse.json(
@@ -210,9 +204,9 @@ export async function POST(request: Request) {
         brideBio: brideBio?.trim() || null,
         ceremonyDate: new Date(ceremonyDate),
         ceremonyTimeText: ceremonyTimeText?.trim() || null,
-        venueName: venueName.trim(),
+        venueName: safeVenueName,
         venueAddress: resolvedVenueAddress,
-        googleMapsUrl: googleMapsUrl?.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`,
+        googleMapsUrl: googleMapsUrl?.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`,
         storyTitle: storyTitle?.trim() || null,
         storyText: storyText?.trim() || null,
         coverImage: finalCoverImage,

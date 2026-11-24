@@ -879,10 +879,6 @@ export default function AdminInvitationsPage() {
       showToast('Vui lòng nhập tên Chú Rể và Cô Dâu');
       return;
     }
-    if (!createForm.venueName.trim()) {
-      showToast('Vui lòng nhập hoặc chọn nhà hàng / địa điểm tổ chức hôn lễ');
-      return;
-    }
     if (!createForm.ceremonyDate) {
       showToast('Vui lòng chọn ngày tổ chức hôn lễ');
       return;
@@ -894,14 +890,15 @@ export default function AdminInvitationsPage() {
 
     try {
       setIsCreating(true);
-      const resolvedVenueAddress = createForm.venueAddress.trim() || createForm.venueName.trim();
+      const safeVenueName = createForm.venueName.trim() || 'Tư gia';
+      const resolvedVenueAddress = createForm.venueAddress.trim() || safeVenueName;
       const finalMapUrl = createForm.googleMapsUrl?.trim() || (
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([createForm.venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
 
       const payload = {
         ...createForm,
-        venueName: createForm.venueName.trim(),
+        venueName: safeVenueName,
         venueAddress: resolvedVenueAddress,
         googleMapsUrl: finalMapUrl,
         draftSlug: createDraftSlug,
@@ -1003,16 +1000,17 @@ export default function AdminInvitationsPage() {
 
     try {
       setIsSavingEdit(true);
-      const resolvedVenueAddress = editForm.venueAddress.trim() || editForm.venueName.trim();
+      const safeVenueName = editForm.venueName.trim() || 'Tư gia';
+      const resolvedVenueAddress = editForm.venueAddress.trim() || safeVenueName;
       const finalMapUrl = editForm.googleMapsUrl?.trim() || (
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([editForm.venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
       const res = await fetch(`/api/admin/invitations/${selectedForEdit.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...editForm,
-          venueName: editForm.venueName.trim(),
+          venueName: safeVenueName,
           venueAddress: resolvedVenueAddress,
           googleMapsUrl: finalMapUrl,
         }),
