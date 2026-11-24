@@ -185,6 +185,62 @@ export async function GET() {
       });
     }
 
+    // Scan customer wedding invitations media directories (/uploads/invitations/[slug])
+    const invitationsBaseDir = path.join(process.cwd(), 'public', 'uploads', 'invitations');
+    if (fs.existsSync(invitationsBaseDir)) {
+      try {
+        const invEntries = await fs.promises.readdir(invitationsBaseDir, { withFileTypes: true });
+        for (const entry of invEntries) {
+          if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+
+          const invSlug = entry.name;
+          const folderDiskPath = path.join(invitationsBaseDir, invSlug);
+          let diskNonVariantCount = 0;
+          let diskBytes = 0;
+          let firstDiskImage: string | null = null;
+
+          const filesOnDisk = await fs.promises.readdir(folderDiskPath);
+          for (const fileName of filesOnDisk) {
+            if (
+              fileName.startsWith('.') ||
+              fileName.startsWith('._') ||
+              fileName.endsWith('-sm.webp') ||
+              fileName.endsWith('-md.webp')
+            ) {
+              continue;
+            }
+            const ext = path.extname(fileName).toLowerCase();
+            if (ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+              diskNonVariantCount++;
+              try {
+                const stat = fs.statSync(path.join(folderDiskPath, fileName));
+                diskBytes += stat.size;
+                if (!firstDiskImage) {
+                  firstDiskImage = `/uploads/invitations/${invSlug}/${fileName}`;
+                }
+              } catch {}
+            }
+          }
+
+          const folderKey = `invitation-${invSlug}`;
+          folderMap.set(folderKey, {
+            id: folderKey,
+            slug: folderKey,
+            name: `Thiệp: ${invSlug}`,
+            path: `/uploads/invitations/${invSlug}`,
+            imageCount: diskNonVariantCount,
+            totalBytes: diskBytes,
+            formattedSize: formatBytes(diskBytes),
+            coverImage: firstDiskImage,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      } catch (e) {
+        console.warn('[MEDIA_FOLDERS_INVITATIONS_WARN] Could not scan invitations folder:', e);
+      }
+    }
+
     const folders = Array.from(folderMap.values());
 
     return NextResponse.json({

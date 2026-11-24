@@ -20,6 +20,7 @@ const ALLOWED_ALBUM_FIELDS = [
   'description',
   'coverImage',
   'videoUrl',
+  'videoLinks',
   'featured',
   'orderIndex',
   'published',

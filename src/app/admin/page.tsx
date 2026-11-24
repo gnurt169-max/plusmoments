@@ -8,6 +8,8 @@ import {
   DollarSign,
   ArrowRight,
   Phone,
+  Heart,
+  Eye,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +19,15 @@ export default async function AdminDashboardPage({
 }: {
   searchParams?: { error?: string };
 }) {
-  const [leadsCount, albumsCount, packagesCount, recentLeads] = await Promise.all([
+  const [
+    leadsCount,
+    albumsCount,
+    packagesCount,
+    recentLeads,
+    invitationsCount,
+    invitationsViewsAgg,
+    rsvpsCount,
+  ] = await Promise.all([
     prisma.leadBooking.count(),
     prisma.album.count(),
     prisma.servicePackage.count(),
@@ -25,7 +35,12 @@ export default async function AdminDashboardPage({
       orderBy: { createdAt: 'desc' },
       take: 6,
     }),
+    prisma.weddingInvitation.count(),
+    prisma.weddingInvitation.aggregate({ _sum: { viewCount: true } }),
+    prisma.invitationRsvp.count(),
   ]);
+
+  const totalInvitationViews = invitationsViewsAgg._sum.viewCount || 0;
 
   return (
     <div className="space-y-8 p-6 sm:p-8">
@@ -48,7 +63,7 @@ export default async function AdminDashboardPage({
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-luxury-100 flex items-center justify-center text-luxury-700">
             <Users className="w-6 h-6" />
@@ -90,6 +105,26 @@ export default async function AdminDashboardPage({
             </p>
           </div>
         </div>
+
+        <Link
+          href="/admin/invitations"
+          className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-4 hover:border-[#8C6D46] hover:shadow-md transition-all group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-105 transition-transform">
+            <Heart className="w-6 h-6" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-wider text-charcoal-400 font-medium truncate">
+              Thiệp Cưới Online
+            </p>
+            <p className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900 mt-0.5">
+              {invitationsCount}
+            </p>
+            <p className="text-[11px] text-stone-500 font-mono mt-0.5 truncate">
+              {totalInvitationViews} lượt xem • {rsvpsCount} RSVP
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* Recent Leads */}

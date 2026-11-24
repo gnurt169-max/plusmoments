@@ -21,6 +21,7 @@ import { AnimatedCountdown } from './AnimatedCountdown';
 import { SpinningVinylPlayer } from './SpinningVinylPlayer';
 import { CelebrationConfetti } from './CelebrationConfetti';
 import { InteractiveGalleryCard } from './InteractiveGalleryCard';
+import { CustomerPinModal } from './CustomerPinModal';
 
 export interface InvitationViewData {
   id?: string;
@@ -69,6 +70,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
   const [isMusicPlaying, setIsMusicPlaying] = useState<boolean>(false);
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
 
   // RSVP Form States
   const [guestName, setGuestName] = useState('');
@@ -701,10 +703,28 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
         </InvitationSectionReveal>
       </section>
 
-      {/* Footer Branding */}
-      <footer className="text-center py-6 text-[11px] text-stone-400 uppercase tracking-widest font-mono">
-        Designed with Love by PlusMoments Wedding Studio
+      {/* Footer Branding & Bride/Groom Edit Portal Link */}
+      <footer className="text-center py-8 space-y-2 text-stone-400">
+        <div className="text-[11px] uppercase tracking-widest font-mono">
+          Designed with Love by PlusMoments Wedding Studio
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => setIsPinModalOpen(true)}
+            className="text-[10px] tracking-wide text-stone-400 hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 opacity-70 hover:opacity-100"
+          >
+            <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
+          </button>
+        </div>
       </footer>
+
+      {/* Quick PIN Modal for Couple */}
+      <CustomerPinModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        defaultSlug={data.slug}
+      />
 
       {/* Global Embedded Keyframes for Ken Burns, Shimmer, and Mask Reveal */}
       <style jsx global>{`

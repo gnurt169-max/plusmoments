@@ -17,12 +17,15 @@ import {
   Image as ImageIcon,
   Bot,
   Share2,
+  Film,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
 import { SingleImagePicker } from '@/components/admin/ImageFieldPicker';
 import { MediaLibraryPickerModal } from '@/components/admin/MediaLibraryPickerModal';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
+import { GoogleDriveVideoManager } from '@/components/admin/GoogleDriveVideoManager';
+import type { GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 
 interface PackageOption {
   id: string;
@@ -59,6 +62,7 @@ interface BlogPostItem {
   packageId?: string | null;
   package?: PackageOption | null;
   images?: PostImageItem[];
+  videoLinks?: GoogleDriveVideoItem[] | null;
 }
 
 export default function AdminBlogPage() {
@@ -98,6 +102,7 @@ export default function AdminBlogPage() {
     metaTitle: string;
     metaDescription: string;
     postImages: PostImageItem[];
+    videoLinks: GoogleDriveVideoItem[];
   }>({
     title: '',
     slug: '',
@@ -112,6 +117,7 @@ export default function AdminBlogPage() {
     metaTitle: '',
     metaDescription: '',
     postImages: [],
+    videoLinks: [],
   });
 
   const existingBlogCategories = React.useMemo(() => {
@@ -192,6 +198,7 @@ export default function AdminBlogPage() {
       metaTitle: '',
       metaDescription: '',
       postImages: [],
+      videoLinks: [],
     });
     setIsModalOpen(true);
   };
@@ -222,6 +229,7 @@ export default function AdminBlogPage() {
       metaTitle: post.metaTitle || '',
       metaDescription: post.metaDescription || '',
       postImages: existingImages,
+      videoLinks: Array.isArray(post.videoLinks) ? (post.videoLinks as GoogleDriveVideoItem[]) : [],
     });
     setIsModalOpen(true);
   };
@@ -655,6 +663,7 @@ export default function AdminBlogPage() {
         metaDescription: formData.metaDescription,
         packageId: formData.packageId || null,
         images: formData.postImages,
+        videoLinks: formData.videoLinks && formData.videoLinks.length > 0 ? formData.videoLinks : null,
       };
 
       const res = await fetch(url, {
@@ -744,9 +753,16 @@ export default function AdminBlogPage() {
                         />
                       </div>
                       <div>
-                        <p className="font-serif text-sm font-medium text-charcoal-900 line-clamp-1">
-                          {post.title}
-                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-serif text-sm font-medium text-charcoal-900 line-clamp-1">
+                            {post.title}
+                          </p>
+                          {Array.isArray(post.videoLinks) && post.videoLinks.length > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] bg-amber-100 text-amber-800 font-medium px-1.5 py-0.5 rounded-full border border-amber-300 shrink-0">
+                              <Film className="w-2.5 h-2.5" /> Video ({post.videoLinks.length})
+                            </span>
+                          )}
+                        </div>
                         <p className="font-mono text-[10px] text-charcoal-400">
                           /blog/{post.slug}
                         </p>
@@ -1348,6 +1364,14 @@ export default function AdminBlogPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* GOOGLE DRIVE VIDEO SECTION */}
+          <div className="pt-4 border-t border-stone-200">
+            <GoogleDriveVideoManager
+              videos={formData.videoLinks || []}
+              onChange={(updated) => setFormData({ ...formData, videoLinks: updated })}
+            />
           </div>
 
           <div className="flex items-center gap-2 pt-2">

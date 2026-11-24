@@ -220,6 +220,7 @@ model Album {
 
   // Cinematic Highlight & Video Reels (YouTube / Vimeo)
   videoUrl        String?
+  videoLinks      Json?
 
   packageId       String?
   package         ServicePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
@@ -388,6 +389,7 @@ model BlogPost {
 
   images          PostImage[]
   galleryImages   Json?       // Fallback JSON array of [{ id, url, alt, caption, orderIndex }]
+  videoLinks      Json?
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

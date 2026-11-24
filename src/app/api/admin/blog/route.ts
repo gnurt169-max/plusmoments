@@ -20,6 +20,7 @@ const ALLOWED_BLOG_FIELDS = [
   'metaTitle',
   'metaDescription',
   'galleryImages',
+  'videoLinks',
 ] as const;
 
 export async function GET(request: Request) {
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
       images,
       postImages,
       packageId,
+      videoLinks,
     } = body;
 
     if (!title || !slug || !content || !coverImage) {
@@ -114,6 +116,7 @@ export async function POST(request: Request) {
         metaTitle: metaTitle || null,
         metaDescription: metaDescription || null,
         galleryImages: Array.isArray(incomingImages) ? incomingImages : [],
+        ...(Array.isArray(videoLinks) ? { videoLinks } : {}),
         ...packageRelation,
         ...(Array.isArray(incomingImages) && incomingImages.length > 0
           ? {

@@ -18,6 +18,8 @@ const ALLOWED_ALBUM_FIELDS = [
   'shootingDate',
   'description',
   'coverImage',
+  'videoUrl',
+  'videoLinks',
   'featured',
   'orderIndex',
   'published',

@@ -248,6 +248,14 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
       matchedDiskSlug = candidate;
       break;
     }
+    const invitationsBaseDir = path.join(uploadsBaseDir, 'invitations');
+    const cleanInvCandidate = candidate.replace(/^invitation-/, '').replace(/^invitations\//, '');
+    const dirInInvitations = path.join(invitationsBaseDir, cleanInvCandidate);
+    if (fs.existsSync(dirInInvitations) && fs.statSync(dirInInvitations).isDirectory()) {
+      physicalDir = dirInInvitations;
+      matchedDiskSlug = `invitation-${cleanInvCandidate}`;
+      break;
+    }
     const dirInUploads = path.join(uploadsBaseDir, candidate);
     if (fs.existsSync(dirInUploads) && fs.statSync(dirInUploads).isDirectory()) {
       physicalDir = dirInUploads;
@@ -263,10 +271,13 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
 
   // Xác định các định danh chuẩn
   const canonicalSlug = matchedDiskSlug || dbFolder?.slug || slugified || cleanParam;
-  const canonicalName = dbFolder?.name || cleanParam.replace(/[-_]/g, ' ') || canonicalSlug;
+  const isInvitationFolder = canonicalSlug.startsWith('invitation-') || physicalDir?.includes('/uploads/invitations/');
+  const canonicalName = isInvitationFolder
+    ? `Thiệp: ${canonicalSlug.replace(/^invitation-/, '')}`
+    : dbFolder?.name || cleanParam.replace(/[-_]/g, ' ') || canonicalSlug;
 
-  // Nếu thư mục vật lý tồn tại trên đĩa nhưng chưa có trong Database, tự động tạo bản ghi MediaFolder
-  if (!dbFolder && physicalDir) {
+  // Nếu thư mục vật lý tồn tại trên đĩa nhưng chưa có trong Database, tự động tạo bản ghi MediaFolder (bỏ qua thư mục thiệp)
+  if (!dbFolder && physicalDir && !isInvitationFolder) {
     try {
       dbFolder = await prisma.mediaFolder.create({
         data: {
@@ -282,7 +293,9 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
   }
 
   const canonicalId = dbFolder?.id || canonicalSlug;
-  const canonicalPath = `/uploads/folders/${canonicalSlug}`;
+  const canonicalPath = physicalDir
+    ? `/${path.relative(path.join(process.cwd(), 'public'), physicalDir).replace(/\\/g, '/')}`
+    : `/uploads/folders/${canonicalSlug}`;
 
   // Đếm nhanh số ảnh & dung lượng
   let imageCount = 0;
@@ -308,7 +321,7 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
             const stat = fs.statSync(path.join(physicalDir, entry));
             totalBytes += stat.size;
             if (!coverImage) {
-              coverImage = `/uploads/folders/${canonicalSlug}/${entry}`;
+              coverImage = `${canonicalPath}/${entry}`;
             }
           } catch {}
         }
@@ -411,7 +424,8 @@ export async function readFolderImages(resolved: ResolvedFolder): Promise<Folder
         try {
           const stats = await fs.promises.stat(fullPath);
           if (stats.size > 0) {
-            const publicUrl = `/uploads/folders/${canonicalSlug}/${entry.name}`;
+            const relativeToPublic = path.relative(path.join(process.cwd(), 'public'), fullPath);
+            const publicUrl = `/${relativeToPublic.replace(/\\/g, '/')}`;
             const rawName = entry.name.replace(/\.[^/.]+$/, '');
             const dbMatch =
               dbFileMap.get(publicUrl) ||

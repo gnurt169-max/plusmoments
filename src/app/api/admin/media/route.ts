@@ -192,7 +192,9 @@ export async function GET(request: Request) {
     }
 
     // Separate Root media (standalone in /uploads/products or /uploads/) vs Folders media
-    const rootMedia = media.filter((m) => !m.url.startsWith('/uploads/folders/'));
+    const rootMedia = media.filter(
+      (m) => !m.url.startsWith('/uploads/folders/') && !m.url.startsWith('/uploads/invitations/')
+    );
 
     // Query DB folders to map IDs
     const dbMediaFolders = await prisma.mediaFolder.findMany({
@@ -249,6 +251,38 @@ export async function GET(request: Request) {
       });
     }
 
+    // Also include invitations subfolders
+    const invitationsBaseDir = path.join(uploadsDir, 'invitations');
+    if (fs.existsSync(invitationsBaseDir)) {
+      try {
+        const invEntries = await fs.promises.readdir(invitationsBaseDir, { withFileTypes: true });
+        for (const entry of invEntries) {
+          if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+          const invSlug = entry.name;
+          const folderImages = media.filter((m) =>
+            m.url.startsWith(`/uploads/invitations/${invSlug}/`)
+          );
+          const totalFolderBytes = folderImages.reduce((sum, img) => sum + img.size, 0);
+
+          folders.push({
+            id: `invitation-${invSlug}`,
+            slug: `invitation-${invSlug}`,
+            name: `Thiệp: ${invSlug}`,
+            path: `/uploads/invitations/${invSlug}`,
+            imageCount: folderImages.length,
+            totalBytes: totalFolderBytes,
+            formattedSize: formatBytes(totalFolderBytes),
+            coverImage: folderImages.length > 0 ? folderImages[0].url : null,
+            createdAt: folderImages.length > 0 ? folderImages[0].createdAt : new Date().toISOString(),
+            modifiedAt:
+              folderImages.length > 0 ? folderImages[0].modifiedAt : new Date().toISOString(),
+          });
+        }
+      } catch (e) {
+        console.warn('[MEDIA_INVITATIONS_WARN] Could not scan invitations folder:', e);
+      }
+    }
+
     // Sort folders by modifiedAt descending
     folders.sort(
       (a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()
@@ -256,8 +290,11 @@ export async function GET(request: Request) {
 
     // If specific folder was queried
     if (targetFolder) {
+      const cleanTarget = targetFolder.replace(/^invitation-/, '');
       const filtered = media.filter((m) =>
-        m.url.startsWith(`/uploads/folders/${targetFolder}/`)
+        m.url.startsWith(`/uploads/folders/${targetFolder}/`) ||
+        m.url.startsWith(`/uploads/invitations/${targetFolder}/`) ||
+        m.url.startsWith(`/uploads/invitations/${cleanTarget}/`)
       );
       return NextResponse.json({
         success: true,

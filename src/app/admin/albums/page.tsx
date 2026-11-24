@@ -20,6 +20,8 @@ import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
+import { GoogleDriveVideoManager } from '@/components/admin/GoogleDriveVideoManager';
+import type { GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 import { formatVND } from '@/lib/utils';
 
 interface PackageOption {
@@ -42,6 +44,7 @@ interface AlbumItem {
   description?: string | null;
   coverImage: string;
   videoUrl?: string | null;
+  videoLinks?: GoogleDriveVideoItem[] | null;
   featured: boolean;
   orderIndex: number;
   published: boolean;
@@ -244,6 +247,7 @@ export default function AdminAlbumsPage() {
     description: '',
     coverImage: '',
     videoUrl: '',
+    videoLinks: [] as GoogleDriveVideoItem[],
     packageId: '',
     featured: false,
     orderIndex: 0,
@@ -351,6 +355,7 @@ export default function AdminAlbumsPage() {
       description: '',
       coverImage: '',
       videoUrl: '',
+      videoLinks: [],
       packageId: '',
       featured: true,
       orderIndex: albums.length + 1,
@@ -381,6 +386,7 @@ export default function AdminAlbumsPage() {
       description: album.description || '',
       coverImage: album.coverImage,
       videoUrl: album.videoUrl || '',
+      videoLinks: Array.isArray(album.videoLinks) ? (album.videoLinks as GoogleDriveVideoItem[]) : [],
       packageId: album.packageId || '',
       featured: album.featured,
       orderIndex: album.orderIndex,
@@ -650,6 +656,7 @@ export default function AdminAlbumsPage() {
       const payload = {
         ...cleanFormData,
         videoUrl: cleanFormData.videoUrl?.trim() || null,
+        videoLinks: formData.videoLinks && formData.videoLinks.length > 0 ? formData.videoLinks : null,
         shootingDate: shootingDate.trim() ? shootingDate : null,
         packageId: packageId.trim() ? packageId : null,
         mediaUrls: mediaUrls.length > 0 ? mediaUrls : [formData.coverImage],
@@ -749,7 +756,7 @@ export default function AdminAlbumsPage() {
                           <p className="font-serif text-sm font-medium text-charcoal-900">
                             {album.title}
                           </p>
-                          {album.videoUrl && (
+                          {(album.videoUrl || (Array.isArray(album.videoLinks) && album.videoLinks.length > 0)) && (
                             <span className="inline-flex items-center gap-1 text-[10px] bg-amber-100 text-amber-800 font-medium px-1.5 py-0.5 rounded-full border border-amber-300">
                               <Film className="w-2.5 h-2.5" /> Video
                             </span>
@@ -1177,6 +1184,14 @@ export default function AdminAlbumsPage() {
               <p className="text-[11px] text-stone-600 font-light">
                 Dán link YouTube hoặc Vimeo để hiển thị trình phát Facade 4K điện ảnh trong trang chi tiết album mà không làm chậm tốc độ tải trang.
               </p>
+            </div>
+
+            {/* GOOGLE DRIVE VIDEOS */}
+            <div className="pt-4 border-t border-stone-200">
+              <GoogleDriveVideoManager
+                videos={formData.videoLinks || []}
+                onChange={(updated) => setFormData({ ...formData, videoLinks: updated })}
+              />
             </div>
           </div>
 

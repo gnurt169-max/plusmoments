@@ -2,13 +2,18 @@
 
 import React, { useEffect, useRef } from 'react';
 
+export interface ScrollProgressBarProps {
+  targetContentId?: string;
+}
+
 /**
  * ScrollProgressBar: Luxury Editorial Reading Progress Bar for PlusMoments Studio.
  * - Hardware-accelerated GPU transform (scaleX) with left origin to guarantee 60fps and zero reflow.
+ * - Scoped reading progress exclusively calculated on actual article/gallery content (0% -> 100%).
  * - Champagne gold luxury gradient.
  * - Passive scroll event listener with requestAnimationFrame throttling.
  */
-export function ScrollProgressBar() {
+export function ScrollProgressBar({ targetContentId }: ScrollProgressBarProps) {
   const barRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -16,17 +21,31 @@ export function ScrollProgressBar() {
 
     const updateProgress = () => {
       if (!barRef.current) return;
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-      if (docHeight <= 0) {
-        barRef.current.style.transform = 'scaleX(0)';
-        ticking = false;
-        return;
+      let progressFraction = 0;
+
+      if (targetContentId) {
+        const targetEl = document.getElementById(targetContentId);
+        if (targetEl) {
+          const rect = targetEl.getBoundingClientRect();
+          const startY = rect.top + window.scrollY - window.innerHeight * 0.25;
+          const endY = rect.bottom + window.scrollY - window.innerHeight * 0.75;
+          const range = Math.max(1, endY - startY);
+          const rawProgress = (window.scrollY - startY) / range;
+          progressFraction = Math.min(1, Math.max(0, rawProgress));
+        }
       }
 
-      const progress = Math.min(1, Math.max(0, scrollY / docHeight));
-      barRef.current.style.transform = `scaleX(${progress})`;
+      // Fallback to full document height if no targetContentId or target not found
+      if (!targetContentId || progressFraction === 0) {
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+          progressFraction = Math.min(1, Math.max(0, scrollY / docHeight));
+        }
+      }
+
+      barRef.current.style.transform = `scaleX(${progressFraction})`;
       ticking = false;
     };
 
@@ -37,9 +56,7 @@ export function ScrollProgressBar() {
       }
     };
 
-    // Initial calculation
     updateProgress();
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
 
@@ -47,7 +64,7 @@ export function ScrollProgressBar() {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, []);
+  }, [targetContentId]);
 
   return (
     <div

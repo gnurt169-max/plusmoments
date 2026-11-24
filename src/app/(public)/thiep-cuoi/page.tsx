@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Sparkles, Heart, Smartphone, Camera, Calendar, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { INVITATION_TEMPLATES } from '@/lib/invitations/templates';
+import { InvitationLandingHeroActions } from '@/components/invitations/InvitationLandingHeroActions';
 
 export const metadata = {
   title: 'Thiệp Cưới Online Đẹp & Cá Nhân Hóa Chuẩn Luxury | PlusMoments',
@@ -30,22 +31,8 @@ export default function WeddingInvitationsLandingPage() {
           Hiệu ứng mở phong bì lụa điện ảnh, bộ ảnh cưới sắc nét không nén mờ, chỉ đường Google Maps và sổ lưu bút RSVP tiện lợi.
         </p>
 
-        <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/thiep-cuoi/tao-moi"
-            className="w-full sm:w-auto h-13 px-8 rounded-full bg-[#8C6D46] hover:bg-[#725735] active:scale-95 text-white text-sm font-semibold tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-4 h-4 text-amber-200" />
-            <span>Tự Thiết Kế Thiệp Ngay (Miễn Phí)</span>
-          </Link>
-          <a
-            href="#templates-showcase"
-            className="w-full sm:w-auto h-13 px-8 rounded-full bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 text-sm font-medium tracking-wider transition-all flex items-center justify-center gap-2"
-          >
-            <span>Khám Phá Các Mẫu Thiệp</span>
-            <ArrowRight className="w-4 h-4 text-stone-500" />
-          </a>
-        </div>
+        {/* Hero Actions (Create & Edit via PIN Modal) */}
+        <InvitationLandingHeroActions />
 
         {/* Feature Highlights Bar */}
         <div className="mt-14 pt-10 border-t border-stone-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">

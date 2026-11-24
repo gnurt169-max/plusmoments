@@ -8,6 +8,7 @@ import { formatDate, toAbsoluteUrl } from '@/lib/utils';
 import { ImageGalleryJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLdSchema';
 import { AlbumMasonryGallery } from '@/components/albums/AlbumMasonryGallery';
 import { AlbumVideoFacade } from '@/components/albums/AlbumVideoFacade';
+import { GoogleDriveVideoList, type GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 import { ProtectedImage } from '@/components/common/ProtectedImage';
 import { LinkedPackageCard } from '@/components/common/LinkedPackageCard';
 import { AlbumLeftRail } from '@/components/albums/AlbumLeftRail';
@@ -143,7 +144,7 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
   return (
     <div className="pt-28 pb-24">
       {/* 1. EDITORIAL READING PROGRESS BAR */}
-      <ScrollProgressBar />
+      <ScrollProgressBar targetContentId="album-gallery-content" />
 
       {/* 2. FLOATING STORY & CONSULTATION PILL */}
       <FloatingStoryPill
@@ -151,6 +152,8 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
         type="album"
         conceptName={album.concept}
         targetFormId="consultation-section"
+        targetContentId="album-gallery-content"
+        targetCtaZoneId="linked-package-section"
       />
 
       {/* Schema.org BreadcrumbList & ImageGallery */}
@@ -333,18 +336,40 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
 
           {/* CỘT 2 (Ở GIỮA): Toàn Bộ Góc Ảnh Trong Album */}
           <main className="min-w-0 space-y-12">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-                <span className="text-xs uppercase tracking-widest text-charcoal-600 font-semibold flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
-                  <span>Toàn Bộ Góc Ảnh Trong Album</span>
-                </span>
-                <span className="text-xs font-mono text-stone-600">
-                  Nhấp vào ảnh để xem chi tiết
-                </span>
-              </div>
+            <div id="album-gallery-content" className="space-y-12">
+              {/* THƯỚC PHIM KỶ NIỆM (WEDDING FILM) - GOOGLE DRIVE VIDEOS */}
+              {(album as any).videoLinks && Array.isArray((album as any).videoLinks) && (album as any).videoLinks.length > 0 && (
+                <section className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+                    <span className="text-xs uppercase tracking-widest text-[#1C1917] font-semibold flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-[#8C6D46]" />
+                      <span>Thước Phim Kỷ Niệm (Wedding Film)</span>
+                    </span>
+                    <span className="text-xs font-mono text-stone-500">
+                      Phim cưới & Highlight
+                    </span>
+                  </div>
 
-              <AlbumMasonryGallery media={resolvedMedia} albumTitle={album.title} />
+                  <GoogleDriveVideoList
+                    videos={(album as any).videoLinks}
+                    coverImage={album.coverImage}
+                  />
+                </section>
+              )}
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+                  <span className="text-xs uppercase tracking-widest text-charcoal-600 font-semibold flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-luxury-600" />
+                    <span>Toàn Bộ Góc Ảnh Trong Album</span>
+                  </span>
+                  <span className="text-xs font-mono text-stone-600">
+                    Nhấp vào ảnh để xem chi tiết
+                  </span>
+                </div>
+
+                <AlbumMasonryGallery media={resolvedMedia} albumTitle={album.title} />
+              </div>
             </div>
 
             {/* LINKED PRICING PACKAGE (CROSS-SELL WIDGET DÀNH CHO CẢ MOBILE LẪN DESKTOP) */}

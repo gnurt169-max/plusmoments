@@ -56,7 +56,8 @@ export async function PATCH(
   try {
     const { slug } = await params;
     const body = await request.json();
-    const { passcode, ...updateData } = body;
+    const pin = body.passcode || body.editPasscode || body.pin;
+    const { passcode, editPasscode, pin: _pin, ...updateData } = body;
 
     const existing = await prisma.weddingInvitation.findUnique({
       where: { slug },
@@ -73,7 +74,7 @@ export async function PATCH(
     const adminSession = await getAdminSession();
     const isAuthorized =
       Boolean(adminSession) ||
-      (passcode && String(passcode).trim() === existing.editPasscode);
+      (pin && String(pin).trim() === existing.editPasscode);
 
     if (!isAuthorized) {
       return NextResponse.json(

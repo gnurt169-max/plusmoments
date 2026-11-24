@@ -10,6 +10,15 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
     const singleFile = formData.get('file') as File | null;
+    const rawSlug = formData.get('slug') || formData.get('folderKey') || 'drafts';
+
+    // Sanitize folder name
+    const folderName = String(rawSlug)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9_-]/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 50) || 'drafts';
 
     const filesToProcess: File[] = [];
     if (files && files.length > 0) {
@@ -25,14 +34,15 @@ export async function POST(request: Request) {
       );
     }
 
-    if (filesToProcess.length > 12) {
+    if (filesToProcess.length > 15) {
       return NextResponse.json(
-        { success: false, error: 'Tối đa 12 ảnh cho mỗi lần tải lên' },
+        { success: false, error: 'Tối đa 15 ảnh cho mỗi lần tải lên' },
         { status: 400 }
       );
     }
 
-    const targetDir = path.join(process.cwd(), 'public', 'uploads', 'invitations');
+    // Structured storage directory: public/uploads/invitations/[slug]/
+    const targetDir = path.join(process.cwd(), 'public', 'uploads', 'invitations', folderName);
     if (!fs.existsSync(targetDir)) {
       await fs.promises.mkdir(targetDir, { recursive: true });
     }
@@ -55,10 +65,10 @@ export async function POST(request: Request) {
         .replace(/\.[^/.]+$/, '')
         .replace(/[^a-zA-Z0-9_-]/g, '-')
         .toLowerCase()
-        .slice(0, 30);
+        .slice(0, 25);
       const timestamp = Date.now();
       const randomSuffix = Math.random().toString(36).substring(2, 7);
-      const finalFilename = `inv-${rawName}-${timestamp}-${randomSuffix}.webp`;
+      const finalFilename = `${timestamp}-${randomSuffix}.webp`;
       const finalFilePath = path.join(targetDir, finalFilename);
 
       // Rotate via EXIF, limit max dimension to 1600px, convert to WebP quality 85
@@ -84,9 +94,9 @@ export async function POST(request: Request) {
       const processedMeta = await sharp(finalBuffer).metadata();
       const finalWidth = processedMeta.width || origW;
       const finalHeight = processedMeta.height || origH;
-      const orientation = finalWidth > finalHeight ? 'landscape' : 'portrait';
+      const orientation = finalWidth >= finalHeight ? 'landscape' : 'portrait';
 
-      const publicUrl = `/uploads/invitations/${finalFilename}`;
+      const publicUrl = `/uploads/invitations/${folderName}/${finalFilename}`;
 
       uploadedImages.push({
         id: `img-${timestamp}-${randomSuffix}`,
@@ -100,8 +110,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      folder: folderName,
       images: uploadedImages,
-      // If single file uploaded, return top-level image info as well for convenience
+      // If single file uploaded, return top-level image info as well
       image: uploadedImages[0],
     });
   } catch (error: any) {

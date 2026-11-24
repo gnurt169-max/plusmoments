@@ -16,6 +16,7 @@ import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import { ScrollProgressBar } from '@/components/ui/ScrollProgressBar';
 import { FloatingStoryPill } from '@/components/ui/FloatingStoryPill';
 import { NextStoryTeaser } from '@/components/common/NextStoryTeaser';
+import { GoogleDriveVideoList, type GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 import { resolveMediaListDimensions } from '@/lib/server-image-dimensions';
 
 interface Props {
@@ -419,7 +420,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <article className="pt-32 pb-24">
       {/* 1. EDITORIAL READING PROGRESS BAR */}
-      <ScrollProgressBar />
+      <ScrollProgressBar targetContentId="blog-body-content" />
 
       {/* 2. FLOATING STORY & CONSULTATION PILL */}
       <FloatingStoryPill
@@ -427,6 +428,8 @@ export default async function BlogPostPage({ params }: Props) {
         type="blog"
         conceptName={post.category || undefined}
         targetFormId="consultation-section"
+        targetContentId="blog-body-content"
+        targetCtaZoneId={post.package ? 'linked-package-section' : 'consultation-section'}
       />
 
       <script
@@ -491,40 +494,62 @@ export default async function BlogPostPage({ params }: Props) {
           />
         </div>
 
-        {/* Body Content */}
-        <div className="prose prose-stone max-w-none text-charcoal-800 leading-relaxed font-light space-y-6 pt-4 text-sm sm:text-base">
-          <p className="font-serif text-lg sm:text-xl font-normal text-charcoal-900 italic border-l-2 border-luxury-500 pl-4 py-1">
-            {post.summary}
-          </p>
+        {/* Body Content & Story Gallery in Scoped Reading Container */}
+        <div id="blog-body-content" className="space-y-10">
+          <div className="prose prose-stone max-w-none text-charcoal-800 leading-relaxed font-light space-y-6 pt-4 text-sm sm:text-base">
+            <p className="font-serif text-lg sm:text-xl font-normal text-charcoal-900 italic border-l-2 border-luxury-500 pl-4 py-1">
+              {post.summary}
+            </p>
 
-          <div className="space-y-6">
-            {renderedContent}
-          </div>
-        </div>
+            {/* VIDEO ĐÍNH KÈM TRONG BÀI VIẾT (GOOGLE DRIVE VIDEOS) */}
+            {(post as any).videoLinks && Array.isArray((post as any).videoLinks) && (post as any).videoLinks.length > 0 && (
+              <div className="not-prose my-8 space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+                  <span className="text-xs uppercase tracking-widest text-[#1C1917] font-semibold flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#8C6D46]" />
+                    <span>Video Đính Kèm Trong Bài Viết</span>
+                  </span>
+                  <span className="text-xs font-mono text-stone-500">
+                    Google Drive Player
+                  </span>
+                </div>
 
-        {/* Unplaced Images / Story Gallery */}
-        {unusedImages.length > 0 && (
-          <section className="pt-10 mt-10 border-t border-champagne-dark/30 space-y-6">
-            <div className="text-center space-y-1">
-              <div className="inline-flex items-center gap-1.5 text-luxury-600 text-xs uppercase tracking-widest font-semibold">
-                <Images className="w-4 h-4" />
-                <span>Bộ Sưu Tập Phóng Sự</span>
+                <GoogleDriveVideoList
+                  videos={(post as any).videoLinks}
+                  coverImage={post.coverImage}
+                />
               </div>
-              <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
-                Khoảnh Khắc Trong Bài Viết
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-500 font-light">
-                Các khung hình trọn vẹn trong buổi chụp
-              </p>
-            </div>
+            )}
 
-            {renderBalancedBlogImageSection(unusedImages)}
-          </section>
-        )}
+            <div className="space-y-6">
+              {renderedContent}
+            </div>
+          </div>
+
+          {/* Unplaced Images / Story Gallery */}
+          {unusedImages.length > 0 && (
+            <section className="pt-10 mt-10 border-t border-champagne-dark/30 space-y-6">
+              <div className="text-center space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-luxury-600 text-xs uppercase tracking-widest font-semibold">
+                  <Images className="w-4 h-4" />
+                  <span>Bộ Sưu Tập Phóng Sự</span>
+                </div>
+                <h2 className="font-serif text-2xl sm:text-3xl font-light text-charcoal-900">
+                  Khoảnh Khắc Trong Bài Viết
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-500 font-light">
+                  Các khung hình trọn vẹn trong buổi chụp
+                </p>
+              </div>
+
+              {renderBalancedBlogImageSection(unusedImages)}
+            </section>
+          )}
+        </div>
 
         {/* LINKED PRICING PACKAGE (CROSS-SELL WIDGET) */}
         {post.package && (
-          <div className="pt-8">
+          <div id="linked-package-section" className="pt-8">
             <LinkedPackageCard
               packageData={post.package}
               badgeText="✨ GÓI DỊCH VỤ ĐỀ XUẤT TRONG BÀI VIẾT"

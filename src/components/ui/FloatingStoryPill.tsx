@@ -1,50 +1,99 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Sparkles } from 'lucide-react';
 
 export interface FloatingStoryPillProps {
   title: string;
   type?: 'album' | 'blog';
   conceptName?: string;
   targetFormId?: string;
+  targetContentId?: string;
+  targetCtaZoneId?: string;
 }
 
 /**
  * FloatingStoryPill: Luxury Editorial Floating Story & Consultation Pill for PlusMoments Studio.
- * - Smoothly slides up from bottom-5 when user has scrolled past 35% of page content.
- * - Auto-hides when nearing the very bottom (footer / consultation box).
- * - Displays truncated title + scroll reading progress (e.g. "Đã xem 65% câu chuyện").
- * - Features high-contrast compact CTA "Tư vấn Concept này" that smoothly scrolls to the consultation form.
+ * - WCAG AAA Compliant Luxury Deep Charcoal theme (solid contrast, zero background bleed).
+ * - Scoped reading progress exclusively calculated on actual article/gallery content (0% -> 100%).
+ * - Auto-hides when entering CTA zones (pricing package, consultation box, footer) via IntersectionObserver.
+ * - Sized & positioned to never collide with floating concierge dock on mobile (max-w-[calc(100vw-110px)]).
  */
 export function FloatingStoryPill({
   title,
   type = 'album',
   conceptName,
   targetFormId = 'consultation-section',
+  targetContentId,
+  targetCtaZoneId,
 }: FloatingStoryPillProps) {
   const [visible, setVisible] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
+  const [isCtaZoneInView, setIsCtaZoneInView] = useState(false);
 
+  // 1. Observe CTA zones (Linked Package, Bottom Consultation, Footer)
+  useEffect(() => {
+    const candidateIds = [
+      targetCtaZoneId,
+      'linked-package-section',
+      'consultation-section',
+      'footer',
+    ].filter(Boolean) as string[];
+
+    const elements = candidateIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Any CTA element visible in viewport sets isCtaZoneInView to true
+        const anyIntersecting = entries.some((entry) => entry.isIntersecting);
+        setIsCtaZoneInView(anyIntersecting);
+      },
+      {
+        threshold: 0.05,
+        rootMargin: '40px 0px 0px 0px',
+      }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [targetCtaZoneId]);
+
+  // 2. Calculate Reading/Viewing Progress scoped to content element
   useEffect(() => {
     let ticking = false;
 
     const updatePill = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      let progress = 0;
 
-      if (docHeight <= 0) {
-        setVisible(false);
-        ticking = false;
-        return;
+      if (targetContentId) {
+        const targetEl = document.getElementById(targetContentId);
+        if (targetEl) {
+          const rect = targetEl.getBoundingClientRect();
+          const startY = rect.top + window.scrollY - window.innerHeight * 0.25;
+          const endY = rect.bottom + window.scrollY - window.innerHeight * 0.75;
+          const range = Math.max(1, endY - startY);
+          const rawProgress = (window.scrollY - startY) / range;
+          progress = Math.min(100, Math.max(0, Math.round(rawProgress * 100)));
+        }
       }
 
-      const fraction = Math.min(1, Math.max(0, scrollY / docHeight));
-      const percent = Math.round(fraction * 100);
-      setProgressPercent(percent);
+      // Fallback if targetContentId is not supplied or element not found
+      if (!targetContentId && progress === 0) {
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+          progress = Math.min(100, Math.max(0, Math.round((scrollY / docHeight) * 100)));
+        }
+      }
 
-      // Show between 35% and 88% of page height (disappears when reaching bottom consultation area)
-      const shouldShow = percent >= 35 && percent <= 88;
+      setProgressPercent(progress);
+
+      // Only show when inside the reading range [8%, 96%] AND CTA zone is not in view
+      const shouldShow = progress >= 8 && progress <= 96 && !isCtaZoneInView;
       setVisible(shouldShow);
       ticking = false;
     };
@@ -64,7 +113,7 @@ export function FloatingStoryPill({
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, []);
+  }, [targetContentId, isCtaZoneInView]);
 
   const handleScrollToForm = () => {
     const el = document.getElementById(targetFormId);
@@ -81,40 +130,41 @@ export function FloatingStoryPill({
   return (
     <div
       aria-hidden={!visible}
-      className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`fixed bottom-5 left-4 sm:left-1/2 sm:-translate-x-1/2 z-40 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
         visible
           ? 'translate-y-0 opacity-100 pointer-events-auto'
-          : 'translate-y-8 opacity-0 pointer-events-none'
+          : 'translate-y-4 opacity-0 pointer-events-none'
       }`}
     >
-      <div className="backdrop-blur-md bg-[#FAF8F5]/92 border border-[#E5DFD5] shadow-xl hover:shadow-2xl rounded-full px-3.5 py-1.5 sm:px-4 sm:py-2 flex items-center gap-2.5 sm:gap-4 max-w-[94vw] sm:max-w-lg transition-all">
+      {/* Luxury Deep Charcoal Pill (High Contrast, Zero Bleed-Through) */}
+      <div className="bg-[#1C1917]/[0.96] backdrop-blur-md text-[#FAF8F5] border border-[#C5A059]/35 shadow-[0_14px_34px_rgba(0,0,0,0.28)] rounded-full px-3 py-1.5 sm:px-4 sm:py-2 flex items-center gap-2 sm:gap-3.5 max-w-[calc(100vw-110px)] sm:max-w-lg transition-all">
         {/* Progress & Title */}
         <div className="flex items-center gap-2 min-w-0 pr-1">
-          {/* Mini progress dot */}
-          <div className="w-2 h-2 rounded-full bg-[#8C6D46] animate-pulse shrink-0" />
+          {/* Mini Gold Progress Dot */}
+          <div className="w-2 h-2 rounded-full bg-[#E5C585] animate-pulse shrink-0 shadow-[0_0_8px_rgba(229,197,133,0.6)]" />
 
           <div className="flex flex-col min-w-0">
-            <span className="font-serif font-light text-charcoal-900 truncate max-w-[120px] sm:max-w-[210px] text-xs sm:text-[13px] leading-tight">
+            <span className="font-serif font-normal text-[#FAF8F5] truncate max-w-[100px] sm:max-w-[210px] text-xs sm:text-[13px] leading-tight">
               {title}
             </span>
-            <span className="text-[10px] text-stone-500 font-mono">
+            <span className="text-[10px] text-[#E5C585] font-mono tracking-tight font-medium">
               {verbText} {progressPercent}% {actionText}
             </span>
           </div>
         </div>
 
         {/* Vertical divider */}
-        <div className="w-[1px] h-6 bg-stone-300/80 shrink-0" />
+        <div className="w-[1px] h-6 bg-[#C5A059]/30 shrink-0" />
 
-        {/* CTA Button */}
+        {/* High-Contrast Bold CTA Button */}
         <button
           type="button"
           onClick={handleScrollToForm}
           aria-label={`Tư vấn concept ${conceptName || title}`}
-          className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-[#8C6D46] hover:bg-[#785934] text-white text-[10px] sm:text-xs uppercase tracking-wider font-medium transition-all shadow-xs shrink-0 flex items-center gap-1 active:scale-95 cursor-pointer whitespace-nowrap"
+          className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#B88E3E] hover:to-[#C5A059] text-[#1C1917] text-[10px] sm:text-xs uppercase tracking-wider font-bold transition-all shadow-sm shrink-0 flex items-center gap-1 active:scale-95 cursor-pointer whitespace-nowrap"
         >
           <span>Tư vấn Concept</span>
-          <Sparkles className="w-3 h-3 text-amber-200 shrink-0" />
+          <Sparkles className="w-3 h-3 text-[#1C1917] shrink-0" />
         </button>
       </div>
     </div>
