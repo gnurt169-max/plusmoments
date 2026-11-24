@@ -291,14 +291,16 @@ export default function AdminInvitationsPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('slug', selectedForEdit.slug);
+      formData.append('invitationSlug', selectedForEdit.slug);
 
       const res = await fetch('/api/invitations/upload', {
         method: 'POST',
         body: formData,
       });
       const data = await res.json();
-      if (data.success && data.url) {
-        setEditForm((prev) => ({ ...prev, coverImage: data.url }));
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setEditForm((prev) => ({ ...prev, coverImage: uploadedUrl }));
         showToast('Tải ảnh bìa thành công!');
       } else {
         showToast(data.error || 'Tải ảnh bìa thất bại');
@@ -326,15 +328,17 @@ export default function AdminInvitationsPage() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('slug', selectedForEdit.slug);
+        formData.append('invitationSlug', selectedForEdit.slug);
 
         const res = await fetch('/api/invitations/upload', {
           method: 'POST',
           body: formData,
         });
         const data = await res.json();
-        if (data.success && data.url) {
+        const uploadedUrl = data.url || data.image?.url;
+        if (data.success && uploadedUrl) {
           newImages.push({
-            url: data.url,
+            url: uploadedUrl,
             width: data.width || 1200,
             height: data.height || 800,
             caption: '',
@@ -1121,7 +1125,6 @@ export default function AdminInvitationsPage() {
                     type="text"
                     value={editForm.coverImage}
                     onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
-                    placeholder="/uploads/invitations/..."
                     className="flex-1 h-9 px-3 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
                   />
                   <label className="h-9 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
@@ -1169,14 +1172,12 @@ export default function AdminInvitationsPage() {
                       type="text"
                       value={editForm.groomImage}
                       onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
-                      placeholder="URL ảnh chú rể..."
                       className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
                     />
                     <input
                       type="text"
                       value={editForm.groomBio}
                       onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
-                      placeholder="Lời giới thiệu Chú Rể (Bio)..."
                       className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
                     />
                   </div>
@@ -1187,14 +1188,12 @@ export default function AdminInvitationsPage() {
                       type="text"
                       value={editForm.brideImage}
                       onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
-                      placeholder="URL ảnh cô dâu..."
                       className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
                     />
                     <input
                       type="text"
                       value={editForm.brideBio}
                       onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
-                      placeholder="Lời giới thiệu Cô Dâu (Bio)..."
                       className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
                     />
                   </div>
@@ -1306,14 +1305,12 @@ export default function AdminInvitationsPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="Tiêu đề câu chuyện"
                   value={editForm.storyTitle}
                   onChange={(e) => setEditForm({ ...editForm, storyTitle: e.target.value })}
                   className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                 />
                 <textarea
                   rows={3}
-                  placeholder="Đoạn văn lời ngỏ..."
                   value={editForm.storyText}
                   onChange={(e) => setEditForm({ ...editForm, storyText: e.target.value })}
                   className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"

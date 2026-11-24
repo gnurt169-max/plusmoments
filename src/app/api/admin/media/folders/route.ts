@@ -123,6 +123,8 @@ export async function GET() {
         slug: f.slug,
         name: f.name,
         path: `/uploads/folders/${f.slug}`,
+        isInvitation: false,
+        category: 'album',
         imageCount,
         totalBytes,
         formattedSize: formatBytes(totalBytes),
@@ -189,6 +191,13 @@ export async function GET() {
     const invitationsBaseDir = path.join(process.cwd(), 'public', 'uploads', 'invitations');
     if (fs.existsSync(invitationsBaseDir)) {
       try {
+        const dbInvitations = await prisma.weddingInvitation.findMany({
+          select: { slug: true, groomName: true, brideName: true },
+        });
+        const invTitleMap = new Map(
+          dbInvitations.map((i) => [i.slug, `${i.groomName} & ${i.brideName}`])
+        );
+
         const invEntries = await fs.promises.readdir(invitationsBaseDir, { withFileTypes: true });
         for (const entry of invEntries) {
           if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
@@ -223,11 +232,20 @@ export async function GET() {
           }
 
           const folderKey = `invitation-${invSlug}`;
+          const coupleTitle = invTitleMap.get(invSlug);
+          const folderDisplayName = coupleTitle
+            ? `Thiệp: ${coupleTitle} (${invSlug})`
+            : `Thiệp: ${invSlug}`;
+
           folderMap.set(folderKey, {
             id: folderKey,
             slug: folderKey,
-            name: `Thiệp: ${invSlug}`,
+            name: folderDisplayName,
             path: `/uploads/invitations/${invSlug}`,
+            isInvitation: true,
+            category: 'invitation',
+            invitationSlug: invSlug,
+            coupleTitle: coupleTitle || null,
             imageCount: diskNonVariantCount,
             totalBytes: diskBytes,
             formattedSize: formatBytes(diskBytes),

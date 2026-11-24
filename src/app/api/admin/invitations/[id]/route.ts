@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 
@@ -161,6 +163,22 @@ export async function DELETE(
     const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ success: false, error: 'Chưa đăng nhập' }, { status: 401 });
+    }
+
+    const invitation = await prisma.weddingInvitation.findUnique({
+      where: { id: params.id },
+      select: { id: true, slug: true },
+    });
+
+    if (invitation?.slug) {
+      const invDir = path.join(process.cwd(), 'public', 'uploads', 'invitations', invitation.slug);
+      try {
+        if (fs.existsSync(invDir)) {
+          await fs.promises.rm(invDir, { recursive: true, force: true });
+        }
+      } catch (e) {
+        console.warn('Could not remove invitation folder on delete:', e);
+      }
     }
 
     await prisma.weddingInvitation.delete({

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 
@@ -136,6 +138,61 @@ export async function POST(request: Request) {
 
     const editPasscode = requestedPasscode?.trim() || generatePasscode();
 
+    // Organize invitation media folder: rename from draftSlug (or drafts) to finalSlug
+    const draftSlug = body.draftSlug ? String(body.draftSlug).trim() : null;
+
+    let finalCoverImage = coverImage;
+    let finalGroomImage = groomImage?.trim() || null;
+    let finalBrideImage = brideImage?.trim() || null;
+    let finalBankQrImage = bankQrImage || null;
+    let finalGalleryImages = Array.isArray(galleryImages) ? galleryImages : [];
+
+    const dirsToCheck = [draftSlug, 'drafts'].filter(Boolean) as string[];
+    for (const dSlug of dirsToCheck) {
+      if (dSlug !== finalSlug) {
+        const oldDir = path.join(process.cwd(), 'public', 'uploads', 'invitations', dSlug);
+        const newDir = path.join(process.cwd(), 'public', 'uploads', 'invitations', finalSlug);
+
+        if (fs.existsSync(oldDir)) {
+          if (!fs.existsSync(newDir)) {
+            await fs.promises.mkdir(newDir, { recursive: true });
+          }
+          try {
+            const files = await fs.promises.readdir(oldDir);
+            for (const file of files) {
+              if (file.startsWith('.')) continue;
+              const oldFile = path.join(oldDir, file);
+              const newFile = path.join(newDir, file);
+              if (dSlug === 'drafts') {
+                await fs.promises.copyFile(oldFile, newFile);
+              } else {
+                await fs.promises.rename(oldFile, newFile);
+              }
+            }
+            if (dSlug !== 'drafts') {
+              await fs.promises.rm(oldDir, { recursive: true, force: true }).catch(() => {});
+            }
+          } catch (e) {
+            console.warn('Could not move draft invitation media directory:', e);
+          }
+        }
+
+        const rewriteUrl = (url: string | null | undefined) => {
+          if (!url) return url;
+          return url.replace(`/uploads/invitations/${dSlug}/`, `/uploads/invitations/${finalSlug}/`);
+        };
+
+        finalCoverImage = rewriteUrl(finalCoverImage) || finalCoverImage;
+        finalGroomImage = rewriteUrl(finalGroomImage) || finalGroomImage;
+        finalBrideImage = rewriteUrl(finalBrideImage) || finalBrideImage;
+        finalBankQrImage = rewriteUrl(finalBankQrImage) || finalBankQrImage;
+        finalGalleryImages = finalGalleryImages.map((img: any) => ({
+          ...img,
+          url: rewriteUrl(img.url) || img.url,
+        }));
+      }
+    }
+
     const invitation = await prisma.weddingInvitation.create({
       data: {
         slug: finalSlug,
@@ -145,8 +202,8 @@ export async function POST(request: Request) {
         brideName: brideName.trim(),
         groomParents: groomParents?.trim() || null,
         brideParents: brideParents?.trim() || null,
-        groomImage: groomImage?.trim() || null,
-        brideImage: brideImage?.trim() || null,
+        groomImage: finalGroomImage,
+        brideImage: finalBrideImage,
         groomBio: groomBio?.trim() || null,
         brideBio: brideBio?.trim() || null,
         ceremonyDate: new Date(ceremonyDate),
@@ -156,10 +213,10 @@ export async function POST(request: Request) {
         googleMapsUrl: googleMapsUrl?.trim() || null,
         storyTitle: storyTitle?.trim() || null,
         storyText: storyText?.trim() || null,
-        coverImage,
-        galleryImages: Array.isArray(galleryImages) ? galleryImages : [],
+        coverImage: finalCoverImage,
+        galleryImages: finalGalleryImages,
         musicPreset,
-        bankQrImage: bankQrImage || null,
+        bankQrImage: finalBankQrImage,
         bankInfoText: bankInfoText?.trim() || null,
         editPasscode,
         isPublished: true,

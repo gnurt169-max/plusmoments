@@ -10,15 +10,22 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
     const singleFile = formData.get('file') as File | null;
-    const rawSlug = formData.get('slug') || formData.get('folderKey') || 'drafts';
+    const rawSlug =
+      formData.get('invitationSlug') ||
+      formData.get('slug') ||
+      formData.get('folder') ||
+      formData.get('folderKey') ||
+      'drafts';
 
-    // Sanitize folder name
-    const folderName = String(rawSlug)
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9_-]/g, '-')
-      .replace(/-+/g, '-')
-      .slice(0, 50) || 'drafts';
+    // Sanitize folder name (lowercase, numbers, and dashes only)
+    const folderName =
+      String(rawSlug)
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 60) || 'drafts';
 
     const filesToProcess: File[] = [];
     if (files && files.length > 0) {
@@ -111,6 +118,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       folder: folderName,
+      url: uploadedImages[0]?.url,
       images: uploadedImages,
       // If single file uploaded, return top-level image info as well
       image: uploadedImages[0],

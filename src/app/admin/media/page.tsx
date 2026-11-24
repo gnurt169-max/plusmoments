@@ -106,6 +106,10 @@ interface FolderItem {
   createdAt: string;
   updatedAt?: string;
   modifiedAt: string;
+  isInvitation?: boolean;
+  category?: 'album' | 'invitation';
+  invitationSlug?: string;
+  coupleTitle?: string | null;
 }
 
 function formatBytes(bytes: number, decimals = 1): string {
@@ -159,6 +163,7 @@ export default function AdminMediaPage() {
   // Folder Navigation State (null = Root level)
   const [currentFolder, setCurrentFolder] = useState<FolderItem | null>(null);
   const [folderImages, setFolderImages] = useState<MediaItem[]>([]);
+  const [folderFilterCategory, setFolderFilterCategory] = useState<'ALL' | 'ALBUMS' | 'INVITATIONS'>('ALL');
   const [folderLoading, setFolderLoading] = useState(false);
 
   // Search & Filter & Sort & Orientation state
@@ -1578,12 +1583,52 @@ export default function AdminMediaPage() {
     };
   }, [selectedFileIds, displayImages]);
 
+  // Album and Invitation Folder Counts
+  const albumFoldersCount = useMemo(
+    () =>
+      folders.filter(
+        (f) =>
+          !f.isInvitation &&
+          !f.slug.startsWith('invitation-') &&
+          !f.path.includes('/invitations/')
+      ).length,
+    [folders]
+  );
+
+  const invitationFoldersCount = useMemo(
+    () =>
+      folders.filter(
+        (f) =>
+          f.isInvitation ||
+          f.slug.startsWith('invitation-') ||
+          f.path.includes('/invitations/')
+      ).length,
+    [folders]
+  );
+
   // Filtered Folders list
   const filteredFolders = useMemo(() => {
-    if (!searchQuery.trim() || currentFolder) return folders;
+    let list = folders;
+    if (folderFilterCategory === 'ALBUMS') {
+      list = list.filter(
+        (f) =>
+          !f.isInvitation &&
+          !f.slug.startsWith('invitation-') &&
+          !f.path.includes('/invitations/')
+      );
+    } else if (folderFilterCategory === 'INVITATIONS') {
+      list = list.filter(
+        (f) =>
+          f.isInvitation ||
+          f.slug.startsWith('invitation-') ||
+          f.path.includes('/invitations/')
+      );
+    }
+
+    if (!searchQuery.trim() || currentFolder) return list;
     const q = searchQuery.toLowerCase().trim();
-    return folders.filter((f) => f.name.toLowerCase().includes(q) || f.slug.includes(q));
-  }, [folders, searchQuery, currentFolder]);
+    return list.filter((f) => f.name.toLowerCase().includes(q) || f.slug.includes(q));
+  }, [folders, searchQuery, currentFolder, folderFilterCategory]);
 
   // Folder Selection Helpers
   const toggleSelectFolder = (id: string, e?: React.MouseEvent) => {
@@ -1777,6 +1822,23 @@ export default function AdminMediaPage() {
           {currentFolder && (
             <>
               <ChevronRight className="w-3.5 h-3.5 text-stone-300 shrink-0" />
+              {(currentFolder.isInvitation ||
+                currentFolder.slug.startsWith('invitation-') ||
+                currentFolder.path.includes('/invitations/')) && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentFolder(null);
+                      setFolderFilterCategory('INVITATIONS');
+                    }}
+                    className="flex items-center gap-1 text-rose-700 hover:underline font-medium cursor-pointer"
+                  >
+                    <span>💌 Thiệp Cưới Online</span>
+                  </button>
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-300 shrink-0" />
+                </>
+              )}
               <div className="flex items-center gap-1.5 text-charcoal-900 font-semibold bg-stone-100 px-3 py-1 rounded-lg">
                 <Folder className="w-3.5 h-3.5 fill-amber-400 text-amber-600" />
                 <span className="truncate max-w-[200px] sm:max-w-md">{currentFolder.name}</span>
@@ -1865,14 +1927,58 @@ export default function AdminMediaPage() {
               <div>
                 <h2 className="font-serif text-lg sm:text-xl font-light text-charcoal-900 flex items-center gap-2">
                   <Folder className="w-5 h-5 fill-amber-400 text-amber-600" />
-                  <span>Danh Sách Thư Mục Album ({filteredFolders.length})</span>
+                  <span>
+                    {folderFilterCategory === 'INVITATIONS'
+                      ? `Thư Mục Thiệp Cưới Online (${filteredFolders.length})`
+                      : folderFilterCategory === 'ALBUMS'
+                      ? `Thư Mục Album Cưới (${filteredFolders.length})`
+                      : `Danh Sách Tất Cả Thư Mục (${filteredFolders.length})`}
+                  </span>
                 </h2>
                 <p className="text-xs text-charcoal-500 font-light mt-0.5">
-                  Nhấp vào thư mục để xem toàn bộ ảnh bên trong, hoặc dùng để gán nhanh 1 click vào Album cưới.
+                  Quản lý phân cấp thư mục ảnh Album và toàn bộ thư mục thiệp cưới của khách hàng.
                 </p>
+
+                {/* FOLDER CATEGORY FILTER TABS */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setFolderFilterCategory('ALL')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                      folderFilterCategory === 'ALL'
+                        ? 'bg-[#1C1917] text-white shadow-xs font-semibold'
+                        : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                    }`}
+                  >
+                    Tất Cả Thư Mục ({folders.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFolderFilterCategory('ALBUMS')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                      folderFilterCategory === 'ALBUMS'
+                        ? 'bg-amber-800 text-white shadow-xs font-semibold'
+                        : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                    }`}
+                  >
+                    <Folder className="w-3.5 h-3.5 fill-amber-300" />
+                    <span>Album Ảnh ({albumFoldersCount})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFolderFilterCategory('INVITATIONS')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                      folderFilterCategory === 'INVITATIONS'
+                        ? 'bg-rose-700 text-white shadow-xs font-semibold'
+                        : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/60'
+                    }`}
+                  >
+                    <span>💌 Thiệp Cưới Online ({invitationFoldersCount})</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => {
@@ -2044,6 +2150,15 @@ export default function AdminMediaPage() {
                         <div className="text-stone-300 flex flex-col items-center gap-1">
                           <Folder className="w-10 h-10 fill-amber-100 text-amber-400" />
                           <span className="text-[10px] text-stone-400 font-mono">Thư mục trống</span>
+                        </div>
+                      )}
+
+                      {/* Invitation Badge */}
+                      {(f.isInvitation ||
+                        f.slug.startsWith('invitation-') ||
+                        f.path.includes('/invitations/')) && (
+                        <div className="absolute top-2 left-10 z-10 px-2 py-0.5 rounded-full bg-rose-900/85 backdrop-blur-xs text-white text-[9px] font-semibold tracking-wider flex items-center gap-1 shadow-xs">
+                          <span>💌 Thiệp Cưới</span>
                         </div>
                       )}
 

@@ -77,6 +77,13 @@ export default function CreateWeddingInvitationPage() {
   const [previewKey, setPreviewKey] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Stable unique draft slug for organizing uploads into /uploads/invitations/[draftSlug]/
+  const [draftSlug] = useState<string>(() => {
+    const randomHex = Math.random().toString(36).substring(2, 6);
+    return `draft-${Date.now().toString(36)}-${randomHex}`;
+  });
+
   const [createdResult, setCreatedResult] = useState<{
     slug: string;
     editPasscode: string;
@@ -97,7 +104,7 @@ export default function CreateWeddingInvitationPage() {
     }
   };
 
-  // Upload handler for Gallery & Cover
+  // Upload handler for Gallery & Cover (organized into /uploads/invitations/[draftSlug]/)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isCoverOnly = false) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -105,6 +112,8 @@ export default function CreateWeddingInvitationPage() {
     try {
       setIsUploading(true);
       const formData = new FormData();
+      formData.append('slug', draftSlug);
+      formData.append('invitationSlug', draftSlug);
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
       }
@@ -136,7 +145,7 @@ export default function CreateWeddingInvitationPage() {
     }
   };
 
-  // Upload QR code image
+  // Upload QR code image (organized into /uploads/invitations/[draftSlug]/)
   const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -145,6 +154,8 @@ export default function CreateWeddingInvitationPage() {
       setIsUploading(true);
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('slug', draftSlug);
+      formData.append('invitationSlug', draftSlug);
 
       const res = await fetch('/api/invitations/upload', {
         method: 'POST',
@@ -214,6 +225,7 @@ export default function CreateWeddingInvitationPage() {
         bankQrImage,
         bankInfoText,
         customSlug,
+        draftSlug,
       };
 
       const res = await fetch('/api/invitations', {
@@ -737,6 +749,8 @@ export default function CreateWeddingInvitationPage() {
                                 setIsUploading(true);
                                 const fd = new FormData();
                                 fd.append('file', f);
+                                fd.append('slug', draftSlug);
+                                fd.append('invitationSlug', draftSlug);
                                 const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
                                 const d = await res.json();
                                 if (d.image?.url) setGroomImage(d.image.url);
@@ -791,6 +805,8 @@ export default function CreateWeddingInvitationPage() {
                                 setIsUploading(true);
                                 const fd = new FormData();
                                 fd.append('file', f);
+                                fd.append('slug', draftSlug);
+                                fd.append('invitationSlug', draftSlug);
                                 const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
                                 const d = await res.json();
                                 if (d.image?.url) setBrideImage(d.image.url);

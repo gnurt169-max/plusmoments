@@ -272,9 +272,21 @@ export async function resolveFolder(identifier: string): Promise<ResolvedFolder 
   // Xác định các định danh chuẩn
   const canonicalSlug = matchedDiskSlug || dbFolder?.slug || slugified || cleanParam;
   const isInvitationFolder = canonicalSlug.startsWith('invitation-') || physicalDir?.includes('/uploads/invitations/');
-  const canonicalName = isInvitationFolder
-    ? `Thiệp: ${canonicalSlug.replace(/^invitation-/, '')}`
-    : dbFolder?.name || cleanParam.replace(/[-_]/g, ' ') || canonicalSlug;
+  let canonicalName = dbFolder?.name || cleanParam.replace(/[-_]/g, ' ') || canonicalSlug;
+
+  if (isInvitationFolder) {
+    const cleanInvSlug = canonicalSlug.replace(/^invitation-/, '');
+    canonicalName = `Thiệp: ${cleanInvSlug}`;
+    try {
+      const inv = await prisma.weddingInvitation.findFirst({
+        where: { slug: cleanInvSlug },
+        select: { groomName: true, brideName: true },
+      });
+      if (inv) {
+        canonicalName = `Thiệp: ${inv.groomName} & ${inv.brideName} (${cleanInvSlug})`;
+      }
+    } catch {}
+  }
 
   // Nếu thư mục vật lý tồn tại trên đĩa nhưng chưa có trong Database, tự động tạo bản ghi MediaFolder (bỏ qua thư mục thiệp)
   if (!dbFolder && physicalDir && !isInvitationFolder) {

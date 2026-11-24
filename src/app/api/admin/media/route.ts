@@ -240,6 +240,8 @@ export async function GET(request: Request) {
         slug: folderSlug,
         name: folderName,
         path: `/uploads/folders/${folderSlug}`,
+        isInvitation: false,
+        category: 'album',
         imageCount: folderImages.length,
         totalBytes: totalFolderBytes,
         formattedSize: formatBytes(totalFolderBytes),
@@ -251,10 +253,17 @@ export async function GET(request: Request) {
       });
     }
 
-    // Also include invitations subfolders
+    // Also include invitations subfolders (/uploads/invitations/[slug])
     const invitationsBaseDir = path.join(uploadsDir, 'invitations');
     if (fs.existsSync(invitationsBaseDir)) {
       try {
+        const dbInvitations = await prisma.weddingInvitation.findMany({
+          select: { slug: true, groomName: true, brideName: true },
+        });
+        const invTitleMap = new Map(
+          dbInvitations.map((i) => [i.slug, `${i.groomName} & ${i.brideName}`])
+        );
+
         const invEntries = await fs.promises.readdir(invitationsBaseDir, { withFileTypes: true });
         for (const entry of invEntries) {
           if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
@@ -263,12 +272,20 @@ export async function GET(request: Request) {
             m.url.startsWith(`/uploads/invitations/${invSlug}/`)
           );
           const totalFolderBytes = folderImages.reduce((sum, img) => sum + img.size, 0);
+          const coupleTitle = invTitleMap.get(invSlug);
+          const folderDisplayName = coupleTitle
+            ? `Thiệp: ${coupleTitle} (${invSlug})`
+            : `Thiệp: ${invSlug}`;
 
           folders.push({
             id: `invitation-${invSlug}`,
             slug: `invitation-${invSlug}`,
-            name: `Thiệp: ${invSlug}`,
+            name: folderDisplayName,
             path: `/uploads/invitations/${invSlug}`,
+            isInvitation: true,
+            category: 'invitation',
+            invitationSlug: invSlug,
+            coupleTitle: coupleTitle || null,
             imageCount: folderImages.length,
             totalBytes: totalFolderBytes,
             formattedSize: formatBytes(totalFolderBytes),
