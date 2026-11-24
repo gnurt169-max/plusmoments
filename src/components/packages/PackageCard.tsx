@@ -64,21 +64,22 @@ export function PackageCard({
     <article
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] border-[#E8E2D9] shadow-sm md:hover:shadow-2xl md:hover:-translate-y-1.5 ${
-        pkg.isPopular
-          ? 'ring-2 ring-amber-500/40 border-amber-500/50 shadow-md'
-          : 'md:hover:border-amber-400/60'
+      className={`group relative rounded-3xl overflow-hidden flex flex-col w-full h-full transition-all duration-300 border cursor-pointer select-none bg-[#FAF8F5] shadow-sm md:hover:shadow-2xl md:hover:-translate-y-1.5 ${
+        pkg.isPopular || pkg.isFeatured
+          ? 'ring-2 ring-[#C5A059] border-[#C5A059] shadow-md'
+          : 'border-[#E8E2D9] md:hover:border-[#C5A059]/60'
       }`}
     >
       {/* 1. COVER IMAGE */}
-      <div className="relative w-full aspect-[16/10] sm:aspect-[16/11] md:aspect-[4/3] shrink-0 overflow-hidden bg-[#F3EFEA]">
+      <div className="relative w-full aspect-[16/10] shrink-0 overflow-hidden bg-[#F3EFEA]">
         {coverImg ? (
           <ProgressiveImage
             src={coverImg}
             alt={pkg.name}
             priority={priority}
-            aspectClassName="aspect-[16/10] sm:aspect-[16/11] md:aspect-[4/3]"
-            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px"
+            aspectRatio="16/10"
+            objectPosition="object-[50%_20%]"
+            sizes="(max-width: 640px) 96vw, (max-width: 1024px) 50vw, 420px"
             className="w-full h-full"
             imageClassName="object-cover group-hover:scale-105 transition-all duration-700 ease-out select-none pointer-events-none"
             onError={() => setHasError(true)}
@@ -95,7 +96,7 @@ export function PackageCard({
         {(pkg.isPopular || pkg.isFeatured) && (
           <div className="absolute top-3.5 right-3.5 z-10 px-3 py-1 rounded-full bg-gradient-to-r from-amber-600 to-amber-800 text-white text-[10px] uppercase tracking-widest font-semibold shadow-md flex items-center gap-1.5 border border-amber-300/40">
             <Sparkles className="w-3 h-3 text-amber-200" />
-            <span>{pkg.isPopular ? 'Lựa Chọn Nhiều Nhất' : 'Gói Tiêu Biểu'}</span>
+            <span>{pkg.isPopular ? 'Được Chọn Nhiều Nhất' : 'Gói Tiêu Biểu'}</span>
           </div>
         )}
 
