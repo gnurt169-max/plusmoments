@@ -37,6 +37,16 @@ export default function GlobalError({
               Về Trang Chủ
             </a>
           </div>
+
+          <div className="pt-4 border-t border-stone-200/60 text-xs text-stone-500 font-light">
+            <span>Cần hỗ trợ nhanh? Email studio:{' '}</span>
+            <a
+              href="mailto:trunglnm@plusmoments.vn"
+              className="text-[#8C6D46] font-medium underline underline-offset-4 hover:opacity-80"
+            >
+              trunglnm@plusmoments.vn
+            </a>
+          </div>
         </main>
       </body>
     </html>

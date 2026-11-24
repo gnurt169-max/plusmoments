@@ -2,8 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { RotateCcw, Home, Sparkles, HelpCircle } from 'lucide-react';
-import { useContact } from '@/context/ContactContext';
+import { RotateCcw, Home, Sparkles, Mail } from 'lucide-react';
 
 export default function GlobalError({
   error,
@@ -12,9 +11,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const { contact } = useContact();
-  const hotlineRaw = contact?.hotline || '0901577993';
-  const hotlineText = contact?.hotlineDisplay || contact?.hotline || '0901.577.993';
+  const supportEmail = 'trunglnm@plusmoments.vn';
 
   useEffect(() => {
     // Log exception for debugging without exposing raw details to visitors
@@ -65,15 +62,15 @@ export default function GlobalError({
           </Link>
         </div>
 
-        {/* Support Hotline Hint */}
+        {/* Support Email Hint */}
         <div className="pt-6 border-t border-stone-200/60 flex items-center justify-center gap-2 text-xs text-stone-500 font-light">
-          <HelpCircle className="w-3.5 h-3.5 text-stone-400" />
-          <span>Cần hỗ trợ nhanh? Hotline studio: </span>
+          <Mail className="w-3.5 h-3.5 text-stone-400" />
+          <span>Cần hỗ trợ nhanh? Email studio: </span>
           <a
-            href={`tel:${hotlineRaw}`}
-            className="font-medium text-[#9A6436] hover:underline"
+            href={`mailto:${supportEmail}`}
+            className="text-[#8C6D46] font-medium underline underline-offset-4 hover:opacity-80"
           >
-            {hotlineText}
+            {supportEmail}
           </a>
         </div>
       </div>
