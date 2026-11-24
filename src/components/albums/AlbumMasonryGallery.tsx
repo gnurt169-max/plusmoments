@@ -138,11 +138,21 @@ export function AlbumMasonryGallery({
           priority={false}
           orientation={item.orientation}
           objectPosition={item.orientation === 'portrait' ? 'object-[50%_18%]' : 'object-center'}
-          aspectRatio={aspectClass.includes('16/9') ? '16/9' : aspectClass.includes('3/4') ? '3/4' : '3/2'}
+          aspectRatio={
+            aspectClass.includes('16/9')
+              ? '16/9'
+              : aspectClass.includes('4/5')
+              ? '4/5'
+              : aspectClass.includes('3/4')
+              ? '3/4'
+              : '3/2'
+          }
           aspectClassName={aspectClass}
           sizes={
             aspectClass.includes('16/9')
               ? '100vw'
+              : aspectClass.includes('4/5')
+              ? '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 420px'
               : aspectClass.includes('3/4')
               ? '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px'
               : '(max-width: 768px) 100vw, 640px'
@@ -190,16 +200,6 @@ export function AlbumMasonryGallery({
 
   // Landscape Layout: If odd count, index 0 is full-width hero (16:9), remaining are pairs (3:2)
   const isLandscapeOdd = landscapeItems.length % 2 === 1;
-
-  // Portrait Layout: Full rows of 3, remainder (1 or 2 items) centered in the last row
-  const portraitRemainderCount = portraitItems.length % 3;
-  const portraitFullCount =
-    portraitRemainderCount === 0
-      ? portraitItems.length
-      : portraitItems.length - portraitRemainderCount;
-
-  const fullGridPortraits = portraitItems.slice(0, portraitFullCount);
-  const remainderPortraits = portraitItems.slice(portraitFullCount);
 
   return (
     <div className="space-y-8 sm:space-y-12">
@@ -298,7 +298,7 @@ export function AlbumMasonryGallery({
       )}
 
       {/* =========================================================================
-          2. KHU VỰC ẢNH DỌC (PORTRAIT GALLERY - ROW-BALANCED & CENTERED REMAINDER)
+          2. KHU VỰC ẢNH DỌC (PORTRAIT GALLERY - ZERO-GAP EDITORIAL GRID)
       ========================================================================= */}
       {(viewFilter === 'all' || viewFilter === 'portrait') && portraitItems.length > 0 && (
         <section className="space-y-4">
@@ -316,51 +316,27 @@ export function AlbumMasonryGallery({
             </div>
           )}
 
-          {/* Main Portrait Grid: 2 columns on mobile, 3 columns on tablet/desktop */}
-          {fullGridPortraits.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 [overflow-anchor:none]">
-              {fullGridPortraits.map(({ item, originalIndex }, idx) => (
+          {/* Zero-Gap Editorial Grid: 2 columns on Mobile (< md), 3 columns on Desktop (>= md) */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 [overflow-anchor:none]">
+            {portraitItems.map(({ item, originalIndex }, idx) => {
+              const isLast = idx === portraitItems.length - 1;
+              // When odd count on mobile 2-column grid, expand last item to 2 columns (aspect 4/5)
+              const isMobileOddLast = isLast && portraitItems.length % 2 !== 0;
+              const aspectClass = isMobileOddLast
+                ? 'aspect-[4/5] md:aspect-[3/4]'
+                : 'aspect-[3/4]';
+
+              return (
                 <EditorialReveal
                   key={item.id}
                   delay={(idx % 3) * 60}
-                  className="h-full"
+                  className={`h-full ${isMobileOddLast ? 'col-span-2 md:col-span-1' : ''}`}
                 >
-                  {renderPhotoCard(item, originalIndex, 'aspect-[3/4]')}
+                  {renderPhotoCard(item, originalIndex, aspectClass)}
                 </EditorialReveal>
-              ))}
-            </div>
-          )}
-
-          {/* Centered Remainder: If 1 item, center it */}
-          {remainderPortraits.length === 1 && (
-            <div className="flex justify-center pt-2 [overflow-anchor:none]">
-              <div className="w-full max-w-[calc(50%-0.5rem)] md:max-w-[calc(33.333%-1rem)]">
-                <EditorialReveal key={remainderPortraits[0].item.id} delay={60}>
-                  {renderPhotoCard(
-                    remainderPortraits[0].item,
-                    remainderPortraits[0].originalIndex,
-                    'aspect-[3/4]'
-                  )}
-                </EditorialReveal>
-              </div>
-            </div>
-          )}
-
-          {/* Centered Remainder: If 2 items, center pair */}
-          {remainderPortraits.length === 2 && (
-            <div className="flex justify-center gap-4 md:gap-6 pt-2 [overflow-anchor:none]">
-              {remainderPortraits.map(({ item, originalIndex }, idx) => (
-                <div
-                  key={item.id}
-                  className="w-[calc(50%-0.5rem)] md:w-[calc(33.333%-1rem)]"
-                >
-                  <EditorialReveal delay={idx * 60}>
-                    {renderPhotoCard(item, originalIndex, 'aspect-[3/4]')}
-                  </EditorialReveal>
-                </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
         </section>
       )}
 
