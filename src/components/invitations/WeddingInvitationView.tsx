@@ -12,6 +12,7 @@ import {
   Sparkles,
   CheckCircle2,
   ChevronDown,
+  ArrowRight,
 } from 'lucide-react';
 import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import { INVITATION_TEMPLATES, InvitationGalleryImage } from '@/lib/invitations/templates';
@@ -60,12 +61,31 @@ export interface InvitationViewData {
   }>;
 }
 
+export interface CuratedServicePackage {
+  id: string;
+  name: string;
+  slug: string;
+  subtitle?: string | null;
+  price: number;
+  originalPrice?: number | null;
+  unit?: string;
+  coverImage?: string;
+  highlightPoints?: string[];
+  category?: string;
+  badgeText?: string | null;
+}
+
 interface WeddingInvitationViewProps {
   data: InvitationViewData;
   isPreview?: boolean;
+  servicePackages?: CuratedServicePackage[];
 }
 
-export function WeddingInvitationView({ data, isPreview = false }: WeddingInvitationViewProps) {
+export function WeddingInvitationView({
+  data,
+  isPreview = false,
+  servicePackages = [],
+}: WeddingInvitationViewProps) {
   // Envelope opening states
   const [isOpenEnvelope, setIsOpenEnvelope] = useState<boolean>(false);
   const [isOpeningFlap, setIsOpeningFlap] = useState<boolean>(false);
@@ -929,31 +949,133 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
             )}
           </div>
         </InvitationSectionReveal>
+
+        {/* 1. REPOSITIONED INVITATION FOOTER CREDITS (Tight mt-6 mb-4 right under RSVP Card) */}
+        <div className="mt-6 mb-4 text-center space-y-2 px-2">
+          <div>
+            <Link
+              href="/thiep-cuoi"
+              className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-600 hover:text-[#8C6D46] transition-colors"
+            >
+              <span>Thiệp cưới được thiết kế trên</span>
+              <span className="font-semibold text-[#8C6D46] underline decoration-[#8C6D46]/40 underline-offset-4 hover:decoration-[#8C6D46]">
+                PlusMoments
+              </span>
+            </Link>
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => setIsPinModalOpen(true)}
+              className="text-[11px] tracking-wide text-[#78716C] hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline underline-offset-2 py-1"
+            >
+              <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
+            </button>
+          </div>
+        </div>
       </section>
 
-      {/* Footer Branding & Bride/Groom Edit Portal Link */}
-      <footer className="text-center py-8 space-y-3 px-4">
-        <div>
-          <Link
-            href="/thiep-cuoi"
-            className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-500 hover:text-[#8C6D46] transition-colors"
-          >
-            <span>Thiệp cưới được thiết kế trên</span>
-            <span className="font-semibold text-[#8C6D46] underline decoration-stone-300 hover:decoration-[#8C6D46]">
-              PlusMoments
+      {/* 2. CURATED SERVICE PACKAGES SHOWCASE AT BOTTOM OF INVITATION PAGE */}
+      {servicePackages && servicePackages.length > 0 && (
+        <section className="border-t border-[#E5DFD5] bg-[#F6F2EB]/70 pt-10 pb-28 px-4 sm:px-6 mt-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8C6D46] font-semibold block mb-1">
+              ✦ DÀNH CHO KHÁCH MỜI SẮP CƯỚI ✦
             </span>
-          </Link>
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => setIsPinModalOpen(true)}
-            className="text-[11px] tracking-wide text-stone-400 hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 opacity-80 hover:opacity-100"
-          >
-            <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
-          </button>
-        </div>
-      </footer>
+            <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1C1917] tracking-tight leading-snug">
+              Các Gói Chụp Ảnh & Phim Cưới Trọn Gói
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 font-normal max-w-md mx-auto leading-relaxed">
+              Lưu giữ khoảnh khắc trọng đại của hai bạn cùng đội ngũ nghệ sĩ hình ảnh PlusMoments.
+            </p>
+
+            {/* Curated Packages Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left mt-8">
+              {servicePackages.map((pkg) => (
+                <div
+                  key={pkg.id}
+                  className="rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
+                >
+                  <div className="space-y-3">
+                    {/* Package Cover Image aspect-[16/10] */}
+                    {pkg.coverImage && (
+                      <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-stone-100 bg-stone-100">
+                        <img
+                          src={pkg.coverImage}
+                          alt={pkg.name}
+                          className="w-full h-full object-cover object-[50%_20%] group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {pkg.badgeText && (
+                          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-[#8C6D46] text-white text-[9px] font-bold tracking-wider uppercase shadow-xs">
+                            {pkg.badgeText}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div>
+                      <h4 className="font-serif text-lg font-medium text-[#1C1917] leading-snug">
+                        {pkg.name}
+                      </h4>
+                      {pkg.subtitle && (
+                        <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-1">
+                          {pkg.subtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Price Tag */}
+                    <div className="pt-1 flex items-baseline gap-1.5">
+                      <span className="text-base font-serif font-bold text-[#8C6D46]">
+                        {pkg.price ? pkg.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ báo giá'}
+                      </span>
+                      {pkg.unit && (
+                        <span className="text-[10px] text-stone-400 font-normal">
+                          / {pkg.unit}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Highlights (2-3 items) */}
+                    {pkg.highlightPoints && pkg.highlightPoints.length > 0 && (
+                      <ul className="space-y-1 pt-1 text-[11px] text-stone-600 border-t border-stone-100">
+                        {pkg.highlightPoints.slice(0, 3).map((pt, idx) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <span className="text-[#8C6D46] font-bold">•</span>
+                            <span className="line-clamp-1">{pt}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-4 mt-3 border-t border-stone-100">
+                    <Link
+                      href="/bang-gia"
+                      className="w-full py-2.5 px-3 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                    >
+                      <span>Xem Chi Tiết Bảng Giá</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Secondary CTA: Tự tạo thiệp cưới miễn phí */}
+            <div className="mt-8 pt-6 border-t border-[#E5DFD5]/60 flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/thiep-cuoi/tao-moi"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#8C6D46] text-[#8C6D46] hover:bg-[#8C6D46] hover:text-white text-xs font-medium uppercase tracking-wider transition-all"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>Tự Tạo Thiệp Cưới Miễn Phí</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Quick PIN Modal for Couple */}
       <CustomerPinModal

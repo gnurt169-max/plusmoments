@@ -1,6 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { getCachedPackages } from '@/lib/cached-queries';
 import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
 import { InvitationGalleryImage } from '@/lib/invitations/templates';
 
@@ -44,15 +45,18 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function WeddingInvitationPublicPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const invitation = await prisma.weddingInvitation.findUnique({
-    where: { slug },
-    include: {
-      rsvps: {
-        orderBy: { createdAt: 'desc' },
-        take: 50,
+  const [invitation, packages] = await Promise.all([
+    prisma.weddingInvitation.findUnique({
+      where: { slug },
+      include: {
+        rsvps: {
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+        },
       },
-    },
-  });
+    }),
+    getCachedPackages(),
+  ]);
 
   if (!invitation || !invitation.isPublished) {
     notFound();
@@ -108,5 +112,20 @@ export default async function WeddingInvitationPublicPage({ params }: PageProps)
     })),
   };
 
-  return <WeddingInvitationView data={viewData} />;
+  // Serialize packages safely for client consumption
+  const curatedPackages = (packages || []).slice(0, 3).map((pkg) => ({
+    id: pkg.id,
+    name: pkg.name,
+    slug: pkg.slug,
+    subtitle: pkg.subtitle,
+    price: Number(pkg.price) || 0,
+    originalPrice: pkg.originalPrice != null ? Number(pkg.originalPrice) : null,
+    unit: pkg.unit || 'trọn gói',
+    coverImage: pkg.coverImage || pkg.demoImages?.[0] || '/uploads/albums/pre-wedding/phim-truong-da-lat-01.webp',
+    highlightPoints: Array.isArray(pkg.highlightPoints) ? pkg.highlightPoints : [],
+    category: pkg.category,
+    badgeText: pkg.badgeText,
+  }));
+
+  return <WeddingInvitationView data={viewData} servicePackages={curatedPackages} />;
 }
