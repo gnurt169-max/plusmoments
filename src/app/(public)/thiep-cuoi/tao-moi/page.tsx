@@ -55,9 +55,9 @@ export default function CreateWeddingInvitationPage() {
   const [brideBio, setBrideBio] = useState<string>('Út nữ • Cô gái dịu dàng mang nụ cười tỏa nắng');
   const [ceremonyDate, setCeremonyDate] = useState<string>('2026-12-20T11:00');
   const [ceremonyTimeText, setCeremonyTimeText] = useState<string>('11:00 — Chủ Nhật, 20.12.2026');
-  const [venueName, setVenueName] = useState<string>('White Palace Hoàng Văn Thụ');
-  const [venueAddress, setVenueAddress] = useState<string>('194 Hoàng Văn Thụ, Phường 9, Phú Nhuận, TP. Hồ Chí Minh');
-  const [googleMapsUrl, setGoogleMapsUrl] = useState<string>('https://maps.app.goo.gl/PlusMomentsDemo');
+  const [venueName, setVenueName] = useState<string>('Trung Tâm Hội Nghị White Palace Hoàng Văn Thụ');
+  const [venueAddress, setVenueAddress] = useState<string>('194 Hoàng Văn Thụ, Phường 9, Quận Phú Nhuận, TP. Hồ Chí Minh');
+  const [googleMapsUrl, setGoogleMapsUrl] = useState<string>('https://www.google.com/maps/search/?api=1&query=White+Palace+194+Ho%C3%A0ng+V%C4%83n+Th%E1%BB%A5+Ph%C3%BA+Nhu%E1%BA%ADn');
   const [storyTitle, setStoryTitle] = useState<string>('Hành Trình Yêu Thương');
   const [storyText, setStoryText] = useState<string>(
     'Từ ánh nhìn đầu tiên vào một chiều thu Hà Nội cho đến lời hẹn ước trăm năm giữa ngàn thông Đà Lạt. Hạnh phúc trọn vẹn nhất là khi chúng mình được nắm tay nhau bước vào lễ đường.'
@@ -626,7 +626,6 @@ export default function CreateWeddingInvitationPage() {
                       type="text"
                       value={ceremonyTimeText}
                       onChange={(e) => setCeremonyTimeText(e.target.value)}
-                      placeholder="11:00 — Chủ Nhật, 20.12.2026"
                       className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>

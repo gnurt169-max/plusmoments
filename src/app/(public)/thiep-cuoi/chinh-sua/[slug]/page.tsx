@@ -513,44 +513,40 @@ export default function EditWeddingInvitationPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className={`py-2 px-3 rounded-xl transition-all ${
-                  currentStep === 1
-                    ? 'bg-white text-stone-900 shadow-xs font-semibold'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
+                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 1
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+                  }`}
               >
                 1. Giao Diện
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className={`py-2 px-3 rounded-xl transition-all ${
-                  currentStep === 2
-                    ? 'bg-white text-stone-900 shadow-xs font-semibold'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
+                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 2
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+                  }`}
               >
                 2. Thông Tin
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className={`py-2 px-3 rounded-xl transition-all ${
-                  currentStep === 3
-                    ? 'bg-white text-stone-900 shadow-xs font-semibold'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
+                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 3
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+                  }`}
               >
                 3. Bộ Ảnh ({galleryImages.length})
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentStep(4)}
-                className={`py-2 px-3 rounded-xl transition-all ${
-                  currentStep === 4
-                    ? 'bg-white text-stone-900 shadow-xs font-semibold'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
+                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 4
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+                  }`}
               >
                 4. Mừng Cưới
               </button>
@@ -574,11 +570,10 @@ export default function EditWeddingInvitationPage() {
                         setTemplateId(tpl.id);
                         setThemeColor(tpl.defaultThemeColor);
                       }}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        templateId === tpl.id
-                          ? 'border-[#8C6D46] bg-[#8C6D46]/5 shadow-xs'
-                          : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
-                      }`}
+                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${templateId === tpl.id
+                        ? 'border-[#8C6D46] bg-[#8C6D46]/5 shadow-xs'
+                        : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
+                        }`}
                     >
                       <div className="font-serif font-medium text-sm text-stone-900">
                         {tpl.name}
@@ -611,11 +606,10 @@ export default function EditWeddingInvitationPage() {
                         key={m.id}
                         type="button"
                         onClick={() => setMusicPreset(m.id)}
-                        className={`p-3 rounded-xl border text-left transition-all ${
-                          musicPreset === m.id
-                            ? 'border-[#8C6D46] bg-amber-500/10 text-[#8C6D46] font-semibold'
-                            : 'border-stone-200 text-stone-700 hover:bg-stone-50'
-                        }`}
+                        className={`p-3 rounded-xl border text-left transition-all ${musicPreset === m.id
+                          ? 'border-[#8C6D46] bg-amber-500/10 text-[#8C6D46] font-semibold'
+                          : 'border-stone-200 text-stone-700 hover:bg-stone-50'
+                          }`}
                       >
                         <div className="text-xs">{m.name}</div>
                         <div className="text-[10px] text-stone-500 font-normal mt-0.5">
@@ -712,7 +706,6 @@ export default function EditWeddingInvitationPage() {
                       type="text"
                       value={ceremonyTimeText}
                       onChange={(e) => setCeremonyTimeText(e.target.value)}
-                      placeholder="11:00 — Chủ Nhật, 20.12.2026"
                       className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                     />
                   </div>

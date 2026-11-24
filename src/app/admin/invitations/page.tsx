@@ -1073,7 +1073,6 @@ export default function AdminInvitationsPage() {
                     type="text"
                     value={editForm.ceremonyTimeText}
                     onChange={(e) => setEditForm({ ...editForm, ceremonyTimeText: e.target.value })}
-                    placeholder="11:00 — Chủ Nhật, 20.12.2026"
                     className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                 </div>
