@@ -96,8 +96,48 @@ export default function AdminInvitationsPage() {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Create Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createDraftSlug, setCreateDraftSlug] = useState('');
+  const [isUploadingCreateCover, setIsUploadingCreateCover] = useState(false);
+  const [isUploadingCreateGroom, setIsUploadingCreateGroom] = useState(false);
+  const [isUploadingCreateBride, setIsUploadingCreateBride] = useState(false);
+  const [isUploadingCreateBankQr, setIsUploadingCreateBankQr] = useState(false);
+  const [isUploadingCreateGallery, setIsUploadingCreateGallery] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    groomName: '',
+    brideName: '',
+    groomParents: '',
+    brideParents: '',
+    groomImage: '',
+    brideImage: '',
+    groomBio: '',
+    brideBio: '',
+    ceremonyDate: '',
+    ceremonyTimeText: '',
+    venueName: '',
+    venueAddress: '',
+    googleMapsUrl: '',
+    storyTitle: '',
+    storyText: '',
+    coverImage: '',
+    galleryImages: [] as Array<{ url: string; width?: number; height?: number; caption?: string }>,
+    templateId: 'timeless-ivory',
+    themeColor: '#8C6D46',
+    musicPreset: 'romantic-piano',
+    bankQrImage: '',
+    bankInfoText: '',
+    customSlug: '',
+    editPasscode: '',
+    isPublished: true,
+  });
+
   // Edit Form State
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingGroom, setIsUploadingGroom] = useState(false);
+  const [isUploadingBride, setIsUploadingBride] = useState(false);
+  const [isUploadingBankQr, setIsUploadingBankQr] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [editForm, setEditForm] = useState<{
     groomName: string;
@@ -313,6 +353,102 @@ export default function AdminInvitationsPage() {
     }
   };
 
+  // Upload Groom Image Handler
+  const handleUploadGroom = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedForEdit) return;
+
+    try {
+      setIsUploadingGroom(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', selectedForEdit.slug);
+      formData.append('invitationSlug', selectedForEdit.slug);
+
+      const res = await fetch('/api/invitations/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setEditForm((prev) => ({ ...prev, groomImage: uploadedUrl }));
+        showToast('Tải ảnh Chú Rể thành công!');
+      } else {
+        showToast(data.error || 'Tải ảnh Chú Rể thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setIsUploadingGroom(false);
+      e.target.value = '';
+    }
+  };
+
+  // Upload Bride Image Handler
+  const handleUploadBride = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedForEdit) return;
+
+    try {
+      setIsUploadingBride(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', selectedForEdit.slug);
+      formData.append('invitationSlug', selectedForEdit.slug);
+
+      const res = await fetch('/api/invitations/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setEditForm((prev) => ({ ...prev, brideImage: uploadedUrl }));
+        showToast('Tải ảnh Cô Dâu thành công!');
+      } else {
+        showToast(data.error || 'Tải ảnh Cô Dâu thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setIsUploadingBride(false);
+      e.target.value = '';
+    }
+  };
+
+  // Upload Bank QR Image Handler
+  const handleUploadBankQr = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedForEdit) return;
+
+    try {
+      setIsUploadingBankQr(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', selectedForEdit.slug);
+      formData.append('invitationSlug', selectedForEdit.slug);
+
+      const res = await fetch('/api/invitations/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setEditForm((prev) => ({ ...prev, bankQrImage: uploadedUrl }));
+        showToast('Tải mã QR ngân hàng thành công!');
+      } else {
+        showToast(data.error || 'Tải mã QR thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải mã QR: ' + err.message);
+    } finally {
+      setIsUploadingBankQr(false);
+      e.target.value = '';
+    }
+  };
+
   // Upload Gallery Images Handler (Multi-file)
   const handleUploadGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -363,6 +499,244 @@ export default function AdminInvitationsPage() {
       ...prev,
       galleryImages: (prev.galleryImages || []).filter((_, idx) => idx !== indexToRemove),
     }));
+  };
+
+  // Open Create Modal
+  const openCreateModal = () => {
+    const randomDraft = `draft-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const randomPin = Math.floor(100000 + Math.random() * 900000).toString();
+    setCreateDraftSlug(randomDraft);
+    setCreateForm({
+      groomName: '',
+      brideName: '',
+      groomParents: '',
+      brideParents: '',
+      groomImage: '',
+      brideImage: '',
+      groomBio: '',
+      brideBio: '',
+      ceremonyDate: '',
+      ceremonyTimeText: '',
+      venueName: '',
+      venueAddress: '',
+      googleMapsUrl: '',
+      storyTitle: '',
+      storyText: '',
+      coverImage: '',
+      galleryImages: [],
+      templateId: 'timeless-ivory',
+      themeColor: '#8C6D46',
+      musicPreset: 'romantic-piano',
+      bankQrImage: '',
+      bankInfoText: '',
+      customSlug: '',
+      editPasscode: randomPin,
+      isPublished: true,
+    });
+    setIsCreateModalOpen(true);
+  };
+
+  // Create Modal Image Uploads
+  const handleUploadCreateCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !createDraftSlug) return;
+    try {
+      setIsUploadingCreateCover(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', createDraftSlug);
+      formData.append('invitationSlug', createDraftSlug);
+      const res = await fetch('/api/invitations/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setCreateForm((prev) => ({ ...prev, coverImage: uploadedUrl }));
+        showToast('Tải ảnh bìa thành công!');
+      } else {
+        showToast(data.error || 'Tải ảnh bìa thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setIsUploadingCreateCover(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadCreateGroom = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !createDraftSlug) return;
+    try {
+      setIsUploadingCreateGroom(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', createDraftSlug);
+      formData.append('invitationSlug', createDraftSlug);
+      const res = await fetch('/api/invitations/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setCreateForm((prev) => ({ ...prev, groomImage: uploadedUrl }));
+        showToast('Tải ảnh Chú Rể thành công!');
+      } else {
+        showToast(data.error || 'Tải ảnh Chú Rể thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setIsUploadingCreateGroom(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadCreateBride = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !createDraftSlug) return;
+    try {
+      setIsUploadingCreateBride(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', createDraftSlug);
+      formData.append('invitationSlug', createDraftSlug);
+      const res = await fetch('/api/invitations/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setCreateForm((prev) => ({ ...prev, brideImage: uploadedUrl }));
+        showToast('Tải ảnh Cô Dâu thành công!');
+      } else {
+        showToast(data.error || 'Tải ảnh Cô Dâu thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setIsUploadingCreateBride(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadCreateBankQr = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !createDraftSlug) return;
+    try {
+      setIsUploadingCreateBankQr(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', createDraftSlug);
+      formData.append('invitationSlug', createDraftSlug);
+      const res = await fetch('/api/invitations/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      const uploadedUrl = data.url || data.image?.url;
+      if (data.success && uploadedUrl) {
+        setCreateForm((prev) => ({ ...prev, bankQrImage: uploadedUrl }));
+        showToast('Tải mã QR ngân hàng thành công!');
+      } else {
+        showToast(data.error || 'Tải mã QR thất bại');
+      }
+    } catch (err: any) {
+      showToast('Lỗi tải mã QR: ' + err.message);
+    } finally {
+      setIsUploadingCreateBankQr(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadCreateGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !createDraftSlug) return;
+    try {
+      setIsUploadingCreateGallery(true);
+      const newImages = [...(createForm.galleryImages || [])];
+      let count = 0;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('slug', createDraftSlug);
+        formData.append('invitationSlug', createDraftSlug);
+        const res = await fetch('/api/invitations/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        const uploadedUrl = data.url || data.image?.url;
+        if (data.success && uploadedUrl) {
+          newImages.push({
+            url: uploadedUrl,
+            width: data.width || 1200,
+            height: data.height || 800,
+            caption: '',
+          });
+          count++;
+        }
+      }
+      setCreateForm((prev) => ({ ...prev, galleryImages: newImages }));
+      showToast(`Đã tải lên ${count} ảnh vào album!`);
+    } catch (err: any) {
+      showToast('Lỗi tải album: ' + err.message);
+    } finally {
+      setIsUploadingCreateGallery(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveCreateGalleryImage = (indexToRemove: number) => {
+    setCreateForm((prev) => ({
+      ...prev,
+      galleryImages: (prev.galleryImages || []).filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
+
+  // Submit Create Form
+  const handleSaveCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.groomName.trim() || !createForm.brideName.trim()) {
+      showToast('Vui lòng nhập tên Chú Rể và Cô Dâu');
+      return;
+    }
+    if (!createForm.venueName.trim() || !createForm.venueAddress.trim()) {
+      showToast('Vui lòng nhập hoặc chọn địa điểm tổ chức hôn lễ');
+      return;
+    }
+    if (!createForm.ceremonyDate) {
+      showToast('Vui lòng chọn ngày tổ chức hôn lễ');
+      return;
+    }
+    if (!createForm.coverImage) {
+      showToast('Vui lòng tải lên ảnh bìa thiệp cưới');
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+      const finalMapUrl = createForm.googleMapsUrl?.trim() || (
+        (createForm.venueName?.trim() || createForm.venueAddress?.trim())
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([createForm.venueName, createForm.venueAddress].filter(Boolean).join(' ').trim())}`
+          : ''
+      );
+
+      const payload = {
+        ...createForm,
+        googleMapsUrl: finalMapUrl,
+        draftSlug: createDraftSlug,
+      };
+
+      const res = await fetch('/api/admin/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success && data.invitation) {
+        showToast(`Tạo thiệp cưới thành công! Link: /thiep-cuoi/${data.slug} | Mã PIN: ${data.editPasscode}`);
+        setInvitations((prev) => [data.invitation, ...prev]);
+        setIsCreateModalOpen(false);
+      } else {
+        showToast(data.error || 'Có lỗi xảy ra khi tạo thiệp');
+      }
+    } catch (err: any) {
+      showToast('Lỗi: ' + err.message);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   // Submit Edit Form
@@ -525,14 +899,13 @@ export default function AdminInvitationsPage() {
             <span>Làm Mới</span>
           </button>
 
-          <Link
-            href="/thiep-cuoi/tao-moi"
-            target="_blank"
+          <button
+            onClick={openCreateModal}
             className="h-10 px-4 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            <span>Tạo Thiệp Mới</span>
-          </Link>
+            <span>Tạo Thiệp Cưới Mới</span>
+          </button>
         </div>
       </div>
 
@@ -1166,14 +1539,41 @@ export default function AdminInvitationsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Groom */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
                     <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể (The Groom)</span>
-                    <input
-                      type="text"
-                      value={editForm.groomImage}
-                      onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editForm.groomImage}
+                        onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
+                        className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                      <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                        {isUploadingGroom ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingGroom ? '...' : 'Tải'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingGroom}
+                          onChange={handleUploadGroom}
+                        />
+                      </label>
+                    </div>
+                    {editForm.groomImage && (
+                      <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                        <img
+                          src={editForm.groomImage}
+                          alt="Groom Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                     <input
                       type="text"
                       value={editForm.groomBio}
@@ -1182,14 +1582,41 @@ export default function AdminInvitationsPage() {
                     />
                   </div>
 
+                  {/* Bride */}
                   <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
                     <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu (The Bride)</span>
-                    <input
-                      type="text"
-                      value={editForm.brideImage}
-                      onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editForm.brideImage}
+                        onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
+                        className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                      <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                        {isUploadingBride ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingBride ? '...' : 'Tải'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingBride}
+                          onChange={handleUploadBride}
+                        />
+                      </label>
+                    </div>
+                    {editForm.brideImage && (
+                      <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                        <img
+                          src={editForm.brideImage}
+                          alt="Bride Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                     <input
                       type="text"
                       value={editForm.brideBio}
@@ -1198,6 +1625,51 @@ export default function AdminInvitationsPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Bank QR & Gift Info */}
+              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
+                <label className="block font-semibold text-stone-800 text-xs">
+                  Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editForm.bankQrImage}
+                    onChange={(e) => setEditForm({ ...editForm, bankQrImage: e.target.value })}
+                    className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                  />
+                  <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                    {isUploadingBankQr ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                    ) : (
+                      <Upload className="w-3 h-3 text-stone-600" />
+                    )}
+                    <span>{isUploadingBankQr ? '...' : 'Tải QR'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingBankQr}
+                      onChange={handleUploadBankQr}
+                    />
+                  </label>
+                </div>
+                {editForm.bankQrImage && (
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
+                    <img
+                      src={editForm.bankQrImage}
+                      alt="Bank QR Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <input
+                  type="text"
+                  value={editForm.bankInfoText}
+                  onChange={(e) => setEditForm({ ...editForm, bankInfoText: e.target.value })}
+                  className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                />
               </div>
 
               {/* Visual Gallery Image Manager */}
@@ -1345,6 +1817,566 @@ export default function AdminInvitationsPage() {
                   className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50"
                 >
                   {isSavingEdit ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================= */}
+      {/* 2.5 CREATE INVITATION MODAL                                   */}
+      {/* ============================================================= */}
+      {isCreateModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+        >
+          <div className="w-full max-w-2xl bg-white rounded-3xl border border-stone-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up">
+            <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50/70">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#8C6D46]/10 text-[#8C6D46] flex items-center justify-center">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-base font-medium text-stone-900">
+                    Tạo Thiệp Cưới Mới (Admin Studio)
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-mono">
+                    Khởi tạo thiệp trực tiếp • Tải ảnh trực tiếp vào /uploads/invitations/[slug]/
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCreate} className="p-6 flex-1 overflow-y-auto space-y-4 text-xs">
+              {/* Draft Directory Indicator */}
+              <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
+                <div className="flex items-center gap-2">
+                  <Folder className="w-4 h-4 text-[#8C6D46] shrink-0" />
+                  <span className="text-[11px]">
+                    Thư mục tải ảnh dự thảo:{' '}
+                    <code className="font-mono font-semibold text-stone-800 bg-stone-200/70 px-1.5 py-0.5 rounded">
+                      /uploads/invitations/{createDraftSlug}/
+                    </code>
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-stone-400" />
+                  <span>{createForm.galleryImages.length} ảnh album</span>
+                </div>
+              </div>
+
+              {/* Template & Palette Section */}
+              <div className="p-3.5 rounded-2xl border border-stone-200 bg-stone-50/60 space-y-3">
+                <div className="font-semibold text-stone-800 text-xs">
+                  Phong Cách & Màu Sắc Điểm Nhấn
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'timeless-ivory', name: 'Timeless Ivory', desc: 'Cổ Điển Sang Trọng' },
+                    { id: 'cinematic-noir', name: 'Cinematic Noir', desc: 'Điện Ảnh Tinh Tế' },
+                    { id: 'botanical-silk', name: 'Botanical Silk', desc: 'Thơ Mộng Tươi Sáng' },
+                    { id: 'minimalist-story', name: 'Minimalist Story', desc: 'Hiện Đại Tối Giản' },
+                  ].map((tpl) => (
+                    <button
+                      key={tpl.id}
+                      type="button"
+                      onClick={() => setCreateForm({ ...createForm, templateId: tpl.id })}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        createForm.templateId === tpl.id
+                          ? 'border-[#8C6D46] bg-white ring-2 ring-[#8C6D46]/20 shadow-xs'
+                          : 'border-stone-200 bg-white/70 hover:bg-white'
+                      }`}
+                    >
+                      <div className="font-semibold text-stone-900 text-[11px]">{tpl.name}</div>
+                      <div className="text-[10px] text-stone-500">{tpl.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <span className="text-[11px] font-medium text-stone-600">Màu nhấn:</span>
+                  {[
+                    { hex: '#8C6D46', name: 'Vàng Đồng Hoàng Gia' },
+                    { hex: '#85292F', name: 'Đỏ Rượu Vang' },
+                    { hex: '#4A6B53', name: 'Xanh Sage Tự Nhiên' },
+                    { hex: '#3D5A80', name: 'Xanh Navy Hiện Đại' },
+                  ].map((color) => (
+                    <button
+                      key={color.hex}
+                      type="button"
+                      onClick={() => setCreateForm({ ...createForm, themeColor: color.hex })}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all ${
+                        createForm.themeColor === color.hex
+                          ? 'border-stone-800 bg-white ring-2 ring-stone-400 font-medium'
+                          : 'border-stone-200 bg-white/60 hover:bg-white text-stone-600'
+                      }`}
+                    >
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color.hex }} />
+                      <span>{color.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Couple names */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Tên Chú Rể <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={createForm.groomName}
+                    onChange={(e) => setCreateForm({ ...createForm, groomName: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Tên Cô Dâu <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={createForm.brideName}
+                    onChange={(e) => setCreateForm({ ...createForm, brideName: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+              </div>
+
+              {/* Parents information */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Thân Sinh Nhà Trai
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.groomParents}
+                    onChange={(e) => setCreateForm({ ...createForm, groomParents: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Thân Sinh Nhà Gái
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.brideParents}
+                    onChange={(e) => setCreateForm({ ...createForm, brideParents: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+              </div>
+
+              {/* Ceremony Date & Time text */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Ngày & Giờ Tổ Chức <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={createForm.ceremonyDate}
+                    onChange={(e) => setCreateForm({ ...createForm, ceremonyDate: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Văn Bản Hiển Thị Giờ (Tùy chọn)
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.ceremonyTimeText}
+                    onChange={(e) => setCreateForm({ ...createForm, ceremonyTimeText: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+              </div>
+
+              {/* Venue Autocomplete & PIN */}
+              <div className="space-y-4 pt-2 border-t border-stone-100">
+                <VenueAutocompleteInput
+                  venueName={createForm.venueName}
+                  venueAddress={createForm.venueAddress}
+                  googleMapsUrl={createForm.googleMapsUrl}
+                  onChangeVenueName={(val) => setCreateForm({ ...createForm, venueName: val })}
+                  onChangeVenueAddress={(val) => setCreateForm({ ...createForm, venueAddress: val })}
+                  onChangeGoogleMapsUrl={(val) => setCreateForm({ ...createForm, googleMapsUrl: val })}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Mã PIN Chỉnh Sửa (6 Số) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={createForm.editPasscode}
+                        onChange={(e) => setCreateForm({ ...createForm, editPasscode: e.target.value.replace(/\D/g, '') })}
+                        className="flex-1 h-10 px-3 rounded-xl border border-stone-300 font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCreateForm({ ...createForm, editPasscode: Math.floor(100000 + Math.random() * 900000).toString() })}
+                        className="h-10 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-medium"
+                      >
+                        Đổi mã
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Tùy Chỉnh Slug Đường Dẫn (Tùy chọn)
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.customSlug}
+                      onChange={(e) => setCreateForm({ ...createForm, customSlug: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Cover Image */}
+              <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block font-semibold text-stone-800 text-xs">
+                      1. Ảnh Bìa Thiệp Cưới (Hero Cover) <span className="text-red-500">*</span>
+                    </label>
+                    <p className="text-[11px] text-stone-500">
+                      💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                    </p>
+                  </div>
+                  <label className="h-9 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                    {isUploadingCreateCover ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5 text-stone-600" />
+                    )}
+                    <span>{isUploadingCreateCover ? 'Đang tải...' : 'Tải ảnh lên'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingCreateCover}
+                      onChange={handleUploadCreateCover}
+                    />
+                  </label>
+                </div>
+                {createForm.coverImage && (
+                  <div className="w-24 h-32 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
+                    <img
+                      src={createForm.coverImage}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Groom & Bride Portraits */}
+              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
+                <div>
+                  <label className="block font-semibold text-stone-800 text-xs">
+                    2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
+                  </label>
+                  <p className="text-[11px] text-stone-500">
+                    💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Groom */}
+                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể (The Groom)</span>
+                      <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                        {isUploadingCreateGroom ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingCreateGroom ? '...' : 'Tải ảnh'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingCreateGroom}
+                          onChange={handleUploadCreateGroom}
+                        />
+                      </label>
+                    </div>
+                    {createForm.groomImage && (
+                      <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                        <img
+                          src={createForm.groomImage}
+                          alt="Groom Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Chú Rể</label>
+                      <input
+                        type="text"
+                        value={createForm.groomBio}
+                        onChange={(e) => setCreateForm({ ...createForm, groomBio: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bride */}
+                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu (The Bride)</span>
+                      <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                        {isUploadingCreateBride ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingCreateBride ? '...' : 'Tải ảnh'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingCreateBride}
+                          onChange={handleUploadCreateBride}
+                        />
+                      </label>
+                    </div>
+                    {createForm.brideImage && (
+                      <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                        <img
+                          src={createForm.brideImage}
+                          alt="Bride Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Cô Dâu</label>
+                      <input
+                        type="text"
+                        value={createForm.brideBio}
+                        onChange={(e) => setCreateForm({ ...createForm, brideBio: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Visual Gallery Image Manager */}
+              <div className="space-y-2 pt-1 border-t border-stone-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block font-medium text-stone-700">
+                      3. Album Ảnh Cưới & Khoảnh Khắc (Gallery)
+                    </label>
+                    <p className="text-[11px] text-stone-400">
+                      Khách mời có thể vuốt xem và phóng to trọn màn hình
+                    </p>
+                  </div>
+                  <label className="h-8 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
+                    {isUploadingCreateGallery ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                    ) : (
+                      <Plus className="w-3.5 h-3.5 text-stone-600" />
+                    )}
+                    <span>{isUploadingCreateGallery ? 'Đang tải ảnh...' : 'Thêm ảnh album'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      disabled={isUploadingCreateGallery}
+                      onChange={handleUploadCreateGallery}
+                    />
+                  </label>
+                </div>
+
+                {createForm.galleryImages.length === 0 ? (
+                  <div className="p-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 text-center text-[11px] text-stone-400">
+                    Chưa có ảnh nào trong album. Bấm &ldquo;Thêm ảnh album&rdquo; để tải lên.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
+                    {createForm.galleryImages.map((img: any, idx: number) => {
+                      const imgUrl = typeof img === 'string' ? img : img.url;
+                      return (
+                        <div
+                          key={idx}
+                          className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-2xs"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCreateGalleryImage(idx)}
+                            className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-all"
+                            title="Xóa ảnh này"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Bank QR & Gift Info */}
+              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block font-semibold text-stone-800 text-xs">
+                      4. Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
+                    </label>
+                  </div>
+                  <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                    {isUploadingCreateBankQr ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                    ) : (
+                      <Upload className="w-3 h-3 text-stone-600" />
+                    )}
+                    <span>{isUploadingCreateBankQr ? '...' : 'Tải mã QR'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingCreateBankQr}
+                      onChange={handleUploadCreateBankQr}
+                    />
+                  </label>
+                </div>
+                {createForm.bankQrImage && (
+                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
+                    <img
+                      src={createForm.bankQrImage}
+                      alt="Bank QR Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-[10px] text-stone-500 mb-0.5">Thông tin tài khoản & Lời nhắn</label>
+                  <input
+                    type="text"
+                    value={createForm.bankInfoText}
+                    onChange={(e) => setCreateForm({ ...createForm, bankInfoText: e.target.value })}
+                    className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Music & Story */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Nhạc Nền Hôn Lễ
+                  </label>
+                  <select
+                    value={createForm.musicPreset}
+                    onChange={(e) => setCreateForm({ ...createForm, musicPreset: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  >
+                    <option value="romantic-piano">Romantic Piano</option>
+                    <option value="acoustic-love">Acoustic Love</option>
+                    <option value="cinematic-orchestral">Cinematic Orchestral</option>
+                    <option value="gentle-strings">Gentle Strings</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Tiêu Đề Câu Chuyện Tình Yêu
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.storyTitle}
+                    onChange={(e) => setCreateForm({ ...createForm, storyTitle: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">
+                  Lời Kể Câu Chuyện Tình Yêu (Tùy chọn)
+                </label>
+                <textarea
+                  rows={3}
+                  value={createForm.storyText}
+                  onChange={(e) => setCreateForm({ ...createForm, storyText: e.target.value })}
+                  className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                />
+              </div>
+
+              {/* Status Switch */}
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  type="checkbox"
+                  id="createModalIsPublished"
+                  checked={createForm.isPublished}
+                  onChange={(e) => setCreateForm({ ...createForm, isPublished: e.target.checked })}
+                  className="w-4 h-4 text-[#8C6D46] rounded focus:ring-[#8C6D46]"
+                />
+                <label htmlFor="createModalIsPublished" className="font-medium text-stone-800 cursor-pointer">
+                  Xuất bản công khai thiệp cưới ngay sau khi tạo
+                </label>
+              </div>
+
+              <div className="pt-4 border-t border-stone-200 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="h-10 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Đang tạo thiệp...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>Tạo Thiệp Cưới</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
