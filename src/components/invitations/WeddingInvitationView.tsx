@@ -783,7 +783,6 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                     required
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    placeholder="Ví dụ: Anh Tuấn & Chị Lan"
                     className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
                   />
                 </div>
@@ -870,7 +869,6 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                     rows={3}
                     value={wishMessage}
                     onChange={(e) => setWishMessage(e.target.value)}
-                    placeholder="Chúc hai bạn trăm năm hạnh phúc, đầu bạc răng long..."
                     className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
                   />
                 </div>
