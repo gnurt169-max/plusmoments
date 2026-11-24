@@ -29,10 +29,12 @@ import {
   Upload,
   Image as ImageIcon,
   Loader2,
+  Smartphone,
 } from 'lucide-react';
 import { INVITATION_TEMPLATES } from '@/lib/invitations/templates';
 import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
 import { AdminMediaPickerModal } from '@/components/admin/AdminMediaPickerModal';
+import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
 
 interface InvitationRsvpItem {
   id: string;
@@ -112,6 +114,7 @@ export default function AdminInvitationsPage() {
 
   // Create Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createActiveTab, setCreateActiveTab] = useState<'form' | 'preview'>('form');
   const [isCreating, setIsCreating] = useState(false);
   const [createDraftSlug, setCreateDraftSlug] = useState('');
   const [isUploadingCreateCover, setIsUploadingCreateCover] = useState(false);
@@ -148,6 +151,7 @@ export default function AdminInvitationsPage() {
   });
 
   // Edit Form State
+  const [editActiveTab, setEditActiveTab] = useState<'form' | 'preview'>('form');
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingGroom, setIsUploadingGroom] = useState(false);
   const [isUploadingBride, setIsUploadingBride] = useState(false);
@@ -307,6 +311,7 @@ export default function AdminInvitationsPage() {
   // Open Edit Modal
   const openEditModal = (inv: AdminInvitationItem) => {
     setSelectedForEdit(inv);
+    setEditActiveTab('form');
     setEditForm({
       groomName: inv.groomName || '',
       brideName: inv.brideName || '',
@@ -608,6 +613,7 @@ export default function AdminInvitationsPage() {
     const randomDraft = `draft-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const randomPin = Math.floor(100000 + Math.random() * 900000).toString();
     setCreateDraftSlug(randomDraft);
+    setCreateActiveTab('form');
     setCreateForm({
       groomName: '',
       brideName: '',
@@ -840,6 +846,74 @@ export default function AdminInvitationsPage() {
       setIsCreating(false);
     }
   };
+
+  // Live preview data for Create Modal
+  const createPreviewData = useMemo(() => {
+    return {
+      slug: createForm.customSlug || createDraftSlug || 'preview-wedding',
+      templateId: createForm.templateId,
+      themeColor: createForm.themeColor,
+      groomName: createForm.groomName,
+      brideName: createForm.brideName,
+      groomParents: createForm.groomParents,
+      brideParents: createForm.brideParents,
+      groomImage: createForm.groomImage,
+      brideImage: createForm.brideImage,
+      groomBio: createForm.groomBio,
+      brideBio: createForm.brideBio,
+      ceremonyDate: createForm.ceremonyDate,
+      ceremonyTimeText: createForm.ceremonyTimeText,
+      venueName: createForm.venueName,
+      venueAddress: createForm.venueAddress,
+      googleMapsUrl:
+        createForm.googleMapsUrl ||
+        ((createForm.venueName || createForm.venueAddress)
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([createForm.venueName, createForm.venueAddress].filter(Boolean).join(' ').trim())}`
+          : ''),
+      storyTitle: createForm.storyTitle,
+      storyText: createForm.storyText,
+      coverImage: createForm.coverImage,
+      galleryImages: createForm.galleryImages,
+      musicPreset: createForm.musicPreset,
+      bankQrImage: createForm.bankQrImage,
+      bankInfoText: createForm.bankInfoText,
+      rsvps: [],
+    };
+  }, [createForm, createDraftSlug]);
+
+  // Live preview data for Edit Modal
+  const editPreviewData = useMemo(() => {
+    return {
+      slug: selectedForEdit?.slug || 'preview-wedding',
+      templateId: editForm.templateId,
+      themeColor: editForm.themeColor,
+      groomName: editForm.groomName,
+      brideName: editForm.brideName,
+      groomParents: editForm.groomParents,
+      brideParents: editForm.brideParents,
+      groomImage: editForm.groomImage,
+      brideImage: editForm.brideImage,
+      groomBio: editForm.groomBio,
+      brideBio: editForm.brideBio,
+      ceremonyDate: editForm.ceremonyDate,
+      ceremonyTimeText: editForm.ceremonyTimeText,
+      venueName: editForm.venueName,
+      venueAddress: editForm.venueAddress,
+      googleMapsUrl:
+        editForm.googleMapsUrl ||
+        ((editForm.venueName || editForm.venueAddress)
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([editForm.venueName, editForm.venueAddress].filter(Boolean).join(' ').trim())}`
+          : ''),
+      storyTitle: editForm.storyTitle,
+      storyText: editForm.storyText,
+      coverImage: editForm.coverImage,
+      galleryImages: editForm.galleryImages,
+      musicPreset: editForm.musicPreset,
+      bankQrImage: editForm.bankQrImage,
+      bankInfoText: editForm.bankInfoText,
+      rsvps: selectedForEdit?.rsvps || [],
+    };
+  }, [editForm, selectedForEdit]);
 
   // Submit Edit Form
   const handleSaveEdit = async (e: React.FormEvent) => {
@@ -1468,518 +1542,589 @@ export default function AdminInvitationsPage() {
       )}
 
       {/* ============================================================= */}
-      {/* 2. EDIT INVITATION MODAL                                      */}
+      {/* 2. EDIT INVITATION MODAL (2-COLUMN: FORM + LIVE PREVIEW)      */}
       {/* ============================================================= */}
       {selectedForEdit && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs animate-fade-in"
         >
-          <div className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl border border-stone-200 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
-            <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50/80">
-              <h3 className="font-serif text-lg font-medium text-stone-900">
-                Chỉnh Sửa Thiệp Cưới — {selectedForEdit.slug}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setSelectedForEdit(null)}
-                className="p-1.5 rounded-full hover:bg-stone-200 text-stone-400 hover:text-stone-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
+          <div className="w-[95vw] max-w-6xl h-[90vh] bg-white rounded-3xl border border-stone-200 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+            {/* Modal Header */}
+            <div className="px-5 py-3.5 border-b border-stone-200 flex items-center justify-between bg-stone-50/80 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#8C6D46]/10 text-[#8C6D46] flex items-center justify-center">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-base font-medium text-stone-900">
+                    Chỉnh Sửa Thiệp Cưới — <span className="font-mono text-sm text-[#8C6D46]">{selectedForEdit.slug}</span>
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-mono">
+                    Xem trước trực tiếp theo thời gian thực • Live Mobile Preview
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Mobile / Small Screen View Switcher */}
+                <div className="lg:hidden flex items-center bg-stone-200/70 p-1 rounded-xl text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setEditActiveTab('form')}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                      editActiveTab === 'form'
+                        ? 'bg-white text-stone-900 shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    1. Thiết Lập
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditActiveTab('preview')}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
+                      editActiveTab === 'preview'
+                        ? 'bg-[#8C6D46] text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>2. Xem Trước Thiệp</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedForEdit(null)}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-6 flex-1 overflow-y-auto space-y-4 text-xs">
-              {/* Storage Path Indicator */}
-              <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
-                <div className="flex items-center gap-2">
-                  <Folder className="w-4 h-4 text-[#8C6D46] shrink-0" />
-                  <span className="text-[11px]">
-                    Thư mục lưu ảnh:{' '}
-                    <code className="font-mono font-semibold text-stone-800 bg-stone-200/70 px-1.5 py-0.5 rounded">
-                      /uploads/invitations/{selectedForEdit.slug}/
-                    </code>
-                  </span>
+            {/* Modal Body: 2 Columns */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_410px] min-h-0 overflow-hidden">
+              {/* Left Column: Form Controls */}
+              <form
+                onSubmit={handleSaveEdit}
+                className={`p-6 overflow-y-auto space-y-4 text-xs ${
+                  editActiveTab === 'preview' ? 'hidden lg:block' : 'block'
+                }`}
+              >
+                {/* Storage Path Indicator */}
+                <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-4 h-4 text-[#8C6D46] shrink-0" />
+                    <span className="text-[11px]">
+                      Thư mục lưu ảnh:{' '}
+                      <code className="font-mono font-semibold text-stone-800 bg-stone-200/70 px-1.5 py-0.5 rounded">
+                        /uploads/invitations/{selectedForEdit.slug}/
+                      </code>
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-stone-400" />
+                    <span>{editForm.galleryImages?.length || 0} ảnh trong album</span>
+                  </div>
                 </div>
-                <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
-                  <ImageIcon className="w-3.5 h-3.5 text-stone-400" />
-                  <span>{editForm.galleryImages?.length || 0} ảnh trong album</span>
-                </div>
-              </div>
 
-              {/* Couple names */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tên Chú Rể <span className="text-red-500">*</span>
-                  </label>
+                {/* Couple names */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Tên Chú Rể <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editForm.groomName}
+                      onChange={(e) => setEditForm({ ...editForm, groomName: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Tên Cô Dâu <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editForm.brideName}
+                      onChange={(e) => setEditForm({ ...editForm, brideName: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Ceremony Date & Time text */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Ngày & Giờ Tổ Chức
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editForm.ceremonyDate}
+                      onChange={(e) => setEditForm({ ...editForm, ceremonyDate: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Văn Bản Hiển Thị Giờ
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.ceremonyTimeText}
+                      onChange={(e) => setEditForm({ ...editForm, ceremonyTimeText: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Venue Autocomplete & PIN */}
+                <div className="space-y-4 pt-2 border-t border-stone-100">
+                  <VenueAutocompleteInput
+                    venueName={editForm.venueName}
+                    venueAddress={editForm.venueAddress}
+                    googleMapsUrl={editForm.googleMapsUrl}
+                    onChangeVenueName={(val) => setEditForm({ ...editForm, venueName: val })}
+                    onChangeVenueAddress={(val) => setEditForm({ ...editForm, venueAddress: val })}
+                    onChangeGoogleMapsUrl={(val) => setEditForm({ ...editForm, googleMapsUrl: val })}
+                  />
+
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Mã PIN Chỉnh Sửa Của Khách (6 Số)
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={editForm.editPasscode}
+                      onChange={(e) => setEditForm({ ...editForm, editPasscode: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Cover Image */}
+                <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div>
+                      <label className="block font-semibold text-stone-800 text-xs">
+                        1. Ảnh Bìa Thiệp Cưới (Hero Cover)
+                      </label>
+                      <p className="text-[11px] text-stone-500">
+                        💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                        {isUploadingCover ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingCover}
+                          onChange={handleUploadCover}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker('edit-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Edit)')}
+                        className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
+                      >
+                        <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
+                        <span>Chọn từ Kho Media</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <input
                     type="text"
-                    required
-                    value={editForm.groomName}
-                    onChange={(e) => setEditForm({ ...editForm, groomName: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    value={editForm.coverImage}
+                    onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
+                    className="w-full h-8 px-2.5 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
                   />
+                  {editForm.coverImage && (
+                    <div className="w-20 h-28 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
+                      <img
+                        src={editForm.coverImage}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tên Cô Dâu <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editForm.brideName}
-                    onChange={(e) => setEditForm({ ...editForm, brideName: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
 
-              {/* Ceremony Date & Time text */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Ngày & Giờ Tổ Chức
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={editForm.ceremonyDate}
-                    onChange={(e) => setEditForm({ ...editForm, ceremonyDate: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Văn Bản Hiển Thị Giờ
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.ceremonyTimeText}
-                    onChange={(e) => setEditForm({ ...editForm, ceremonyTimeText: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
-
-              {/* Venue Autocomplete & PIN */}
-              <div className="space-y-4 pt-2 border-t border-stone-100">
-                <VenueAutocompleteInput
-                  venueName={editForm.venueName}
-                  venueAddress={editForm.venueAddress}
-                  googleMapsUrl={editForm.googleMapsUrl}
-                  onChangeVenueName={(val) => setEditForm({ ...editForm, venueName: val })}
-                  onChangeVenueAddress={(val) => setEditForm({ ...editForm, venueAddress: val })}
-                  onChangeGoogleMapsUrl={(val) => setEditForm({ ...editForm, googleMapsUrl: val })}
-                />
-
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Mã PIN Chỉnh Sửa Của Khách (6 Số)
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={editForm.editPasscode}
-                    onChange={(e) => setEditForm({ ...editForm, editPasscode: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
-
-              {/* Cover Image */}
-              <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                {/* Groom & Bride Portraits */}
+                <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
                   <div>
                     <label className="block font-semibold text-stone-800 text-xs">
-                      1. Ảnh Bìa Thiệp Cưới (Hero Cover)
+                      2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
                     </label>
                     <p className="text-[11px] text-stone-500">
-                      💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                      💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
-                      {isUploadingCover ? (
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Groom */}
+                    <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
+                        <div className="flex items-center gap-1">
+                          <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                            {isUploadingGroom ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                            ) : (
+                              <Upload className="w-2.5 h-2.5 text-stone-600" />
+                            )}
+                            <span>{isUploadingGroom ? '...' : 'Tải'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={isUploadingGroom}
+                              onChange={handleUploadGroom}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker('edit-groom', 'Chọn Chân Dung Chú Rể (Edit)')}
+                            className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                          >
+                            <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                            <span>Kho Media</span>
+                          </button>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={editForm.groomImage}
+                        onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                      {editForm.groomImage && (
+                        <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                          <img
+                            src={editForm.groomImage}
+                            alt="Groom Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <input
+                        type="text"
+                        value={editForm.groomBio}
+                        onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                    </div>
+
+                    {/* Bride */}
+                    <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
+                        <div className="flex items-center gap-1">
+                          <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                            {isUploadingBride ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                            ) : (
+                              <Upload className="w-2.5 h-2.5 text-stone-600" />
+                            )}
+                            <span>{isUploadingBride ? '...' : 'Tải'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={isUploadingBride}
+                              onChange={handleUploadBride}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker('edit-bride', 'Chọn Chân Dung Cô Dâu (Edit)')}
+                            className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                          >
+                            <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                            <span>Kho Media</span>
+                          </button>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={editForm.brideImage}
+                        onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                      {editForm.brideImage && (
+                        <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                          <img
+                            src={editForm.brideImage}
+                            alt="Bride Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <input
+                        type="text"
+                        value={editForm.brideBio}
+                        onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
+                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank QR & Gift Info */}
+                <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
+                  <label className="block font-semibold text-stone-800 text-xs">
+                    Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={editForm.bankQrImage}
+                      onChange={(e) => setEditForm({ ...editForm, bankQrImage: e.target.value })}
+                      className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                    <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                      {isUploadingBankQr ? (
                         <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
                       ) : (
                         <Upload className="w-3 h-3 text-stone-600" />
                       )}
-                      <span>{isUploadingCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                      <span>{isUploadingBankQr ? '...' : 'Tải QR'}</span>
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        disabled={isUploadingCover}
-                        onChange={handleUploadCover}
+                        disabled={isUploadingBankQr}
+                        onChange={handleUploadBankQr}
                       />
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => openMediaPicker('edit-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Edit)')}
-                      className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
-                    >
-                      <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
-                      <span>Chọn từ Kho Media</span>
-                    </button>
                   </div>
-                </div>
-
-                <input
-                  type="text"
-                  value={editForm.coverImage}
-                  onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
-                  className="w-full h-8 px-2.5 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
-                />
-                {editForm.coverImage && (
-                  <div className="w-20 h-28 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
-                    <img
-                      src={editForm.coverImage}
-                      alt="Cover Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Groom & Bride Portraits */}
-              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
-                <div>
-                  <label className="block font-semibold text-stone-800 text-xs">
-                    2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
-                  </label>
-                  <p className="text-[11px] text-stone-500">
-                    💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Groom */}
-                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
-                      <div className="flex items-center gap-1">
-                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
-                          {isUploadingGroom ? (
-                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
-                          ) : (
-                            <Upload className="w-2.5 h-2.5 text-stone-600" />
-                          )}
-                          <span>{isUploadingGroom ? '...' : 'Tải'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploadingGroom}
-                            onChange={handleUploadGroom}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker('edit-groom', 'Chọn Chân Dung Chú Rể (Edit)')}
-                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
-                        >
-                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
-                          <span>Kho Media</span>
-                        </button>
-                      </div>
+                  {editForm.bankQrImage && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
+                      <img
+                        src={editForm.bankQrImage}
+                        alt="Bank QR Preview"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                    <input
-                      type="text"
-                      value={editForm.groomImage}
-                      onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
-                    {editForm.groomImage && (
-                      <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
-                        <img
-                          src={editForm.groomImage}
-                          alt="Groom Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={editForm.groomBio}
-                      onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
-                  </div>
-
-                  {/* Bride */}
-                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
-                      <div className="flex items-center gap-1">
-                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
-                          {isUploadingBride ? (
-                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
-                          ) : (
-                            <Upload className="w-2.5 h-2.5 text-stone-600" />
-                          )}
-                          <span>{isUploadingBride ? '...' : 'Tải'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploadingBride}
-                            onChange={handleUploadBride}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker('edit-bride', 'Chọn Chân Dung Cô Dâu (Edit)')}
-                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
-                        >
-                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
-                          <span>Kho Media</span>
-                        </button>
-                      </div>
-                    </div>
-                    <input
-                      type="text"
-                      value={editForm.brideImage}
-                      onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
-                    {editForm.brideImage && (
-                      <div className="w-14 h-18 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
-                        <img
-                          src={editForm.brideImage}
-                          alt="Bride Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={editForm.brideBio}
-                      onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
-                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Bank QR & Gift Info */}
-              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
-                <label className="block font-semibold text-stone-800 text-xs">
-                  Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
-                </label>
-                <div className="flex items-center gap-2">
+                  )}
                   <input
                     type="text"
-                    value={editForm.bankQrImage}
-                    onChange={(e) => setEditForm({ ...editForm, bankQrImage: e.target.value })}
-                    className="flex-1 h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    value={editForm.bankInfoText}
+                    onChange={(e) => setEditForm({ ...editForm, bankInfoText: e.target.value })}
+                    className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
                   />
-                  <label className="h-8 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
-                    {isUploadingBankQr ? (
-                      <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Upload className="w-3 h-3 text-stone-600" />
-                    )}
-                    <span>{isUploadingBankQr ? '...' : 'Tải QR'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={isUploadingBankQr}
-                      onChange={handleUploadBankQr}
-                    />
-                  </label>
-                </div>
-                {editForm.bankQrImage && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
-                    <img
-                      src={editForm.bankQrImage}
-                      alt="Bank QR Preview"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                )}
-                <input
-                  type="text"
-                  value={editForm.bankInfoText}
-                  onChange={(e) => setEditForm({ ...editForm, bankInfoText: e.target.value })}
-                  className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                />
-              </div>
-
-              {/* Visual Gallery Image Manager */}
-              <div className="space-y-2 pt-1 border-t border-stone-100">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <label className="block font-medium text-stone-700">
-                      Album Ảnh Cưới & Khoảnh Khắc (Gallery)
-                    </label>
-                    <p className="text-[11px] text-stone-400">
-                      Khách mời có thể vuốt xem và phóng to trọn màn hình
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
-                      {isUploadingGallery ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                      ) : (
-                        <Plus className="w-3.5 h-3.5 text-stone-600" />
-                      )}
-                      <span>{isUploadingGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        disabled={isUploadingGallery}
-                        onChange={handleUploadGallery}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => openMediaPicker('edit-gallery', 'Chọn Ảnh Cho Album (Edit)', true)}
-                      className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
-                    >
-                      <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                      <span>Chọn từ Kho Media</span>
-                    </button>
-                  </div>
                 </div>
 
-                {(!editForm.galleryImages || editForm.galleryImages.length === 0) ? (
-                  <div className="p-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 text-center text-[11px] text-stone-400">
-                    Chưa có ảnh nào trong album. Bấm &ldquo;Thêm ảnh album&rdquo; để tải lên.
+                {/* Visual Gallery Image Manager */}
+                <div className="space-y-2 pt-1 border-t border-stone-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="block font-medium text-stone-700">
+                        Album Ảnh Cưới & Khoảnh Khắc (Gallery)
+                      </label>
+                      <p className="text-[11px] text-stone-400">
+                        Khách mời có thể vuốt xem và phóng to trọn màn hình
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
+                        {isUploadingGallery ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Plus className="w-3.5 h-3.5 text-stone-600" />
+                        )}
+                        <span>{isUploadingGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          disabled={isUploadingGallery}
+                          onChange={handleUploadGallery}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker('edit-gallery', 'Chọn Ảnh Cho Album (Edit)', true)}
+                        className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                        <span>Chọn từ Kho Media</span>
+                      </button>
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
-                    {editForm.galleryImages.map((img: any, idx: number) => {
-                      const imgUrl = typeof img === 'string' ? img : img.url;
-                      return (
-                        <div
-                          key={idx}
-                          className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-2xs"
-                        >
-                          <img
-                            src={imgUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveGalleryImage(idx)}
-                            className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-all"
-                            title="Xóa ảnh này"
+
+                  {(!editForm.galleryImages || editForm.galleryImages.length === 0) ? (
+                    <div className="p-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 text-center text-[11px] text-stone-400">
+                      Chưa có ảnh nào trong album. Bấm &ldquo;Thêm ảnh album&rdquo; để tải lên.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
+                      {editForm.galleryImages.map((img: any, idx: number) => {
+                        const imgUrl = typeof img === 'string' ? img : img.url;
+                        return (
+                          <div
+                            key={idx}
+                            className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-2xs"
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
+                            <img
+                              src={imgUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(idx)}
+                              className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-all"
+                              title="Xóa ảnh này"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Template & Theme Color */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Mẫu Thiết Kế (Template)
+                    </label>
+                    <select
+                      value={editForm.templateId}
+                      onChange={(e) => setEditForm({ ...editForm, templateId: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    >
+                      {Object.values(INVITATION_TEMPLATES).map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-              </div>
 
-              {/* Template & Theme Color */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Mẫu Thiết Kế (Template)
-                  </label>
-                  <select
-                    value={editForm.templateId}
-                    onChange={(e) => setEditForm({ ...editForm, templateId: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  >
-                    {Object.values(INVITATION_TEMPLATES).map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Nhạc Nền Hôn Lễ
+                    </label>
+                    <select
+                      value={editForm.musicPreset}
+                      onChange={(e) => setEditForm({ ...editForm, musicPreset: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    >
+                      <option value="romantic-piano">Romantic Piano</option>
+                      <option value="acoustic-love">Acoustic Love</option>
+                      <option value="cinematic-orchestral">Cinematic Orchestral</option>
+                      <option value="gentle-strings">Gentle Strings</option>
+                    </select>
+                  </div>
                 </div>
 
+                {/* Story */}
                 <div>
                   <label className="block font-medium text-stone-700 mb-1">
-                    Nhạc Nền Hôn Lễ
+                    Tiêu Đề & Lời Kể Câu Chuyện Tình Yêu
                   </label>
-                  <select
-                    value={editForm.musicPreset}
-                    onChange={(e) => setEditForm({ ...editForm, musicPreset: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  <input
+                    type="text"
+                    value={editForm.storyTitle}
+                    onChange={(e) => setEditForm({ ...editForm, storyTitle: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                  <textarea
+                    rows={3}
+                    value={editForm.storyText}
+                    onChange={(e) => setEditForm({ ...editForm, storyText: e.target.value })}
+                    className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+
+                {/* Status Switch */}
+                <div className="flex items-center gap-3 pt-2">
+                  <input
+                    type="checkbox"
+                    id="modalIsPublished"
+                    checked={editForm.isPublished}
+                    onChange={(e) => setEditForm({ ...editForm, isPublished: e.target.checked })}
+                    className="w-4 h-4 text-[#8C6D46] rounded focus:ring-[#8C6D46]"
+                  />
+                  <label htmlFor="modalIsPublished" className="font-medium text-stone-800 cursor-pointer">
+                    Xuất bản công khai thiệp cưới (Cho phép khách truy cập)
+                  </label>
+                </div>
+
+                <div className="pt-4 border-t border-stone-200 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedForEdit(null)}
+                    className="h-10 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium transition-colors"
                   >
-                    <option value="romantic-piano">Romantic Piano</option>
-                    <option value="acoustic-love">Acoustic Love</option>
-                    <option value="cinematic-orchestral">Cinematic Orchestral</option>
-                    <option value="gentle-strings">Gentle Strings</option>
-                  </select>
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingEdit}
+                    className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {isSavingEdit ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                  </button>
+                </div>
+              </form>
+
+              {/* Right Column: Live Mobile Preview Pane */}
+              <div
+                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${
+                  editActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
+                }`}
+              >
+                <div className="text-[10px] tracking-[0.2em] uppercase text-[#C5A059] mb-2.5 font-mono flex items-center gap-1.5 shrink-0">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>LIVE MOBILE PREVIEW • CẬP NHẬT TỨC THÌ</span>
+                </div>
+
+                {/* Smartphone Device Frame */}
+                <div className="w-[355px] h-full max-h-[710px] rounded-[36px] border-[6px] border-[#2E2924] bg-[#FAF8F5] overflow-y-auto shadow-2xl relative no-scrollbar">
+                  <WeddingInvitationView
+                    data={editPreviewData as any}
+                    isPreview={true}
+                  />
                 </div>
               </div>
-
-              {/* Story */}
-              <div>
-                <label className="block font-medium text-stone-700 mb-1">
-                  Tiêu Đề & Lời Kể Câu Chuyện Tình Yêu
-                </label>
-                <input
-                  type="text"
-                  value={editForm.storyTitle}
-                  onChange={(e) => setEditForm({ ...editForm, storyTitle: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                />
-                <textarea
-                  rows={3}
-                  value={editForm.storyText}
-                  onChange={(e) => setEditForm({ ...editForm, storyText: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                />
-              </div>
-
-              {/* Status Switch */}
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="modalIsPublished"
-                  checked={editForm.isPublished}
-                  onChange={(e) => setEditForm({ ...editForm, isPublished: e.target.checked })}
-                  className="w-4 h-4 text-[#8C6D46] rounded focus:ring-[#8C6D46]"
-                />
-                <label htmlFor="modalIsPublished" className="font-medium text-stone-800 cursor-pointer">
-                  Xuất bản công khai thiệp cưới (Cho phép khách truy cập)
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-stone-200 flex justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setSelectedForEdit(null)}
-                  className="h-10 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSavingEdit}
-                  className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50"
-                >
-                  {isSavingEdit ? 'Đang lưu...' : 'Lưu Thay Đổi'}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* ============================================================= */}
-      {/* 2.5 CREATE INVITATION MODAL                                   */}
+      {/* 2.5 CREATE INVITATION MODAL (2-COLUMN: FORM + LIVE PREVIEW)  */}
       {/* ============================================================= */}
       {isCreateModalOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs animate-fade-in"
         >
-          <div className="w-full max-w-2xl bg-white rounded-3xl border border-stone-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up">
-            <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50/70">
+          <div className="w-[95vw] max-w-6xl h-[90vh] bg-white rounded-3xl border border-stone-200 shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+            {/* Modal Header */}
+            <div className="px-5 py-3.5 border-b border-stone-200 flex items-center justify-between bg-stone-50/80 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#8C6D46]/10 text-[#8C6D46] flex items-center justify-center">
                   <Plus className="w-4 h-4" />
@@ -1993,578 +2138,637 @@ export default function AdminInvitationsPage() {
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsCreateModalOpen(false)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center gap-2">
+                {/* Mobile / Small Screen View Switcher */}
+                <div className="lg:hidden flex items-center bg-stone-200/70 p-1 rounded-xl text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setCreateActiveTab('form')}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                      createActiveTab === 'form'
+                        ? 'bg-white text-stone-900 shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    1. Thiết Lập
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCreateActiveTab('preview')}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
+                      createActiveTab === 'preview'
+                        ? 'bg-[#8C6D46] text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>2. Xem Trước Thiệp</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveCreate} className="p-6 flex-1 overflow-y-auto space-y-4 text-xs">
-              {/* Draft Directory Indicator */}
-              <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
-                <div className="flex items-center gap-2">
-                  <Folder className="w-4 h-4 text-[#8C6D46] shrink-0" />
-                  <span className="text-[11px]">
-                    Thư mục tải ảnh dự thảo:{' '}
-                    <code className="font-mono font-semibold text-stone-800 bg-stone-200/70 px-1.5 py-0.5 rounded">
-                      /uploads/invitations/{createDraftSlug}/
-                    </code>
-                  </span>
-                </div>
-                <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
-                  <ImageIcon className="w-3.5 h-3.5 text-stone-400" />
-                  <span>{createForm.galleryImages.length} ảnh album</span>
-                </div>
-              </div>
-
-              {/* Template & Palette Section */}
-              <div className="p-3.5 rounded-2xl border border-stone-200 bg-stone-50/60 space-y-3">
-                <div className="font-semibold text-stone-800 text-xs">
-                  Phong Cách & Màu Sắc Điểm Nhấn
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { id: 'timeless-ivory', name: 'Timeless Ivory', desc: 'Cổ Điển Sang Trọng' },
-                    { id: 'cinematic-noir', name: 'Cinematic Noir', desc: 'Điện Ảnh Tinh Tế' },
-                    { id: 'botanical-silk', name: 'Botanical Silk', desc: 'Thơ Mộng Tươi Sáng' },
-                    { id: 'minimalist-story', name: 'Minimalist Story', desc: 'Hiện Đại Tối Giản' },
-                  ].map((tpl) => (
-                    <button
-                      key={tpl.id}
-                      type="button"
-                      onClick={() => setCreateForm({ ...createForm, templateId: tpl.id })}
-                      className={`p-2.5 rounded-xl border text-left transition-all ${
-                        createForm.templateId === tpl.id
-                          ? 'border-[#8C6D46] bg-white ring-2 ring-[#8C6D46]/20 shadow-xs'
-                          : 'border-stone-200 bg-white/70 hover:bg-white'
-                      }`}
-                    >
-                      <div className="font-semibold text-stone-900 text-[11px]">{tpl.name}</div>
-                      <div className="text-[10px] text-stone-500">{tpl.desc}</div>
-                    </button>
-                  ))}
+            {/* Modal Body: 2 Columns */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_410px] min-h-0 overflow-hidden">
+              {/* Left Column: Form Controls */}
+              <form
+                onSubmit={handleSaveCreate}
+                className={`p-6 overflow-y-auto space-y-4 text-xs ${
+                  createActiveTab === 'preview' ? 'hidden lg:block' : 'block'
+                }`}
+              >
+                {/* Draft Directory Indicator */}
+                <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-4 h-4 text-[#8C6D46] shrink-0" />
+                    <span className="text-[11px]">
+                      Thư mục tải ảnh dự thảo:{' '}
+                      <code className="font-mono font-semibold text-stone-800 bg-stone-200/70 px-1.5 py-0.5 rounded">
+                        /uploads/invitations/{createDraftSlug}/
+                      </code>
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-stone-400" />
+                    <span>{createForm.galleryImages.length} ảnh album</span>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <span className="text-[11px] font-medium text-stone-600">Màu nhấn:</span>
-                  {[
-                    { hex: '#8C6D46', name: 'Vàng Đồng Hoàng Gia' },
-                    { hex: '#85292F', name: 'Đỏ Rượu Vang' },
-                    { hex: '#4A6B53', name: 'Xanh Sage Tự Nhiên' },
-                    { hex: '#3D5A80', name: 'Xanh Navy Hiện Đại' },
-                  ].map((color) => (
-                    <button
-                      key={color.hex}
-                      type="button"
-                      onClick={() => setCreateForm({ ...createForm, themeColor: color.hex })}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all ${
-                        createForm.themeColor === color.hex
-                          ? 'border-stone-800 bg-white ring-2 ring-stone-400 font-medium'
-                          : 'border-stone-200 bg-white/60 hover:bg-white text-stone-600'
-                      }`}
-                    >
-                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color.hex }} />
-                      <span>{color.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                {/* Template & Palette Section */}
+                <div className="p-3.5 rounded-2xl border border-stone-200 bg-stone-50/60 space-y-3">
+                  <div className="font-semibold text-stone-800 text-xs">
+                    Phong Cách & Màu Sắc Điểm Nhấn
+                  </div>
 
-              {/* Couple names */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tên Chú Rể <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={createForm.groomName}
-                    onChange={(e) => setCreateForm({ ...createForm, groomName: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tên Cô Dâu <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={createForm.brideName}
-                    onChange={(e) => setCreateForm({ ...createForm, brideName: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { id: 'timeless-ivory', name: 'Timeless Ivory', desc: 'Cổ Điển Sang Trọng' },
+                      { id: 'cinematic-noir', name: 'Cinematic Noir', desc: 'Điện Ảnh Tinh Tế' },
+                      { id: 'botanical-silk', name: 'Botanical Silk', desc: 'Thơ Mộng Tươi Sáng' },
+                      { id: 'minimalist-story', name: 'Minimalist Story', desc: 'Hiện Đại Tối Giản' },
+                    ].map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setCreateForm({ ...createForm, templateId: tpl.id })}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          createForm.templateId === tpl.id
+                            ? 'border-[#8C6D46] bg-white ring-2 ring-[#8C6D46]/20 shadow-xs'
+                            : 'border-stone-200 bg-white/70 hover:bg-white'
+                        }`}
+                      >
+                        <div className="font-semibold text-stone-900 text-[11px]">{tpl.name}</div>
+                        <div className="text-[10px] text-stone-500">{tpl.desc}</div>
+                      </button>
+                    ))}
+                  </div>
 
-              {/* Parents information */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Thân Sinh Nhà Trai
-                  </label>
-                  <input
-                    type="text"
-                    value={createForm.groomParents}
-                    onChange={(e) => setCreateForm({ ...createForm, groomParents: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <span className="text-[11px] font-medium text-stone-600">Màu nhấn:</span>
+                    {[
+                      { hex: '#8C6D46', name: 'Vàng Đồng Hoàng Gia' },
+                      { hex: '#85292F', name: 'Đỏ Rượu Vang' },
+                      { hex: '#4A6B53', name: 'Xanh Sage Tự Nhiên' },
+                      { hex: '#3D5A80', name: 'Xanh Navy Hiện Đại' },
+                    ].map((color) => (
+                      <button
+                        key={color.hex}
+                        type="button"
+                        onClick={() => setCreateForm({ ...createForm, themeColor: color.hex })}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all ${
+                          createForm.themeColor === color.hex
+                            ? 'border-stone-800 bg-white ring-2 ring-stone-400 font-medium'
+                            : 'border-stone-200 bg-white/60 hover:bg-white text-stone-600'
+                        }`}
+                      >
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color.hex }} />
+                        <span>{color.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Thân Sinh Nhà Gái
-                  </label>
-                  <input
-                    type="text"
-                    value={createForm.brideParents}
-                    onChange={(e) => setCreateForm({ ...createForm, brideParents: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
 
-              {/* Ceremony Date & Time text */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Ngày & Giờ Tổ Chức <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={createForm.ceremonyDate}
-                    onChange={(e) => setCreateForm({ ...createForm, ceremonyDate: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Văn Bản Hiển Thị Giờ (Tùy chọn)
-                  </label>
-                  <input
-                    type="text"
-                    value={createForm.ceremonyTimeText}
-                    onChange={(e) => setCreateForm({ ...createForm, ceremonyTimeText: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
-
-              {/* Venue Autocomplete & PIN */}
-              <div className="space-y-4 pt-2 border-t border-stone-100">
-                <VenueAutocompleteInput
-                  venueName={createForm.venueName}
-                  venueAddress={createForm.venueAddress}
-                  googleMapsUrl={createForm.googleMapsUrl}
-                  onChangeVenueName={(val) => setCreateForm({ ...createForm, venueName: val })}
-                  onChangeVenueAddress={(val) => setCreateForm({ ...createForm, venueAddress: val })}
-                  onChangeGoogleMapsUrl={(val) => setCreateForm({ ...createForm, googleMapsUrl: val })}
-                />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Couple names */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-medium text-stone-700 mb-1">
-                      Mã PIN Chỉnh Sửa (6 Số) <span className="text-red-500">*</span>
+                      Tên Chú Rể <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={createForm.groomName}
+                      onChange={(e) => setCreateForm({ ...createForm, groomName: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Tên Cô Dâu <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={createForm.brideName}
+                      onChange={(e) => setCreateForm({ ...createForm, brideName: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Parents information */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Thân Sinh Nhà Trai
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.groomParents}
+                      onChange={(e) => setCreateForm({ ...createForm, groomParents: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Thân Sinh Nhà Gái
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.brideParents}
+                      onChange={(e) => setCreateForm({ ...createForm, brideParents: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Ceremony Date & Time text */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Ngày & Giờ Tổ Chức <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={createForm.ceremonyDate}
+                      onChange={(e) => setCreateForm({ ...createForm, ceremonyDate: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Văn Bản Hiển Thị Giờ (Tùy chọn)
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.ceremonyTimeText}
+                      onChange={(e) => setCreateForm({ ...createForm, ceremonyTimeText: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                {/* Venue Autocomplete & PIN */}
+                <div className="space-y-4 pt-2 border-t border-stone-100">
+                  <VenueAutocompleteInput
+                    venueName={createForm.venueName}
+                    venueAddress={createForm.venueAddress}
+                    googleMapsUrl={createForm.googleMapsUrl}
+                    onChangeVenueName={(val) => setCreateForm({ ...createForm, venueName: val })}
+                    onChangeVenueAddress={(val) => setCreateForm({ ...createForm, venueAddress: val })}
+                    onChangeGoogleMapsUrl={(val) => setCreateForm({ ...createForm, googleMapsUrl: val })}
+                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-medium text-stone-700 mb-1">
+                        Mã PIN Chỉnh Sửa (6 Số) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          value={createForm.editPasscode}
+                          onChange={(e) => setCreateForm({ ...createForm, editPasscode: e.target.value.replace(/\D/g, '') })}
+                          className="flex-1 h-10 px-3 rounded-xl border border-stone-300 font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCreateForm({ ...createForm, editPasscode: Math.floor(100000 + Math.random() * 900000).toString() })}
+                          className="h-10 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-medium"
+                        >
+                          Đổi mã
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-medium text-stone-700 mb-1">
+                        Tùy Chỉnh Slug Đường Dẫn (Tùy chọn)
+                      </label>
                       <input
                         type="text"
-                        required
-                        maxLength={6}
-                        value={createForm.editPasscode}
-                        onChange={(e) => setCreateForm({ ...createForm, editPasscode: e.target.value.replace(/\D/g, '') })}
-                        className="flex-1 h-10 px-3 rounded-xl border border-stone-300 font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                        value={createForm.customSlug}
+                        onChange={(e) => setCreateForm({ ...createForm, customSlug: e.target.value })}
+                        className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cover Image */}
+                <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div>
+                      <label className="block font-semibold text-stone-800 text-xs">
+                        1. Ảnh Bìa Thiệp Cưới (Hero Cover) <span className="text-red-500">*</span>
+                      </label>
+                      <p className="text-[11px] text-stone-500">
+                        💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                        {isUploadingCreateCover ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-stone-600" />
+                        )}
+                        <span>{isUploadingCreateCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingCreateCover}
+                          onChange={handleUploadCreateCover}
+                        />
+                      </label>
                       <button
                         type="button"
-                        onClick={() => setCreateForm({ ...createForm, editPasscode: Math.floor(100000 + Math.random() * 900000).toString() })}
-                        className="h-10 px-3 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-medium"
+                        onClick={() => openMediaPicker('create-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Tạo Mới)')}
+                        className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
                       >
-                        Đổi mã
+                        <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
+                        <span>Chọn từ Kho Media</span>
+                      </button>
+                    </div>
+                  </div>
+                  {createForm.coverImage && (
+                    <div className="w-24 h-32 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
+                      <img
+                        src={createForm.coverImage}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Groom & Bride Portraits */}
+                <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
+                  <div>
+                    <label className="block font-semibold text-stone-800 text-xs">
+                      2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
+                    </label>
+                    <p className="text-[11px] text-stone-500">
+                      💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Groom */}
+                    <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
+                        <div className="flex items-center gap-1">
+                          <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                            {isUploadingCreateGroom ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                            ) : (
+                              <Upload className="w-2.5 h-2.5 text-stone-600" />
+                            )}
+                            <span>{isUploadingCreateGroom ? '...' : 'Tải'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={isUploadingCreateGroom}
+                              onChange={handleUploadCreateGroom}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker('create-groom', 'Chọn Chân Dung Chú Rể (Tạo Mới)')}
+                            className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                          >
+                            <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                            <span>Kho Media</span>
+                          </button>
+                        </div>
+                      </div>
+                      {createForm.groomImage && (
+                        <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                          <img
+                            src={createForm.groomImage}
+                            alt="Groom Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Chú Rể</label>
+                        <input
+                          type="text"
+                          value={createForm.groomBio}
+                          onChange={(e) => setCreateForm({ ...createForm, groomBio: e.target.value })}
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Bride */}
+                    <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
+                        <div className="flex items-center gap-1">
+                          <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
+                            {isUploadingCreateBride ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
+                            ) : (
+                              <Upload className="w-2.5 h-2.5 text-stone-600" />
+                            )}
+                            <span>{isUploadingCreateBride ? '...' : 'Tải'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={isUploadingCreateBride}
+                              onChange={handleUploadCreateBride}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker('create-bride', 'Chọn Chân Dung Cô Dâu (Tạo Mới)')}
+                            className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
+                          >
+                            <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
+                            <span>Kho Media</span>
+                          </button>
+                        </div>
+                      </div>
+                      {createForm.brideImage && (
+                        <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
+                          <img
+                            src={createForm.brideImage}
+                            alt="Bride Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Cô Dâu</label>
+                        <input
+                          type="text"
+                          value={createForm.brideBio}
+                          onChange={(e) => setCreateForm({ ...createForm, brideBio: e.target.value })}
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Visual Gallery Image Manager */}
+                <div className="space-y-2 pt-1 border-t border-stone-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="block font-medium text-stone-700">
+                        3. Album Ảnh Cưới & Khoảnh Khắc (Gallery)
+                      </label>
+                      <p className="text-[11px] text-stone-400">
+                        Khách mời có thể vuốt xem và phóng to trọn màn hình
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
+                        {isUploadingCreateGallery ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
+                        ) : (
+                          <Plus className="w-3.5 h-3.5 text-stone-600" />
+                        )}
+                        <span>{isUploadingCreateGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          disabled={isUploadingCreateGallery}
+                          onChange={handleUploadCreateGallery}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker('create-gallery', 'Chọn Ảnh Cho Album (Tạo Mới)', true)}
+                        className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                        <span>Chọn từ Kho Media</span>
                       </button>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block font-medium text-stone-700 mb-1">
-                      Tùy Chỉnh Slug Đường Dẫn (Tùy chọn)
-                    </label>
-                    <input
-                      type="text"
-                      value={createForm.customSlug}
-                      onChange={(e) => setCreateForm({ ...createForm, customSlug: e.target.value })}
-                      className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                    />
-                  </div>
+                  {createForm.galleryImages.length === 0 ? (
+                    <div className="p-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 text-center text-[11px] text-stone-400">
+                      Chưa có ảnh nào trong album. Bấm &ldquo;Thêm ảnh album&rdquo; để tải lên.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
+                      {createForm.galleryImages.map((img: any, idx: number) => {
+                        const imgUrl = typeof img === 'string' ? img : img.url;
+                        return (
+                          <div
+                            key={idx}
+                            className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-2xs"
+                          >
+                            <img
+                              src={imgUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCreateGalleryImage(idx)}
+                              className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-all"
+                              title="Xóa ảnh này"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Cover Image */}
-              <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <div>
-                    <label className="block font-semibold text-stone-800 text-xs">
-                      1. Ảnh Bìa Thiệp Cưới (Hero Cover) <span className="text-red-500">*</span>
-                    </label>
-                    <p className="text-[11px] text-stone-500">
-                      💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <label className="h-8 px-2.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
-                      {isUploadingCreateCover ? (
+                {/* Bank QR & Gift Info */}
+                <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block font-semibold text-stone-800 text-xs">
+                        4. Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
+                      </label>
+                    </div>
+                    <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                      {isUploadingCreateBankQr ? (
                         <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
                       ) : (
                         <Upload className="w-3 h-3 text-stone-600" />
                       )}
-                      <span>{isUploadingCreateCover ? 'Đang tải...' : 'Tải ảnh mới'}</span>
+                      <span>{isUploadingCreateBankQr ? '...' : 'Tải mã QR'}</span>
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        disabled={isUploadingCreateCover}
-                        onChange={handleUploadCreateCover}
+                        disabled={isUploadingCreateBankQr}
+                        onChange={handleUploadCreateBankQr}
                       />
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => openMediaPicker('create-cover', 'Chọn Ảnh Bìa Thiệp Cưới (Tạo Mới)')}
-                      className="h-8 px-2.5 rounded-lg border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1 transition-colors shadow-2xs"
-                    >
-                      <ImageIcon className="w-3 h-3 text-[#8C6D46]" />
-                      <span>Chọn từ Kho Media</span>
-                    </button>
                   </div>
-                </div>
-                {createForm.coverImage && (
-                  <div className="w-24 h-32 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs mt-2">
-                    <img
-                      src={createForm.coverImage}
-                      alt="Cover Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Groom & Bride Portraits */}
-              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
-                <div>
-                  <label className="block font-semibold text-stone-800 text-xs">
-                    2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
-                  </label>
-                  <p className="text-[11px] text-stone-500">
-                    💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Groom */}
-                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể</span>
-                      <div className="flex items-center gap-1">
-                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
-                          {isUploadingCreateGroom ? (
-                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
-                          ) : (
-                            <Upload className="w-2.5 h-2.5 text-stone-600" />
-                          )}
-                          <span>{isUploadingCreateGroom ? '...' : 'Tải'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploadingCreateGroom}
-                            onChange={handleUploadCreateGroom}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker('create-groom', 'Chọn Chân Dung Chú Rể (Tạo Mới)')}
-                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
-                        >
-                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
-                          <span>Kho Media</span>
-                        </button>
-                      </div>
-                    </div>
-                    {createForm.groomImage && (
-                      <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
-                        <img
-                          src={createForm.groomImage}
-                          alt="Groom Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Chú Rể</label>
-                      <input
-                        type="text"
-                        value={createForm.groomBio}
-                        onChange={(e) => setCreateForm({ ...createForm, groomBio: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                  {createForm.bankQrImage && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
+                      <img
+                        src={createForm.bankQrImage}
+                        alt="Bank QR Preview"
+                        className="w-full h-full object-contain"
                       />
                     </div>
-                  </div>
-
-                  {/* Bride */}
-                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu</span>
-                      <div className="flex items-center gap-1">
-                        <label className="h-7 px-2 rounded-md border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[10px] flex items-center gap-1 cursor-pointer transition-colors">
-                          {isUploadingCreateBride ? (
-                            <Loader2 className="w-2.5 h-2.5 animate-spin text-[#8C6D46]" />
-                          ) : (
-                            <Upload className="w-2.5 h-2.5 text-stone-600" />
-                          )}
-                          <span>{isUploadingCreateBride ? '...' : 'Tải'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploadingCreateBride}
-                            onChange={handleUploadCreateBride}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker('create-bride', 'Chọn Chân Dung Cô Dâu (Tạo Mới)')}
-                          className="h-7 px-2 rounded-md border border-[#8C6D46]/30 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[10px] flex items-center gap-1 transition-colors"
-                        >
-                          <ImageIcon className="w-2.5 h-2.5 text-[#8C6D46]" />
-                          <span>Kho Media</span>
-                        </button>
-                      </div>
-                    </div>
-                    {createForm.brideImage && (
-                      <div className="w-16 h-20 rounded-lg overflow-hidden border border-stone-200 bg-stone-100 relative shadow-2xs">
-                        <img
-                          src={createForm.brideImage}
-                          alt="Bride Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Cô Dâu</label>
-                      <input
-                        type="text"
-                        value={createForm.brideBio}
-                        onChange={(e) => setCreateForm({ ...createForm, brideBio: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Visual Gallery Image Manager */}
-              <div className="space-y-2 pt-1 border-t border-stone-100">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <label className="block font-medium text-stone-700">
-                      3. Album Ảnh Cưới & Khoảnh Khắc (Gallery)
-                    </label>
-                    <p className="text-[11px] text-stone-400">
-                      Khách mời có thể vuốt xem và phóng to trọn màn hình
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <label className="h-8 px-2.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1.5 cursor-pointer transition-colors">
-                      {isUploadingCreateGallery ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
-                      ) : (
-                        <Plus className="w-3.5 h-3.5 text-stone-600" />
-                      )}
-                      <span>{isUploadingCreateGallery ? 'Đang tải...' : 'Tải nhiều ảnh mới'}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        disabled={isUploadingCreateGallery}
-                        onChange={handleUploadCreateGallery}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => openMediaPicker('create-gallery', 'Chọn Ảnh Cho Album (Tạo Mới)', true)}
-                      className="h-8 px-2.5 rounded-xl border border-[#8C6D46]/40 bg-[#8C6D46]/10 hover:bg-[#8C6D46]/20 text-[#8C6D46] font-medium text-[11px] flex items-center gap-1.5 transition-colors shadow-2xs"
-                    >
-                      <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                      <span>Chọn từ Kho Media</span>
-                    </button>
-                  </div>
-                </div>
-
-                {createForm.galleryImages.length === 0 ? (
-                  <div className="p-4 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 text-center text-[11px] text-stone-400">
-                    Chưa có ảnh nào trong album. Bấm &ldquo;Thêm ảnh album&rdquo; để tải lên.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-1">
-                    {createForm.galleryImages.map((img: any, idx: number) => {
-                      const imgUrl = typeof img === 'string' ? img : img.url;
-                      return (
-                        <div
-                          key={idx}
-                          className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-2xs"
-                        >
-                          <img
-                            src={imgUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveCreateGalleryImage(idx)}
-                            className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-all"
-                            title="Xóa ảnh này"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Bank QR & Gift Info */}
-              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="block font-semibold text-stone-800 text-xs">
-                      4. Mừng Cưới & Tài Khoản Ngân Hàng (Tùy chọn)
-                    </label>
-                  </div>
-                  <label className="h-7 px-2.5 rounded-md border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-[11px] flex items-center gap-1 cursor-pointer shrink-0 transition-colors shadow-2xs">
-                    {isUploadingCreateBankQr ? (
-                      <Loader2 className="w-3 h-3 animate-spin text-[#8C6D46]" />
-                    ) : (
-                      <Upload className="w-3 h-3 text-stone-600" />
-                    )}
-                    <span>{isUploadingCreateBankQr ? '...' : 'Tải mã QR'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={isUploadingCreateBankQr}
-                      onChange={handleUploadCreateBankQr}
-                    />
-                  </label>
-                </div>
-                {createForm.bankQrImage && (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden border border-stone-200 bg-white relative shadow-2xs">
-                    <img
-                      src={createForm.bankQrImage}
-                      alt="Bank QR Preview"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                )}
-                <div>
-                  <label className="block text-[10px] text-stone-500 mb-0.5">Thông tin tài khoản & Lời nhắn</label>
-                  <input
-                    type="text"
-                    value={createForm.bankInfoText}
-                    onChange={(e) => setCreateForm({ ...createForm, bankInfoText: e.target.value })}
-                    className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                  />
-                </div>
-              </div>
-
-              {/* Music & Story */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Nhạc Nền Hôn Lễ
-                  </label>
-                  <select
-                    value={createForm.musicPreset}
-                    onChange={(e) => setCreateForm({ ...createForm, musicPreset: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  >
-                    <option value="romantic-piano">Romantic Piano</option>
-                    <option value="acoustic-love">Acoustic Love</option>
-                    <option value="cinematic-orchestral">Cinematic Orchestral</option>
-                    <option value="gentle-strings">Gentle Strings</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tiêu Đề Câu Chuyện Tình Yêu
-                  </label>
-                  <input
-                    type="text"
-                    value={createForm.storyTitle}
-                    onChange={(e) => setCreateForm({ ...createForm, storyTitle: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-medium text-stone-700 mb-1">
-                  Lời Kể Câu Chuyện Tình Yêu (Tùy chọn)
-                </label>
-                <textarea
-                  rows={3}
-                  value={createForm.storyText}
-                  onChange={(e) => setCreateForm({ ...createForm, storyText: e.target.value })}
-                  className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                />
-              </div>
-
-              {/* Status Switch */}
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="createModalIsPublished"
-                  checked={createForm.isPublished}
-                  onChange={(e) => setCreateForm({ ...createForm, isPublished: e.target.checked })}
-                  className="w-4 h-4 text-[#8C6D46] rounded focus:ring-[#8C6D46]"
-                />
-                <label htmlFor="createModalIsPublished" className="font-medium text-stone-800 cursor-pointer">
-                  Xuất bản công khai thiệp cưới ngay sau khi tạo
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-stone-200 flex justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="h-10 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Đang tạo thiệp...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      <span>Tạo Thiệp Cưới</span>
-                    </>
                   )}
-                </button>
+                  <div>
+                    <label className="block text-[10px] text-stone-500 mb-0.5">Thông tin tài khoản & Lời nhắn</label>
+                    <input
+                      type="text"
+                      value={createForm.bankInfoText}
+                      onChange={(e) => setCreateForm({ ...createForm, bankInfoText: e.target.value })}
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Music & Story */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Nhạc Nền Hôn Lễ
+                    </label>
+                    <select
+                      value={createForm.musicPreset}
+                      onChange={(e) => setCreateForm({ ...createForm, musicPreset: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    >
+                      <option value="romantic-piano">Romantic Piano</option>
+                      <option value="acoustic-love">Acoustic Love</option>
+                      <option value="cinematic-orchestral">Cinematic Orchestral</option>
+                      <option value="gentle-strings">Gentle Strings</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">
+                      Tiêu Đề Câu Chuyện Tình Yêu
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.storyTitle}
+                      onChange={(e) => setCreateForm({ ...createForm, storyTitle: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-medium text-stone-700 mb-1">
+                    Lời Kể Câu Chuyện Tình Yêu (Tùy chọn)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={createForm.storyText}
+                    onChange={(e) => setCreateForm({ ...createForm, storyText: e.target.value })}
+                    className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                  />
+                </div>
+
+                {/* Status Switch */}
+                <div className="flex items-center gap-3 pt-2">
+                  <input
+                    type="checkbox"
+                    id="createModalIsPublished"
+                    checked={createForm.isPublished}
+                    onChange={(e) => setCreateForm({ ...createForm, isPublished: e.target.checked })}
+                    className="w-4 h-4 text-[#8C6D46] rounded focus:ring-[#8C6D46]"
+                  />
+                  <label htmlFor="createModalIsPublished" className="font-medium text-stone-800 cursor-pointer">
+                    Xuất bản công khai thiệp cưới ngay sau khi tạo
+                  </label>
+                </div>
+
+                <div className="pt-4 border-t border-stone-200 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="h-10 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isCreating}
+                    className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Đang tạo thiệp...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        <span>Tạo Thiệp Cưới</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {/* Right Column: Live Mobile Preview Pane */}
+              <div
+                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${
+                  createActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
+                }`}
+              >
+                <div className="text-[10px] tracking-[0.2em] uppercase text-[#C5A059] mb-2.5 font-mono flex items-center gap-1.5 shrink-0">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>LIVE MOBILE PREVIEW • CẬP NHẬT TỨC THÌ</span>
+                </div>
+
+                {/* Smartphone Device Frame */}
+                <div className="w-[355px] h-full max-h-[710px] rounded-[36px] border-[6px] border-[#2E2924] bg-[#FAF8F5] overflow-y-auto shadow-2xl relative no-scrollbar">
+                  <WeddingInvitationView
+                    data={createPreviewData as any}
+                    isPreview={true}
+                  />
+                </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
