@@ -73,11 +73,13 @@ export function PackageDetailModal({
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [cinemaVideoModalOpen, setCinemaVideoModalOpen] = useState(false);
 
   // Reset active media when package or modal changes
   useEffect(() => {
     setActiveMediaIndex(0);
     setActiveImageIndex(0);
+    setCinemaVideoModalOpen(false);
   }, [packageData?.id, isOpen]);
 
   // Form State
@@ -279,21 +281,27 @@ export function PackageDetailModal({
     return extractPackageInclusions(packageData);
   }, [packageData]);
 
-  // Keyboard navigation & ESC close for Fullscreen Lightbox
+  // Keyboard navigation & ESC close for Fullscreen Lightbox & Cinema Video Modal
   useEffect(() => {
-    if (!isLightboxOpen) return;
+    if (!isLightboxOpen && !cinemaVideoModalOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsLightboxOpen(false);
-      } else if (e.key === 'ArrowLeft') {
-        setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : demoImagesList.length - 1));
-      } else if (e.key === 'ArrowRight') {
-        setActiveImageIndex((prev) => (prev < demoImagesList.length - 1 ? prev + 1 : 0));
+        if (cinemaVideoModalOpen) {
+          setCinemaVideoModalOpen(false);
+        } else if (isLightboxOpen) {
+          setIsLightboxOpen(false);
+        }
+      } else if (isLightboxOpen) {
+        if (e.key === 'ArrowLeft') {
+          setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : demoImagesList.length - 1));
+        } else if (e.key === 'ArrowRight') {
+          setActiveImageIndex((prev) => (prev < demoImagesList.length - 1 ? prev + 1 : 0));
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, demoImagesList.length]);
+  }, [isLightboxOpen, cinemaVideoModalOpen, demoImagesList.length]);
 
   if (!packageData) return null;
 
@@ -379,14 +387,43 @@ export function PackageDetailModal({
           {/* CỘT TRÁI: KHUNG XEM ẢNH/VIDEO TRỌN VẸN (KHÔNG BỊ CẮT) + TỐI ƯU TỐC ĐỘ */}
           <div className="lg:col-span-6 space-y-4">
             {activeMedia?.type === 'video' ? (
-              <div className="w-full">
+              <div className="w-full space-y-0 group">
+                {/* 1. Khung phát video chuẩn aspect-video */}
                 <GoogleDriveVideoPlayer
                   video={activeMedia.video}
                   autoMountOnScroll={false}
                   autoPlay={true}
                   coverImage={packageData.coverImage}
-                  className="w-full shadow-md"
+                  roundedClass="rounded-t-2xl"
+                  className="w-full border-b-0"
                 />
+
+                {/* 2. Cinema Action Bar gắn liền sát đáy video */}
+                <div className="rounded-b-2xl bg-[#1C1917] border border-t border-[#C5A059]/25 border-stone-800/80 px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-md">
+                  {/* Left: Film Icon + Video Title + HD Badge */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-5 h-5 rounded-full bg-[#C5A059]/20 border border-[#C5A059]/40 flex items-center justify-center text-[#E5C585] shrink-0">
+                      <Film className="w-3 h-3" />
+                    </div>
+                    <span className="text-xs font-medium text-stone-200 truncate">
+                      {activeMedia.video.title || 'Thước Phim Mẫu Của Gói'}
+                    </span>
+                    <span className="shrink-0 text-[9px] font-mono font-bold text-[#E5C585] bg-[#C5A059]/15 border border-[#C5A059]/30 px-1.5 py-0.5 rounded">
+                      HD 1080P
+                    </span>
+                  </div>
+
+                  {/* Right: Phóng To & Tua Phim Button */}
+                  <button
+                    type="button"
+                    onClick={() => setCinemaVideoModalOpen(true)}
+                    className="bg-[#C5A059] hover:bg-[#D4B26A] text-[#1C1917] text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0 select-none active:scale-95"
+                    title="Mở rạp chiếu phim để tua và chọn độ phân giải full HD"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Phóng To &amp; Tua Phim</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="relative group rounded-2xl overflow-hidden bg-[#F5F2EB] border border-amber-900/10 shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px]">
@@ -1113,6 +1150,65 @@ export function PackageDetailModal({
                 ))}
               </div>
             )}
+          </div>,
+          document.body
+        )}
+
+      {/* CINEMA VIDEO LIGHTBOX MODAL */}
+      {cinemaVideoModalOpen && activeMedia?.type === 'video' && mounted &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100000] bg-black/92 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 md:p-8 animate-fade-in"
+            onClick={() => setCinemaVideoModalOpen(false)}
+          >
+            {/* Header Bar */}
+            <div
+              className="w-full max-w-5xl flex items-center justify-between pb-3 sm:pb-4 text-white z-[100002]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <span className="w-2 h-2 rounded-full bg-[#E5C585] shadow-[0_0_8px_#E5C585] shrink-0 animate-pulse" />
+                <span className="font-serif text-sm sm:text-base text-stone-100 font-medium truncate">
+                  {activeMedia.video.title || `${packageData.name} — Thước Phim Kỷ Niệm`}
+                </span>
+                <span className="hidden sm:inline-block shrink-0 text-[10px] font-mono font-bold text-[#E5C585] bg-[#C5A059]/20 border border-[#C5A059]/40 px-2 py-0.5 rounded-full">
+                  HD 1080P Cinema
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCinemaVideoModalOpen(false)}
+                className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all cursor-pointer backdrop-blur-md border border-white/20 flex items-center gap-1.5 text-xs select-none shrink-0"
+                title="Đóng chế độ rạp chiếu phim (Esc)"
+                aria-label="Đóng rạp chiếu phim"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline font-mono text-[11px]">Đóng (Esc)</span>
+              </button>
+            </div>
+
+            {/* Cinema Player Container */}
+            <div
+              className="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-stone-800 bg-black relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GoogleDriveVideoPlayer
+                video={activeMedia.video}
+                autoMountOnScroll={false}
+                autoPlay={true}
+                coverImage={packageData.coverImage}
+                className="w-full h-full rounded-2xl"
+              />
+            </div>
+
+            {/* Bottom Hint */}
+            <p
+              className="text-[11px] text-stone-400 mt-3 font-light text-center select-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Ở chế độ toàn cảnh, bạn có thể dễ dàng tua video, đổi chất lượng HD và chỉnh âm lượng trên thanh công cụ phía dưới.
+            </p>
           </div>,
           document.body
         )}

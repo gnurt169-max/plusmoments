@@ -70,6 +70,7 @@ interface GoogleDriveVideoPlayerProps {
   className?: string;
   autoMountOnScroll?: boolean;
   autoPlay?: boolean;
+  roundedClass?: string;
 }
 
 /**
@@ -81,6 +82,7 @@ export function GoogleDriveVideoPlayer({
   className = '',
   autoMountOnScroll = true,
   autoPlay = false,
+  roundedClass = 'rounded-2xl',
 }: GoogleDriveVideoPlayerProps) {
   const [isVisible, setIsVisible] = useState(!autoMountOnScroll || autoPlay);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
@@ -145,7 +147,7 @@ export function GoogleDriveVideoPlayer({
   return (
     <div
       ref={containerRef}
-      className={`relative rounded-2xl overflow-hidden border border-stone-800/80 shadow-md bg-black transition-all ${aspectClass} ${className}`}
+      className={`relative ${roundedClass} overflow-hidden border border-stone-800/80 shadow-md bg-black transition-all ${aspectClass} ${className}`}
     >
       {/* Luxury Editorial Watermark & Drive Pop-out Blocker */}
       <div
@@ -174,7 +176,7 @@ export function GoogleDriveVideoPlayer({
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
           loading="lazy"
-          className="w-full h-full border-0 rounded-2xl bg-black block"
+          className={`w-full h-full border-0 ${roundedClass} bg-black block`}
         />
       ) : (
         <div
