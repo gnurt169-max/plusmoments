@@ -31,6 +31,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { INVITATION_TEMPLATES } from '@/lib/invitations/templates';
+import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
 
 interface InvitationRsvpItem {
   id: string;
@@ -1078,20 +1079,17 @@ export default function AdminInvitationsPage() {
                 </div>
               </div>
 
-              {/* Venue Info */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tên Trung Tâm / Nhà Hàng <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editForm.venueName}
-                    onChange={(e) => setEditForm({ ...editForm, venueName: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
-                </div>
+              {/* Venue Autocomplete & PIN */}
+              <div className="space-y-4 pt-2 border-t border-stone-100">
+                <VenueAutocompleteInput
+                  venueName={editForm.venueName}
+                  venueAddress={editForm.venueAddress}
+                  googleMapsUrl={editForm.googleMapsUrl}
+                  onChangeVenueName={(val) => setEditForm({ ...editForm, venueName: val })}
+                  onChangeVenueAddress={(val) => setEditForm({ ...editForm, venueAddress: val })}
+                  onChangeGoogleMapsUrl={(val) => setEditForm({ ...editForm, googleMapsUrl: val })}
+                />
+
                 <div>
                   <label className="block font-medium text-stone-700 mb-1">
                     Mã PIN Chỉnh Sửa Của Khách (6 Số)
@@ -1104,30 +1102,6 @@ export default function AdminInvitationsPage() {
                     className="w-full h-10 px-3 rounded-xl border border-stone-300 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-medium text-stone-700 mb-1">
-                  Địa Chỉ Tổ Chức Hôn Lễ
-                </label>
-                <input
-                  type="text"
-                  value={editForm.venueAddress}
-                  onChange={(e) => setEditForm({ ...editForm, venueAddress: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium text-stone-700 mb-1">
-                  Đường Dẫn Bản Đồ Google Maps
-                </label>
-                <input
-                  type="url"
-                  value={editForm.googleMapsUrl}
-                  onChange={(e) => setEditForm({ ...editForm, googleMapsUrl: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                />
               </div>
 
               {/* Cover Image */}

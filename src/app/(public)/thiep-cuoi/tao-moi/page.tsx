@@ -30,6 +30,7 @@ import {
   InvitationGalleryImage,
 } from '@/lib/invitations/templates';
 import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
+import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
 
 export default function CreateWeddingInvitationPage() {
   const router = useRouter();
@@ -630,45 +631,15 @@ export default function CreateWeddingInvitationPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Tên Nhà Hàng / Địa Điểm <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={venueName}
-                      onChange={(e) => setVenueName(e.target.value)}
-                      placeholder="Trung Tâm Tiệc Cưới White Palace"
-                      className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Link Google Maps (Chỉ Đường 1 Chạm)
-                    </label>
-                    <input
-                      type="url"
-                      value={googleMapsUrl}
-                      onChange={(e) => setGoogleMapsUrl(e.target.value)}
-                      placeholder="https://maps.app.goo.gl/..."
-                      className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">
-                    Địa Chỉ Chi Tiết Nhà Hàng <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={venueAddress}
-                    onChange={(e) => setVenueAddress(e.target.value)}
-                    placeholder="194 Hoàng Văn Thụ, Phường 9, Phú Nhuận, TP.HCM"
-                    className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
+                {/* Smart HCMC Venue Autocomplete Input */}
+                <div className="pt-2 border-t border-stone-100">
+                  <VenueAutocompleteInput
+                    venueName={venueName}
+                    venueAddress={venueAddress}
+                    googleMapsUrl={googleMapsUrl}
+                    onChangeVenueName={setVenueName}
+                    onChangeVenueAddress={setVenueAddress}
+                    onChangeGoogleMapsUrl={setGoogleMapsUrl}
                   />
                 </div>
 
