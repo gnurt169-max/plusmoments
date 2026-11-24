@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { FloatingCard } from '@/components/motion/FloatingCard';
@@ -41,112 +41,8 @@ export function FeaturedAlbumsSection({
   albums,
   totalAlbumsCount = 0,
 }: FeaturedAlbumsSectionProps) {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const isProgrammaticScrollRef = useRef(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const isDraggingRef = useRef(false);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    isDraggingRef.current = false;
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-    const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-    const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-    if (dx > 8 || dy > 8) {
-      isDraggingRef.current = true;
-    }
-  };
-
-  const handleLinkClick = (e: React.MouseEvent) => {
-    if (isDraggingRef.current) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  // Up to 5 featured albums on Homepage
-  const displayedAlbums = Array.isArray(albums) ? albums.slice(0, 5) : [];
-
-  // Sync activeIndex with IntersectionObserver (threshold: 0.6) for instant, lag-free dot tracking
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-
-    const cards = Array.from(carousel.children) as HTMLElement[];
-    if (cards.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isProgrammaticScrollRef.current) return;
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = cards.indexOf(entry.target as HTMLElement);
-            if (index !== -1) {
-              setActiveIndex(index);
-            }
-          }
-        });
-      },
-      {
-        root: carousel,
-        threshold: 0.6,
-      }
-    );
-
-    cards.forEach((card) => observer.observe(card));
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [displayedAlbums.length]);
-
-  const handleScroll = () => {
-    if (!carouselRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll > 0) {
-      const progress = (scrollLeft / maxScroll) * 100;
-      setScrollProgress(Math.min(100, Math.max(0, progress)));
-    }
-  };
-
-  const scrollToAlbum = (index: number) => {
-    if (!carouselRef.current) return;
-    setActiveIndex(index);
-    isProgrammaticScrollRef.current = true;
-
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-
-    const cards = carouselRef.current.children;
-    if (cards[index]) {
-      (cards[index] as HTMLElement).scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
-      });
-    }
-
-    scrollTimeoutRef.current = setTimeout(() => {
-      isProgrammaticScrollRef.current = false;
-    }, 500);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Up to 6 featured albums on Homepage (2x2 or 2x3 on Mobile, 3x2 on Tablet & Desktop)
+  const displayedAlbums = Array.isArray(albums) ? albums.slice(0, 6) : [];
 
   if (displayedAlbums.length === 0) {
     return (
@@ -157,124 +53,14 @@ export function FeaturedAlbumsSection({
   }
 
   return (
-    <div className="space-y-6 sm:space-y-10">
+    <div className="space-y-8 sm:space-y-12">
       {/* =========================================================================
-          1. MOBILE HORIZONTAL SNAP CAROUSEL (< md)
-          - Vuốt ngang 1 chạm mượt mà, quán tính tự nhiên (không dùng scroll-smooth)
-          - Chiều rộng 84vw max 340px căn giữa, hé lộ dải ảnh nghệ thuật mảnh
+          1. MOBILE 2-COLUMN DIRECT EDITORIAL GRID (< md)
+          - Hiển thị trực diện 4 - 6 bộ sưu tập nổi bật (2 cột x 2 hoặc 3 hàng)
+          - Khóa cứng tỷ lệ dọc 3:4, giữ trọn góc mặt nhân vật với object-[50%_18%]
+          - Lớp phủ gradient đáy mềm mại và typography gọn gàng sắc nét
       ========================================================================= */}
-      <div className="md:hidden">
-        <div
-          ref={carouselRef}
-          onScroll={handleScroll}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          style={{ WebkitOverflowScrolling: 'touch' }}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-3.5 px-[8vw] pb-4 no-scrollbar touch-pan-x overscroll-x-contain -mx-4 sm:-mx-6"
-        >
-          {displayedAlbums.map((album, idx) => {
-            const rawSrc =
-              (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
-              album?.photos?.[0]?.url ||
-              album?.media?.[0]?.url ||
-              '/placeholder.jpg';
-
-            const coverImageSrc = getMediumImageUrl(rawSrc);
-            const conceptText = album?.concept?.trim();
-
-            return (
-              <div
-                key={album?.id || idx}
-                className="shrink-0 w-[84vw] max-w-[340px] snap-center select-none"
-              >
-                <Link
-                  href={`/bo-suu-tap/${album?.slug || ''}`}
-                  onClick={handleLinkClick}
-                  draggable={false}
-                  aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
-                  className="group block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md active:scale-[0.98] transition-all duration-300 bg-[#1E1C1A] select-none"
-                >
-                  <ProgressiveImage
-                    src={coverImageSrc}
-                    alt={album?.title || 'PlusMoments Wedding Album'}
-                    aspectRatio="3/4"
-                    orientation="portrait"
-                    objectPosition="object-[50%_18%]"
-                    priority={idx === 0}
-                    sizes="(max-width: 640px) 84vw, 340px"
-                    className="w-full h-full rounded-2xl"
-                    imageClassName="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none select-none"
-                  />
-
-                  {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/35 via-45% to-transparent pointer-events-none" />
-
-                  {/* Nội dung thông tin trên ảnh phong cách Editorial Art Card */}
-                  <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end text-left z-10 pointer-events-none select-none">
-                    {conceptText && (
-                      <p className="text-[10px] tracking-[0.16em] uppercase text-[#E5C799] font-medium line-clamp-1 drop-shadow-sm">
-                        {conceptText}
-                      </p>
-                    )}
-                    {album?.coupleNames && (
-                      <p className="text-xs text-white/85 font-normal mt-1 drop-shadow-sm">
-                        {album.coupleNames}
-                      </p>
-                    )}
-                    <h3 className="font-serif text-[19px] text-[#FAF7F2] font-normal leading-snug line-clamp-2 mt-0.5 group-hover:text-[#E5C799] transition-colors drop-shadow-sm">
-                      {album?.title || ''}
-                    </h3>
-                  </div>
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Thanh chỉ báo tiến độ & chấm chỉ báo trên Mobile */}
-        {displayedAlbums.length > 1 && (
-          <div className="flex flex-col items-center gap-2 mt-3">
-            {/* Thanh tiến độ mảnh */}
-            <div className="w-24 h-[1.5px] bg-[#E8E0D5] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#C59B6D] transition-all duration-200 rounded-full"
-                style={{
-                  width: `${100 / displayedAlbums.length}%`,
-                  transform: `translateX(${(scrollProgress * (displayedAlbums.length - 1)) / 100 * 100}%)`,
-                }}
-              />
-            </div>
-            {/* Chấm chỉ báo với kích thước đích chạm (touch target) tối ưu SEO & Accessibility */}
-            <div className="flex items-center justify-center gap-1.5 -my-1">
-              {displayedAlbums.map((_, i) => {
-                const isActive = activeIndex === i;
-                return (
-                  <button
-                    key={`dot-${i}`}
-                    type="button"
-                    aria-label={`Chuyển tới album ${i + 1}`}
-                    onClick={() => scrollToAlbum(i)}
-                    className="touch-manipulation w-8 h-8 inline-flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B6D] active:scale-90 transition-transform"
-                  >
-                    <span
-                      className={`h-1.5 rounded-full transition-all duration-300 pointer-events-none ${
-                        isActive ? 'w-5 bg-[#C59B6D]' : 'w-1.5 bg-[#E8E0D5]'
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* =========================================================================
-          2. DESKTOP EDITORIAL GRID (>= md)
-          - Bố cục lưới cân đối: tối đa 3 album mỗi hàng, hàng cuối căn giữa (justify-center)
-          - Hiệu ứng FloatingCard sang trọng, phóng nhẹ ảnh khi hover
-      ========================================================================= */}
-      <div className="hidden md:flex md:flex-wrap md:justify-center md:gap-7">
+      <div className="grid grid-cols-2 gap-3.5 md:hidden">
         {displayedAlbums.map((album, idx) => {
           const rawSrc =
             (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
@@ -283,13 +69,66 @@ export function FeaturedAlbumsSection({
             '/placeholder.jpg';
 
           const coverImageSrc = getMediumImageUrl(rawSrc);
-          const conceptText = album?.concept?.trim();
+          const topLabel = album?.coupleNames?.trim() || album?.concept?.trim() || 'PlusMoments';
+
+          return (
+            <div key={album?.id || idx} className="w-full">
+              <Link
+                href={`/bo-suu-tap/${album?.slug || ''}`}
+                aria-label={`Xem album ảnh cưới: ${album?.title || album?.coupleNames || 'Chi tiết'}`}
+                className="group block relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md active:scale-[0.98] transition-all duration-300 bg-[#1E1C1A]"
+              >
+                <ProgressiveImage
+                  src={coverImageSrc}
+                  alt={album?.title || 'PlusMoments Wedding Album'}
+                  aspectRatio="3/4"
+                  orientation="portrait"
+                  objectPosition="object-[50%_18%]"
+                  priority={idx < 2}
+                  sizes="(max-width: 768px) 50vw, 320px"
+                  className="w-full h-full rounded-2xl"
+                  imageClassName="object-cover group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none select-none"
+                />
+
+                {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+
+                {/* Nội dung thông tin trên ảnh phong cách Editorial Art Card */}
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end text-left z-10 pointer-events-none select-none">
+                  <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.16em] text-[#E5C585] font-medium truncate drop-shadow-sm">
+                    {topLabel}
+                  </p>
+                  <h3 className="font-serif text-[13px] sm:text-base leading-snug text-white line-clamp-2 mt-0.5 group-hover:text-[#E5C799] transition-colors drop-shadow-sm">
+                    {album?.title || ''}
+                  </h3>
+                </div>
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* =========================================================================
+          2. TABLET & DESKTOP EDITORIAL GRID (>= md)
+          - Bố cục lưới 3 cột cân đối, trang nhã (md:grid-cols-3 gap-5 lg:gap-6)
+          - Hiệu ứng FloatingCard sang trọng, chuyển động lơ lửng nhẹ
+      ========================================================================= */}
+      <div className="hidden md:grid md:grid-cols-3 gap-5 lg:gap-6">
+        {displayedAlbums.map((album, idx) => {
+          const rawSrc =
+            (typeof album?.coverImage === 'string' && album.coverImage.trim() ? album.coverImage.trim() : null) ||
+            album?.photos?.[0]?.url ||
+            album?.media?.[0]?.url ||
+            '/placeholder.jpg';
+
+          const coverImageSrc = getMediumImageUrl(rawSrc);
+          const topLabel = album?.coupleNames?.trim() || album?.concept?.trim() || 'PlusMoments';
 
           return (
             <EditorialReveal
               key={album?.id || idx}
               delay={(idx % 3) * 80}
-              className="w-full md:w-[calc(33.333%-1.25rem)] max-w-[380px]"
+              className="w-full"
             >
               <FloatingCard
                 delay={idx * 0.15}
@@ -307,28 +146,21 @@ export function FeaturedAlbumsSection({
                     aspectRatio="3/4"
                     orientation="portrait"
                     objectPosition="object-[50%_18%]"
-                    priority={idx < 2}
+                    priority={idx < 3}
                     sizes="(max-width: 1024px) 33vw, 420px"
                     className="w-full h-full rounded-2xl"
                     imageClassName="object-cover group-hover/card:scale-105 transition-transform duration-700 ease-out select-none pointer-events-none"
                   />
 
                   {/* Lớp phủ chuyển sắc mượt mà ở đáy ảnh */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/35 via-45% to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
 
                   {/* Nội dung thông tin trên ảnh phong cách Editorial Art Card */}
                   <div className="absolute inset-x-0 bottom-0 p-5 lg:p-6 flex flex-col justify-end text-left z-10">
-                    {conceptText && (
-                      <p className="text-[10px] tracking-[0.16em] uppercase text-[#E5C799] font-medium line-clamp-1 drop-shadow-sm">
-                        {conceptText}
-                      </p>
-                    )}
-                    {album?.coupleNames && (
-                      <p className="text-xs text-white/85 font-normal mt-1 drop-shadow-sm">
-                        {album.coupleNames}
-                      </p>
-                    )}
-                    <h3 className="font-serif text-lg lg:text-xl text-[#FAF7F2] font-normal leading-snug line-clamp-2 mt-0.5 group-hover/card:text-[#E5C799] transition-colors drop-shadow-sm">
+                    <p className="text-[11px] tracking-[0.16em] uppercase text-[#E5C585] font-medium truncate drop-shadow-sm">
+                      {topLabel}
+                    </p>
+                    <h3 className="font-serif text-lg lg:text-xl text-white font-normal leading-snug line-clamp-2 mt-0.5 group-hover/card:text-[#E5C799] transition-colors drop-shadow-sm">
                       {album?.title || ''}
                     </h3>
                   </div>

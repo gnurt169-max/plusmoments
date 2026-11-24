@@ -116,7 +116,7 @@ export default async function HomePage() {
     getCachedBlogs(),
   ]);
 
-  const featuredAlbumsRaw = (allAlbumsRaw || []).slice(0, 5);
+  const featuredAlbumsRaw = (allAlbumsRaw || []).slice(0, 6);
   const totalAlbumsCount = (allAlbumsRaw || []).length;
   const totalPackagesCount = (allPackagesRaw || []).length;
   const featuredPostsRaw = (allBlogsRaw || []).slice(0, 3);
@@ -133,7 +133,7 @@ export default async function HomePage() {
     createdAt: post.createdAt,
   }));
 
-  // 1. Featured Albums (Top 5) - Strictly serialized for Client Component
+  // 1. Featured Albums (Top 6) - Strictly serialized for Client Component
   const albums = featuredAlbumsRaw.map((a) => serializeAlbumForClient(a)).filter(Boolean);
 
   // 2. Packages list
