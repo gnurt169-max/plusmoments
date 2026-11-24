@@ -72,15 +72,13 @@ export function VenueAutocompleteInput({
     onChangeVenueName(val);
     setIsOpen(true);
     fetchVenues(val);
-    const searchTerms = [val, venueAddress].filter(Boolean).join(' ').trim();
-    if (searchTerms) {
-      onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
+    
+    // Fallback: If user types a custom venue name (e.g. private residence) not yet selected from suggestions,
+    // automatically sync fallback address and generate Google Maps search link silently
+    if (!venueAddress || venueAddress === query) {
+      onChangeVenueAddress(val);
     }
-  };
-
-  const handleAddressChange = (val: string) => {
-    onChangeVenueAddress(val);
-    const searchTerms = [venueName, val].filter(Boolean).join(' ').trim();
+    const searchTerms = [val, venueAddress || val].filter(Boolean).join(' ').trim();
     if (searchTerms) {
       onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
     }
@@ -102,7 +100,7 @@ export function VenueAutocompleteInput({
   const hasAutoLinkedMap = Boolean(effectiveMapUrl && (venueName?.trim() || venueAddress?.trim()));
 
   return (
-    <div ref={wrapperRef} className="space-y-4 relative">
+    <div ref={wrapperRef} className="space-y-2 relative">
       {/* 1. VENUE NAME AUTOCOMPLETE INPUT */}
       <div className="relative">
         <label className="block text-xs font-semibold text-stone-800 mb-1 flex items-center justify-between">
@@ -144,7 +142,7 @@ export function VenueAutocompleteInput({
 
             {results.length === 0 ? (
               <div className="p-4 text-center text-xs text-stone-500">
-                Không tìm thấy nhà hàng khớp từ khóa. Bạn có thể tự gõ tên và địa chỉ bên dưới.
+                Không tìm thấy nhà hàng khớp từ khóa. Hệ thống sẽ dùng tên bạn nhập làm địa điểm hôn lễ.
               </div>
             ) : (
               results.map((venue) => {
@@ -185,39 +183,29 @@ export function VenueAutocompleteInput({
         )}
       </div>
 
-      {/* 2. VENUE ADDRESS FIELD (AUTO-FILLED OR MANUAL) */}
-      <div>
-        <label className="block text-xs font-semibold text-stone-800 mb-1">
-          Địa Chỉ Tổ Chức Hôn Lễ <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          required
-          value={venueAddress}
-          onChange={(e) => handleAddressChange(e.target.value)}
-          className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none transition-all"
-        />
-
-        {/* Clean subtle Google Maps status indicator (No raw URL) */}
-        {hasAutoLinkedMap && (
-          <div className="mt-2 flex items-center justify-between text-[11px] text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/70">
-            <span className="flex items-center gap-1.5 truncate">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>✓ Đã tự động gắn vị trí bản đồ Google Maps</span>
+      {/* 2. AUTO-POPULATED READ-ONLY ADDRESS CONFIRMATION (NO MANUAL INPUT FIELD) */}
+      {venueAddress?.trim() && (
+        <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 text-[11px] text-stone-600 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 animate-in fade-in duration-150">
+          <div className="flex items-start sm:items-center gap-1.5 min-w-0">
+            <MapPin className="w-3.5 h-3.5 text-[#8C6D46] shrink-0 mt-0.5 sm:mt-0" />
+            <span className="font-normal text-stone-700 truncate">
+              📍 {venueAddress}
             </span>
+          </div>
+          {effectiveMapUrl && (
             <a
               href={effectiveMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-medium text-[#8C6D46] hover:underline shrink-0 ml-2"
+              className="inline-flex items-center gap-1 font-medium text-[#8C6D46] hover:underline shrink-0 ml-5 sm:ml-2"
               title="Mở Google Maps trong tab mới để kiểm tra"
             >
-              <span>Kiểm tra bản đồ</span>
+              <span>Xem bản đồ</span>
               <ExternalLink className="w-3 h-3" />
             </a>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

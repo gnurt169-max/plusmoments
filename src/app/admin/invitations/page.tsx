@@ -248,8 +248,8 @@ export default function AdminInvitationsPage() {
         statusFilter === 'ALL'
           ? true
           : statusFilter === 'PUBLISHED'
-          ? inv.isPublished
-          : !inv.isPublished;
+            ? inv.isPublished
+            : !inv.isPublished;
 
       const matchTemplate =
         templateFilter === 'ALL' ? true : inv.templateId === templateFilter;
@@ -799,7 +799,7 @@ export default function AdminInvitationsPage() {
       showToast('Vui lòng nhập tên Chú Rể và Cô Dâu');
       return;
     }
-    if (!createForm.venueName.trim() || !createForm.venueAddress.trim()) {
+    if (!createForm.venueName.trim()) {
       showToast('Vui lòng nhập hoặc chọn địa điểm tổ chức hôn lễ');
       return;
     }
@@ -1330,17 +1330,15 @@ export default function AdminInvitationsPage() {
                         <button
                           type="button"
                           onClick={() => handleTogglePublish(inv)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                            inv.isPublished
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
-                          }`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${inv.isPublished
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                            : 'bg-stone-100 text-stone-500 border border-stone-200 hover:bg-stone-200'
+                            }`}
                           title={inv.isPublished ? 'Bấm để ẩn thiệp' : 'Bấm để xuất bản thiệp'}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              inv.isPublished ? 'bg-emerald-600' : 'bg-stone-400'
-                            }`}
+                            className={`w-1.5 h-1.5 rounded-full ${inv.isPublished ? 'bg-emerald-600' : 'bg-stone-400'
+                              }`}
                           />
                           <span>{inv.isPublished ? 'Hiển thị' : 'Đang ẩn'}</span>
                         </button>
@@ -1484,11 +1482,10 @@ export default function AdminInvitationsPage() {
                           {rsvp.guestName}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-medium ${
-                            rsvp.attendance === 'ATTENDING'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-stone-200 text-stone-700'
-                          }`}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-medium ${rsvp.attendance === 'ATTENDING'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-stone-200 text-stone-700'
+                            }`}
                         >
                           {rsvp.attendance === 'ATTENDING'
                             ? `Sẽ tham dự (${rsvp.guestCount} người)`
@@ -1498,8 +1495,8 @@ export default function AdminInvitationsPage() {
                           {rsvp.side === 'GROOM'
                             ? '• Nhà Trai'
                             : rsvp.side === 'BRIDE'
-                            ? '• Nhà Gái'
-                            : '• Cả Hai'}
+                              ? '• Nhà Gái'
+                              : '• Cả Hai'}
                         </span>
                       </div>
 
@@ -1573,22 +1570,20 @@ export default function AdminInvitationsPage() {
                   <button
                     type="button"
                     onClick={() => setEditActiveTab('form')}
-                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                      editActiveTab === 'form'
-                        ? 'bg-white text-stone-900 shadow-2xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${editActiveTab === 'form'
+                      ? 'bg-white text-stone-900 shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                      }`}
                   >
                     1. Thiết Lập
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditActiveTab('preview')}
-                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
-                      editActiveTab === 'preview'
-                        ? 'bg-[#8C6D46] text-white shadow-2xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${editActiveTab === 'preview'
+                      ? 'bg-[#8C6D46] text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                      }`}
                   >
                     <Smartphone className="w-3.5 h-3.5" />
                     <span>2. Xem Trước Thiệp</span>
@@ -1610,9 +1605,8 @@ export default function AdminInvitationsPage() {
               {/* Left Column: Form Controls */}
               <form
                 onSubmit={handleSaveEdit}
-                className={`p-6 overflow-y-auto space-y-4 text-xs ${
-                  editActiveTab === 'preview' ? 'hidden lg:block' : 'block'
-                }`}
+                className={`p-6 overflow-y-auto space-y-4 text-xs ${editActiveTab === 'preview' ? 'hidden lg:block' : 'block'
+                  }`}
               >
                 {/* Storage Path Indicator */}
                 <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
@@ -2091,9 +2085,8 @@ export default function AdminInvitationsPage() {
 
               {/* Right Column: Live Mobile Preview Pane */}
               <div
-                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${
-                  editActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
-                }`}
+                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${editActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
+                  }`}
               >
                 <div className="text-[10px] tracking-[0.2em] uppercase text-[#C5A059] mb-2.5 font-mono flex items-center gap-1.5 shrink-0">
                   <Smartphone className="w-3.5 h-3.5" />
@@ -2145,22 +2138,20 @@ export default function AdminInvitationsPage() {
                   <button
                     type="button"
                     onClick={() => setCreateActiveTab('form')}
-                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                      createActiveTab === 'form'
-                        ? 'bg-white text-stone-900 shadow-2xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors ${createActiveTab === 'form'
+                      ? 'bg-white text-stone-900 shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                      }`}
                   >
                     1. Thiết Lập
                   </button>
                   <button
                     type="button"
                     onClick={() => setCreateActiveTab('preview')}
-                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
-                      createActiveTab === 'preview'
-                        ? 'bg-[#8C6D46] text-white shadow-2xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
+                    className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center gap-1.5 ${createActiveTab === 'preview'
+                      ? 'bg-[#8C6D46] text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                      }`}
                   >
                     <Smartphone className="w-3.5 h-3.5" />
                     <span>2. Xem Trước Thiệp</span>
@@ -2182,9 +2173,8 @@ export default function AdminInvitationsPage() {
               {/* Left Column: Form Controls */}
               <form
                 onSubmit={handleSaveCreate}
-                className={`p-6 overflow-y-auto space-y-4 text-xs ${
-                  createActiveTab === 'preview' ? 'hidden lg:block' : 'block'
-                }`}
+                className={`p-6 overflow-y-auto space-y-4 text-xs ${createActiveTab === 'preview' ? 'hidden lg:block' : 'block'
+                  }`}
               >
                 {/* Draft Directory Indicator */}
                 <div className="p-3 bg-stone-50 border border-stone-200/90 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-stone-600">
@@ -2220,11 +2210,10 @@ export default function AdminInvitationsPage() {
                         key={tpl.id}
                         type="button"
                         onClick={() => setCreateForm({ ...createForm, templateId: tpl.id })}
-                        className={`p-2.5 rounded-xl border text-left transition-all ${
-                          createForm.templateId === tpl.id
-                            ? 'border-[#8C6D46] bg-white ring-2 ring-[#8C6D46]/20 shadow-xs'
-                            : 'border-stone-200 bg-white/70 hover:bg-white'
-                        }`}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${createForm.templateId === tpl.id
+                          ? 'border-[#8C6D46] bg-white ring-2 ring-[#8C6D46]/20 shadow-xs'
+                          : 'border-stone-200 bg-white/70 hover:bg-white'
+                          }`}
                       >
                         <div className="font-semibold text-stone-900 text-[11px]">{tpl.name}</div>
                         <div className="text-[10px] text-stone-500">{tpl.desc}</div>
@@ -2244,11 +2233,10 @@ export default function AdminInvitationsPage() {
                         key={color.hex}
                         type="button"
                         onClick={() => setCreateForm({ ...createForm, themeColor: color.hex })}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all ${
-                          createForm.themeColor === color.hex
-                            ? 'border-stone-800 bg-white ring-2 ring-stone-400 font-medium'
-                            : 'border-stone-200 bg-white/60 hover:bg-white text-stone-600'
-                        }`}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all ${createForm.themeColor === color.hex
+                          ? 'border-stone-800 bg-white ring-2 ring-stone-400 font-medium'
+                          : 'border-stone-200 bg-white/60 hover:bg-white text-stone-600'
+                          }`}
                       >
                         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color.hex }} />
                         <span>{color.name}</span>
@@ -2751,9 +2739,8 @@ export default function AdminInvitationsPage() {
 
               {/* Right Column: Live Mobile Preview Pane */}
               <div
-                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${
-                  createActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
-                }`}
+                className={`bg-[#1A1714] border-t lg:border-t-0 lg:border-l border-[#E5DFD5]/20 flex flex-col items-center justify-center p-4 overflow-hidden ${createActiveTab === 'form' ? 'hidden lg:flex' : 'flex'
+                  }`}
               >
                 <div className="text-[10px] tracking-[0.2em] uppercase text-[#C5A059] mb-2.5 font-mono flex items-center gap-1.5 shrink-0">
                   <Smartphone className="w-3.5 h-3.5" />

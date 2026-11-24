@@ -256,7 +256,7 @@ export default function EditWeddingInvitationPage() {
       return;
     }
 
-    if (!venueName.trim() || !venueAddress.trim()) {
+    if (!venueName.trim()) {
       alert('Vui lòng nhập địa điểm tổ chức hôn lễ');
       setCurrentStep(2);
       return;

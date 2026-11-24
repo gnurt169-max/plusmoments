@@ -97,12 +97,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!venueName?.trim() || !venueAddress?.trim()) {
+    if (!venueName?.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Vui lòng nhập tên và địa chỉ địa điểm tổ chức' },
+        { success: false, error: 'Vui lòng nhập tên địa điểm tổ chức hôn lễ' },
         { status: 400 }
       );
     }
+
+    const resolvedVenueAddress = venueAddress?.trim() || venueName.trim();
 
     if (!ceremonyDate) {
       return NextResponse.json(
@@ -209,8 +211,8 @@ export async function POST(request: Request) {
         ceremonyDate: new Date(ceremonyDate),
         ceremonyTimeText: ceremonyTimeText?.trim() || null,
         venueName: venueName.trim(),
-        venueAddress: venueAddress.trim(),
-        googleMapsUrl: googleMapsUrl?.trim() || null,
+        venueAddress: resolvedVenueAddress,
+        googleMapsUrl: googleMapsUrl?.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`,
         storyTitle: storyTitle?.trim() || null,
         storyText: storyText?.trim() || null,
         coverImage: finalCoverImage,
