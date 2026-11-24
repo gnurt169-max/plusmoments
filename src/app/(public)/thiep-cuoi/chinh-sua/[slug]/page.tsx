@@ -33,6 +33,7 @@ import {
 } from '@/lib/invitations/templates';
 import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
 import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
+import { formatVietnamDateTimeLocal } from '@/lib/utils';
 
 export default function EditWeddingInvitationPage() {
   const router = useRouter();
@@ -121,7 +122,7 @@ export default function EditWeddingInvitationPage() {
         setBrideBio(inv.brideBio || '');
         setCeremonyDate(
           inv.ceremonyDate
-            ? new Date(inv.ceremonyDate).toISOString().slice(0, 16)
+            ? formatVietnamDateTimeLocal(inv.ceremonyDate)
             : ''
         );
         setCeremonyTimeText(inv.ceremonyTimeText || '');
@@ -257,7 +258,7 @@ export default function EditWeddingInvitationPage() {
     }
 
     const safeVenueName = venueName.trim() || 'Tư gia';
-    const resolvedVenueAddress = venueAddress.trim() || safeVenueName;
+    const resolvedVenueAddress = venueAddress.trim() || (venueName.trim() ? `${venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
     const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
 
     if (!coverImage) {

@@ -15,14 +15,31 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46', isDa
   const [isInView, setIsInView] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  const dateObj = useMemo(() => {
-    const d = new Date(ceremonyDate);
-    return isNaN(d.getTime()) ? new Date() : d;
-  }, [ceremonyDate]);
+  const { year, month, weddingDay } = useMemo(() => {
+    let d: Date;
+    if (typeof ceremonyDate === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/.test(ceremonyDate.trim())) {
+      const withTime = ceremonyDate.trim().includes('T') ? ceremonyDate.trim() : `${ceremonyDate.trim()}T00:00:00`;
+      d = new Date(`${withTime}+07:00`);
+    } else {
+      d = new Date(ceremonyDate);
+    }
+    const safeDate = isNaN(d.getTime()) ? new Date() : d;
 
-  const year = dateObj.getFullYear();
-  const month = dateObj.getMonth(); // 0 - 11
-  const weddingDay = dateObj.getDate();
+    // Extract exact year, month, day in Asia/Ho_Chi_Minh
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    }).formatToParts(safeDate);
+
+    const getPart = (type: string) => parts.find((p) => p.type === type)?.value || '';
+    const y = parseInt(getPart('year'), 10) || safeDate.getFullYear();
+    const m = (parseInt(getPart('month'), 10) || (safeDate.getMonth() + 1)) - 1; // 0 - 11
+    const day = parseInt(getPart('day'), 10) || safeDate.getDate();
+
+    return { year: y, month: m, weddingDay: day };
+  }, [ceremonyDate]);
 
   // Calculate calendar grid
   const calendarCells = useMemo(() => {

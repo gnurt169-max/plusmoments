@@ -26,6 +26,25 @@ import { CelebrationConfetti } from './CelebrationConfetti';
 import { InteractiveGalleryCard } from './InteractiveGalleryCard';
 import { CustomerPinModal } from './CustomerPinModal';
 
+function formatDisplayDateVN(dateInput: string | Date | undefined | null): string {
+  if (!dateInput) return '';
+  let d: Date;
+  if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/.test(dateInput.trim())) {
+    const withTime = dateInput.trim().includes('T') ? dateInput.trim() : `${dateInput.trim()}T00:00:00`;
+    d = new Date(`${withTime}+07:00`);
+  } else {
+    d = new Date(dateInput);
+  }
+  if (isNaN(d.getTime())) return '';
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(d);
+}
+
 export interface InvitationViewData {
   id?: string;
   slug: string;
@@ -527,7 +546,7 @@ export function WeddingInvitationView({
                       isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
                     } font-serif tracking-widest uppercase mt-2`}
                   >
-                    {data.ceremonyTimeText || (data.ceremonyDate ? new Date(data.ceremonyDate).toLocaleDateString('vi-VN') : '')}
+                    {data.ceremonyTimeText || formatDisplayDateVN(data.ceremonyDate)}
                   </div>
                 )}
               </div>
@@ -660,7 +679,7 @@ export function WeddingInvitationView({
           {hasCeremonyTime && (
             <div className="overflow-hidden mb-6">
               <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
-                {data.ceremonyTimeText || (data.ceremonyDate ? new Date(data.ceremonyDate).toLocaleDateString('vi-VN') : '')}
+                {data.ceremonyTimeText || formatDisplayDateVN(data.ceremonyDate)}
               </p>
             </div>
           )}

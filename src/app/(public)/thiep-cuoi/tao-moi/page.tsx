@@ -184,7 +184,7 @@ export default function CreateWeddingInvitationPage() {
     }
 
     const safeVenueName = venueName.trim() || 'Tư gia';
-    const resolvedVenueAddress = venueAddress.trim() || safeVenueName;
+    const resolvedVenueAddress = venueAddress.trim() || (venueName.trim() ? `${venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
     const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
 
     if (!coverImage) {
@@ -647,7 +647,7 @@ export default function CreateWeddingInvitationPage() {
                       }
                       // Auto fallback venueAddress if empty
                       if (!venueAddress.trim()) {
-                        setVenueAddress(venueName.trim() || 'Tư gia');
+                        setVenueAddress(venueName.trim() ? `${venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
                       }
                       setCurrentStep(3);
                     }}

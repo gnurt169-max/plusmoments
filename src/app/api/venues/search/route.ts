@@ -21,9 +21,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const query = (searchParams.get('q') || '').trim();
 
+    // Map venues to include both naming conventions (address / venueAddress, mapUrl / venueMapUrl)
+    const mapVenueOutput = (v: any) => ({
+      ...v,
+      address: v.address,
+      venueAddress: v.address,
+      mapUrl: v.mapUrl,
+      venueMapUrl: v.mapUrl,
+    });
+
     // If query is empty or less than 1 char, return top popular recommendations
     if (!query) {
-      const topVenues = HCMC_WEDDING_VENUES.slice(0, 10);
+      const topVenues = HCMC_WEDDING_VENUES.slice(0, 10).map(mapVenueOutput);
       return NextResponse.json({
         success: true,
         source: 'curated_popular',
@@ -44,7 +53,7 @@ export async function GET(request: NextRequest) {
 
       // Every word in query should match somewhere in the venue's string
       return queryTokens.every((token) => fullText.includes(token));
-    });
+    }).map(mapVenueOutput);
 
     // If curated matches are sufficient (>= 3), return immediately with sub-millisecond response
     if (matchedCurated.length >= 3 || query.length < 3) {
@@ -57,7 +66,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. Online Geocoding Fallback via OpenStreetMap Nominatim for unlisted venues/churches in HCMC
-    const externalVenues: HcmcWeddingVenue[] = [];
+    const externalVenues: any[] = [];
     try {
       const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=vn&viewbox=106.35,11.16,107.02,10.35&bounded=1&q=${encodeURIComponent(
         query + ' Hồ Chí Minh'
@@ -78,14 +87,17 @@ export async function GET(request: NextRequest) {
             const displayName = item.display_name || '';
             const name = item.name || displayName.split(',')[0] || query;
             const mapQuery = encodeURIComponent(`${name} ${displayName}`);
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
             externalVenues.push({
               id: `osm-${item.osm_id || idx}-${Date.now()}`,
               name: name,
               shortName: name,
               address: displayName,
+              venueAddress: displayName,
               district: 'TP. Hồ Chí Minh',
-              mapUrl: `https://www.google.com/maps/search/?api=1&query=${mapQuery}`,
+              mapUrl,
+              venueMapUrl: mapUrl,
               category: 'restaurant',
             });
           });

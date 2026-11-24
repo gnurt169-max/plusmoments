@@ -29,7 +29,14 @@ export async function generateMetadata({ params }: PageProps) {
     };
   }
 
-  const dateText = invitation.ceremonyTimeText || new Date(invitation.ceremonyDate).toLocaleDateString('vi-VN');
+  const dateText =
+    invitation.ceremonyTimeText ||
+    new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date(invitation.ceremonyDate));
 
   return {
     title: `Thiệp Cưới: ${invitation.groomName} & ${invitation.brideName} | PlusMoments`,

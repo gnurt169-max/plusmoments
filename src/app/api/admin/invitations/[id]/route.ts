@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
+import { parseVietnamWeddingDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,7 +89,7 @@ export async function PATCH(
       updateData.brideBio = body.brideBio.trim() || null;
     }
     if (body.ceremonyDate) {
-      const d = new Date(body.ceremonyDate);
+      const d = parseVietnamWeddingDate(body.ceremonyDate) || new Date(body.ceremonyDate);
       if (!isNaN(d.getTime())) {
         updateData.ceremonyDate = d;
       }

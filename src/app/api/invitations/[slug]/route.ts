@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
+import { parseVietnamWeddingDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,7 +122,7 @@ export async function PATCH(
     }
 
     if (updateData.ceremonyDate) {
-      cleanUpdate.ceremonyDate = new Date(updateData.ceremonyDate);
+      cleanUpdate.ceremonyDate = parseVietnamWeddingDate(updateData.ceremonyDate) || new Date(updateData.ceremonyDate);
     }
 
     const updated = await prisma.weddingInvitation.update({

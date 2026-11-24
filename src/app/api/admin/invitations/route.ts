@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
+import { parseVietnamWeddingDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
     }
 
     const safeVenueName = venueName?.trim() || 'Tư gia';
-    const resolvedVenueAddress = venueAddress?.trim() || safeVenueName;
+    const resolvedVenueAddress = venueAddress?.trim() || (venueName?.trim() ? `${venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
 
     if (!ceremonyDate) {
       return NextResponse.json(
@@ -208,7 +209,7 @@ export async function POST(request: Request) {
         brideImage: finalBrideImage,
         groomBio: groomBio?.trim() || null,
         brideBio: brideBio?.trim() || null,
-        ceremonyDate: new Date(ceremonyDate),
+        ceremonyDate: parseVietnamWeddingDate(ceremonyDate) || new Date(ceremonyDate),
         ceremonyTimeText: ceremonyTimeText?.trim() || null,
         venueName: safeVenueName,
         venueAddress: resolvedVenueAddress,

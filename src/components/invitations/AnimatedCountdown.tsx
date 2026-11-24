@@ -60,7 +60,14 @@ export function AnimatedCountdown({ ceremonyDate, isDark = false }: AnimatedCoun
   });
 
   useEffect(() => {
-    const target = new Date(ceremonyDate).getTime();
+    let d: Date;
+    if (typeof ceremonyDate === 'string' && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/.test(ceremonyDate.trim())) {
+      const withTime = ceremonyDate.trim().includes('T') ? ceremonyDate.trim() : `${ceremonyDate.trim()}T00:00:00`;
+      d = new Date(`${withTime}+07:00`);
+    } else {
+      d = new Date(ceremonyDate);
+    }
+    const target = d.getTime();
     if (isNaN(target)) return;
 
     const updateTimer = () => {

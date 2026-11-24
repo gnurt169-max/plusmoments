@@ -83,11 +83,19 @@ export function VenueAutocompleteInput({
     }
   };
 
-  const handleSelectVenue = (venue: HcmcWeddingVenue) => {
-    onChangeVenueName(venue.name);
-    onChangeVenueAddress(venue.address);
-    onChangeGoogleMapsUrl(venue.mapUrl);
-    setQuery(venue.name);
+  const handleSelectVenue = (venue: any) => {
+    const selectedName = venue.name || '';
+    const selectedAddress = venue.address || venue.venueAddress || '';
+    const selectedMapUrl = venue.mapUrl || venue.venueMapUrl || (
+      selectedAddress
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([selectedName, selectedAddress].filter(Boolean).join(' ').trim())}`
+        : ''
+    );
+
+    onChangeVenueName(selectedName);
+    onChangeVenueAddress(selectedAddress);
+    onChangeGoogleMapsUrl(selectedMapUrl);
+    setQuery(selectedName);
     setIsOpen(false);
   };
 

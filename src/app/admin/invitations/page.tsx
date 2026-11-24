@@ -35,6 +35,7 @@ import { INVITATION_TEMPLATES } from '@/lib/invitations/templates';
 import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
 import { AdminMediaPickerModal } from '@/components/admin/AdminMediaPickerModal';
 import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
+import { formatVietnamDateTimeLocal } from '@/lib/utils';
 
 interface InvitationRsvpItem {
   id: string;
@@ -322,7 +323,7 @@ export default function AdminInvitationsPage() {
       brideImage: (inv as any).brideImage || '',
       groomBio: (inv as any).groomBio || '',
       brideBio: (inv as any).brideBio || '',
-      ceremonyDate: inv.ceremonyDate ? new Date(inv.ceremonyDate).toISOString().slice(0, 16) : '',
+      ceremonyDate: inv.ceremonyDate ? formatVietnamDateTimeLocal(inv.ceremonyDate) : '',
       ceremonyTimeText: inv.ceremonyTimeText || '',
       venueName: inv.venueName || '',
       venueAddress: inv.venueAddress || '',
@@ -891,7 +892,7 @@ export default function AdminInvitationsPage() {
     try {
       setIsCreating(true);
       const safeVenueName = createForm.venueName.trim() || 'Tư gia';
-      const resolvedVenueAddress = createForm.venueAddress.trim() || safeVenueName;
+      const resolvedVenueAddress = createForm.venueAddress.trim() || (createForm.venueName.trim() ? `${createForm.venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
       const finalMapUrl = createForm.googleMapsUrl?.trim() || (
         `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
@@ -1001,7 +1002,7 @@ export default function AdminInvitationsPage() {
     try {
       setIsSavingEdit(true);
       const safeVenueName = editForm.venueName.trim() || 'Tư gia';
-      const resolvedVenueAddress = editForm.venueAddress.trim() || safeVenueName;
+      const resolvedVenueAddress = editForm.venueAddress.trim() || (editForm.venueName.trim() ? `${editForm.venueName.trim()}, TP. Hồ Chí Minh` : 'Tư gia');
       const finalMapUrl = editForm.googleMapsUrl?.trim() || (
         `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([safeVenueName, resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
@@ -1361,7 +1362,12 @@ export default function AdminInvitationsPage() {
                           <Calendar className="w-3 h-3 text-[#8C6D46] shrink-0" />
                           <span>
                             {inv.ceremonyTimeText ||
-                              new Date(inv.ceremonyDate).toLocaleDateString('vi-VN')}
+                              new Intl.DateTimeFormat('vi-VN', {
+                                timeZone: 'Asia/Ho_Chi_Minh',
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              }).format(new Date(inv.ceremonyDate))}
                           </span>
                         </div>
                         <div className="flex items-start gap-1.5 text-stone-500 mt-1 line-clamp-2">
