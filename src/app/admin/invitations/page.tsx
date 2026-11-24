@@ -368,10 +368,15 @@ export default function AdminInvitationsPage() {
 
     try {
       setIsSavingEdit(true);
+      const finalMapUrl = editForm.googleMapsUrl?.trim() || (
+        (editForm.venueName?.trim() || editForm.venueAddress?.trim())
+          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([editForm.venueName, editForm.venueAddress].filter(Boolean).join(' ').trim())}`
+          : ''
+      );
       const res = await fetch(`/api/admin/invitations/${selectedForEdit.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({ ...editForm, googleMapsUrl: finalMapUrl }),
       });
       const data = await res.json();
       if (data.success && data.invitation) {

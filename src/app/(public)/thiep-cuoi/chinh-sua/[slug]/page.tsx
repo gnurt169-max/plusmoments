@@ -289,7 +289,11 @@ export default function EditWeddingInvitationPage() {
         ceremonyTimeText,
         venueName,
         venueAddress,
-        googleMapsUrl,
+        googleMapsUrl: googleMapsUrl.trim() || (
+          (venueName.trim() || venueAddress.trim())
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}`
+            : ''
+        ),
         storyTitle,
         storyText,
         coverImage,
@@ -338,7 +342,7 @@ export default function EditWeddingInvitationPage() {
     ceremonyTimeText,
     venueName,
     venueAddress,
-    googleMapsUrl,
+    googleMapsUrl: googleMapsUrl || ((venueName || venueAddress) ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}` : ''),
     storyTitle,
     storyText,
     coverImage,
@@ -397,7 +401,6 @@ export default function EditWeddingInvitationPage() {
                 autoFocus
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                placeholder="••••••"
                 className="w-full h-12 px-3 rounded-2xl border border-stone-300 text-stone-900 text-2xl tracking-[0.4em] text-center font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
               />
             </div>
@@ -669,7 +672,6 @@ export default function EditWeddingInvitationPage() {
                       rows={2}
                       value={groomParents}
                       onChange={(e) => setGroomParents(e.target.value)}
-                      placeholder="Ông: ...&#10;Bà: ..."
                       className="w-full p-3 rounded-xl border border-stone-300 text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                     />
                   </div>
@@ -681,7 +683,6 @@ export default function EditWeddingInvitationPage() {
                       rows={2}
                       value={brideParents}
                       onChange={(e) => setBrideParents(e.target.value)}
-                      placeholder="Ông: ...&#10;Bà: ..."
                       className="w-full p-3 rounded-xl border border-stone-300 text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                     />
                   </div>
@@ -732,14 +733,12 @@ export default function EditWeddingInvitationPage() {
                     type="text"
                     value={storyTitle}
                     onChange={(e) => setStoryTitle(e.target.value)}
-                    placeholder="Tiêu đề câu chuyện"
                     className="w-full h-10 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-xs mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                   <textarea
                     rows={3}
                     value={storyText}
                     onChange={(e) => setStoryText(e.target.value)}
-                    placeholder="Viết một đoạn ngắn về tình yêu của hai bạn..."
                     className="w-full p-3 rounded-xl border border-stone-300 text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                 </div>
@@ -862,7 +861,6 @@ export default function EditWeddingInvitationPage() {
                           type="text"
                           value={groomBio}
                           onChange={(e) => setGroomBio(e.target.value)}
-                          placeholder="Ví dụ: Trưởng nam • Chàng trai ấm áp..."
                           className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
                         />
                       </div>
@@ -918,7 +916,6 @@ export default function EditWeddingInvitationPage() {
                           type="text"
                           value={brideBio}
                           onChange={(e) => setBrideBio(e.target.value)}
-                          placeholder="Ví dụ: Út nữ • Cô gái dịu dàng..."
                           className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
                         />
                       </div>
@@ -1036,7 +1033,6 @@ export default function EditWeddingInvitationPage() {
                     rows={3}
                     value={bankInfoText}
                     onChange={(e) => setBankInfoText(e.target.value)}
-                    placeholder="Ngân hàng: ...&#10;Số tài khoản: ...&#10;Chủ tài khoản: ..."
                     className="w-full p-3 rounded-xl border border-stone-300 text-stone-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                 </div>

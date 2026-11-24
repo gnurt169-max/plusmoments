@@ -125,7 +125,6 @@ export function CustomerPinModal({ isOpen, onClose, defaultSlug = '' }: Customer
               required
               value={slugInput}
               onChange={(e) => setSlugInput(e.target.value)}
-              placeholder="Ví dụ: test-trung-thao hoặc dán link đầy đủ"
               className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46] focus:border-transparent font-mono"
             />
             <p className="text-[11px] text-stone-400 mt-1">
@@ -144,7 +143,6 @@ export function CustomerPinModal({ isOpen, onClose, defaultSlug = '' }: Customer
               required
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-              placeholder="••••••"
               className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-lg tracking-[0.35em] text-center font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#8C6D46] focus:border-transparent"
             />
             <p className="text-[11px] text-stone-400 mt-1 text-center">

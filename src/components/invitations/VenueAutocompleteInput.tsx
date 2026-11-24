@@ -72,6 +72,18 @@ export function VenueAutocompleteInput({
     onChangeVenueName(val);
     setIsOpen(true);
     fetchVenues(val);
+    const searchTerms = [val, venueAddress].filter(Boolean).join(' ').trim();
+    if (searchTerms) {
+      onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
+    }
+  };
+
+  const handleAddressChange = (val: string) => {
+    onChangeVenueAddress(val);
+    const searchTerms = [venueName, val].filter(Boolean).join(' ').trim();
+    if (searchTerms) {
+      onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
+    }
   };
 
   const handleSelectVenue = (venue: HcmcWeddingVenue) => {
@@ -82,7 +94,12 @@ export function VenueAutocompleteInput({
     setIsOpen(false);
   };
 
-  const hasAutoLinkedMap = Boolean(googleMapsUrl && googleMapsUrl.trim());
+  const effectiveMapUrl =
+    googleMapsUrl ||
+    ((venueName || venueAddress)
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}`
+      : '');
+  const hasAutoLinkedMap = Boolean(effectiveMapUrl && (venueName?.trim() || venueAddress?.trim()));
 
   return (
     <div ref={wrapperRef} className="space-y-4 relative">
@@ -106,7 +123,6 @@ export function VenueAutocompleteInput({
             value={query}
             onFocus={handleFocus}
             onChange={handleInputChange}
-            placeholder="Gõ để tìm nhanh: White Palace, GEM Center, Adora, Caravelle..."
             className="w-full h-11 pl-9 pr-9 rounded-xl border border-stone-300 text-stone-900 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none transition-all"
           />
           <MapPin className="w-4 h-4 text-[#8C6D46] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -169,7 +185,7 @@ export function VenueAutocompleteInput({
         )}
       </div>
 
-      {/* 3. VENUE ADDRESS FIELD (AUTO-FILLED) */}
+      {/* 2. VENUE ADDRESS FIELD (AUTO-FILLED OR MANUAL) */}
       <div>
         <label className="block text-xs font-semibold text-stone-800 mb-1">
           Địa Chỉ Tổ Chức Hôn Lễ <span className="text-red-500">*</span>
@@ -178,45 +194,27 @@ export function VenueAutocompleteInput({
           type="text"
           required
           value={venueAddress}
-          onChange={(e) => onChangeVenueAddress(e.target.value)}
-          placeholder=""
+          onChange={(e) => handleAddressChange(e.target.value)}
           className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none transition-all"
         />
-      </div>
 
-      {/* 4. GOOGLE MAPS LINK FIELD (ALWAYS VISIBLE & EDITABLE WITH VERIFY LINK) */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between mb-1">
-          <label className="block text-xs font-semibold text-stone-800">
-            Đường Dẫn Bản Đồ Google Maps
-          </label>
-          {hasAutoLinkedMap && (
+        {/* Clean subtle Google Maps status indicator (No raw URL) */}
+        {hasAutoLinkedMap && (
+          <div className="mt-2 flex items-center justify-between text-[11px] text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/70">
+            <span className="flex items-center gap-1.5 truncate">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>✓ Đã tự động gắn vị trí bản đồ Google Maps</span>
+            </span>
             <a
-              href={googleMapsUrl}
+              href={effectiveMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-[#8C6D46] hover:text-[#705432] transition-colors"
+              className="inline-flex items-center gap-1 font-medium text-[#8C6D46] hover:underline shrink-0 ml-2"
               title="Mở Google Maps trong tab mới để kiểm tra"
             >
-              <span>Mở kiểm tra bản đồ</span>
+              <span>Kiểm tra bản đồ</span>
               <ExternalLink className="w-3 h-3" />
             </a>
-          )}
-        </div>
-        <input
-          type="url"
-          value={googleMapsUrl}
-          onChange={(e) => onChangeGoogleMapsUrl(e.target.value)}
-          placeholder="https://maps.app.goo.gl/... hoặc https://www.google.com/maps/search/?api=1&query=..."
-          className="w-full h-10 px-3.5 rounded-xl border border-stone-300 text-stone-900 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none font-mono"
-        />
-
-        {hasAutoLinkedMap && (
-          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/70">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="truncate">
-              ✓ Đã tự động gắn link Google Maps cho <strong>{venueName || 'địa điểm'}</strong>
-            </span>
           </div>
         )}
       </div>

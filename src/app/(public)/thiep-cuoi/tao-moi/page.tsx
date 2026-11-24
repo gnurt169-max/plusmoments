@@ -202,7 +202,11 @@ export default function CreateWeddingInvitationPage() {
         ceremonyTimeText,
         venueName,
         venueAddress,
-        googleMapsUrl,
+        googleMapsUrl: googleMapsUrl.trim() || (
+          (venueName.trim() || venueAddress.trim())
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}`
+            : ''
+        ),
         storyTitle,
         storyText,
         coverImage,
@@ -258,7 +262,7 @@ export default function CreateWeddingInvitationPage() {
     ceremonyTimeText,
     venueName,
     venueAddress,
-    googleMapsUrl,
+    googleMapsUrl: googleMapsUrl || ((venueName || venueAddress) ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}` : ''),
     storyTitle,
     storyText,
     coverImage,
@@ -527,7 +531,6 @@ export default function CreateWeddingInvitationPage() {
                       required
                       value={groomName}
                       onChange={(e) => setGroomName(e.target.value)}
-                      placeholder="Minh Trung"
                       className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
@@ -540,7 +543,6 @@ export default function CreateWeddingInvitationPage() {
                       required
                       value={brideName}
                       onChange={(e) => setBrideName(e.target.value)}
-                      placeholder="Thanh Thảo"
                       className="w-full h-11 px-3.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
@@ -555,7 +557,6 @@ export default function CreateWeddingInvitationPage() {
                       rows={2}
                       value={groomParents}
                       onChange={(e) => setGroomParents(e.target.value)}
-                      placeholder="Ông: ...&#10;Bà: ..."
                       className="w-full p-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
@@ -567,7 +568,6 @@ export default function CreateWeddingInvitationPage() {
                       rows={2}
                       value={brideParents}
                       onChange={(e) => setBrideParents(e.target.value)}
-                      placeholder="Ông: ...&#10;Bà: ..."
                       className="w-full p-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
@@ -619,7 +619,6 @@ export default function CreateWeddingInvitationPage() {
                     rows={3}
                     value={storyText}
                     onChange={(e) => setStoryText(e.target.value)}
-                    placeholder="Viết vài dòng chia sẻ ngọt ngào gửi gắm đến khách mời..."
                     className="w-full p-3 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none leading-relaxed"
                   />
                 </div>
@@ -767,7 +766,6 @@ export default function CreateWeddingInvitationPage() {
                           type="text"
                           value={groomBio}
                           onChange={(e) => setGroomBio(e.target.value)}
-                          placeholder="Ví dụ: Trưởng nam • Chàng trai ấm áp luôn giữ trọn lời hứa"
                           className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
                         />
                       </div>
@@ -822,7 +820,6 @@ export default function CreateWeddingInvitationPage() {
                           type="text"
                           value={brideBio}
                           onChange={(e) => setBrideBio(e.target.value)}
-                          placeholder="Ví dụ: Út nữ • Cô gái dịu dàng mang nụ cười tỏa nắng"
                           className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
                         />
                       </div>
@@ -1029,7 +1026,6 @@ export default function CreateWeddingInvitationPage() {
                       rows={2}
                       value={bankInfoText}
                       onChange={(e) => setBankInfoText(e.target.value)}
-                      placeholder="Ngân hàng: ...&#10;Số tài khoản: ...&#10;Chủ TK: ..."
                       className="w-full p-2.5 rounded-xl border border-stone-300 text-xs font-mono focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
@@ -1046,7 +1042,6 @@ export default function CreateWeddingInvitationPage() {
                       type="text"
                       value={customSlug}
                       onChange={(e) => setCustomSlug(e.target.value)}
-                      placeholder="minh-trung-thanh-thao"
                       className="flex-1 h-11 px-3.5 rounded-xl border border-stone-300 text-xs font-mono focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
                     />
                   </div>
