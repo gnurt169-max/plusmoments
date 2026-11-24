@@ -115,6 +115,11 @@ export async function PATCH(
       }
     }
 
+    // Auto-fallback venueAddress if empty or only venueName was updated
+    if (cleanUpdate.venueName && !cleanUpdate.venueAddress) {
+      cleanUpdate.venueAddress = cleanUpdate.venueName;
+    }
+
     if (updateData.ceremonyDate) {
       cleanUpdate.ceremonyDate = new Date(updateData.ceremonyDate);
     }

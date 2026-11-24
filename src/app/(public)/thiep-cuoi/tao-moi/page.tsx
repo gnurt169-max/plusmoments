@@ -184,10 +184,13 @@ export default function CreateWeddingInvitationPage() {
     }
 
     if (!venueName.trim()) {
-      alert('Vui lòng nhập địa điểm tổ chức hôn lễ');
+      alert('Vui lòng nhập hoặc chọn nhà hàng / địa điểm cưới');
       setCurrentStep(2);
       return;
     }
+
+    const resolvedVenueAddress = venueAddress.trim() || venueName.trim();
+    const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
 
     if (!coverImage) {
       alert('Vui lòng chọn hoặc tải lên ảnh bìa thiệp cưới');
@@ -211,13 +214,9 @@ export default function CreateWeddingInvitationPage() {
         brideBio,
         ceremonyDate,
         ceremonyTimeText,
-        venueName,
-        venueAddress,
-        googleMapsUrl: googleMapsUrl.trim() || (
-          (venueName.trim() || venueAddress.trim())
-            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}`
-            : ''
-        ),
+        venueName: venueName.trim(),
+        venueAddress: resolvedVenueAddress,
+        googleMapsUrl: resolvedVenueMapUrl,
         storyTitle,
         storyText,
         coverImage,
@@ -646,7 +645,21 @@ export default function CreateWeddingInvitationPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(3)}
+                    onClick={() => {
+                      if (!groomName.trim() || !brideName.trim()) {
+                        alert('Vui lòng nhập đầy đủ tên Cô Dâu và Chú Rể');
+                        return;
+                      }
+                      if (!venueName.trim()) {
+                        alert('Vui lòng nhập hoặc chọn nhà hàng / địa điểm cưới');
+                        return;
+                      }
+                      // Auto fallback venueAddress if empty
+                      if (!venueAddress.trim()) {
+                        setVenueAddress(venueName.trim());
+                      }
+                      setCurrentStep(3);
+                    }}
                     className="h-11 px-6 rounded-xl bg-[#8C6D46] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-2"
                   >
                     <span>Tiếp Tục: Tải Ảnh Cưới</span>

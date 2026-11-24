@@ -102,6 +102,10 @@ export async function PATCH(
     if (typeof body.venueAddress === 'string') {
       updateData.venueAddress = body.venueAddress.trim();
     }
+    // Auto-fallback venueAddress if venueAddress is empty but venueName is present
+    if (updateData.venueName && !updateData.venueAddress) {
+      updateData.venueAddress = updateData.venueName;
+    }
     if (typeof body.googleMapsUrl === 'string') {
       updateData.googleMapsUrl = body.googleMapsUrl.trim() || null;
     }

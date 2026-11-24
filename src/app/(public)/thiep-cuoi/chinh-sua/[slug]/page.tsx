@@ -257,10 +257,13 @@ export default function EditWeddingInvitationPage() {
     }
 
     if (!venueName.trim()) {
-      alert('Vui lòng nhập địa điểm tổ chức hôn lễ');
+      alert('Vui lòng nhập hoặc chọn nhà hàng / địa điểm cưới');
       setCurrentStep(2);
       return;
     }
+
+    const resolvedVenueAddress = venueAddress.trim() || venueName.trim();
+    const resolvedVenueMapUrl = googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`;
 
     if (!coverImage) {
       alert('Vui lòng chọn hoặc tải lên ảnh bìa thiệp cưới');
@@ -287,13 +290,9 @@ export default function EditWeddingInvitationPage() {
         brideBio,
         ceremonyDate,
         ceremonyTimeText,
-        venueName,
-        venueAddress,
-        googleMapsUrl: googleMapsUrl.trim() || (
-          (venueName.trim() || venueAddress.trim())
-            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venueName, venueAddress].filter(Boolean).join(' ').trim())}`
-            : ''
-        ),
+        venueName: venueName.trim(),
+        venueAddress: resolvedVenueAddress,
+        googleMapsUrl: resolvedVenueMapUrl,
         storyTitle,
         storyText,
         coverImage,

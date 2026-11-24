@@ -800,7 +800,7 @@ export default function AdminInvitationsPage() {
       return;
     }
     if (!createForm.venueName.trim()) {
-      showToast('Vui lòng nhập hoặc chọn địa điểm tổ chức hôn lễ');
+      showToast('Vui lòng nhập hoặc chọn nhà hàng / địa điểm tổ chức hôn lễ');
       return;
     }
     if (!createForm.ceremonyDate) {
@@ -814,14 +814,15 @@ export default function AdminInvitationsPage() {
 
     try {
       setIsCreating(true);
+      const resolvedVenueAddress = createForm.venueAddress.trim() || createForm.venueName.trim();
       const finalMapUrl = createForm.googleMapsUrl?.trim() || (
-        (createForm.venueName?.trim() || createForm.venueAddress?.trim())
-          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([createForm.venueName, createForm.venueAddress].filter(Boolean).join(' ').trim())}`
-          : ''
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([createForm.venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
 
       const payload = {
         ...createForm,
+        venueName: createForm.venueName.trim(),
+        venueAddress: resolvedVenueAddress,
         googleMapsUrl: finalMapUrl,
         draftSlug: createDraftSlug,
       };
@@ -922,15 +923,19 @@ export default function AdminInvitationsPage() {
 
     try {
       setIsSavingEdit(true);
+      const resolvedVenueAddress = editForm.venueAddress.trim() || editForm.venueName.trim();
       const finalMapUrl = editForm.googleMapsUrl?.trim() || (
-        (editForm.venueName?.trim() || editForm.venueAddress?.trim())
-          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([editForm.venueName, editForm.venueAddress].filter(Boolean).join(' ').trim())}`
-          : ''
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([editForm.venueName.trim(), resolvedVenueAddress].filter(Boolean).join(' ').trim())}`
       );
       const res = await fetch(`/api/admin/invitations/${selectedForEdit.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editForm, googleMapsUrl: finalMapUrl }),
+        body: JSON.stringify({
+          ...editForm,
+          venueName: editForm.venueName.trim(),
+          venueAddress: resolvedVenueAddress,
+          googleMapsUrl: finalMapUrl,
+        }),
       });
       const data = await res.json();
       if (data.success && data.invitation) {
