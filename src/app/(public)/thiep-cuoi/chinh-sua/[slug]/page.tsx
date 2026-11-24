@@ -717,6 +717,11 @@ export default function EditWeddingInvitationPage() {
                     onChangeVenueName={setVenueName}
                     onChangeVenueAddress={setVenueAddress}
                     onChangeGoogleMapsUrl={setGoogleMapsUrl}
+                    onSelectVenue={(v) => {
+                      setVenueName(v.venueName);
+                      setVenueAddress(v.venueAddress);
+                      setGoogleMapsUrl(v.venueMapUrl);
+                    }}
                   />
                 </div>
 

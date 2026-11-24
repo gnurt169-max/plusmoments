@@ -11,6 +11,7 @@ interface VenueAutocompleteInputProps {
   onChangeVenueName: (val: string) => void;
   onChangeVenueAddress: (val: string) => void;
   onChangeGoogleMapsUrl: (val: string) => void;
+  onSelectVenue?: (venue: { venueName: string; venueAddress: string; venueMapUrl: string }) => void;
   isDark?: boolean;
 }
 
@@ -21,17 +22,18 @@ export function VenueAutocompleteInput({
   onChangeVenueName,
   onChangeVenueAddress,
   onChangeGoogleMapsUrl,
+  onSelectVenue,
   isDark = false,
 }: VenueAutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState(venueName);
+  const [query, setQuery] = useState(venueName || '');
   const [results, setResults] = useState<HcmcWeddingVenue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   // Sync internal search input with external venueName when external changes
   useEffect(() => {
-    setQuery(venueName);
+    setQuery(venueName || '');
   }, [venueName]);
 
   // Click outside to close dropdown
@@ -72,30 +74,53 @@ export function VenueAutocompleteInput({
     onChangeVenueName(val);
     setIsOpen(true);
     fetchVenues(val);
-    
-    // Automatically sync address and generate Google Maps search link instantly on every keystroke
-    onChangeVenueAddress(val);
+
     const searchTerms = val.trim();
+    const effectiveAddress = searchTerms ? `${searchTerms}, TP. Hồ Chí Minh` : '';
+    onChangeVenueAddress(effectiveAddress);
+
     if (searchTerms) {
-      onChangeGoogleMapsUrl(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTerms)}`);
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([searchTerms, effectiveAddress].filter(Boolean).join(' ').trim())}`;
+      onChangeGoogleMapsUrl(mapUrl);
+      if (onSelectVenue) {
+        onSelectVenue({
+          venueName: searchTerms,
+          venueAddress: effectiveAddress,
+          venueMapUrl: mapUrl,
+        });
+      }
     } else {
       onChangeGoogleMapsUrl('');
+      if (onSelectVenue) {
+        onSelectVenue({
+          venueName: '',
+          venueAddress: '',
+          venueMapUrl: '',
+        });
+      }
     }
   };
 
   const handleSelectVenue = (venue: any) => {
-    const selectedName = venue.name || '';
-    const selectedAddress = venue.address || venue.venueAddress || '';
+    const selectedName = venue.name || venue.shortName || '';
+    const selectedAddress = venue.address || venue.venueAddress || `${selectedName}, TP. Hồ Chí Minh`;
     const selectedMapUrl = venue.mapUrl || venue.venueMapUrl || (
-      selectedAddress
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([selectedName, selectedAddress].filter(Boolean).join(' ').trim())}`
-        : ''
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([selectedName, selectedAddress].filter(Boolean).join(' ').trim())}`
     );
 
+    setQuery(selectedName);
     onChangeVenueName(selectedName);
     onChangeVenueAddress(selectedAddress);
     onChangeGoogleMapsUrl(selectedMapUrl);
-    setQuery(selectedName);
+
+    if (onSelectVenue) {
+      onSelectVenue({
+        venueName: selectedName,
+        venueAddress: selectedAddress,
+        venueMapUrl: selectedMapUrl,
+      });
+    }
+
     setIsOpen(false);
   };
 
@@ -158,6 +183,10 @@ export function VenueAutocompleteInput({
                   <button
                     key={venue.id}
                     type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectVenue(venue);
+                    }}
                     onClick={() => handleSelectVenue(venue)}
                     className={`w-full text-left p-2.5 rounded-xl transition-colors flex items-start justify-between gap-2 cursor-pointer ${
                       isSelected

@@ -1774,9 +1774,17 @@ export default function AdminInvitationsPage() {
                     venueName={editForm.venueName}
                     venueAddress={editForm.venueAddress}
                     googleMapsUrl={editForm.googleMapsUrl}
-                    onChangeVenueName={(val) => setEditForm({ ...editForm, venueName: val })}
-                    onChangeVenueAddress={(val) => setEditForm({ ...editForm, venueAddress: val })}
-                    onChangeGoogleMapsUrl={(val) => setEditForm({ ...editForm, googleMapsUrl: val })}
+                    onChangeVenueName={(val) => setEditForm((prev) => ({ ...prev, venueName: val }))}
+                    onChangeVenueAddress={(val) => setEditForm((prev) => ({ ...prev, venueAddress: val }))}
+                    onChangeGoogleMapsUrl={(val) => setEditForm((prev) => ({ ...prev, googleMapsUrl: val }))}
+                    onSelectVenue={({ venueName, venueAddress, venueMapUrl }) => {
+                      setEditForm((prev) => ({
+                        ...prev,
+                        venueName,
+                        venueAddress,
+                        googleMapsUrl: venueMapUrl,
+                      }));
+                    }}
                   />
 
                   <div>
@@ -2492,9 +2500,17 @@ export default function AdminInvitationsPage() {
                     venueName={createForm.venueName}
                     venueAddress={createForm.venueAddress}
                     googleMapsUrl={createForm.googleMapsUrl}
-                    onChangeVenueName={(val) => setCreateForm({ ...createForm, venueName: val })}
-                    onChangeVenueAddress={(val) => setCreateForm({ ...createForm, venueAddress: val })}
-                    onChangeGoogleMapsUrl={(val) => setCreateForm({ ...createForm, googleMapsUrl: val })}
+                    onChangeVenueName={(val) => setCreateForm((prev) => ({ ...prev, venueName: val }))}
+                    onChangeVenueAddress={(val) => setCreateForm((prev) => ({ ...prev, venueAddress: val }))}
+                    onChangeGoogleMapsUrl={(val) => setCreateForm((prev) => ({ ...prev, googleMapsUrl: val }))}
+                    onSelectVenue={({ venueName, venueAddress, venueMapUrl }) => {
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        venueName,
+                        venueAddress,
+                        googleMapsUrl: venueMapUrl,
+                      }));
+                    }}
                   />
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
