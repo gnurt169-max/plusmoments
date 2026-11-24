@@ -17,6 +17,7 @@ import { EditorialReveal } from '@/components/ui/EditorialReveal';
 import { ScrollProgressBar } from '@/components/ui/ScrollProgressBar';
 import { FloatingStoryPill } from '@/components/ui/FloatingStoryPill';
 import { NextStoryTeaser } from '@/components/common/NextStoryTeaser';
+import { AlbumLeadTrigger } from '@/components/albums/AlbumLeadTrigger';
 import { MapPin, Calendar, Heart, ArrowLeft, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { normalizeLocationLabel } from '@/lib/album-utils';
 import { resolveMediaListDimensions, resolveImageDimension } from '@/lib/server-image-dimensions';
@@ -369,6 +370,14 @@ export default async function BoSuuTapDetailPage({ params }: Props) {
                 </div>
 
                 <AlbumMasonryGallery media={resolvedMedia} albumTitle={album.title} />
+
+                {/* Sentinel and Trigger for 100% completion popup */}
+                <AlbumLeadTrigger
+                  slug={album.slug}
+                  albumTitle={album.title}
+                  conceptName={album.concept}
+                  targetContentId="album-gallery-content"
+                />
               </div>
             </div>
 

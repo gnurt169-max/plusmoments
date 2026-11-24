@@ -116,6 +116,11 @@ export function FloatingStoryPill({
   }, [targetContentId, isCtaZoneInView]);
 
   const handleScrollToForm = () => {
+    // If on album page with custom lead modal, prioritize dispatching open event
+    if (typeof window !== 'undefined') {
+      const dispatched = window.dispatchEvent(new CustomEvent('pm-open-album-lead-modal'));
+    }
+
     const el = document.getElementById(targetFormId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
