@@ -11,6 +11,7 @@ import {
   getCachedBlogs,
 } from '@/lib/cached-queries';
 import { SafeImage } from '@/components/common/SafeImage';
+import { CinematicHeroBanner } from '@/components/home/CinematicHeroBanner';
 import { FeaturedAlbumsSection } from '@/components/home/FeaturedAlbumsSection';
 import { PricingPackageData } from '@/components/pricing/LuxuryPricingSection';
 import {
@@ -165,6 +166,19 @@ export default async function HomePage() {
     (homeConfig as any)?.heroBannerUrl ||
     '';
 
+  // Trích xuất 3–4 ảnh bìa đẹp nhất từ album thực tế để tạo Cinematic Slideshow
+  const albumSlides = (allAlbumsRaw || [])
+    .map((a) => {
+      const cover = typeof a.coverImage === 'string' && a.coverImage.trim() ? a.coverImage.trim() : null;
+      const photo = a.media?.[0]?.url;
+      return cover || photo;
+    })
+    .filter((url): url is string => Boolean(url && url.trim()));
+
+  const heroSlides = Array.from(
+    new Set([heroBanner?.trim(), ...albumSlides].filter(Boolean))
+  ).slice(0, 4) as string[];
+
   const formattedPackages: PricingPackageData[] = packages.map((pkg) => {
     const coreHighlights = extractPackageHighlights(pkg);
     const fullInclusions = extractPackageInclusions(pkg);
@@ -240,105 +254,16 @@ export default async function HomePage() {
       />
 
       {/* =========================================================================
-          CINEMATIC FULL-SCREEN IMMERSIVE HERO BANNER
+          CINEMATIC MULTI-SLIDE IMMERSIVE HERO BANNER WITH KEN BURNS MOTION
       ========================================================================= */}
-      <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-stone-950 pt-20">
-        {/* LỚP 1: ẢNH NỀN TRÀN MÀN HÌNH (BACKGROUND IMAGE) */}
-        {heroBanner && heroBanner.trim() ? (
-          <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden bg-stone-950">
-            <SafeImage
-              src={heroBanner.trim()}
-              alt="Studio ảnh cưới cao cấp PlusMoments"
-              fill
-              priority={true}
-              fetchPriority="high"
-              quality={85}
-              sizes="100vw"
-              className="object-cover object-center scale-100 select-none pointer-events-none"
-            />
-          </div>
-        ) : (
-          <div className="absolute inset-0 bg-[#141210]" />
-        )}
-
-        {/* LỚP 2: LỚP PHỦ NGHỆ THUẬT & TỐI HÓA ĐIỆN ẢNH (CINEMATIC OVERLAYS) */}
-        {/* Overlay tối toàn cảnh nhẹ để tương phản chữ */}
-        <div className="absolute inset-0 bg-black/45 z-10 pointer-events-none" />
-        {/* Gradient mềm từ đáy lên để hòa quyện mượt mà vào section kế tiếp */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-black/60 z-10 pointer-events-none" />
-
-        {/* LỚP 3: NỘI DUNG CHỮ & NÚT BẤM CHÍNH GIỮA (CENTER CONTENT - z-20) */}
-        <div className="relative z-20 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
-          {/* 1. Tagline Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-black/30 backdrop-blur-md mb-6">
-            <span className="text-amber-400 text-xs">✦</span>
-            <span className="text-[11px] sm:text-xs font-sans tracking-[0.25em] text-stone-200 uppercase font-medium">
-              {heroBadge || 'LUXURY WEDDING PHOTOGRAPHY & CINEMATIC ART'}
-            </span>
-          </div>
-
-          {/* 2. Grand Serif Title with Reserved Container to Prevent Swap CLS */}
-          <div className="min-h-[120px] sm:min-h-[160px] lg:min-h-[180px] flex items-center justify-center mb-6">
-            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-white tracking-wide leading-[1.15] drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
-              {heroTitle || 'Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật'}
-            </h1>
-          </div>
-
-          {/* 3. Emotional Description */}
-          <p className="max-w-2xl text-stone-300 font-sans text-sm sm:text-base font-light leading-relaxed mb-10 drop-shadow-sm">
-            {heroSubtitle ||
-              'PlusMoments không đơn thuần chụp lại những tư thế, chúng tôi lưu giữ ánh nhìn say đắm, những cái ôm siết chặt và rung cảm thuần khiết nhất của hai bạn trong từng khung hình điện ảnh.'}
-          </p>
-
-          {/* 4. Dual Call To Action */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 mb-14">
-            <Link
-              href="/bo-suu-tap"
-              className="px-8 py-3.5 rounded-full bg-[#9A6436] hover:bg-[#855328] text-white text-xs uppercase tracking-[0.18em] font-medium transition-all shadow-lg hover:shadow-[#9A6436]/40 hover:-translate-y-0.5 cursor-pointer"
-            >
-              Khám Phá Bộ Sưu Tập →
-            </Link>
-            <Link
-              href="/bang-gia"
-              className="px-8 py-3.5 rounded-full border border-white/30 hover:border-white text-white text-xs uppercase tracking-[0.18em] font-medium bg-black/20 hover:bg-white/10 backdrop-blur-sm transition-all cursor-pointer"
-            >
-              Nhận Báo Giá Ưu Đãi
-            </Link>
-          </div>
-
-          {/* 5. Social Proof Stats Row */}
-          <div className="grid grid-cols-3 gap-8 sm:gap-16 pt-8 border-t border-white/15 w-full max-w-2xl">
-            {statsList && statsList.length > 0 ? (
-              statsList.map((st, i) => (
-                <div key={i}>
-                  <div className="font-serif text-2xl sm:text-3xl text-white font-light">{st.value}</div>
-                  <div className="text-[10px] sm:text-xs tracking-wider uppercase text-stone-400 mt-1">{st.label}</div>
-                </div>
-              ))
-            ) : (
-              <>
-                <div>
-                  <div className="font-serif text-2xl sm:text-3xl text-white font-light">500+</div>
-                  <div className="text-[10px] sm:text-xs tracking-wider uppercase text-stone-400 mt-1">Cặp Đôi Hạnh Phúc</div>
-                </div>
-                <div>
-                  <div className="font-serif text-2xl sm:text-3xl text-white font-light">100%</div>
-                  <div className="text-[10px] sm:text-xs tracking-wider uppercase text-stone-400 mt-1">Váy Cưới Cao Cấp</div>
-                </div>
-                <div>
-                  <div className="font-serif text-2xl sm:text-3xl text-white font-light">5.0 ★</div>
-                  <div className="text-[10px] sm:text-xs tracking-wider uppercase text-stone-400 mt-1">Đánh Giá Tuyệt Đối</div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* LỚP 4: ANIMATED SCROLL CUE AT BOTTOM */}
-        <div className="absolute bottom-5 sm:bottom-7 left-1/2 -translate-x-1/2 z-20">
-          <ScrollCue label="CUỘN ĐỂ KHÁM PHÁ" variant="dark" targetId="explore-content" />
-        </div>
-      </section>
+      <CinematicHeroBanner
+        heroBanner={heroBanner?.trim()}
+        heroBadge={heroBadge}
+        heroTitle={heroTitle}
+        heroSubtitle={heroSubtitle}
+        slides={heroSlides}
+        stats={statsList}
+      />
 
       {/* =========================================================================
           MAIN PAGE CONTENT SECTIONS (PORTFOLIO, PRICING, BLOG, TESTIMONIALS, CONSULTATION)
