@@ -157,6 +157,7 @@ export default function AdminInvitationsPage() {
   const [isUploadingBride, setIsUploadingBride] = useState(false);
   const [isUploadingBankQr, setIsUploadingBankQr] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [generatingAiField, setGeneratingAiField] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     groomName: string;
     brideName: string;
@@ -605,6 +606,85 @@ export default function AdminInvitationsPage() {
         showToast(`Đã thêm ${newAdditions.length} ảnh từ Kho Media vào album!`);
         break;
       }
+    }
+  };
+
+  // AI Story Generator Handler
+  const handleGenerateAiStory = async (
+    target: 'create' | 'edit',
+    mode: 'all' | 'groom' | 'bride' | 'story'
+  ) => {
+    const isCreate = target === 'create';
+    const currentForm = isCreate ? createForm : editForm;
+    const fieldKey = `${target}-${mode}`;
+
+    try {
+      setGeneratingAiField(fieldKey);
+      const res = await fetch('/api/admin/invitations/generate-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode,
+          groomName: currentForm.groomName,
+          brideName: currentForm.brideName,
+          template: currentForm.templateId,
+          weddingDate: currentForm.ceremonyDate,
+          timeDisplay: currentForm.ceremonyTimeText,
+          venueName: currentForm.venueName,
+          venueAddress: currentForm.venueAddress,
+          groomParents: currentForm.groomParents,
+          brideParents: currentForm.brideParents,
+          existingGroomBio: currentForm.groomBio,
+          existingBrideBio: currentForm.brideBio,
+          existingStoryTitle: currentForm.storyTitle,
+          existingStoryText: currentForm.storyText,
+        }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        showToast(resData.error || 'Không thể tạo nội dung từ AI');
+        return;
+      }
+
+      const generated = resData.data;
+      if (isCreate) {
+        setCreateForm((prev) => ({
+          ...prev,
+          ...(mode === 'all' || mode === 'groom' ? { groomBio: generated.groomBio || prev.groomBio } : {}),
+          ...(mode === 'all' || mode === 'bride' ? { brideBio: generated.brideBio || prev.brideBio } : {}),
+          ...(mode === 'all' || mode === 'story'
+            ? {
+                storyTitle: generated.storyTitle || prev.storyTitle,
+                storyText: generated.storyText || prev.storyText,
+              }
+            : {}),
+        }));
+      } else {
+        setEditForm((prev) => ({
+          ...prev,
+          ...(mode === 'all' || mode === 'groom' ? { groomBio: generated.groomBio || prev.groomBio } : {}),
+          ...(mode === 'all' || mode === 'bride' ? { brideBio: generated.brideBio || prev.brideBio } : {}),
+          ...(mode === 'all' || mode === 'story'
+            ? {
+                storyTitle: generated.storyTitle || prev.storyTitle,
+                storyText: generated.storyText || prev.storyText,
+              }
+            : {}),
+        }));
+      }
+
+      const modeLabels: Record<string, string> = {
+        all: 'Trọn bộ tự sự & câu chuyện tình yêu',
+        groom: 'Lời tự sự Chú Rể',
+        bride: 'Lời tự sự Cô Dâu',
+        story: 'Câu chuyện tình yêu',
+      };
+      showToast(`✨ AI đã viết xong ${modeLabels[mode] || 'nội dung'}!`);
+    } catch (err: any) {
+      showToast('Lỗi kết nối AI: ' + (err.message || String(err)));
+    } finally {
+      setGeneratingAiField(null);
     }
   };
 
@@ -1766,13 +1846,29 @@ export default function AdminInvitationsPage() {
 
                 {/* Groom & Bride Portraits */}
                 <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
-                  <div>
-                    <label className="block font-semibold text-stone-800 text-xs">
-                      2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
-                    </label>
-                    <p className="text-[11px] text-stone-500">
-                      💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
-                    </p>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                      <label className="block font-semibold text-stone-800 text-xs">
+                        2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
+                      </label>
+                      <p className="text-[11px] text-stone-500">
+                        💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={generatingAiField !== null}
+                      onClick={() => handleGenerateAiStory('edit', 'all')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-[#8C6D46] hover:from-amber-600 hover:to-[#785b37] text-white text-[11px] font-semibold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+                      title="AI tự động phân tích ngữ cảnh thiệp cưới và viết trọn bộ 4 trường nội dung cảm xúc"
+                    >
+                      {generatingAiField === 'edit-all' ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3.5 h-3.5" />
+                      )}
+                      <span>{generatingAiField === 'edit-all' ? 'AI đang soạn thảo...' : '✨ AI Viết Trọn Bộ Tự Sự & Câu Chuyện'}</span>
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1821,12 +1917,30 @@ export default function AdminInvitationsPage() {
                           />
                         </div>
                       )}
-                      <input
-                        type="text"
-                        value={editForm.groomBio}
-                        onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                      />
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[10px] text-stone-500 font-medium">Lời tự sự Chú Rể</label>
+                          <button
+                            type="button"
+                            disabled={generatingAiField !== null}
+                            onClick={() => handleGenerateAiStory('edit', 'groom')}
+                            className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 hover:text-amber-800 disabled:opacity-50"
+                          >
+                            {generatingAiField === 'edit-groom' ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                            ) : (
+                              <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                            )}
+                            <span>{editForm.groomBio ? '↻ Viết lại' : '✨ AI Gợi Ý'}</span>
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.groomBio}
+                          onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
+                        />
+                      </div>
                     </div>
 
                     {/* Bride */}
@@ -1874,12 +1988,30 @@ export default function AdminInvitationsPage() {
                           />
                         </div>
                       )}
-                      <input
-                        type="text"
-                        value={editForm.brideBio}
-                        onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
-                        className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
-                      />
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[10px] text-stone-500 font-medium">Lời tự sự Cô Dâu</label>
+                          <button
+                            type="button"
+                            disabled={generatingAiField !== null}
+                            onClick={() => handleGenerateAiStory('edit', 'bride')}
+                            className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 hover:text-amber-800 disabled:opacity-50"
+                          >
+                            {generatingAiField === 'edit-bride' ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                            ) : (
+                              <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                            )}
+                            <span>{editForm.brideBio ? '↻ Viết lại' : '✨ AI Gợi Ý'}</span>
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.brideBio}
+                          onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2038,18 +2170,37 @@ export default function AdminInvitationsPage() {
                 </div>
 
                 {/* Story */}
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Tiêu Đề & Lời Kể Câu Chuyện Tình Yêu
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.storyTitle}
-                    onChange={(e) => setEditForm({ ...editForm, storyTitle: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-medium text-stone-700">
+                      Tiêu Đề & Lời Kể Câu Chuyện Tình Yêu
+                    </label>
+                    <button
+                      type="button"
+                      disabled={generatingAiField !== null}
+                      onClick={() => handleGenerateAiStory('edit', 'story')}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-medium border border-amber-200 transition-colors disabled:opacity-50"
+                    >
+                      {generatingAiField === 'edit-story' ? (
+                        <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
+                      ) : (
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                      )}
+                      <span>{editForm.storyTitle || editForm.storyText ? '↻ AI Viết Lại Câu Chuyện' : '✨ AI Gợi Ý Câu Chuyện'}</span>
+                    </button>
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Tiêu đề câu chuyện tình yêu..."
+                      value={editForm.storyTitle}
+                      onChange={(e) => setEditForm({ ...editForm, storyTitle: e.target.value })}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    />
+                  </div>
                   <textarea
                     rows={3}
+                    placeholder="Lời tự sự ngọt ngào về hành trình yêu thương và lời hẹn ước trăm năm..."
                     value={editForm.storyText}
                     onChange={(e) => setEditForm({ ...editForm, storyText: e.target.value })}
                     className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
@@ -2430,13 +2581,29 @@ export default function AdminInvitationsPage() {
 
                 {/* Groom & Bride Portraits */}
                 <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
-                  <div>
-                    <label className="block font-semibold text-stone-800 text-xs">
-                      2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
-                    </label>
-                    <p className="text-[11px] text-stone-500">
-                      💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
-                    </p>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                      <label className="block font-semibold text-stone-800 text-xs">
+                        2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
+                      </label>
+                      <p className="text-[11px] text-stone-500">
+                        💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={generatingAiField !== null}
+                      onClick={() => handleGenerateAiStory('create', 'all')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-[#8C6D46] hover:from-amber-600 hover:to-[#785b37] text-white text-[11px] font-semibold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+                      title="AI tự động phân tích ngữ cảnh thiệp cưới và viết trọn bộ 4 trường nội dung cảm xúc"
+                    >
+                      {generatingAiField === 'create-all' ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3.5 h-3.5" />
+                      )}
+                      <span>{generatingAiField === 'create-all' ? 'AI đang soạn thảo...' : '✨ AI Viết Trọn Bộ Tự Sự & Câu Chuyện'}</span>
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2480,12 +2647,27 @@ export default function AdminInvitationsPage() {
                         </div>
                       )}
                       <div>
-                        <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Chú Rể</label>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[10px] text-stone-500 font-medium">Lời tự sự Chú Rể</label>
+                          <button
+                            type="button"
+                            disabled={generatingAiField !== null}
+                            onClick={() => handleGenerateAiStory('create', 'groom')}
+                            className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 hover:text-amber-800 disabled:opacity-50"
+                          >
+                            {generatingAiField === 'create-groom' ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                            ) : (
+                              <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                            )}
+                            <span>{createForm.groomBio ? '↻ Viết lại' : '✨ AI Gợi Ý'}</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           value={createForm.groomBio}
                           onChange={(e) => setCreateForm({ ...createForm, groomBio: e.target.value })}
-                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
                         />
                       </div>
                     </div>
@@ -2530,12 +2712,27 @@ export default function AdminInvitationsPage() {
                         </div>
                       )}
                       <div>
-                        <label className="block text-[10px] text-stone-500 mb-0.5">Lời tự sự Cô Dâu</label>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[10px] text-stone-500 font-medium">Lời tự sự Cô Dâu</label>
+                          <button
+                            type="button"
+                            disabled={generatingAiField !== null}
+                            onClick={() => handleGenerateAiStory('create', 'bride')}
+                            className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 hover:text-amber-800 disabled:opacity-50"
+                          >
+                            {generatingAiField === 'create-bride' ? (
+                              <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                            ) : (
+                              <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                            )}
+                            <span>{createForm.brideBio ? '↻ Viết lại' : '✨ AI Gợi Ý'}</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           value={createForm.brideBio}
                           onChange={(e) => setCreateForm({ ...createForm, brideBio: e.target.value })}
-                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                          className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
                         />
                       </div>
                     </div>
@@ -2659,7 +2856,7 @@ export default function AdminInvitationsPage() {
                 </div>
 
                 {/* Music & Story */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-3">
                   <div>
                     <label className="block font-medium text-stone-700 mb-1">
                       Nhạc Nền Hôn Lễ
@@ -2675,29 +2872,43 @@ export default function AdminInvitationsPage() {
                       <option value="gentle-strings">Gentle Strings</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block font-medium text-stone-700 mb-1">
-                      Tiêu Đề Câu Chuyện Tình Yêu
-                    </label>
-                    <input
-                      type="text"
-                      value={createForm.storyTitle}
-                      onChange={(e) => setCreateForm({ ...createForm, storyTitle: e.target.value })}
-                      className="w-full h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+
+                  <div className="space-y-2 pt-1 border-t border-stone-100">
+                    <div className="flex items-center justify-between">
+                      <label className="block font-medium text-stone-700">
+                        Tiêu Đề & Lời Kể Câu Chuyện Tình Yêu
+                      </label>
+                      <button
+                        type="button"
+                        disabled={generatingAiField !== null}
+                        onClick={() => handleGenerateAiStory('create', 'story')}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-medium border border-amber-200 transition-colors disabled:opacity-50"
+                      >
+                        {generatingAiField === 'create-story' ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
+                        ) : (
+                          <Sparkles className="w-3 h-3 text-amber-600" />
+                        )}
+                        <span>{createForm.storyTitle || createForm.storyText ? '↻ AI Viết Lại Câu Chuyện' : '✨ AI Gợi Ý Câu Chuyện'}</span>
+                      </button>
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Tiêu đề câu chuyện tình yêu..."
+                        value={createForm.storyTitle}
+                        onChange={(e) => setCreateForm({ ...createForm, storyTitle: e.target.value })}
+                        className="w-full h-10 px-3 rounded-xl border border-stone-300 mb-2 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                      />
+                    </div>
+                    <textarea
+                      rows={3}
+                      placeholder="Lời tự sự ngọt ngào về hành trình yêu thương và lời hẹn ước trăm năm..."
+                      value={createForm.storyText}
+                      onChange={(e) => setCreateForm({ ...createForm, storyText: e.target.value })}
+                      className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block font-medium text-stone-700 mb-1">
-                    Lời Kể Câu Chuyện Tình Yêu (Tùy chọn)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={createForm.storyText}
-                    onChange={(e) => setCreateForm({ ...createForm, storyText: e.target.value })}
-                    className="w-full p-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
-                  />
                 </div>
 
                 {/* Status Switch */}
