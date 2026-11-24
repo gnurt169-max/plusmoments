@@ -59,7 +59,7 @@ export function InteractiveGalleryCard({ image, coupleTitle }: InteractiveGaller
   };
 
   return (
-    <div className="relative rounded-2xl overflow-hidden shadow-xs border border-stone-200/60 dark:border-stone-800 group">
+    <div className="relative rounded-2xl overflow-hidden shadow-xs border border-stone-200/80 group">
       {/* Image Container with Double Tap */}
       <div
         onClick={handleContainerClick}

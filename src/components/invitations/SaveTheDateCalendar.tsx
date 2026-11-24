@@ -6,11 +6,12 @@ import { Calendar as CalendarIcon, Heart } from 'lucide-react';
 interface SaveTheDateCalendarProps {
   ceremonyDate: string | Date;
   themeColor?: string;
+  isDark?: boolean;
 }
 
 const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
-export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46' }: SaveTheDateCalendarProps) {
+export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46', isDark = false }: SaveTheDateCalendarProps) {
   const [isInView, setIsInView] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -72,20 +73,28 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46' }: Sa
   return (
     <div
       ref={sectionRef}
-      className="my-10 p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm max-w-sm mx-auto text-center"
+      className={`my-10 p-6 sm:p-8 rounded-3xl ${
+        isDark ? 'bg-[#1C1917] border-white/10' : 'bg-white border-stone-200/90'
+      } border shadow-sm max-w-sm mx-auto text-center`}
     >
       {/* Calendar Header */}
-      <div className="flex items-center justify-center gap-2 mb-2 text-stone-500 text-xs font-mono uppercase tracking-widest">
+      <div className={`flex items-center justify-center gap-2 mb-2 ${
+        isDark ? 'text-stone-400' : 'text-stone-500'
+      } text-xs font-mono uppercase tracking-widest`}>
         <CalendarIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
         <span>Tháng {month + 1}, {year}</span>
       </div>
 
-      <div className="font-serif text-lg font-medium text-stone-900 dark:text-stone-100 mb-6">
+      <div className={`font-serif text-lg font-semibold ${
+        isDark ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
+      } mb-6`}>
         Save Our Date
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2 text-[11px] font-mono text-stone-400">
+      <div className={`grid grid-cols-7 gap-1 mb-2 text-[11px] font-mono ${
+        isDark ? 'text-stone-500' : 'text-stone-400'
+      }`}>
         {WEEKDAYS.map((w) => (
           <div key={w} className="py-1">
             {w}
@@ -104,7 +113,9 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46' }: Sa
             return (
               <div
                 key={`day-${cell.day}`}
-                className="relative h-9 w-9 mx-auto flex items-center justify-center font-bold text-amber-950 dark:text-amber-100"
+                className={`relative h-9 w-9 mx-auto flex items-center justify-center font-bold ${
+                  isDark ? 'text-amber-200' : 'text-amber-950'
+                }`}
               >
                 {/* Animated SVG Hand-Drawn Heart */}
                 <svg
@@ -134,7 +145,9 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46' }: Sa
           return (
             <div
               key={`day-${cell.day}`}
-              className="h-9 w-9 mx-auto flex items-center justify-center text-stone-700 dark:text-stone-300 rounded-full"
+              className={`h-9 w-9 mx-auto flex items-center justify-center rounded-full font-medium ${
+                isDark ? 'text-stone-300' : 'text-stone-700'
+              }`}
             >
               <span>{cell.day}</span>
             </div>
@@ -143,7 +156,9 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46' }: Sa
       </div>
 
       {/* Caption under calendar */}
-      <div className="mt-5 pt-4 border-t border-stone-100 dark:border-stone-800 flex items-center justify-center gap-1.5 text-xs text-[#8C6D46] font-serif italic">
+      <div className={`mt-5 pt-4 border-t ${
+        isDark ? 'border-white/10' : 'border-stone-100'
+      } flex items-center justify-center gap-1.5 text-xs text-[#8C6D46] font-serif italic`}>
         <Heart className="w-3 h-3 fill-[#8C6D46] text-[#8C6D46]" />
         <span>Ngày chúng mình về chung một nhà</span>
       </div>

@@ -23,7 +23,11 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const nonce = (await headers()).get('x-nonce') || undefined;
+  const headerList = await headers();
+  const nonce = headerList.get('x-nonce') || undefined;
+  const pathname = headerList.get('x-pathname') || '';
+  const isInvitationGuestPage = /^\/thiep-cuoi\/[^\/]+$/.test(pathname) && pathname !== '/thiep-cuoi/tao-moi';
+
   const [settings, allAlbums, allPackages, allPosts] = await Promise.all([
     getCachedSystemSettings(),
     getCachedAlbums(),
@@ -146,27 +150,31 @@ export default async function PublicLayout({
           </aside>
         )}
 
-        {/* Global Navigation Header for Public Website */}
-        <Header
-          hotlineDisplay={settings.hotlineDisplay}
-          hotline={settings.hotline}
-          hasPublishedBlogs={hasPublishedBlogs}
-        />
+        {/* Global Navigation Header for Public Website (Hidden on Guest Invitation View) */}
+        {!isInvitationGuestPage && (
+          <Header
+            hotlineDisplay={settings.hotlineDisplay}
+            hotline={settings.hotline}
+            hasPublishedBlogs={hasPublishedBlogs}
+          />
+        )}
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-grow">{children}</main>
+        <main id="main-content" className="flex-grow w-full">{children}</main>
 
-        {/* Luxury Vertical Floating Action Bar (Responsive Desktop & Mobile) */}
-        <VerticalFloatingContact />
+        {/* Luxury Vertical Floating Action Bar (Hidden on Guest Invitation View to avoid overlapping music player) */}
+        {!isInvitationGuestPage && <VerticalFloatingContact />}
 
-        {/* Editorial Footer */}
-        <Footer
-          settings={settings}
-          activeAlbums={activeAlbums}
-          activePackages={activePackages}
-          activePosts={activePosts}
-          hasPublishedBlogs={hasPublishedBlogs}
-        />
+        {/* Editorial Footer (Hidden on Guest Invitation View to keep pristine invitation experience) */}
+        {!isInvitationGuestPage && (
+          <Footer
+            settings={settings}
+            activeAlbums={activeAlbums}
+            activePackages={activePackages}
+            activePosts={activePosts}
+            hasPublishedBlogs={hasPublishedBlogs}
+          />
+        )}
       </div>
     </ContactProvider>
   );

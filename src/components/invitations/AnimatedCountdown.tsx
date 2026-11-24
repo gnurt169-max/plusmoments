@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 
 interface AnimatedCountdownProps {
   ceremonyDate: string | Date;
+  isDark?: boolean;
 }
 
-function DigitBox({ value, label }: { value: number; label: string }) {
+function DigitBox({ value, label, isDark = false }: { value: number; label: string; isDark?: boolean }) {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -22,24 +23,30 @@ function DigitBox({ value, label }: { value: number; label: string }) {
   }, [value, displayValue]);
 
   return (
-    <div className="p-2 sm:p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200/50 dark:border-stone-700/50 shadow-2xs">
+    <div className={`p-2 sm:p-3.5 rounded-2xl ${
+      isDark ? 'bg-[#25221F] border-white/10' : 'bg-stone-50 border-stone-200/60'
+    } border shadow-2xs`}>
       <div className="h-8 sm:h-9 overflow-hidden flex items-center justify-center">
         <div
-          className={`text-xl sm:text-2xl font-serif font-bold text-stone-900 dark:text-stone-100 transition-all duration-300 transform ${
+          className={`text-xl sm:text-2xl font-serif font-bold ${
+            isDark ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
+          } transition-all duration-300 transform ${
             isAnimating ? '-translate-y-full opacity-0 scale-90' : 'translate-y-0 opacity-100 scale-100'
           }`}
         >
           {String(displayValue).padStart(2, '0')}
         </div>
       </div>
-      <div className="text-[10px] font-mono text-[#8C6D46] uppercase tracking-wider mt-1">
+      <div className={`text-[10px] font-mono ${
+        isDark ? 'text-[#E5C585]' : 'text-[#8C6D46]'
+      } uppercase tracking-wider mt-1`}>
         {label}
       </div>
     </div>
   );
 }
 
-export function AnimatedCountdown({ ceremonyDate }: AnimatedCountdownProps) {
+export function AnimatedCountdown({ ceremonyDate, isDark = false }: AnimatedCountdownProps) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -78,15 +85,19 @@ export function AnimatedCountdown({ ceremonyDate }: AnimatedCountdownProps) {
   }, [ceremonyDate]);
 
   return (
-    <div className="my-10 p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm max-w-sm mx-auto text-center">
-      <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#8C6D46] mb-4">
+    <div className={`my-10 p-6 sm:p-8 rounded-3xl ${
+      isDark ? 'bg-[#1C1917] border-white/10' : 'bg-white border-stone-200/90'
+    } border shadow-sm max-w-sm mx-auto text-center`}>
+      <div className={`text-[11px] font-mono uppercase tracking-[0.2em] ${
+        isDark ? 'text-[#E5C585]' : 'text-[#8C6D46]'
+      } font-semibold mb-4`}>
         Đếm Ngược Đến Ngày Chung Đôi
       </div>
       <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center">
-        <DigitBox value={timeLeft.days} label="Ngày" />
-        <DigitBox value={timeLeft.hours} label="Giờ" />
-        <DigitBox value={timeLeft.minutes} label="Phút" />
-        <DigitBox value={timeLeft.seconds} label="Giây" />
+        <DigitBox value={timeLeft.days} label="Ngày" isDark={isDark} />
+        <DigitBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
+        <DigitBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
+        <DigitBox value={timeLeft.seconds} label="Giây" isDark={isDark} />
       </div>
     </div>
   );

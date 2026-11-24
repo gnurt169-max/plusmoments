@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Phone } from 'lucide-react';
 import { useContact } from '@/context/ContactContext';
 import { trackHotlineClick, trackZaloClick, trackMessengerClick } from '@/lib/tracking';
 
 export function VerticalFloatingContact() {
+  const pathname = usePathname();
+  const isInvitationGuestPage = /^\/thiep-cuoi\/[^\/]+$/.test(pathname || '') && pathname !== '/thiep-cuoi/tao-moi';
   const { contact } = useContact();
   const [mounted, setMounted] = useState(false);
 
@@ -20,7 +23,7 @@ export function VerticalFloatingContact() {
     }
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted || isInvitationGuestPage) return null;
 
   const handleHotlineClick = () => {
     trackHotlineClick(

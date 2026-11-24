@@ -36,6 +36,9 @@ export function Header(props: HeaderProps) {
 
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const isInvitationGuestPage = /^\/thiep-cuoi\/[^\/]+$/.test(pathname || '') && pathname !== '/thiep-cuoi/tao-moi';
+
+  if (isInvitationGuestPage) return null;
 
   // Xác định màu điểm nhấn thương hiệu theo tỷ lệ tương phản WCAG 2.1 AA (>= 4.5:1):
   // Khi Header ở trạng thái nền sáng (trang con, hoặc khi người dùng đã cuộn trang isScrolled === true):

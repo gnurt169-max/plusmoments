@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Clock,
   MapPin,
@@ -87,6 +88,38 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
   const themeColor = data.themeColor || templateConfig.defaultThemeColor;
   const isDarkTemplate = data.templateId === 'cinematic-noir';
 
+  // Explicit WCAG AAA compliant color palette driven strictly by template theme
+  // (Shielded from mobile OS Dark Mode overrides on light ivory cream background)
+  const colors = isDarkTemplate
+    ? {
+        bg: 'bg-[#141210]',
+        text: 'text-[#FAF8F5]',
+        cardBg: 'bg-[#1C1917]',
+        cardBorder: 'border-white/10',
+        title: 'text-[#FAF8F5]',
+        label: 'text-[#E5C585]',
+        body: 'text-[#D6D0C4]',
+        bodyMuted: 'text-[#A8A29E]',
+        divider: 'border-white/10',
+        inputBg: 'bg-[#25221F]',
+        inputBorder: 'border-white/15',
+        inputText: 'text-[#FAF8F5]',
+      }
+    : {
+        bg: 'bg-[#FAF8F5]',
+        text: 'text-[#1C1917]',
+        cardBg: 'bg-white',
+        cardBorder: 'border-stone-200/90',
+        title: 'text-[#1C1917]',
+        label: 'text-[#785932]',
+        body: 'text-[#3F3A36]',
+        bodyMuted: 'text-[#57534E]',
+        divider: 'border-stone-200',
+        inputBg: 'bg-white',
+        inputBorder: 'border-stone-300',
+        inputText: 'text-[#1C1917]',
+      };
+
   const galleryItems = Array.isArray(data.galleryImages) ? data.galleryImages : [];
 
   // Handle 3D Envelope Opening Sequence
@@ -164,9 +197,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
 
   return (
     <div
-      className={`relative min-h-screen ${
-        isDarkTemplate ? 'bg-[#121212] text-stone-100' : 'bg-[#FAF8F5] text-stone-900'
-      } font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
+      className={`relative min-h-screen ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
     >
       {/* ------------------------------------------------------------- */}
       {/* 0. AMBIENT PARTICLES (Luxury Champagne Floating Atmosphere)   */}
@@ -232,13 +263,13 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                   Wedding Invitation
                 </div>
 
-                <div className="font-serif text-2xl sm:text-3xl font-normal leading-snug tracking-tight text-stone-900 dark:text-stone-100 mb-2">
+                <div className={`font-serif text-2xl sm:text-3xl font-normal leading-snug tracking-tight ${colors.title} mb-2`}>
                   {data.groomName} <br />
                   <span className="text-[#8C6D46] italic font-light">&</span> <br />
                   {data.brideName}
                 </div>
 
-                <div className="text-xs text-stone-500 font-serif tracking-widest uppercase mt-4 mb-8">
+                <div className={`text-xs ${colors.bodyMuted} font-serif tracking-widest uppercase mt-4 mb-8`}>
                   {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
                 </div>
               </div>
@@ -294,30 +325,30 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
           </div>
         )}
 
-        {/* Ambient Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/30 flex flex-col items-center justify-end text-center p-6 pb-16 text-white">
+        {/* Ambient Dark Gradient Overlay with High-Contrast Mobile Shielding */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 flex flex-col items-center justify-end text-center p-6 pb-16 text-white">
           {/* Masked Subtitle */}
           <div className="overflow-hidden mb-2">
-            <span className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase text-amber-200/90 animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+            <span className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase text-amber-200 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]">
               Save The Date
             </span>
           </div>
 
           {/* Masked Couple Title */}
           <div className="overflow-hidden mb-3">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
-              {data.groomName} <span className="font-light italic text-[#D4AF37]">&</span> {data.brideName}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.75)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
+              {data.groomName} <span className="font-light italic text-[#E5C158]">&</span> {data.brideName}
             </h1>
           </div>
 
           {/* Masked Ceremony Date */}
           <div className="overflow-hidden mb-6">
-            <p className="text-sm sm:text-base text-stone-200 font-serif tracking-widest uppercase animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
+            <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
               {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
             </p>
           </div>
 
-          <ChevronDown className="w-6 h-6 text-white/60 animate-bounce" />
+          <ChevronDown className="w-6 h-6 text-white/80 animate-bounce" />
         </div>
       </section>
 
@@ -326,11 +357,11 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
       {/* ------------------------------------------------------------- */}
       <section className="max-w-2xl mx-auto px-6 py-16 text-center">
         <InvitationSectionReveal showGoldDivider>
-          <div className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#8C6D46] mb-3">
+          <div className={`text-[11px] font-mono tracking-[0.2em] uppercase font-semibold ${colors.label} mb-3`}>
             Trân Trọng Kính Mời
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-serif font-normal text-stone-900 dark:text-stone-100 mb-6">
+          <h2 className={`text-2xl sm:text-3xl font-serif font-semibold ${colors.title} mb-6`}>
             Lễ Thành Hôn
           </h2>
         </InvitationSectionReveal>
@@ -338,20 +369,20 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
         {/* Parents Names with Reveal */}
         {(data.groomParents || data.brideParents) && (
           <InvitationSectionReveal delay={150}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 py-6 border-y border-stone-200 dark:border-stone-800 text-xs sm:text-sm leading-relaxed">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 py-6 border-y ${colors.divider} text-xs sm:text-sm leading-relaxed`}>
               <div>
-                <div className="font-serif font-semibold text-stone-800 dark:text-stone-200 uppercase tracking-wider mb-1">
+                <div className={`font-serif font-bold text-xs uppercase tracking-wider mb-1 ${colors.label}`}>
                   Nhà Trai
                 </div>
-                <div className="text-stone-600 dark:text-stone-400 whitespace-pre-line">
+                <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
                   {data.groomParents || 'Ông Bà Thân Sinh'}
                 </div>
               </div>
               <div>
-                <div className="font-serif font-semibold text-stone-800 dark:text-stone-200 uppercase tracking-wider mb-1">
+                <div className={`font-serif font-bold text-xs uppercase tracking-wider mb-1 ${colors.label}`}>
                   Nhà Gái
                 </div>
-                <div className="text-stone-600 dark:text-stone-400 whitespace-pre-line">
+                <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
                   {data.brideParents || 'Ông Bà Thân Sinh'}
                 </div>
               </div>
@@ -364,11 +395,11 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
           <InvitationSectionReveal delay={200} showGoldDivider>
             <div className="my-10 px-4">
               {data.storyTitle && (
-                <h3 className="font-serif text-lg text-stone-900 dark:text-stone-100 italic mb-3">
+                <h3 className={`font-serif text-xl font-medium italic mb-3 ${colors.title}`}>
                   &ldquo;{data.storyTitle}&rdquo;
                 </h3>
               )}
-              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-light leading-relaxed whitespace-pre-line">
+              <p className={`text-sm sm:text-[15px] ${colors.body} font-normal leading-relaxed whitespace-pre-line`}>
                 {data.storyText}
               </p>
             </div>
@@ -377,28 +408,28 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
 
         {/* 3.1 SVG HAND-DRAWN HEART CALENDAR */}
         <InvitationSectionReveal delay={250}>
-          <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} />
+          <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} isDark={isDarkTemplate} />
         </InvitationSectionReveal>
 
         {/* 3.2 ANIMATED SLIDING COUNTDOWN TIMER */}
         <InvitationSectionReveal delay={300}>
-          <AnimatedCountdown ceremonyDate={data.ceremonyDate} />
+          <AnimatedCountdown ceremonyDate={data.ceremonyDate} isDark={isDarkTemplate} />
         </InvitationSectionReveal>
 
         {/* Venue Information & Google Maps Button */}
         <InvitationSectionReveal delay={350}>
-          <div className="my-10 p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center shadow-xs">
+          <div className={`my-10 p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} text-center shadow-xs`}>
             <Clock className="w-5 h-5 text-[#8C6D46] mx-auto mb-2" />
-            <div className="font-serif text-lg font-medium text-stone-900 dark:text-stone-100">
+            <div className={`font-serif text-lg font-semibold ${colors.title}`}>
               {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800">
+            <div className={`mt-4 pt-4 border-t ${colors.divider}`}>
               <MapPin className="w-5 h-5 text-[#8C6D46] mx-auto mb-2" />
-              <div className="font-serif text-base font-semibold text-stone-900 dark:text-stone-100">
+              <div className={`font-serif text-lg font-bold ${colors.title}`}>
                 {data.venueName}
               </div>
-              <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1 max-w-md mx-auto leading-relaxed">
+              <div className={`text-sm sm:text-[15px] ${colors.body} mt-1.5 max-w-md mx-auto leading-relaxed`}>
                 {data.venueAddress}
               </div>
 
@@ -425,13 +456,13 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
         <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
           <InvitationSectionReveal showGoldDivider>
             <div className="text-center mb-8">
-              <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#8C6D46]">
+              <span className={`text-[11px] font-mono tracking-[0.2em] uppercase font-semibold ${colors.label}`}>
                 Khoảnh Khắc Hạnh Phúc
               </span>
-              <h3 className="text-2xl font-serif text-stone-900 dark:text-stone-100 mt-1">
+              <h3 className={`text-2xl font-serif font-semibold ${colors.title} mt-1`}>
                 Bộ Ảnh Cưới Của Chúng Mình
               </h3>
-              <p className="text-xs text-stone-400 mt-1 font-light">
+              <p className={`text-xs ${colors.bodyMuted} mt-1 font-light`}>
                 Chạm đúp vào ảnh để thả tim chúc phúc
               </p>
             </div>
@@ -456,12 +487,12 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
       {(data.bankQrImage || data.bankInfoText) && (
         <section className="max-w-xl mx-auto px-6 py-12 text-center">
           <InvitationSectionReveal showGoldDivider>
-            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs">
+            <div className={`p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} shadow-xs`}>
               <QrCode className="w-7 h-7 text-[#8C6D46] mx-auto mb-2" />
-              <h4 className="font-serif text-xl text-stone-900 dark:text-stone-100">
+              <h4 className={`font-serif text-xl font-semibold ${colors.title}`}>
                 Hộp Mừng Cưới
               </h4>
-              <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto leading-relaxed">
+              <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1 max-w-sm mx-auto leading-relaxed`}>
                 Sự hiện diện và lời chúc phúc của quý khách là món quà quý giá nhất dành cho chúng mình.
               </p>
 
@@ -485,15 +516,15 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
           onClick={() => setShowQrModal(false)}
         >
           <div
-            className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-3xl p-6 text-center shadow-2xl border border-stone-200 dark:border-stone-800"
+            className={`w-full max-w-sm ${colors.cardBg} rounded-3xl p-6 text-center shadow-2xl border ${colors.cardBorder}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-serif text-lg text-stone-900 dark:text-stone-100 mb-4">
+            <h4 className={`font-serif text-lg font-semibold ${colors.title} mb-4`}>
               Mã QR Mừng Cưới
             </h4>
 
             {data.bankQrImage && (
-              <div className="w-56 h-56 mx-auto rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 mb-4 bg-white p-2 shadow-inner">
+              <div className="w-56 h-56 mx-auto rounded-2xl overflow-hidden border border-stone-200 mb-4 bg-white p-2 shadow-inner">
                 <img
                   src={data.bankQrImage}
                   alt="Mã QR Mừng Cưới"
@@ -503,7 +534,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
             )}
 
             {data.bankInfoText && (
-              <div className="text-xs text-stone-700 dark:text-stone-300 whitespace-pre-line bg-stone-50 dark:bg-stone-800 p-3.5 rounded-2xl mb-4 font-mono leading-relaxed">
+              <div className={`text-xs ${isDarkTemplate ? 'bg-[#25221F] text-stone-200 border-white/10' : 'bg-stone-50 text-stone-800 border-stone-200'} border p-3.5 rounded-2xl mb-4 font-mono leading-relaxed whitespace-pre-line`}>
                 {data.bankInfoText}
               </div>
             )}
@@ -511,7 +542,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
             <button
               type="button"
               onClick={() => setShowQrModal(false)}
-              className="w-full h-10 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 text-xs font-medium transition-colors"
+              className={`w-full h-10 rounded-xl ${isDarkTemplate ? 'bg-[#25221F] text-stone-300 hover:bg-[#2e2a27]' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'} text-xs font-medium transition-colors`}
             >
               Đóng Cửa Sổ
             </button>
@@ -524,28 +555,28 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
       {/* ------------------------------------------------------------- */}
       <section className="max-w-xl mx-auto px-6 py-12">
         <InvitationSectionReveal showGoldDivider>
-          <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-sm">
+          <div className={`p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} shadow-sm`}>
             <div className="text-center mb-6">
               <Heart className="w-6 h-6 text-[#8C6D46] mx-auto mb-2 fill-[#8C6D46]/20" />
-              <h3 className="font-serif text-2xl text-stone-900 dark:text-stone-100">
+              <h3 className={`font-serif text-2xl font-semibold ${colors.title}`}>
                 Xác Nhận Tham Dự & Lời Chúc
               </h3>
-              <p className="text-xs text-stone-500 mt-1">
+              <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1`}>
                 Để gia đình chuẩn bị chu đáo nhất, xin vui lòng gửi phản hồi trước ngày cưới.
               </p>
             </div>
 
             {rsvpSuccessMsg ? (
-              <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center animate-in fade-in zoom-in-95 duration-300">
-                <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
-                <div className="text-sm font-medium text-emerald-800 dark:text-emerald-200 leading-relaxed">
+              <div className={`p-5 rounded-2xl ${isDarkTemplate ? 'bg-emerald-950/40 border-emerald-800 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-800'} border text-center animate-in fade-in zoom-in-95 duration-300`}>
+                <CheckCircle2 className={`w-7 h-7 ${isDarkTemplate ? 'text-emerald-400' : 'text-emerald-600'} mx-auto mb-2`} />
+                <div className="text-sm font-medium leading-relaxed">
                   {rsvpSuccessMsg}
                 </div>
               </div>
             ) : (
               <form onSubmit={handleRsvpSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
                     Họ tên của bạn / gia đình <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -554,19 +585,19 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="Ví dụ: Anh Tuấn & Chị Lan"
-                    className="w-full h-11 px-3.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
                       Tham dự hôn lễ?
                     </label>
                     <select
                       value={attendance}
                       onChange={(e: any) => setAttendance(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
                     >
                       <option value="ATTENDING">Sẽ tham dự</option>
                       <option value="DECLINED">Rất tiếc không thể đến</option>
@@ -574,14 +605,14 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
                       Số người tham dự
                     </label>
                     <select
                       value={guestCount}
                       disabled={attendance === 'DECLINED'}
                       onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className="w-full h-11 px-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46] disabled:opacity-50"
+                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46] disabled:opacity-50`}
                     >
                       <option value={1}>1 người</option>
                       <option value={2}>2 người</option>
@@ -592,7 +623,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
                     Khách mời của ai?
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -602,7 +633,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'GROOM'
                           ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
-                          : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
                     >
                       Nhà Trai
@@ -613,7 +644,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'BRIDE'
                           ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
-                          : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
                     >
                       Nhà Gái
@@ -624,7 +655,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'BOTH'
                           ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
-                          : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
                     >
                       Cả Hai
@@ -633,7 +664,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
                     Lời chúc gửi đến Cô Dâu & Chú Rể
                   </label>
                   <textarea
@@ -641,7 +672,7 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                     value={wishMessage}
                     onChange={(e) => setWishMessage(e.target.value)}
                     placeholder="Chúc hai bạn trăm năm hạnh phúc, đầu bạc răng long..."
-                    className="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
                   />
                 </div>
 
@@ -658,8 +689,8 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
 
             {/* Guestbook List with New Wish Highlight */}
             {rsvpsList.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-stone-100 dark:border-stone-800">
-                <div className="text-xs font-semibold text-stone-800 dark:text-stone-200 uppercase tracking-wider mb-3 flex items-center justify-between">
+              <div className={`mt-8 pt-6 border-t ${colors.divider}`}>
+                <div className={`text-xs font-semibold ${colors.title} uppercase tracking-wider mb-3 flex items-center justify-between`}>
                   <span>Sổ Lưu Bút Trực Tuyến</span>
                   <span className="text-[10px] text-stone-400 font-mono">({rsvpsList.length} lời chúc)</span>
                 </div>
@@ -671,11 +702,11 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                         key={item.id}
                         className={`p-3.5 rounded-2xl border text-xs transition-all ${
                           isNewlyAdded
-                            ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 shadow-xs'
-                            : 'bg-stone-50 dark:bg-stone-800/60 border-stone-100 dark:border-stone-800'
+                            ? isDarkTemplate ? 'bg-amber-950/40 border-amber-700 shadow-xs' : 'bg-amber-50/80 border-amber-300 shadow-xs'
+                            : isDarkTemplate ? 'bg-[#25221F] border-white/10' : 'bg-stone-50 border-stone-200/80'
                         }`}
                       >
-                        <div className="flex items-center justify-between font-medium text-stone-800 dark:text-stone-200">
+                        <div className={`flex items-center justify-between font-semibold ${colors.title}`}>
                           <span className="flex items-center gap-1.5">
                             <span>{item.guestName}</span>
                             {isNewlyAdded && (
@@ -684,12 +715,12 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
                               </span>
                             )}
                           </span>
-                          <span className="text-[10px] text-stone-400">
+                          <span className="text-[10px] text-stone-400 font-normal">
                             {item.attendance === 'ATTENDING' ? 'Sẽ tham dự' : 'Gửi lời chúc'}
                           </span>
                         </div>
                         {item.wishMessage && (
-                          <p className="mt-1.5 text-stone-600 dark:text-stone-400 italic leading-relaxed">
+                          <p className={`mt-1.5 ${colors.body} italic leading-relaxed`}>
                             &ldquo;{item.wishMessage}&rdquo;
                           </p>
                         )}
@@ -704,15 +735,23 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
       </section>
 
       {/* Footer Branding & Bride/Groom Edit Portal Link */}
-      <footer className="text-center py-8 space-y-2 text-stone-400">
-        <div className="text-[11px] uppercase tracking-widest font-mono">
-          Designed with Love by PlusMoments Wedding Studio
+      <footer className="text-center py-8 space-y-3 px-4">
+        <div>
+          <Link
+            href="/thiep-cuoi"
+            className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-500 hover:text-[#8C6D46] transition-colors"
+          >
+            <span>Thiệp cưới được thiết kế trên</span>
+            <span className="font-semibold text-[#8C6D46] underline decoration-stone-300 hover:decoration-[#8C6D46]">
+              PlusMoments
+            </span>
+          </Link>
         </div>
         <div>
           <button
             type="button"
             onClick={() => setIsPinModalOpen(true)}
-            className="text-[10px] tracking-wide text-stone-400 hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 opacity-70 hover:opacity-100"
+            className="text-[11px] tracking-wide text-stone-400 hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 opacity-80 hover:opacity-100"
           >
             <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
           </button>
