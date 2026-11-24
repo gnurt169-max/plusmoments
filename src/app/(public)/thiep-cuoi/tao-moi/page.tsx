@@ -102,6 +102,7 @@ export default function CreateWeddingInvitationPage() {
     url: string;
   } | null>(null);
   const [showMobilePreview, setShowMobilePreview] = useState<boolean>(false);
+  const [showEnvelopePreview, setShowEnvelopePreview] = useState<boolean>(false);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -1130,7 +1131,10 @@ export default function CreateWeddingInvitationPage() {
               </span>
               <button
                 type="button"
-                onClick={() => setPreviewKey((prev) => prev + 1)}
+                onClick={() => {
+                  setShowEnvelopePreview(true);
+                  setPreviewKey((prev) => prev + 1);
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6D46] text-[11px] font-medium transition-colors cursor-pointer"
                 title="Khởi động lại hiệu ứng mở phong bì 3D"
               >
@@ -1146,7 +1150,13 @@ export default function CreateWeddingInvitationPage() {
 
               {/* Screen Viewport with Scroll */}
               <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-white relative no-scrollbar">
-                <WeddingInvitationView key={previewKey} data={livePreviewData} isPreview={true} />
+                <WeddingInvitationView
+                  key={previewKey}
+                  data={livePreviewData}
+                  isPreview={true}
+                  showEnvelopePreview={showEnvelopePreview}
+                  onEnvelopeClose={() => setShowEnvelopePreview(false)}
+                />
               </div>
             </div>
           </div>
@@ -1161,7 +1171,10 @@ export default function CreateWeddingInvitationPage() {
               <span className="text-xs font-mono uppercase tracking-wider">Xem Trước Thiệp Cưới</span>
               <button
                 type="button"
-                onClick={() => setPreviewKey((prev) => prev + 1)}
+                onClick={() => {
+                  setShowEnvelopePreview(true);
+                  setPreviewKey((prev) => prev + 1);
+                }}
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 text-[11px]"
               >
                 <Sparkles className="w-3 h-3" />
@@ -1176,8 +1189,14 @@ export default function CreateWeddingInvitationPage() {
               <X className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <WeddingInvitationView key={previewKey} data={livePreviewData} isPreview={true} />
+          <div className="flex-1 overflow-y-auto relative">
+            <WeddingInvitationView
+              key={previewKey}
+              data={livePreviewData}
+              isPreview={true}
+              showEnvelopePreview={showEnvelopePreview}
+              onEnvelopeClose={() => setShowEnvelopePreview(false)}
+            />
           </div>
         </div>
       )}

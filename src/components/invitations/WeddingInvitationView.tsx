@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ArrowRight,
+  X,
 } from 'lucide-react';
 import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import { INVITATION_TEMPLATES, InvitationGalleryImage } from '@/lib/invitations/templates';
@@ -79,17 +80,37 @@ interface WeddingInvitationViewProps {
   data: InvitationViewData;
   isPreview?: boolean;
   servicePackages?: CuratedServicePackage[];
+  showEnvelopePreview?: boolean;
+  onEnvelopeClose?: () => void;
 }
 
 export function WeddingInvitationView({
   data,
   isPreview = false,
   servicePackages = [],
+  showEnvelopePreview = false,
+  onEnvelopeClose,
 }: WeddingInvitationViewProps) {
   // Envelope opening states
-  const [isOpenEnvelope, setIsOpenEnvelope] = useState<boolean>(false);
+  // When isPreview is true, envelope is open/hidden by default so invitation content is immediately visible
+  const [isOpenEnvelope, setIsOpenEnvelope] = useState<boolean>(
+    isPreview ? !showEnvelopePreview : false
+  );
   const [isOpeningFlap, setIsOpeningFlap] = useState<boolean>(false);
   const [isFadingEnvelope, setIsFadingEnvelope] = useState<boolean>(false);
+
+  // Synchronize envelope state when isPreview or showEnvelopePreview changes
+  useEffect(() => {
+    if (isPreview) {
+      if (showEnvelopePreview) {
+        setIsOpenEnvelope(false);
+        setIsOpeningFlap(false);
+        setIsFadingEnvelope(false);
+      } else {
+        setIsOpenEnvelope(true);
+      }
+    }
+  }, [isPreview, showEnvelopePreview]);
 
   // Music & Modal states
   const [isMusicPlaying, setIsMusicPlaying] = useState<boolean>(false);
@@ -188,6 +209,7 @@ export function WeddingInvitationView({
     // Complete (1150ms): Unmount overlay completely
     setTimeout(() => {
       setIsOpenEnvelope(true);
+      if (onEnvelopeClose) onEnvelopeClose();
     }, 1150);
   };
 
@@ -249,7 +271,9 @@ export function WeddingInvitationView({
 
   return (
     <div
-      className={`relative min-h-screen ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
+      className={`relative ${
+        isPreview && !isOpenEnvelope ? 'h-full overflow-hidden' : 'min-h-screen'
+      } ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
     >
       {/* ------------------------------------------------------------- */}
       {/* 0. AMBIENT PARTICLES (Luxury Champagne Floating Atmosphere)   */}
@@ -269,11 +293,32 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       {!isOpenEnvelope && (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#141210]/85 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`${
+            isPreview
+              ? 'absolute inset-0 z-50 overflow-hidden'
+              : 'fixed inset-0 z-50'
+          } flex items-center justify-center p-4 bg-[#141210]/85 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             isFadingEnvelope ? 'opacity-0 scale-[1.06] pointer-events-none' : 'opacity-100 scale-100'
           }`}
           style={{ perspective: '1400px' }}
         >
+          {/* Close preview button for editor/builder */}
+          {isPreview && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpenEnvelope(true);
+                if (onEnvelopeClose) onEnvelopeClose();
+              }}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/90 hover:text-white transition-colors flex items-center gap-1 text-xs border border-white/10 shadow-lg cursor-pointer"
+              title="Đóng phong bì để xem nội dung thiệp"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Đóng</span>
+            </button>
+          )}
+
           {/* Subtle Ambient Background Wedding Cover Glow */}
           {data.coverImage && (
             <div
@@ -285,7 +330,9 @@ export function WeddingInvitationView({
 
           <div
             onClick={handleOpenEnvelope}
-            className="w-[90vw] max-w-[380px] aspect-[3/4.2] cursor-pointer select-none relative group will-change-transform"
+            className={`w-[90vw] ${
+              isPreview ? 'max-w-[320px]' : 'max-w-[380px]'
+            } aspect-[3/4.2] cursor-pointer select-none relative group will-change-transform`}
           >
             {/* 3D Envelope Body (Haute Couture Fine Art Paper with Internal Golden Frame) */}
             <div

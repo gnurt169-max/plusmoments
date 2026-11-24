@@ -54,6 +54,7 @@ export default function EditWeddingInvitationPage() {
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
   const [showMobilePreview, setShowMobilePreview] = useState<boolean>(false);
+  const [showEnvelopePreview, setShowEnvelopePreview] = useState<boolean>(false);
 
   // Invitation Form Data States
   const [templateId, setTemplateId] = useState<string>('timeless-ivory');
@@ -1116,7 +1117,10 @@ export default function EditWeddingInvitationPage() {
               </span>
               <button
                 type="button"
-                onClick={() => setPreviewKey((prev) => prev + 1)}
+                onClick={() => {
+                  setShowEnvelopePreview(true);
+                  setPreviewKey((prev) => prev + 1);
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6D46] text-[11px] font-medium transition-colors cursor-pointer"
                 title="Khởi động lại hiệu ứng mở phong bì 3D"
               >
@@ -1136,6 +1140,8 @@ export default function EditWeddingInvitationPage() {
                   key={previewKey}
                   data={livePreviewData as any}
                   isPreview={true}
+                  showEnvelopePreview={showEnvelopePreview}
+                  onEnvelopeClose={() => setShowEnvelopePreview(false)}
                 />
               </div>
             </div>
@@ -1147,7 +1153,20 @@ export default function EditWeddingInvitationPage() {
       {showMobilePreview && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col">
           <div className="p-4 bg-stone-900 text-white flex items-center justify-between">
-            <span className="text-xs font-mono uppercase tracking-wider">Xem Trước Thiệp Cưới</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono uppercase tracking-wider">Xem Trước Thiệp Cưới</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEnvelopePreview(true);
+                  setPreviewKey((prev) => prev + 1);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 text-[11px]"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Thử mở phong bì</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setShowMobilePreview(false)}
@@ -1156,11 +1175,13 @@ export default function EditWeddingInvitationPage() {
               <X className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto relative">
             <WeddingInvitationView
               key={previewKey}
               data={livePreviewData as any}
               isPreview={true}
+              showEnvelopePreview={showEnvelopePreview}
+              onEnvelopeClose={() => setShowEnvelopePreview(false)}
             />
           </div>
         </div>
