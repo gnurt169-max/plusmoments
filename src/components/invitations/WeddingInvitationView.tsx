@@ -122,18 +122,46 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
 
   const galleryItems = Array.isArray(data.galleryImages) ? data.galleryImages : [];
 
-  // Handle 3D Envelope Opening Sequence
+  // Monogram initials for 3D Wax Seal (e.g. "T & T" or "M & T")
+  const groomInitial = (data.groomName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || 'M';
+  const brideInitial = (data.brideName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || 'T';
+
+  // Handle 3D Envelope Opening Sequence (60fps GPU 3-stage choreography)
   const handleOpenEnvelope = () => {
     if (isOpeningFlap) return;
     setIsOpeningFlap(true);
     setIsMusicPlaying(true);
 
-    // After 750ms 3D flap rotation and card slide, begin fading envelope backdrop
+    // Play subtle luxury ambient chime on user gesture
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5 elegant chord
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + idx * 0.08 + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.08 + 0.9);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.08);
+          osc.stop(ctx.currentTime + idx * 0.08 + 0.95);
+        });
+      }
+    } catch {
+      // Audio context error gracefully ignored
+    }
+
+    // Stage 3 (650ms): Fade and zoom out envelope overlay into main wedding invitation
     setTimeout(() => {
       setIsFadingEnvelope(true);
-    }, 750);
+    }, 650);
 
-    // After 1150ms total, unmount envelope overlay
+    // Complete (1150ms): Unmount overlay completely
     setTimeout(() => {
       setIsOpenEnvelope(true);
     }, 1150);
@@ -217,80 +245,139 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
       {/* ------------------------------------------------------------- */}
       {!isOpenEnvelope && (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-500 ${
-            isFadingEnvelope ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#141210]/85 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isFadingEnvelope ? 'opacity-0 scale-[1.06] pointer-events-none' : 'opacity-100 scale-100'
           }`}
-          style={{ perspective: '1200px' }}
+          style={{ perspective: '1400px' }}
         >
+          {/* Subtle Ambient Background Wedding Cover Glow */}
+          {data.coverImage && (
+            <div
+              className="absolute inset-0 -z-10 bg-cover bg-center opacity-25 blur-3xl pointer-events-none scale-110"
+              style={{ backgroundImage: `url(${data.coverImage})` }}
+              aria-hidden="true"
+            />
+          )}
+
           <div
             onClick={handleOpenEnvelope}
-            className="w-full max-w-sm cursor-pointer select-none relative"
+            className="w-[90vw] max-w-[380px] aspect-[3/4.2] cursor-pointer select-none relative group will-change-transform"
           >
-            {/* 3D Envelope Container */}
+            {/* 3D Envelope Body (Haute Couture Fine Art Paper with Internal Golden Frame) */}
             <div
-              className="relative w-full rounded-2xl shadow-2xl border border-white/20 p-8 text-center overflow-visible"
+              className="relative w-full h-full rounded-[28px] shadow-[0_30px_70px_rgba(0,0,0,0.65)] border border-[#C5A059]/40 overflow-hidden flex flex-col items-center justify-between p-6 sm:p-7 text-center select-none"
               style={{
-                backgroundColor: isDarkTemplate ? '#1C1C1F' : '#FFFDF9',
-                boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.65)',
+                background: isDarkTemplate
+                  ? 'linear-gradient(180deg, #242220 0%, #171514 100%)'
+                  : 'linear-gradient(180deg, #FCF9F4 0%, #F3ECE0 100%)',
               }}
             >
-              {/* 3D Triangular Flap that folds up */}
+              {/* Internal Fine Line Golden Frame (Insets 14px with matching radius) */}
               <div
-                className="absolute top-0 left-0 right-0 h-32 origin-top z-30 transition-transform duration-700 ease-in-out pointer-events-none"
+                className="absolute inset-3.5 border border-[#C5A059]/35 rounded-[20px] pointer-events-none z-10"
+                aria-hidden="true"
+              />
+
+              {/* 3D Triangular Flap (Kept strictly to top 34% height so it NEVER covers names) */}
+              <div
+                className={`absolute top-0 left-0 right-0 h-[34%] origin-top transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none ${
+                  isOpeningFlap ? 'z-0' : 'z-30'
+                }`}
                 style={{
                   transform: isOpeningFlap ? 'rotateX(180deg)' : 'rotateX(0deg)',
                   transformStyle: 'preserve-3d',
+                  willChange: 'transform',
                 }}
               >
-                <svg viewBox="0 0 400 130" className="w-full h-full drop-shadow-md">
+                <svg
+                  viewBox="0 0 380 145"
+                  className="w-full h-full drop-shadow-[0_8px_16px_rgba(0,0,0,0.18)]"
+                  preserveAspectRatio="none"
+                >
                   <polygon
-                    points="0,0 400,0 200,130"
-                    fill={isDarkTemplate ? '#26262B' : '#FAF5ED'}
-                    stroke={isDarkTemplate ? '#3F3F46' : '#E8DFD0'}
+                    points="0,0 380,0 190,145"
+                    fill={isDarkTemplate ? '#2C2A28' : '#F6F0E6'}
+                    stroke={isDarkTemplate ? '#4A4642' : '#E5DAC9'}
                     strokeWidth="1.5"
+                  />
+                  {/* Flap subtle inner gold accent line */}
+                  <polyline
+                    points="18,0 190,132 362,0"
+                    fill="none"
+                    stroke="#C5A059"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.4"
                   />
                 </svg>
               </div>
 
-              {/* Inner Invitation Card that slides up slightly */}
+              {/* Top Flap Peak & Monogram Wax Seal Anchor */}
+              <div className="relative w-full pt-10 sm:pt-11 flex justify-center z-40">
+                {/* 3D Wax Seal with Bride & Groom Monogram Initials */}
+                <div
+                  className={`w-16 h-16 rounded-full flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 transform ${
+                    isOpeningFlap
+                      ? 'scale-125 opacity-0'
+                      : 'scale-100 opacity-100 hover:scale-105 active:scale-95'
+                  }`}
+                  style={{
+                    background: 'radial-gradient(circle at 35% 35%, #F4D38A 0%, #C5A059 45%, #8C6D32 85%, #6B5224 100%)',
+                    boxShadow: '0 10px 26px rgba(140, 109, 50, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.3)',
+                    border: '3px solid rgba(244, 211, 138, 0.6)',
+                  }}
+                >
+                  {/* Shimmer Light Reflection Sweep */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/45 to-transparent -translate-x-full animate-[shimmer_2.8s_infinite_linear] pointer-events-none" />
+
+                  {/* Embossed Monogram Initials */}
+                  <span className="font-serif font-bold text-sm tracking-widest text-[#2A1D0E] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] select-none">
+                    {groomInitial} & {brideInitial}
+                  </span>
+                  <div className="w-6 h-[0.75px] bg-[#6B5224]/50 my-0.5" />
+                  <Sparkles className="w-2.5 h-2.5 text-[#2A1D0E]/80" />
+                </div>
+              </div>
+
+              {/* Lower Section: Wedding Invitation Details (Comfortably spaced, 100% visible, never clipped) */}
               <div
-                className="relative z-10 transition-transform duration-700 ease-out"
+                className="relative z-20 w-full flex-1 flex flex-col justify-center items-center px-2 pt-4 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{
-                  transform: isOpeningFlap ? 'translateY(-36px)' : 'translateY(0)',
+                  transform: isOpeningFlap ? 'translateY(-28px) scale(1.02)' : 'translateY(0)',
+                  willChange: 'transform',
                 }}
               >
-                <div className="text-[11px] font-mono tracking-[0.25em] uppercase text-[#8C6D46] mb-3">
-                  Wedding Invitation
+                {/* Header label */}
+                <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-[#8C6D46] font-medium mb-3">
+                  Trân Trọng Kính Mời
                 </div>
 
-                <div className={`font-serif text-2xl sm:text-3xl font-normal leading-snug tracking-tight ${colors.title} mb-2`}>
-                  {data.groomName} <br />
-                  <span className="text-[#8C6D46] italic font-light">&</span> <br />
-                  {data.brideName}
-                </div>
+                {/* Couple Names: Groom & Bride balanced with champagne gold '&' */}
+                <h2
+                  className={`font-serif text-2xl sm:text-[26px] font-normal leading-snug tracking-tight ${
+                    isDarkTemplate ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
+                  } mb-2`}
+                >
+                  <span>{data.groomName}</span>
+                  <span className="block my-0.5 text-[#C5A059] italic font-light text-xl">&</span>
+                  <span>{data.brideName}</span>
+                </h2>
 
-                <div className={`text-xs ${colors.bodyMuted} font-serif tracking-widest uppercase mt-4 mb-8`}>
+                {/* Date text */}
+                <div
+                  className={`text-xs ${
+                    isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
+                  } font-serif tracking-widest uppercase mt-2`}
+                >
                   {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
                 </div>
               </div>
 
-              {/* Metallic Wax Seal with Shimmer Sweep & Pulse Glow */}
-              <div className="relative z-40 inline-flex items-center justify-center">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95"
-                  style={{
-                    background: 'radial-gradient(circle, #ECC876 0%, #B88E3E 65%, #7C5C2E 100%)',
-                    boxShadow: '0 0 25px rgba(212, 175, 55, 0.65), 0 8px 18px rgba(0, 0, 0, 0.4)',
-                  }}
-                >
-                  {/* Shimmer Light Reflection Sweep */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite_linear] pointer-events-none" />
-                  <Sparkles className="w-7 h-7 text-white drop-shadow-md" />
+              {/* Tap Indicator Hint at Envelope Bottom */}
+              <div className="relative z-20 pb-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8C6D46]/10 text-[11px] font-medium text-[#8C6D46] tracking-wider animate-pulse">
+                  <Sparkles className="w-3 h-3 text-[#C5A059]" />
+                  <span>Chạm vào con dấu để mở thiệp</span>
                 </div>
-              </div>
-
-              <div className="mt-4 text-xs font-medium text-stone-500 tracking-wider animate-pulse relative z-10">
-                Chạm để mở phong bì
               </div>
             </div>
           </div>
