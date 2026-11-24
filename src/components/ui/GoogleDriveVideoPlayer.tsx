@@ -43,7 +43,7 @@ export function extractGoogleDriveFileId(rawUrl: string): string | null {
 }
 
 /**
- * Tạo URL nhúng chuẩn phát video từ Google Drive File ID với tham số ưu tiên HD và tối giản giao diện
+ * Tạo URL nhúng chuẩn phát video từ Google Drive File ID với đầy đủ thanh điều khiển (seek bar, volume, HD, fullscreen)
  */
 export function getGoogleDriveEmbedUrl(
   rawUrlOrId: string,
@@ -55,9 +55,7 @@ export function getGoogleDriveEmbedUrl(
   const params = new URLSearchParams();
   if (options?.hd !== false) {
     params.set('vq', 'hd1080');
-    params.set('hd', '1');
   }
-  params.set('rm', 'minimal');
   if (options?.autoPlay) {
     params.set('autoplay', '1');
   }
