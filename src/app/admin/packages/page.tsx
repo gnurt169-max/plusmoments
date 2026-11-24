@@ -16,6 +16,7 @@ import {
   BookOpen,
   Images,
   Share2,
+  Film,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
@@ -25,6 +26,8 @@ import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
 import { PricingFaqManager } from '@/components/admin/PricingFaqManager';
 import { PackageAddonManager } from '@/components/admin/PackageAddonManager';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
+import { GoogleDriveVideoManager } from '@/components/admin/GoogleDriveVideoManager';
+import type { GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 
 export interface LinkedAlbumItem {
   id: string;
@@ -64,6 +67,7 @@ interface PackageItem {
   published: boolean;
   inclusions: string;
   deliverables?: string | null;
+  videoLinks?: GoogleDriveVideoItem[] | null;
   albums?: LinkedAlbumItem[];
   blogPosts?: LinkedBlogItem[];
 }
@@ -135,6 +139,7 @@ export default function AdminPackagesPage() {
     published: true,
     inclusionsList: [] as string[],
     deliverables: '',
+    videoLinks: [] as GoogleDriveVideoItem[],
     albumIds: [] as string[],
     blogPostIds: [] as string[],
   });
@@ -240,6 +245,7 @@ export default function AdminPackagesPage() {
       published: true,
       inclusionsList: [],
       deliverables: '',
+      videoLinks: [],
       albumIds: [],
       blogPostIds: [],
     });
@@ -300,6 +306,7 @@ export default function AdminPackagesPage() {
       published: pkg.published,
       inclusionsList: parsedInclusions,
       deliverables: pkg.deliverables || '',
+      videoLinks: Array.isArray(pkg.videoLinks) ? pkg.videoLinks : [],
       albumIds: linkedAlbumIds,
       blogPostIds: linkedPostIds,
     });
@@ -458,6 +465,7 @@ export default function AdminPackagesPage() {
         published: formData.published,
         inclusions: formData.inclusionsList.filter((x) => x.trim().length > 0),
         deliverables: formData.deliverables,
+        videoLinks: formData.videoLinks,
         albumIds: formData.albumIds,
         blogPostIds: formData.blogPostIds,
       };
@@ -711,6 +719,15 @@ export default function AdminPackagesPage() {
                                   <span className="text-[10px] text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
                                     <BookOpen className="w-2.5 h-2.5" />
                                     {pkg.blogPosts.length} bài viết
+                                  </span>
+                                </>
+                              )}
+                              {Array.isArray(pkg.videoLinks) && pkg.videoLinks.length > 0 && (
+                                <>
+                                  <span className="text-stone-300">•</span>
+                                  <span className="text-[10px] text-rose-800 bg-rose-100/70 px-1.5 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
+                                    <Film className="w-2.5 h-2.5" />
+                                    {pkg.videoLinks.length} video
                                   </span>
                                 </>
                               )}
@@ -1029,6 +1046,14 @@ export default function AdminPackagesPage() {
               onChange={(urls) => setFormData({ ...formData, demoImagesText: urls.join('\n') })}
               modalTitle="Chọn Ảnh Thực Tế Cho Gói Dịch Vụ Cưới"
               helperText="Khách hàng có thể bấm xem chi tiết bộ ảnh mẫu và sản phẩm thật (album, ảnh cổng, váy) trong modal gói."
+            />
+          </div>
+
+          {/* GOOGLE DRIVE VIDEO DEMOS */}
+          <div className="bg-stone-50/70 p-4 rounded-2xl border border-stone-200">
+            <GoogleDriveVideoManager
+              videos={formData.videoLinks || []}
+              onChange={(updated) => setFormData({ ...formData, videoLinks: updated })}
             />
           </div>
 

@@ -97,6 +97,7 @@ export default async function BangGiaPage() {
       shortFeatures: coreHighlights,
       deliveryProcess: pkg.deliverables,
       blurDataUrl: (pkg as any).blurDataUrl || null,
+      videoLinks: (pkg as any).videoLinks || null,
       albums: (pkg as any).albums || [],
       blogPosts: (pkg as any).blogPosts || [],
     };

@@ -67,6 +67,7 @@ async function handleUpdate(request: Request, id: string) {
       slug,
       albumIds,
       blogPostIds,
+      videoLinks,
       ...fields
     } = body;
 
@@ -121,6 +122,9 @@ async function handleUpdate(request: Request, id: string) {
       updateData.demoImages = Array.isArray(demoImages)
         ? JSON.stringify(demoImages)
         : demoImages;
+    }
+    if (videoLinks !== undefined) {
+      updateData.videoLinks = Array.isArray(videoLinks) ? videoLinks : [];
     }
 
     // Đảm bảo tuyệt đối không có albumIds hoặc blogPostIds trong scalar updateData

@@ -95,6 +95,7 @@ export async function POST(request: Request) {
       deliverables,
       albumIds,
       blogPostIds,
+      videoLinks,
     } = body;
 
     const rawPrice = price !== undefined ? price : discountPrice;
@@ -149,6 +150,7 @@ export async function POST(request: Request) {
         published: published ?? true,
         inclusions: inclusionsStr,
         deliverables: deliverables || null,
+        ...(Array.isArray(videoLinks) && videoLinks.length > 0 ? { videoLinks } : {}),
         // Sử dụng cú pháp connect của Prisma cho quan hệ albums & blogPosts
         ...(Array.isArray(albumIds) && albumIds.length > 0
           ? {
@@ -222,6 +224,7 @@ export async function PUT(request: Request) {
       slug,
       albumIds,
       blogPostIds,
+      videoLinks,
       ...fields
     } = body;
 
@@ -284,6 +287,9 @@ export async function PUT(request: Request) {
       updateData.demoImages = Array.isArray(demoImages)
         ? JSON.stringify(demoImages)
         : demoImages;
+    }
+    if (videoLinks !== undefined) {
+      updateData.videoLinks = Array.isArray(videoLinks) ? videoLinks : [];
     }
 
     // Đảm bảo tuyệt đối không có albumIds hoặc blogPostIds nằm trong scalar updateData

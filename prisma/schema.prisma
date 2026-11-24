@@ -279,6 +279,7 @@ model ServicePackage {
   coverImage      String   @default("")
   demoImages      String?  @db.Text // JSON array of 6-8 actual product/demo photo URLs
   highlightPoints String?  @db.Text // JSON array of 3 core summary highlights for outside card
+  videoLinks      Json?    // Array of Google Drive videos: [{ id: string, title?: string, driveUrl: string, aspectRatio?: '16:9' | '9:16' }]
 
   // Package content details (stored as JSON string or text)
   inclusions      String   @db.Text // Bullet points: Trang phục cưới, album photobook, ảnh cổng ép gỗ...

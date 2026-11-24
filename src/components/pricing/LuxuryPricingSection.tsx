@@ -21,6 +21,7 @@ import {
 import dynamic from 'next/dynamic';
 import { formatVND } from '@/lib/utils';
 import { extractPackageHighlights } from '@/lib/package-features';
+import type { GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 
 // Dynamic load modals strictly on user interaction
 const PackageDetailModal = dynamic(
@@ -78,6 +79,7 @@ export interface PricingPackageData {
   inclusionsList?: string[];
   deliveryProcess?: string | null;
   blurDataUrl?: string | null;
+  videoLinks?: GoogleDriveVideoItem[] | null;
   albums?: LinkedAlbum[];
   blogPosts?: LinkedBlogPost[];
 }

@@ -21,7 +21,10 @@ import {
   Plus,
   Minus,
   CheckCircle2,
+  Play,
+  Film,
 } from 'lucide-react';
+import { GoogleDriveVideoPlayer, GoogleDriveVideoItem } from '@/components/ui/GoogleDriveVideoPlayer';
 import { Modal } from '@/components/ui/Modal';
 import { formatVND } from '@/lib/utils';
 import { getStoredTrafficSource, trackEvent, trackBeginCheckout, trackPackageView } from '@/lib/tracking';
@@ -47,6 +50,10 @@ export interface PackageDetailModalProps {
   onClose: () => void;
 }
 
+export type ModalMediaItem =
+  | { type: 'image'; id: string; url: string; indexInImages: number }
+  | { type: 'video'; id: string; video: GoogleDriveVideoItem };
+
 export function PackageDetailModal({
   packageData,
   isOpen,
@@ -62,9 +69,16 @@ export function PackageDetailModal({
     setMounted(true);
   }, []);
 
-  // Active Image & Fullscreen Lightbox State
+  // Active Media, Image & Fullscreen Lightbox State
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // Reset active media when package or modal changes
+  useEffect(() => {
+    setActiveMediaIndex(0);
+    setActiveImageIndex(0);
+  }, [packageData?.id, isOpen]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -200,7 +214,52 @@ export function PackageDetailModal({
     return list;
   }, [packageData]);
 
-  const currentActiveImage = demoImagesList[activeImageIndex] || demoImagesList[0] || '';
+  // Unified Media Items (Cover Image + Videos + Other Demo Images)
+  const mediaItems = useMemo<ModalMediaItem[]>(() => {
+    if (!packageData) return [];
+    const items: ModalMediaItem[] = [];
+
+    // 1. First image (Cover)
+    if (demoImagesList.length > 0) {
+      items.push({
+        type: 'image',
+        id: 'img-0',
+        url: demoImagesList[0],
+        indexInImages: 0,
+      });
+    }
+
+    // 2. Google Drive Videos (inserted right after the first image so they are immediately visible in thumbnail row)
+    const videos: GoogleDriveVideoItem[] = Array.isArray(packageData.videoLinks)
+      ? packageData.videoLinks
+      : [];
+    videos.forEach((vid, idx) => {
+      if (vid && vid.driveUrl && vid.driveUrl.trim()) {
+        items.push({
+          type: 'video',
+          id: vid.id || `video-${idx}`,
+          video: vid,
+        });
+      }
+    });
+
+    // 3. Remaining demo images
+    for (let i = 1; i < demoImagesList.length; i++) {
+      items.push({
+        type: 'image',
+        id: `img-${i}`,
+        url: demoImagesList[i],
+        indexInImages: i,
+      });
+    }
+
+    return items;
+  }, [packageData, demoImagesList]);
+
+  const activeMedia = mediaItems[activeMediaIndex] || mediaItems[0] || null;
+  const currentActiveImage = activeMedia?.type === 'image'
+    ? activeMedia.url
+    : (demoImagesList[activeImageIndex] || demoImagesList[0] || '');
 
   // 1. Điểm nhấn cốt lõi từ DB (highlightPoints) - hiển thị tại Khối 1
   const coreHighlightsList: string[] = useMemo(() => {
@@ -317,16 +376,33 @@ export function PackageDetailModal({
         maxWidth="max-w-4xl"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-          {/* CỘT TRÁI: KHUNG XEM ẢNH TRỌN VẸN (KHÔNG BỊ CẮT) + TỐI ƯU TỐC ĐỘ */}
+          {/* CỘT TRÁI: KHUNG XEM ẢNH/VIDEO TRỌN VẸN (KHÔNG BỊ CẮT) + TỐI ƯU TỐC ĐỘ */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="relative group rounded-2xl overflow-hidden bg-[#F5F2EB] border border-amber-900/10 shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px]">
-              {currentActiveImage ? (
+            <div className={`relative group rounded-2xl overflow-hidden border shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px] transition-colors ${
+              activeMedia?.type === 'video' ? 'bg-[#1C1917] border-stone-800' : 'bg-[#F5F2EB] border-amber-900/10'
+            }`}>
+              {activeMedia?.type === 'video' ? (
+                <div className="w-full h-full p-2 sm:p-3 flex items-center justify-center">
+                  <div className={`w-full ${activeMedia.video.aspectRatio === '9:16' ? 'max-w-[280px] sm:max-w-[320px]' : 'max-w-full'}`}>
+                    <GoogleDriveVideoPlayer
+                      video={activeMedia.video}
+                      autoMountOnScroll={false}
+                      coverImage={packageData.coverImage}
+                    />
+                  </div>
+                </div>
+              ) : currentActiveImage ? (
                 <>
                   <button
                     type="button"
                     aria-label={`Xem ảnh phóng to toàn màn hình gói ${packageData.name}`}
                     className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent"
-                    onClick={() => setIsLightboxOpen(true)}
+                    onClick={() => {
+                      if (activeMedia?.type === 'image') {
+                        setActiveImageIndex(activeMedia.indexInImages);
+                      }
+                      setIsLightboxOpen(true);
+                    }}
                   >
                     <img
                       src={currentActiveImage}
@@ -341,6 +417,9 @@ export function PackageDetailModal({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (activeMedia?.type === 'image') {
+                        setActiveImageIndex(activeMedia.indexInImages);
+                      }
                       setIsLightboxOpen(true);
                     }}
                     className="absolute bottom-3 right-3 z-20 px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 shadow-md cursor-pointer pointer-events-auto select-none"
@@ -358,29 +437,68 @@ export function PackageDetailModal({
               )}
             </div>
 
-            {/* Thumbnail Row - Instant Switching với img eager */}
-            {demoImagesList.length > 1 && (
+            {/* Thumbnail Row - Instant Switching giữa Video và Ảnh */}
+            {mediaItems.length > 1 && (
               <div className="flex items-center gap-2.5 overflow-x-auto pb-2 pt-1 no-scrollbar">
-                {demoImagesList.map((imgUrl, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setActiveImageIndex(i)}
-                    aria-label={`Xem ảnh ${i + 1} của gói ${packageData.name}`}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer bg-[#F5F2EB] ${
-                      activeImageIndex === i
-                        ? 'border-amber-700 ring-2 ring-amber-400/40 scale-105 shadow-md'
-                        : 'border-stone-200 opacity-60 hover:opacity-100 hover:border-amber-400'
-                    }`}
-                  >
-                    <img
-                      src={imgUrl}
-                      alt={`Thumbnail ${i + 1}`}
-                      className="w-full h-full object-cover select-none"
-                      loading="lazy"
-                    />
-                  </button>
-                ))}
+                {mediaItems.map((item, i) => {
+                  const isSelected = activeMediaIndex === i;
+                  if (item.type === 'video') {
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setActiveMediaIndex(i)}
+                        aria-label={`Xem video demo ${item.video.title || i + 1} của gói ${packageData.name}`}
+                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer flex flex-col items-center justify-center p-1.5 bg-[#1C1917] group ${
+                          isSelected
+                            ? 'border-amber-500 ring-2 ring-amber-400/50 scale-105 shadow-md'
+                            : 'border-stone-700 opacity-80 hover:opacity-100 hover:border-amber-400'
+                        }`}
+                      >
+                        {packageData.coverImage && (
+                          <img
+                            src={getSmallThumbnailUrl(packageData.coverImage)}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover opacity-20 filter blur-2xs pointer-events-none"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60 pointer-events-none" />
+
+                        <div className="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#C5A880] group-hover:border-[#C5A880] transition-all shadow-sm">
+                          <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white fill-white translate-x-0.5" />
+                        </div>
+
+                        <span className="relative z-10 mt-1 text-[9px] font-mono font-bold uppercase tracking-wider text-amber-300 bg-amber-950/80 px-1.5 py-0.2 rounded border border-amber-500/40">
+                          VIDEO
+                        </span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveMediaIndex(i);
+                        setActiveImageIndex(item.indexInImages);
+                      }}
+                      aria-label={`Xem ảnh demo ${item.indexInImages + 1} của gói ${packageData.name}`}
+                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer bg-[#F5F2EB] ${
+                        isSelected
+                          ? 'border-amber-700 ring-2 ring-amber-400/40 scale-105 shadow-md'
+                          : 'border-stone-200 opacity-60 hover:opacity-100 hover:border-amber-400'
+                      }`}
+                    >
+                      <img
+                        src={item.url}
+                        alt={`Thumbnail ${item.indexInImages + 1}`}
+                        className="w-full h-full object-cover select-none"
+                        loading="lazy"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
 
