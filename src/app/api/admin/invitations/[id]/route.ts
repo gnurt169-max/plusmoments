@@ -73,6 +73,18 @@ export async function PATCH(
     if (typeof body.brideParents === 'string') {
       updateData.brideParents = body.brideParents.trim() || null;
     }
+    if (typeof body.groomImage === 'string') {
+      updateData.groomImage = body.groomImage.trim() || null;
+    }
+    if (typeof body.brideImage === 'string') {
+      updateData.brideImage = body.brideImage.trim() || null;
+    }
+    if (typeof body.groomBio === 'string') {
+      updateData.groomBio = body.groomBio.trim() || null;
+    }
+    if (typeof body.brideBio === 'string') {
+      updateData.brideBio = body.brideBio.trim() || null;
+    }
     if (body.ceremonyDate) {
       const d = new Date(body.ceremonyDate);
       if (!isNaN(d.getTime())) {

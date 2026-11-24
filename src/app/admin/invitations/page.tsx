@@ -51,6 +51,10 @@ interface AdminInvitationItem {
   brideName: string;
   groomParents?: string | null;
   brideParents?: string | null;
+  groomImage?: string | null;
+  brideImage?: string | null;
+  groomBio?: string | null;
+  brideBio?: string | null;
   ceremonyDate: string;
   ceremonyTimeText?: string | null;
   venueName: string;
@@ -99,6 +103,10 @@ export default function AdminInvitationsPage() {
     brideName: string;
     groomParents: string;
     brideParents: string;
+    groomImage: string;
+    brideImage: string;
+    groomBio: string;
+    brideBio: string;
     ceremonyDate: string;
     ceremonyTimeText: string;
     venueName: string;
@@ -120,6 +128,10 @@ export default function AdminInvitationsPage() {
     brideName: '',
     groomParents: '',
     brideParents: '',
+    groomImage: '',
+    brideImage: '',
+    groomBio: '',
+    brideBio: '',
     ceremonyDate: '',
     ceremonyTimeText: '',
     venueName: '',
@@ -245,6 +257,10 @@ export default function AdminInvitationsPage() {
       brideName: inv.brideName || '',
       groomParents: inv.groomParents || '',
       brideParents: inv.brideParents || '',
+      groomImage: (inv as any).groomImage || '',
+      brideImage: (inv as any).brideImage || '',
+      groomBio: (inv as any).groomBio || '',
+      brideBio: (inv as any).brideBio || '',
       ceremonyDate: inv.ceremonyDate ? new Date(inv.ceremonyDate).toISOString().slice(0, 16) : '',
       ceremonyTimeText: inv.ceremonyTimeText || '',
       venueName: inv.venueName || '',
@@ -1115,19 +1131,22 @@ export default function AdminInvitationsPage() {
               </div>
 
               {/* Cover Image */}
-              <div className="space-y-1.5">
-                <label className="block font-medium text-stone-700">
-                  Ảnh Bìa Thiệp Cưới (Cover Image)
+              <div className="space-y-1.5 p-3 rounded-xl border border-stone-200 bg-stone-50/60">
+                <label className="block font-semibold text-stone-800 text-xs">
+                  1. Ảnh Bìa Thiệp Cưới (Hero Cover)
                 </label>
+                <p className="text-[11px] text-stone-500">
+                  💡 Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì.
+                </p>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     value={editForm.coverImage}
                     onChange={(e) => setEditForm({ ...editForm, coverImage: e.target.value })}
                     placeholder="/uploads/invitations/..."
-                    className="flex-1 h-10 px-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
+                    className="flex-1 h-9 px-3 rounded-lg border border-stone-300 text-xs focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
                   />
-                  <label className="h-10 px-3.5 rounded-xl border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
+                  <label className="h-9 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
                     {isUploadingCover ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C6D46]" />
                     ) : (
@@ -1152,6 +1171,56 @@ export default function AdminInvitationsPage() {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Groom & Bride Portraits */}
+              <div className="p-3 rounded-xl border border-stone-200 bg-stone-50/60 space-y-3">
+                <div>
+                  <label className="block font-semibold text-stone-800 text-xs">
+                    2. Ảnh Chân Dung Chú Rể & Cô Dâu (Thứ tự: Chú Rể → Cô Dâu)
+                  </label>
+                  <p className="text-[11px] text-stone-500">
+                    💡 Hiển thị ngay sau thông tin hai họ. Tỷ lệ dọc 3:4.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                    <span className="text-[11px] font-semibold text-[#8C6D46]">① Chân Dung Chú Rể (The Groom)</span>
+                    <input
+                      type="text"
+                      value={editForm.groomImage}
+                      onChange={(e) => setEditForm({ ...editForm, groomImage: e.target.value })}
+                      placeholder="URL ảnh chú rể..."
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={editForm.groomBio}
+                      onChange={(e) => setEditForm({ ...editForm, groomBio: e.target.value })}
+                      placeholder="Lời giới thiệu Chú Rể (Bio)..."
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                  </div>
+
+                  <div className="p-2.5 rounded-lg border border-stone-200 bg-white space-y-2">
+                    <span className="text-[11px] font-semibold text-[#8C6D46]">② Chân Dung Cô Dâu (The Bride)</span>
+                    <input
+                      type="text"
+                      value={editForm.brideImage}
+                      onChange={(e) => setEditForm({ ...editForm, brideImage: e.target.value })}
+                      placeholder="URL ảnh cô dâu..."
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={editForm.brideBio}
+                      onChange={(e) => setEditForm({ ...editForm, brideBio: e.target.value })}
+                      placeholder="Lời giới thiệu Cô Dâu (Bio)..."
+                      className="w-full h-8 px-2.5 rounded-md border border-stone-300 text-xs"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Visual Gallery Image Manager */}

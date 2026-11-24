@@ -62,6 +62,10 @@ export default function EditWeddingInvitationPage() {
   const [brideName, setBrideName] = useState<string>('');
   const [groomParents, setGroomParents] = useState<string>('');
   const [brideParents, setBrideParents] = useState<string>('');
+  const [groomImage, setGroomImage] = useState<string>('');
+  const [brideImage, setBrideImage] = useState<string>('');
+  const [groomBio, setGroomBio] = useState<string>('');
+  const [brideBio, setBrideBio] = useState<string>('');
   const [ceremonyDate, setCeremonyDate] = useState<string>('');
   const [ceremonyTimeText, setCeremonyTimeText] = useState<string>('');
   const [venueName, setVenueName] = useState<string>('');
@@ -109,6 +113,10 @@ export default function EditWeddingInvitationPage() {
         setBrideName(inv.brideName || '');
         setGroomParents(inv.groomParents || '');
         setBrideParents(inv.brideParents || '');
+        setGroomImage(inv.groomImage || '');
+        setBrideImage(inv.brideImage || '');
+        setGroomBio(inv.groomBio || '');
+        setBrideBio(inv.brideBio || '');
         setCeremonyDate(
           inv.ceremonyDate
             ? new Date(inv.ceremonyDate).toISOString().slice(0, 16)
@@ -271,6 +279,10 @@ export default function EditWeddingInvitationPage() {
         brideName,
         groomParents,
         brideParents,
+        groomImage,
+        brideImage,
+        groomBio,
+        brideBio,
         ceremonyDate,
         ceremonyTimeText,
         venueName,
@@ -316,6 +328,10 @@ export default function EditWeddingInvitationPage() {
     brideName: brideName || 'Tên Cô Dâu',
     groomParents,
     brideParents,
+    groomImage,
+    brideImage,
+    groomBio,
+    brideBio,
     ceremonyDate: ceremonyDate || new Date().toISOString(),
     ceremonyTimeText: ceremonyTimeText || '11:00 — Chủ Nhật, 20.12.2026',
     venueName: venueName || 'White Palace',
@@ -765,19 +781,30 @@ export default function EditWeddingInvitationPage() {
 
             {/* STEP 3: IMAGES & GALLERY */}
             {currentStep === 3 && (
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200/90 shadow-2xs space-y-6 text-xs">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200/90 shadow-2xs space-y-8 text-xs">
                 <div>
-                  <h3 className="font-serif text-lg text-stone-900">Ảnh Bìa & Album Kỷ Niệm</h3>
+                  <h3 className="font-serif text-lg text-stone-900">Thiết Lập Hình Ảnh Thiệp Cưới</h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Ảnh tải lên được lưu tại <code>/uploads/invitations/{slug}/</code> và tự động nén chuẩn WebP 1600px
+                    Ảnh tải lên được lưu tại <code>/uploads/invitations/{slug}/</code> và tự động nén chuẩn WebP sắc nét.
                   </p>
                 </div>
 
-                {/* Cover Image Upload */}
-                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-stone-800">Ảnh Bìa Thiệp Cưới (Cover)</span>
-                    <label className="px-3 py-1.5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 1: ẢNH BÌA MỞ ĐẦU THIỆP (HERO COVER)                     */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                        <span className="font-semibold text-stone-800 text-sm">Ảnh Bìa Mở Đầu Thiệp (Hero Cover)</span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 mt-1 leading-relaxed">
+                        💡 <strong>Mục đích:</strong> Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì. Khuyến nghị dùng ảnh chụp chung rõ mặt của hai bạn.
+                      </p>
+                    </div>
+
+                    <label className="px-3 py-1.5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-[11px] font-medium flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
                       <Camera className="w-3.5 h-3.5" />
                       <span>{isUploading ? 'Đang tải...' : 'Đổi Ảnh Bìa Mới'}</span>
                       <input
@@ -791,7 +818,7 @@ export default function EditWeddingInvitationPage() {
                   </div>
 
                   {coverImage && (
-                    <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-stone-200 shadow-xs">
+                    <div className="relative aspect-[16/9] w-full max-w-md mx-auto rounded-xl overflow-hidden border border-stone-200 shadow-xs">
                       <img
                         src={coverImage}
                         alt="Ảnh bìa thiệp cưới"
@@ -801,19 +828,155 @@ export default function EditWeddingInvitationPage() {
                   )}
                 </div>
 
-                {/* Gallery Images List & Upload */}
-                <div className="space-y-3">
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 2: ẢNH CHÂN DUNG GIỚI THIỆU CHÚ RỂ & CÔ DÂU              */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                      <span className="font-semibold text-stone-800 text-sm">
+                        Ảnh Chân Dung Giới Thiệu Chú Rể & Cô Dâu (Hiển thị theo thứ tự Chú Rể → Cô Dâu)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-600 mt-1 leading-relaxed">
+                      💡 <strong>Mục đích:</strong> Hai tấm ảnh này sẽ xuất hiện ở mục giới thiệu nhân vật chính ngay khi khách cuộn xuống dưới phần thông tin hai họ. Nên chọn ảnh đơn chân dung dọc (tỷ lệ 3:4) sáng rõ khuôn mặt từng người.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Chân dung Chú Rể */}
+                    <div className="p-3.5 rounded-xl border border-stone-200 bg-white space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D46]">
+                          ① Chân Dung Chú Rể (The Groom)
+                        </span>
+                        <label className="px-2.5 py-1 rounded-lg border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors">
+                          <Upload className="w-3 h-3" />
+                          <span>{groomImage ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                setIsUploading(true);
+                                const fd = new FormData();
+                                fd.append('file', f);
+                                fd.append('slug', slug);
+                                const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
+                                const d = await res.json();
+                                if (d.image?.url) setGroomImage(d.image.url);
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {groomImage ? (
+                        <div className="relative aspect-[3/4] w-24 mx-auto rounded-lg overflow-hidden border border-stone-200">
+                          <img src={groomImage} alt="Chú Rể" className="w-full h-full object-cover object-[50%_18%]" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] w-24 mx-auto rounded-lg border border-dashed border-stone-300 flex items-center justify-center text-center text-stone-400 text-[10px] p-2">
+                          Chưa có ảnh (sẽ lấy ảnh 1 trong Album)
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                          Lời giới thiệu ngắn về Chú Rể (Bio)
+                        </label>
+                        <input
+                          type="text"
+                          value={groomBio}
+                          onChange={(e) => setGroomBio(e.target.value)}
+                          placeholder="Ví dụ: Trưởng nam • Chàng trai ấm áp..."
+                          className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Chân dung Cô Dâu */}
+                    <div className="p-3.5 rounded-xl border border-stone-200 bg-white space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D46]">
+                          ② Chân Dung Cô Dâu (The Bride)
+                        </span>
+                        <label className="px-2.5 py-1 rounded-lg border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors">
+                          <Upload className="w-3 h-3" />
+                          <span>{brideImage ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                setIsUploading(true);
+                                const fd = new FormData();
+                                fd.append('file', f);
+                                fd.append('slug', slug);
+                                const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
+                                const d = await res.json();
+                                if (d.image?.url) setBrideImage(d.image.url);
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {brideImage ? (
+                        <div className="relative aspect-[3/4] w-24 mx-auto rounded-lg overflow-hidden border border-stone-200">
+                          <img src={brideImage} alt="Cô Dâu" className="w-full h-full object-cover object-[50%_18%]" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] w-24 mx-auto rounded-lg border border-dashed border-stone-300 flex items-center justify-center text-center text-stone-400 text-[10px] p-2">
+                          Chưa có ảnh (sẽ lấy ảnh 2 trong Album)
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                          Lời giới thiệu ngắn về Cô Dâu (Bio)
+                        </label>
+                        <input
+                          type="text"
+                          value={brideBio}
+                          onChange={(e) => setBrideBio(e.target.value)}
+                          placeholder="Ví dụ: Út nữ • Cô gái dịu dàng..."
+                          className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 3: BỘ SƯU TẬP ẢNH KỶ NIỆM (ALBUM DƯỚI THIỆP)              */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-semibold text-stone-800">
-                        Album Ảnh Cưới ({galleryImages.length} tác phẩm)
-                      </span>
-                      <p className="text-[11px] text-stone-400">
-                        Khách mời có thể chạm đúp để thả tim từng bức ảnh
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                        <span className="font-semibold text-stone-800 text-sm">
+                          Bộ Sưu Tập Ảnh Kỷ Niệm (Album Dưới Thiệp - {galleryImages.length} ảnh)
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 mt-1">
+                        💡 <strong>Mục đích:</strong> Hiển thị thành lưới tạp chí ở phần dưới cùng của thiệp (tối đa 12 ảnh). Hệ thống tự động nén sắc nét và xếp cân đối cả ảnh dọc lẫn ảnh ngang.
                       </p>
                     </div>
 
-                    <label className="px-3.5 py-1.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors">
+                    <label className="px-3.5 py-1.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
                       <Upload className="w-3.5 h-3.5" />
                       <span>{isUploading ? 'Đang tải...' : '+ Thêm Ảnh Mới'}</span>
                       <input

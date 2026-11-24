@@ -48,6 +48,10 @@ export default function CreateWeddingInvitationPage() {
   const [brideName, setBrideName] = useState<string>('Thanh Thảo');
   const [groomParents, setGroomParents] = useState<string>('Ông: Lê Văn Minh\nBà: Nguyễn Thị Hoa');
   const [brideParents, setBrideParents] = useState<string>('Ông: Trần Văn Thành\nBà: Phạm Thị Mai');
+  const [groomImage, setGroomImage] = useState<string>('');
+  const [brideImage, setBrideImage] = useState<string>('');
+  const [groomBio, setGroomBio] = useState<string>('Trưởng nam • Chàng trai ấm áp luôn giữ trọn lời hứa');
+  const [brideBio, setBrideBio] = useState<string>('Út nữ • Cô gái dịu dàng mang nụ cười tỏa nắng');
   const [ceremonyDate, setCeremonyDate] = useState<string>('2026-12-20T11:00');
   const [ceremonyTimeText, setCeremonyTimeText] = useState<string>('11:00 — Chủ Nhật, 20.12.2026');
   const [venueName, setVenueName] = useState<string>('White Palace Hoàng Văn Thụ');
@@ -207,6 +211,10 @@ export default function CreateWeddingInvitationPage() {
         brideName,
         groomParents,
         brideParents,
+        groomImage,
+        brideImage,
+        groomBio,
+        brideBio,
         ceremonyDate,
         ceremonyTimeText,
         venueName,
@@ -259,6 +267,10 @@ export default function CreateWeddingInvitationPage() {
     brideName: brideName || 'Cô Dâu',
     groomParents,
     brideParents,
+    groomImage,
+    brideImage,
+    groomBio,
+    brideBio,
     ceremonyDate,
     ceremonyTimeText,
     venueName: venueName || 'Địa điểm tổ chức hôn lễ',
@@ -696,105 +708,295 @@ export default function CreateWeddingInvitationPage() {
 
             {/* STEP 3: WEDDING PHOTOS */}
             {currentStep === 3 && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
                   <h3 className="text-lg font-serif text-stone-900 mb-1">
-                    Bước 3: Tải Ảnh Cưới & Sắp Xếp Bộ Sưu Tập
+                    Bước 3: Tải Ảnh Cưới & Thiết Lập Hình Ảnh
                   </h3>
                   <p className="text-xs text-stone-500">
-                    Tải lên tối đa 12 ảnh cưới đẹp nhất. Hệ thống tự động nén WebP giữ nguyên tỷ lệ dọc/ngang không vỡ nét.
+                    Phân định rõ ràng từng vị trí ảnh để thiệp cưới hiển thị hoàn hảo nhất trên mọi dòng điện thoại.
                   </p>
                 </div>
 
-                {/* Upload Button */}
-                <div className="p-6 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50/70 text-center">
-                  <Camera className="w-8 h-8 text-[#8C6D46] mx-auto mb-2" />
-                  <div className="text-xs font-medium text-stone-800">
-                    Kéo thả hoặc bấm để tải ảnh cưới lên
-                  </div>
-                  <div className="text-[11px] text-stone-500 mt-1 mb-4">
-                    Hỗ trợ JPG, PNG, WebP (Tối đa 15MB/ảnh, tự động nén WebP 85%)
-                  </div>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, false)}
-                    className="hidden"
-                  />
-
-                  <button
-                    type="button"
-                    disabled={isUploading}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-2 disabled:opacity-50"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>{isUploading ? 'Đang Xử Lý & Nén Ảnh...' : 'Tải Ảnh Cưới Lên'}</span>
-                  </button>
-                </div>
-
-                {/* Gallery List Preview */}
-                <div>
-                  <div className="text-xs font-semibold text-stone-800 uppercase tracking-wider mb-3">
-                    Ảnh Đã Chọn ({galleryImages.length})
-                  </div>
-
-                  {galleryImages.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-stone-400">
-                      Chưa có ảnh nào được thêm vào thiệp.
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 1: ẢNH BÌA MỞ ĐẦU THIỆP (HERO COVER)                     */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-5 sm:p-6 rounded-2xl border border-stone-200 bg-white space-y-4 shadow-2xs">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                        <h4 className="text-sm font-semibold text-stone-900">
+                          Ảnh Bìa Mở Đầu Thiệp (Hero Cover)
+                        </h4>
+                      </div>
+                      <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                        💡 <strong>Mục đích:</strong> Hiển thị toàn màn hình ngay đầu thiệp khi khách mở phong bì. Khuyến nghị dùng ảnh chụp chung rõ mặt của hai bạn.
+                      </p>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {galleryImages.map((img, index) => (
-                        <div
-                          key={img.id || index}
-                          className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-square"
-                        >
-                          <img
-                            src={img.url}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
 
-                          {/* Cover badge */}
-                          {coverImage === img.url && (
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#8C6D46] text-white text-[10px] font-semibold tracking-wider uppercase shadow-xs">
-                              Ảnh Bìa
-                            </span>
-                          )}
+                    <label className="px-3.5 py-1.5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-[11px] font-medium flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors shadow-2xs">
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>{isUploading ? 'Đang tải...' : 'Đổi Ảnh Bìa'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, true)}
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
 
-                          {/* Orientation badge */}
-                          <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px] uppercase">
-                            {img.orientation === 'portrait' ? 'Khung Dọc' : 'Khung Ngang'}
-                          </span>
-
-                          {/* Hover Actions */}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
-                            <button
-                              type="button"
-                              onClick={() => setCoverImage(img.url)}
-                              className="text-[10px] font-medium px-2 py-1 rounded bg-white text-stone-800 shadow-xs hover:bg-stone-100"
-                            >
-                              Đặt Làm Bìa
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setGalleryImages(galleryImages.filter((_, i) => i !== index))
-                              }
-                              className="text-[10px] font-medium px-2 py-1 rounded bg-red-600 text-white shadow-xs hover:bg-red-700 flex items-center gap-1"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                              <span>Xóa</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                  {coverImage && (
+                    <div className="relative aspect-[16/9] w-full max-w-md mx-auto rounded-xl overflow-hidden border border-stone-200 shadow-xs">
+                      <img
+                        src={coverImage}
+                        alt="Ảnh bìa thiệp cưới"
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-[#1C1917]/80 text-[#E5C585] text-[10px] font-mono tracking-wider uppercase">
+                        Hero Cover Đang Dùng
+                      </span>
                     </div>
                   )}
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 2: ẢNH CHÂN DUNG GIỚI THIỆU CHÚ RỂ & CÔ DÂU              */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-5 sm:p-6 rounded-2xl border border-stone-200 bg-white space-y-5 shadow-2xs">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                      <h4 className="text-sm font-semibold text-stone-900">
+                        Ảnh Chân Dung Giới Thiệu Chú Rể & Cô Dâu (Hiển thị theo thứ tự Chú Rể → Cô Dâu)
+                      </h4>
+                    </div>
+                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                      💡 <strong>Mục đích:</strong> Hai tấm ảnh này sẽ xuất hiện ở mục giới thiệu nhân vật chính ngay khi khách cuộn xuống dưới phần thông tin hai họ. Nên chọn ảnh đơn chân dung dọc (tỷ lệ 3:4) sáng rõ khuôn mặt từng người.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Ô 1: Chân dung Chú Rể */}
+                    <div className="p-4 rounded-xl border border-stone-200/90 bg-stone-50/60 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D46]">
+                          ① Chân Dung Chú Rể (The Groom)
+                        </span>
+                        <label className="px-3 py-1 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                          <Upload className="w-3 h-3" />
+                          <span>{groomImage ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                setIsUploading(true);
+                                const fd = new FormData();
+                                fd.append('file', f);
+                                const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
+                                const d = await res.json();
+                                if (d.image?.url) setGroomImage(d.image.url);
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {groomImage ? (
+                        <div className="relative aspect-[3/4] w-28 mx-auto rounded-xl overflow-hidden border border-stone-200 shadow-xs">
+                          <img src={groomImage} alt="Chú Rể" className="w-full h-full object-cover object-[50%_18%]" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] w-28 mx-auto rounded-xl border border-dashed border-stone-300 flex flex-col items-center justify-center p-2 text-center text-stone-400 text-[10px]">
+                          <span>Chưa có ảnh (sẽ lấy ảnh 1 trong Album)</span>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                          Lời giới thiệu ngắn về Chú Rể (Bio)
+                        </label>
+                        <input
+                          type="text"
+                          value={groomBio}
+                          onChange={(e) => setGroomBio(e.target.value)}
+                          placeholder="Ví dụ: Trưởng nam • Chàng trai ấm áp luôn giữ trọn lời hứa"
+                          className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Ô 2: Chân dung Cô Dâu */}
+                    <div className="p-4 rounded-xl border border-stone-200/90 bg-stone-50/60 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[#8C6D46]">
+                          ② Chân Dung Cô Dâu (The Bride)
+                        </span>
+                        <label className="px-3 py-1 rounded-lg border border-stone-300 bg-white hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors shadow-2xs">
+                          <Upload className="w-3 h-3" />
+                          <span>{brideImage ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                setIsUploading(true);
+                                const fd = new FormData();
+                                fd.append('file', f);
+                                const res = await fetch('/api/invitations/upload', { method: 'POST', body: fd });
+                                const d = await res.json();
+                                if (d.image?.url) setBrideImage(d.image.url);
+                              } finally {
+                                setIsUploading(false);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {brideImage ? (
+                        <div className="relative aspect-[3/4] w-28 mx-auto rounded-xl overflow-hidden border border-stone-200 shadow-xs">
+                          <img src={brideImage} alt="Cô Dâu" className="w-full h-full object-cover object-[50%_18%]" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] w-28 mx-auto rounded-xl border border-dashed border-stone-300 flex flex-col items-center justify-center p-2 text-center text-stone-400 text-[10px]">
+                          <span>Chưa có ảnh (sẽ lấy ảnh 2 trong Album)</span>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                          Lời giới thiệu ngắn về Cô Dâu (Bio)
+                        </label>
+                        <input
+                          type="text"
+                          value={brideBio}
+                          onChange={(e) => setBrideBio(e.target.value)}
+                          placeholder="Ví dụ: Út nữ • Cô gái dịu dàng mang nụ cười tỏa nắng"
+                          className="w-full h-9 px-3 rounded-lg border border-stone-300 text-xs focus:ring-1 focus:ring-[#8C6D46] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* NHÓM 3: BỘ SƯU TẬP ẢNH KỶ NIỆM (ALBUM DƯỚI THIỆP)              */}
+                {/* ------------------------------------------------------------- */}
+                <div className="p-5 sm:p-6 rounded-2xl border border-stone-200 bg-white space-y-4 shadow-2xs">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#8C6D46] text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                      <h4 className="text-sm font-semibold text-stone-900">
+                        Bộ Sưu Tập Ảnh Kỷ Niệm (Album Dưới Thiệp)
+                      </h4>
+                    </div>
+                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                      💡 <strong>Mục đích:</strong> Hiển thị thành lưới tạp chí ở phần dưới cùng của thiệp (tối đa 12 ảnh). Hệ thống tự động nén sắc nét và xếp cân đối cả ảnh dọc lẫn ảnh ngang.
+                    </p>
+                  </div>
+
+                  {/* Upload Button */}
+                  <div className="p-6 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50/70 text-center">
+                    <Camera className="w-8 h-8 text-[#8C6D46] mx-auto mb-2" />
+                    <div className="text-xs font-medium text-stone-800">
+                      Kéo thả hoặc bấm để tải ảnh kỷ niệm lên
+                    </div>
+                    <div className="text-[11px] text-stone-500 mt-1 mb-4">
+                      Hỗ trợ JPG, PNG, WebP (Tối đa 15MB/ảnh, tự động nén WebP 85%)
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, false)}
+                      className="hidden"
+                    />
+
+                    <button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="h-10 px-5 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>{isUploading ? 'Đang Xử Lý & Nén Ảnh...' : 'Tải Thêm Ảnh Vào Album'}</span>
+                    </button>
+                  </div>
+
+                  {/* Gallery List Preview */}
+                  <div>
+                    <div className="text-xs font-semibold text-stone-800 uppercase tracking-wider mb-3">
+                      Ảnh Đã Chọn ({galleryImages.length})
+                    </div>
+
+                    {galleryImages.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-stone-400">
+                        Chưa có ảnh nào được thêm vào thiệp.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {galleryImages.map((img, index) => (
+                          <div
+                            key={img.id || index}
+                            className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-square"
+                          >
+                            <img
+                              src={img.url}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+
+                            {/* Cover badge */}
+                            {coverImage === img.url && (
+                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#8C6D46] text-white text-[10px] font-semibold tracking-wider uppercase shadow-xs">
+                                Ảnh Bìa
+                              </span>
+                            )}
+
+                            {/* Orientation badge */}
+                            <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px] uppercase">
+                              {img.orientation === 'portrait' ? 'Khung Dọc' : 'Khung Ngang'}
+                            </span>
+
+                            {/* Hover Actions */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                              <button
+                                type="button"
+                                onClick={() => setCoverImage(img.url)}
+                                className="text-[10px] font-medium px-2 py-1 rounded bg-white text-stone-800 shadow-xs hover:bg-stone-100"
+                              >
+                                Đặt Làm Bìa
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setGalleryImages(galleryImages.filter((_, i) => i !== index))
+                                }
+                                className="text-[10px] font-medium px-2 py-1 rounded bg-red-600 text-white shadow-xs hover:bg-red-700 flex items-center gap-1"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Xóa</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex justify-between pt-4 border-t border-stone-100">

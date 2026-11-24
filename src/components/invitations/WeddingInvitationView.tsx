@@ -33,6 +33,10 @@ export interface InvitationViewData {
   brideName: string;
   groomParents?: string | null;
   brideParents?: string | null;
+  groomImage?: string | null;
+  brideImage?: string | null;
+  groomBio?: string | null;
+  brideBio?: string | null;
   ceremonyDate: string | Date;
   ceremonyTimeText?: string | null;
   venueName: string;
@@ -476,6 +480,114 @@ export function WeddingInvitationView({ data, isPreview = false }: WeddingInvita
             </div>
           </InvitationSectionReveal>
         )}
+
+        {/* ============================================================= */}
+        {/* 3.0 GROOM -> BRIDE PORTRAIT INTRODUCTION SECTION              */}
+        {/* Sequence: THE GROOM first -> THE BRIDE second                 */}
+        {/* ============================================================= */}
+        {(() => {
+          // Backward compatibility fallback: if no dedicated groomImage/brideImage, fall back to galleryImages[0] and galleryImages[1]
+          const effectiveGroomImg = data.groomImage || galleryItems[0]?.url || null;
+          const effectiveBrideImg = data.brideImage || galleryItems[1]?.url || null;
+
+          return (
+            <InvitationSectionReveal delay={180} showGoldDivider>
+              <div className="my-10 text-center">
+                <span className={`text-[11px] font-mono tracking-[0.25em] uppercase font-semibold ${colors.label} block mb-2`}>
+                  ✦ HAI NHÂN VẬT CHÍNH ✦
+                </span>
+                <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
+                  Chú Rể & Cô Dâu
+                </h3>
+
+                {/* 2-Column Responsive Layout: Stacked vertically on Mobile (Groom then Bride), Side-by-side with staggered offset on Desktop */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
+                  {/* 1. THE GROOM (Hiển thị đầu tiên) */}
+                  <div className={`rounded-3xl p-5 sm:p-6 ${colors.cardBg} border ${colors.cardBorder} shadow-sm space-y-4`}>
+                    {effectiveGroomImg ? (
+                      <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md border border-[#C5A059]/25 group">
+                        <ProgressiveImage
+                          src={effectiveGroomImg}
+                          alt={`Chú Rể ${data.groomName}`}
+                          className="w-full h-full"
+                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 768px) 90vw, 360px"
+                        />
+                        <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[#E5C585] text-[10px] uppercase font-mono tracking-widest border border-[#C5A059]/30">
+                          The Groom
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[3/4] rounded-2xl bg-[#8C6D46]/10 border border-dashed border-[#8C6D46]/30 flex flex-col items-center justify-center p-6 text-center">
+                        <Sparkles className="w-8 h-8 text-[#C5A059] mb-2" />
+                        <span className="text-xs uppercase font-mono tracking-wider text-[#8C6D46]">The Groom</span>
+                      </div>
+                    )}
+
+                    <div className="pt-1">
+                      <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#8C6D46] font-semibold mb-1">
+                        Chú Rể
+                      </div>
+                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                        {data.groomName}
+                      </h4>
+                      {data.groomBio ? (
+                        <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                          &ldquo;{data.groomBio}&rdquo;
+                        </p>
+                      ) : (
+                        <p className={`text-xs ${colors.bodyMuted} mt-2 font-light`}>
+                          Chú rể bảnh bao & ấm áp trong ngày trọng đại.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 2. THE BRIDE (Hiển thị ngay tiếp theo, so le nghệ thuật md:mt-10) */}
+                  <div className={`rounded-3xl p-5 sm:p-6 ${colors.cardBg} border ${colors.cardBorder} shadow-sm space-y-4 md:mt-10`}>
+                    {effectiveBrideImg ? (
+                      <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md border border-[#C5A059]/25 group">
+                        <ProgressiveImage
+                          src={effectiveBrideImg}
+                          alt={`Cô Dâu ${data.brideName}`}
+                          className="w-full h-full"
+                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 768px) 90vw, 360px"
+                        />
+                        <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[#E5C585] text-[10px] uppercase font-mono tracking-widest border border-[#C5A059]/30">
+                          The Bride
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[3/4] rounded-2xl bg-[#8C6D46]/10 border border-dashed border-[#8C6D46]/30 flex flex-col items-center justify-center p-6 text-center">
+                        <Sparkles className="w-8 h-8 text-[#C5A059] mb-2" />
+                        <span className="text-xs uppercase font-mono tracking-wider text-[#8C6D46]">The Bride</span>
+                      </div>
+                    )}
+
+                    <div className="pt-1">
+                      <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#8C6D46] font-semibold mb-1">
+                        Cô Dâu
+                      </div>
+                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                        {data.brideName}
+                      </h4>
+                      {data.brideBio ? (
+                        <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                          &ldquo;{data.brideBio}&rdquo;
+                        </p>
+                      ) : (
+                        <p className={`text-xs ${colors.bodyMuted} mt-2 font-light`}>
+                          Cô dâu xinh đẹp & dịu dàng sánh đôi hạnh phúc.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </InvitationSectionReveal>
+          );
+        })()}
 
         {/* Story Text */}
         {data.storyText && (

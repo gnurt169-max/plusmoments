@@ -670,6 +670,10 @@ model WeddingInvitation {
   brideName        String
   groomParents     String?
   brideParents     String?
+  groomImage       String?          // URL ảnh chân dung Chú Rể
+  brideImage       String?          // URL ảnh chân dung Cô Dâu
+  groomBio         String?          // Lời giới thiệu ngắn / danh xưng Chú Rể
+  brideBio         String?          // Lời giới thiệu ngắn / danh xưng Cô Dâu
   ceremonyDate     DateTime
   ceremonyTimeText String?          // Ví dụ "11:00 — Thứ Bảy, 20.12.2026"
   venueName        String
