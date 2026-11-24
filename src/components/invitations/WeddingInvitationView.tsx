@@ -133,43 +133,119 @@ export function WeddingInvitationView({
   const themeColor = data.themeColor || templateConfig.defaultThemeColor;
   const isDarkTemplate = data.templateId === 'cinematic-noir';
 
-  // Explicit WCAG AAA compliant color palette driven strictly by template theme
-  // (Shielded from mobile OS Dark Mode overrides on light ivory cream background)
-  const colors = isDarkTemplate
-    ? {
-        bg: 'bg-[#141210]',
-        text: 'text-[#FAF8F5]',
-        cardBg: 'bg-[#1C1917]',
-        cardBorder: 'border-white/10',
-        title: 'text-[#FAF8F5]',
-        label: 'text-[#E5C585]',
-        body: 'text-[#D6D0C4]',
-        bodyMuted: 'text-[#A8A29E]',
-        divider: 'border-white/10',
-        inputBg: 'bg-[#25221F]',
-        inputBorder: 'border-white/15',
-        inputText: 'text-[#FAF8F5]',
-      }
-    : {
-        bg: 'bg-[#FAF8F5]',
-        text: 'text-[#1C1917]',
-        cardBg: 'bg-white',
-        cardBorder: 'border-stone-200/90',
-        title: 'text-[#1C1917]',
-        label: 'text-[#785932]',
-        body: 'text-[#3F3A36]',
-        bodyMuted: 'text-[#57534E]',
-        divider: 'border-stone-200',
-        inputBg: 'bg-white',
-        inputBorder: 'border-stone-300',
-        inputText: 'text-[#1C1917]',
-      };
+  // 4 distinct template theme configurations
+  const colors = (() => {
+    switch (data.templateId) {
+      case 'cinematic-noir':
+        return {
+          bg: 'bg-[#12100E]',
+          bgHex: '#12100E',
+          text: 'text-[#FAF8F5]',
+          cardBg: 'bg-[#1C1917]',
+          cardBorder: 'border border-white/10 shadow-lg',
+          cardRadius: 'rounded-2xl',
+          title: 'font-serif text-[#FAF8F5] tracking-tight',
+          label: 'text-[#FAF8F5]',
+          body: 'text-[#D6D0C4]',
+          bodyMuted: 'text-[#A8A29E]',
+          divider: 'border-white/10',
+          inputBg: 'bg-[#25221F]',
+          inputBorder: 'border-white/15',
+          inputText: 'text-[#FAF8F5]',
+          styleType: 'noir' as const,
+        };
+      case 'botanical-silk':
+        return {
+          bg: 'bg-[#F2F5F0]',
+          bgHex: '#F2F5F0',
+          text: 'text-[#1E2923]',
+          cardBg: 'bg-white/95',
+          cardBorder: 'border border-[#4A6B53]/25 shadow-xs',
+          cardRadius: 'rounded-[32px]',
+          title: 'font-serif text-[#1E2923]',
+          label: 'text-[#1E2923]',
+          body: 'text-[#2D3E35]',
+          bodyMuted: 'text-[#4A5D52]',
+          divider: 'border-[#4A6B53]/20',
+          inputBg: 'bg-white',
+          inputBorder: 'border-[#4A6B53]/30',
+          inputText: 'text-[#1E2923]',
+          styleType: 'botanical' as const,
+        };
+      case 'minimalist-story':
+        return {
+          bg: 'bg-[#FFFFFF]',
+          bgHex: '#FFFFFF',
+          text: 'text-[#18181B]',
+          cardBg: 'bg-[#FAFAFA]',
+          cardBorder: 'border border-stone-200 shadow-none',
+          cardRadius: 'rounded-lg',
+          title: 'font-serif text-[#18181B] font-light tracking-normal',
+          label: 'text-[#18181B]',
+          body: 'text-[#27272A]',
+          bodyMuted: 'text-[#71717A]',
+          divider: 'border-stone-200',
+          inputBg: 'bg-white',
+          inputBorder: 'border-stone-200',
+          inputText: 'text-[#18181B]',
+          styleType: 'minimalist' as const,
+        };
+      case 'timeless-ivory':
+      default:
+        return {
+          bg: 'bg-[#FAF8F5]',
+          bgHex: '#FAF8F5',
+          text: 'text-[#1C1917]',
+          cardBg: 'bg-white',
+          cardBorder: 'border-2 border-stone-200/90 border-double shadow-xs',
+          cardRadius: 'rounded-3xl',
+          title: 'font-serif text-[#1C1917]',
+          label: 'text-[#785932]',
+          body: 'text-[#3F3A36]',
+          bodyMuted: 'text-[#57534E]',
+          divider: 'border-stone-200',
+          inputBg: 'bg-white',
+          inputBorder: 'border-stone-300',
+          inputText: 'text-[#1C1917]',
+          styleType: 'classic' as const,
+        };
+    }
+  })();
 
   const galleryItems = Array.isArray(data.galleryImages) ? data.galleryImages : [];
 
+  // Content presence flags (Strict Zero-Mock Data Policy)
+  const hasCoupleNames = Boolean(data.groomName?.trim() || data.brideName?.trim());
+  const hasCeremonyTime = Boolean(data.ceremonyTimeText?.trim() || (data.ceremonyDate && String(data.ceremonyDate).trim()));
+  const hasCoverImage = Boolean(data.coverImage && data.coverImage.trim());
+  const hasParents = Boolean(data.groomParents?.trim() || data.brideParents?.trim());
+  const hasGroomBrideIntro = Boolean(
+    data.groomImage?.trim() ||
+    data.brideImage?.trim() ||
+    data.groomBio?.trim() ||
+    data.brideBio?.trim() ||
+    hasCoupleNames
+  );
+  const hasStory = Boolean(data.storyText?.trim());
+  const hasVenue = Boolean(data.venueName?.trim() || data.venueAddress?.trim());
+  const hasBanking = Boolean(data.bankQrImage?.trim() || data.bankInfoText?.trim());
+  const hasGallery = galleryItems.length > 0;
+
+  const hasAnyContent = Boolean(
+    hasCoupleNames ||
+    hasCeremonyTime ||
+    hasCoverImage ||
+    hasParents ||
+    (data.groomImage?.trim() || data.brideImage?.trim() || data.groomBio?.trim() || data.brideBio?.trim()) ||
+    hasStory ||
+    hasVenue ||
+    hasBanking ||
+    hasGallery
+  );
+
   // Monogram initials for 3D Wax Seal (e.g. "T & T" or "M & T")
-  const groomInitial = (data.groomName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || 'M';
-  const brideInitial = (data.brideName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || 'T';
+  const groomInitial = (data.groomName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || '';
+  const brideInitial = (data.brideName || '').trim().split(/\s+/).pop()?.charAt(0).toUpperCase() || '';
 
   // Handle 3D Envelope Opening Sequence (60fps GPU 3-stage choreography)
   const handleOpenEnvelope = () => {
@@ -274,6 +350,10 @@ export function WeddingInvitationView({
       className={`relative ${
         isPreview && !isOpenEnvelope ? 'h-full overflow-hidden' : 'min-h-screen'
       } ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
+      style={{
+        '--inv-accent': themeColor,
+        backgroundColor: colors.bgHex,
+      } as React.CSSProperties}
     >
       {/* ------------------------------------------------------------- */}
       {/* 0. AMBIENT PARTICLES (Luxury Champagne Floating Atmosphere)   */}
@@ -402,7 +482,7 @@ export function WeddingInvitationView({
 
                   {/* Embossed Monogram Initials */}
                   <span className="font-serif font-bold text-sm tracking-widest text-[#2A1D0E] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] select-none">
-                    {groomInitial} & {brideInitial}
+                    {groomInitial || brideInitial ? `${groomInitial} ${groomInitial && brideInitial ? '&' : ''} ${brideInitial}`.trim() : '✦'}
                   </span>
                   <div className="w-6 h-[0.75px] bg-[#6B5224]/50 my-0.5" />
                   <Sparkles className="w-2.5 h-2.5 text-[#2A1D0E]/80" />
@@ -418,35 +498,47 @@ export function WeddingInvitationView({
                 }}
               >
                 {/* Header label */}
-                <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-[#8C6D46] font-medium mb-3">
+                <div
+                  className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase font-medium mb-3"
+                  style={{ color: 'var(--inv-accent)' }}
+                >
                   Trân Trọng Kính Mời
                 </div>
 
-                {/* Couple Names: Groom & Bride balanced with champagne gold '&' */}
-                <h2
-                  className={`font-serif text-2xl sm:text-[26px] font-normal leading-snug tracking-tight ${
-                    isDarkTemplate ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
-                  } mb-2`}
-                >
-                  <span>{data.groomName}</span>
-                  <span className="block my-0.5 text-[#C5A059] italic font-light text-xl">&</span>
-                  <span>{data.brideName}</span>
-                </h2>
+                {/* Couple Names: Groom & Bride balanced with dynamic accent '&' */}
+                {hasCoupleNames && (
+                  <h2
+                    className={`font-serif text-2xl sm:text-[26px] font-normal leading-snug tracking-tight ${
+                      isDarkTemplate ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
+                    } mb-2`}
+                  >
+                    <span>{data.groomName}</span>
+                    {data.groomName && data.brideName && (
+                      <span className="block my-0.5 italic font-light text-xl" style={{ color: 'var(--inv-accent)' }}>&</span>
+                    )}
+                    <span>{data.brideName}</span>
+                  </h2>
+                )}
 
                 {/* Date text */}
-                <div
-                  className={`text-xs ${
-                    isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
-                  } font-serif tracking-widest uppercase mt-2`}
-                >
-                  {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
-                </div>
+                {hasCeremonyTime && (
+                  <div
+                    className={`text-xs ${
+                      isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
+                    } font-serif tracking-widest uppercase mt-2`}
+                  >
+                    {data.ceremonyTimeText || (data.ceremonyDate ? new Date(data.ceremonyDate).toLocaleDateString('vi-VN') : '')}
+                  </div>
+                )}
               </div>
 
               {/* Tap Indicator Hint at Envelope Bottom */}
               <div className="relative z-20 pb-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8C6D46]/10 text-[11px] font-medium text-[#8C6D46] tracking-wider animate-pulse">
-                  <Sparkles className="w-3 h-3 text-[#C5A059]" />
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium tracking-wider animate-pulse"
+                  style={{ backgroundColor: `${themeColor}15`, color: themeColor }}
+                >
+                  <Sparkles className="w-3 h-3" style={{ color: themeColor }} />
                   <span>Chạm vào con dấu để mở thiệp</span>
                 </div>
               </div>
@@ -454,6 +546,56 @@ export function WeddingInvitationView({
           </div>
         </div>
       )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* 1.1 BLANK INVITATION STATE (Zero Mock Data for Live Preview)  */}
+      {/* ------------------------------------------------------------- */}
+      {isPreview && !hasAnyContent ? (
+        <div className="min-h-full py-20 px-4 flex flex-col items-center justify-center text-center">
+          <div
+            className={`w-full max-w-[320px] ${colors.cardBg} ${colors.cardBorder} ${colors.cardRadius} p-7 text-center space-y-4 animate-in fade-in zoom-in-95 duration-300`}
+            style={{ backgroundColor: colors.styleType === 'noir' ? '#1C1917' : undefined }}
+          >
+            <div
+              className="w-14 h-14 rounded-full mx-auto flex items-center justify-center shadow-inner"
+              style={{ backgroundColor: `${themeColor}22`, color: themeColor }}
+            >
+              <Sparkles className="w-6 h-6" />
+            </div>
+
+            <div className="space-y-1">
+              <span
+                className="text-[10px] font-mono uppercase tracking-[0.22em] font-semibold block"
+                style={{ color: themeColor }}
+              >
+                {templateConfig.name}
+              </span>
+              <h3 className={`text-xl ${colors.title}`}>
+                {templateConfig.subtitle}
+              </h3>
+            </div>
+
+            <div className="w-12 h-0.5 mx-auto rounded-full" style={{ backgroundColor: themeColor }} />
+
+            <p className={`text-xs ${colors.bodyMuted} leading-relaxed`}>
+              Bắt đầu nhập thông tin cưới ở cột bên trái để xem thiệp của bạn hiện lên tại đây.
+            </p>
+
+            <div
+              className="pt-2 text-[11px] font-mono flex items-center justify-center gap-1.5"
+              style={{ color: themeColor }}
+            >
+              <span>Điểm nhấn:</span>
+              <span
+                className="w-3.5 h-3.5 rounded-full inline-block border border-black/10 shadow-2xs"
+                style={{ backgroundColor: themeColor }}
+              />
+              <span className="uppercase font-semibold">{themeColor}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
 
       {/* ------------------------------------------------------------- */}
       {/* 1.1 SPINNING VINYL DISC MUSIC PLAYER (Floating Bottom Right)  */}
@@ -478,8 +620,14 @@ export function WeddingInvitationView({
             />
           </div>
         ) : (
-          <div className="w-full h-full bg-[#EFECE6] flex items-center justify-center text-stone-400">
-            <span>Ảnh bìa hôn lễ</span>
+          <div
+            className="w-full h-full flex flex-col items-center justify-center p-6 text-center"
+            style={{ backgroundColor: colors.styleType === 'noir' ? '#181614' : undefined }}
+          >
+            <Sparkles className="w-8 h-8 mb-3 opacity-60" style={{ color: 'var(--inv-accent)' }} />
+            <span className="text-xs uppercase font-mono tracking-widest opacity-60">
+              {templateConfig.name} • Save The Date
+            </span>
           </div>
         )}
 
@@ -487,24 +635,35 @@ export function WeddingInvitationView({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 flex flex-col items-center justify-end text-center p-6 pb-16 text-white">
           {/* Masked Subtitle */}
           <div className="overflow-hidden mb-2">
-            <span className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase text-amber-200 font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+            <span
+              className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+              style={{ color: 'var(--inv-accent)' }}
+            >
               Save The Date
             </span>
           </div>
 
           {/* Masked Couple Title */}
-          <div className="overflow-hidden mb-3">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.75)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
-              {data.groomName} <span className="font-light italic text-[#E5C158]">&</span> {data.brideName}
-            </h1>
-          </div>
+          {hasCoupleNames && (
+            <div className="overflow-hidden mb-3">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.75)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
+                {data.groomName}{' '}
+                {data.groomName && data.brideName && (
+                  <span className="font-light italic" style={{ color: 'var(--inv-accent)' }}>&</span>
+                )}{' '}
+                {data.brideName}
+              </h1>
+            </div>
+          )}
 
           {/* Masked Ceremony Date */}
-          <div className="overflow-hidden mb-6">
-            <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
-              {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
-            </p>
-          </div>
+          {hasCeremonyTime && (
+            <div className="overflow-hidden mb-6">
+              <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
+                {data.ceremonyTimeText || (data.ceremonyDate ? new Date(data.ceremonyDate).toLocaleDateString('vi-VN') : '')}
+              </p>
+            </div>
+          )}
 
           <ChevronDown className="w-6 h-6 text-white/80 animate-bounce" />
         </div>
@@ -515,7 +674,10 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       <section className="max-w-2xl mx-auto px-6 py-16 text-center">
         <InvitationSectionReveal showGoldDivider>
-          <div className={`text-[11px] font-mono tracking-[0.2em] uppercase font-semibold ${colors.label} mb-3`}>
+          <div
+            className="text-[11px] font-mono tracking-[0.2em] uppercase font-semibold mb-3"
+            style={{ color: 'var(--inv-accent)' }}
+          >
             Trân Trọng Kính Mời
           </div>
 
@@ -525,25 +687,35 @@ export function WeddingInvitationView({
         </InvitationSectionReveal>
 
         {/* Parents Names with Reveal */}
-        {(data.groomParents || data.brideParents) && (
+        {hasParents && (
           <InvitationSectionReveal delay={150}>
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 py-6 border-y ${colors.divider} text-xs sm:text-sm leading-relaxed`}>
-              <div>
-                <div className={`font-serif font-bold text-xs uppercase tracking-wider mb-1 ${colors.label}`}>
-                  Nhà Trai
+              {data.groomParents?.trim() && (
+                <div>
+                  <div
+                    className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
+                    style={{ color: 'var(--inv-accent)' }}
+                  >
+                    Nhà Trai
+                  </div>
+                  <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
+                    {data.groomParents}
+                  </div>
                 </div>
-                <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
-                  {data.groomParents || 'Ông Bà Thân Sinh'}
+              )}
+              {data.brideParents?.trim() && (
+                <div>
+                  <div
+                    className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
+                    style={{ color: 'var(--inv-accent)' }}
+                  >
+                    Nhà Gái
+                  </div>
+                  <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
+                    {data.brideParents}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className={`font-serif font-bold text-xs uppercase tracking-wider mb-1 ${colors.label}`}>
-                  Nhà Gái
-                </div>
-                <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
-                  {data.brideParents || 'Ông Bà Thân Sinh'}
-                </div>
-              </div>
+              )}
             </div>
           </InvitationSectionReveal>
         )}
@@ -552,102 +724,108 @@ export function WeddingInvitationView({
         {/* 3.0 GROOM -> BRIDE PORTRAIT INTRODUCTION SECTION              */}
         {/* Sequence: THE GROOM first -> THE BRIDE second                 */}
         {/* ============================================================= */}
-        {(() => {
-          // Backward compatibility fallback: if no dedicated groomImage/brideImage, fall back to galleryImages[0] and galleryImages[1]
-          const effectiveGroomImg = data.groomImage || galleryItems[0]?.url || null;
-          const effectiveBrideImg = data.brideImage || galleryItems[1]?.url || null;
+        {hasGroomBrideIntro && (() => {
+          const effectiveGroomImg = data.groomImage || null;
+          const effectiveBrideImg = data.brideImage || null;
 
           return (
             <InvitationSectionReveal delay={180} showGoldDivider>
               <div className="my-10 text-center">
-                <span className={`text-[11px] font-mono tracking-[0.25em] uppercase font-semibold ${colors.label} block mb-2`}>
+                <span
+                  className="text-[11px] font-mono tracking-[0.25em] uppercase font-semibold block mb-2"
+                  style={{ color: 'var(--inv-accent)' }}
+                >
                   ✦ HAI NHÂN VẬT CHÍNH ✦
                 </span>
                 <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
                   Chú Rể & Cô Dâu
                 </h3>
 
-                {/* 2-Column Responsive Layout: Stacked vertically on Mobile (Groom then Bride), Side-by-side with staggered offset on Desktop */}
+                {/* 2-Column Responsive Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
-                  {/* 1. THE GROOM (Hiển thị đầu tiên) */}
-                  <div className={`rounded-3xl p-5 sm:p-6 ${colors.cardBg} border ${colors.cardBorder} shadow-sm space-y-4`}>
+                  {/* 1. THE GROOM */}
+                  <div className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4`}>
                     {effectiveGroomImg ? (
-                      <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md border border-[#C5A059]/25 group">
+                      <div
+                        className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border`}
+                        style={{ borderColor: 'var(--inv-accent)' }}
+                      >
                         <ProgressiveImage
                           src={effectiveGroomImg}
-                          alt={`Chú Rể ${data.groomName}`}
+                          alt={`Chú Rể ${data.groomName || ''}`}
                           className="w-full h-full"
-                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover:scale-105"
+                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 hover:scale-105"
                           sizes="(max-width: 768px) 90vw, 360px"
                         />
-                        <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[#E5C585] text-[10px] uppercase font-mono tracking-widest border border-[#C5A059]/30">
+                        <div
+                          className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
+                          style={{ color: 'var(--inv-accent)' }}
+                        >
                           The Groom
                         </div>
                       </div>
-                    ) : (
-                      <div className="w-full aspect-[3/4] rounded-2xl bg-[#8C6D46]/10 border border-dashed border-[#8C6D46]/30 flex flex-col items-center justify-center p-6 text-center">
-                        <Sparkles className="w-8 h-8 text-[#C5A059] mb-2" />
-                        <span className="text-xs uppercase font-mono tracking-wider text-[#8C6D46]">The Groom</span>
-                      </div>
-                    )}
+                    ) : null}
 
                     <div className="pt-1">
-                      <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#8C6D46] font-semibold mb-1">
+                      <div
+                        className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                        style={{ color: 'var(--inv-accent)' }}
+                      >
                         Chú Rể
                       </div>
-                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                        {data.groomName}
-                      </h4>
+                      {data.groomName && (
+                        <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                          {data.groomName}
+                        </h4>
+                      )}
                       {data.groomBio ? (
                         <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
                           &ldquo;{data.groomBio}&rdquo;
                         </p>
-                      ) : (
-                        <p className={`text-xs ${colors.bodyMuted} mt-2 font-light`}>
-                          Chú rể bảnh bao & ấm áp trong ngày trọng đại.
-                        </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
 
-                  {/* 2. THE BRIDE (Hiển thị ngay tiếp theo, so le nghệ thuật md:mt-10) */}
-                  <div className={`rounded-3xl p-5 sm:p-6 ${colors.cardBg} border ${colors.cardBorder} shadow-sm space-y-4 md:mt-10`}>
+                  {/* 2. THE BRIDE */}
+                  <div className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 md:mt-10`}>
                     {effectiveBrideImg ? (
-                      <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-md border border-[#C5A059]/25 group">
+                      <div
+                        className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border`}
+                        style={{ borderColor: 'var(--inv-accent)' }}
+                      >
                         <ProgressiveImage
                           src={effectiveBrideImg}
-                          alt={`Cô Dâu ${data.brideName}`}
+                          alt={`Cô Dâu ${data.brideName || ''}`}
                           className="w-full h-full"
-                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover:scale-105"
+                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 hover:scale-105"
                           sizes="(max-width: 768px) 90vw, 360px"
                         />
-                        <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[#E5C585] text-[10px] uppercase font-mono tracking-widest border border-[#C5A059]/30">
+                        <div
+                          className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
+                          style={{ color: 'var(--inv-accent)' }}
+                        >
                           The Bride
                         </div>
                       </div>
-                    ) : (
-                      <div className="w-full aspect-[3/4] rounded-2xl bg-[#8C6D46]/10 border border-dashed border-[#8C6D46]/30 flex flex-col items-center justify-center p-6 text-center">
-                        <Sparkles className="w-8 h-8 text-[#C5A059] mb-2" />
-                        <span className="text-xs uppercase font-mono tracking-wider text-[#8C6D46]">The Bride</span>
-                      </div>
-                    )}
+                    ) : null}
 
                     <div className="pt-1">
-                      <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#8C6D46] font-semibold mb-1">
+                      <div
+                        className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                        style={{ color: 'var(--inv-accent)' }}
+                      >
                         Cô Dâu
                       </div>
-                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                        {data.brideName}
-                      </h4>
+                      {data.brideName && (
+                        <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                          {data.brideName}
+                        </h4>
+                      )}
                       {data.brideBio ? (
                         <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
                           &ldquo;{data.brideBio}&rdquo;
                         </p>
-                      ) : (
-                        <p className={`text-xs ${colors.bodyMuted} mt-2 font-light`}>
-                          Cô dâu xinh đẹp & dịu dàng sánh đôi hạnh phúc.
-                        </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -657,7 +835,7 @@ export function WeddingInvitationView({
         })()}
 
         {/* Story Text */}
-        {data.storyText && (
+        {hasStory && (
           <InvitationSectionReveal delay={200} showGoldDivider>
             <div className="my-10 px-4">
               {data.storyTitle && (
@@ -672,47 +850,61 @@ export function WeddingInvitationView({
           </InvitationSectionReveal>
         )}
 
-        {/* 3.1 SVG HAND-DRAWN HEART CALENDAR */}
-        <InvitationSectionReveal delay={250}>
-          <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} isDark={isDarkTemplate} />
-        </InvitationSectionReveal>
+        {/* 3.1 SVG HAND-DRAWN HEART CALENDAR & COUNTDOWN */}
+        {Boolean(data.ceremonyDate && String(data.ceremonyDate).trim()) && (
+          <>
+            <InvitationSectionReveal delay={250}>
+              <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} isDark={isDarkTemplate} />
+            </InvitationSectionReveal>
 
-        {/* 3.2 ANIMATED SLIDING COUNTDOWN TIMER */}
-        <InvitationSectionReveal delay={300}>
-          <AnimatedCountdown ceremonyDate={data.ceremonyDate} isDark={isDarkTemplate} />
-        </InvitationSectionReveal>
+            <InvitationSectionReveal delay={300}>
+              <AnimatedCountdown ceremonyDate={data.ceremonyDate} isDark={isDarkTemplate} />
+            </InvitationSectionReveal>
+          </>
+        )}
 
         {/* Venue Information & Google Maps Button */}
-        <InvitationSectionReveal delay={350}>
-          <div className={`my-10 p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} text-center shadow-xs`}>
-            <Clock className="w-5 h-5 text-[#8C6D46] mx-auto mb-2" />
-            <div className={`font-serif text-lg font-semibold ${colors.title}`}>
-              {data.ceremonyTimeText || new Date(data.ceremonyDate).toLocaleDateString('vi-VN')}
-            </div>
-
-            <div className={`mt-4 pt-4 border-t ${colors.divider}`}>
-              <MapPin className="w-5 h-5 text-[#8C6D46] mx-auto mb-2" />
-              <div className={`font-serif text-lg font-bold ${colors.title}`}>
-                {data.venueName}
-              </div>
-              <div className={`text-sm sm:text-[15px] ${colors.body} mt-1.5 max-w-md mx-auto leading-relaxed`}>
-                {data.venueAddress}
-              </div>
-
-              {data.googleMapsUrl && (
-                <a
-                  href={data.googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-medium tracking-wide uppercase transition-colors shadow-xs"
-                >
-                  <Navigation className="w-3.5 h-3.5" />
-                  <span>Chỉ Đường Google Maps</span>
-                </a>
+        {hasVenue && (
+          <InvitationSectionReveal delay={350}>
+            <div className={`my-10 p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} ${colors.cardBorder} text-center shadow-xs`}>
+              {data.ceremonyTimeText && (
+                <>
+                  <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
+                  <div className={`font-serif text-lg font-semibold ${colors.title}`}>
+                    {data.ceremonyTimeText}
+                  </div>
+                </>
               )}
+
+              <div className={`mt-4 pt-4 border-t ${colors.divider}`}>
+                <MapPin className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
+                {data.venueName && (
+                  <div className={`font-serif text-lg font-bold ${colors.title}`}>
+                    {data.venueName}
+                  </div>
+                )}
+                {data.venueAddress && (
+                  <div className={`text-sm sm:text-[15px] ${colors.body} mt-1.5 max-w-md mx-auto leading-relaxed`}>
+                    {data.venueAddress}
+                  </div>
+                )}
+
+                {data.googleMapsUrl && (
+                  <a
+                    href={data.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full text-white text-xs font-medium tracking-wide uppercase transition-transform hover:scale-105 shadow-xs"
+                    style={{ backgroundColor: 'var(--inv-accent)' }}
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    <span>Chỉ Đường Google Maps</span>
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        </InvitationSectionReveal>
+          </InvitationSectionReveal>
+        )}
       </section>
 
       {/* ------------------------------------------------------------- */}
@@ -750,11 +942,11 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       {/* 5. WEDDING GIFT QR & BANK INFO                                */}
       {/* ------------------------------------------------------------- */}
-      {(data.bankQrImage || data.bankInfoText) && (
+      {hasBanking && (
         <section className="max-w-xl mx-auto px-6 py-12 text-center">
           <InvitationSectionReveal showGoldDivider>
-            <div className={`p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} shadow-xs`}>
-              <QrCode className="w-7 h-7 text-[#8C6D46] mx-auto mb-2" />
+            <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-xs`}>
+              <QrCode className="w-7 h-7 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
               <h4 className={`font-serif text-xl font-semibold ${colors.title}`}>
                 Hộp Mừng Cưới
               </h4>
@@ -765,7 +957,8 @@ export function WeddingInvitationView({
               <button
                 type="button"
                 onClick={() => setShowQrModal(true)}
-                className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full border border-[#8C6D46] text-[#8C6D46] hover:bg-[#8C6D46]/10 text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full border text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-90"
+                style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
               >
                 <QrCode className="w-4 h-4" />
                 <span>Gửi Mừng Cưới Chúc Phúc</span>
@@ -782,7 +975,7 @@ export function WeddingInvitationView({
           onClick={() => setShowQrModal(false)}
         >
           <div
-            className={`w-full max-w-sm ${colors.cardBg} rounded-3xl p-6 text-center shadow-2xl border ${colors.cardBorder}`}
+            className={`w-full max-w-sm ${colors.cardBg} ${colors.cardRadius} p-6 text-center shadow-2xl border ${colors.cardBorder}`}
             onClick={(e) => e.stopPropagation()}
           >
             <h4 className={`font-serif text-lg font-semibold ${colors.title} mb-4`}>
@@ -821,9 +1014,9 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       <section className="max-w-xl mx-auto px-6 py-12">
         <InvitationSectionReveal showGoldDivider>
-          <div className={`p-6 sm:p-8 rounded-3xl ${colors.cardBg} border ${colors.cardBorder} shadow-sm`}>
+          <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-sm`}>
             <div className="text-center mb-6">
-              <Heart className="w-6 h-6 text-[#8C6D46] mx-auto mb-2 fill-[#8C6D46]/20" />
+              <Heart className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--inv-accent)', fill: `${themeColor}25` }} />
               <h3 className={`font-serif text-2xl font-semibold ${colors.title}`}>
                 Xác Nhận Tham Dự & Lời Chúc
               </h3>
@@ -850,7 +1043,8 @@ export function WeddingInvitationView({
                     required
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
+                    className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2`}
+                    style={{ outlineColor: 'var(--inv-accent)' }}
                   />
                 </div>
 
@@ -862,7 +1056,7 @@ export function WeddingInvitationView({
                     <select
                       value={attendance}
                       onChange={(e: any) => setAttendance(e.target.value)}
-                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
+                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
                     >
                       <option value="ATTENDING">Sẽ tham dự</option>
                       <option value="DECLINED">Rất tiếc không thể đến</option>
@@ -877,7 +1071,7 @@ export function WeddingInvitationView({
                       value={guestCount}
                       disabled={attendance === 'DECLINED'}
                       onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46] disabled:opacity-50`}
+                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none disabled:opacity-50`}
                     >
                       <option value={1}>1 người</option>
                       <option value={2}>2 người</option>
@@ -897,9 +1091,10 @@ export function WeddingInvitationView({
                       onClick={() => setSide('GROOM')}
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'GROOM'
-                          ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
+                          ? 'text-white'
                           : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
+                      style={side === 'GROOM' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
                     >
                       Nhà Trai
                     </button>
@@ -908,9 +1103,10 @@ export function WeddingInvitationView({
                       onClick={() => setSide('BRIDE')}
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'BRIDE'
-                          ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
+                          ? 'text-white'
                           : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
+                      style={side === 'BRIDE' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
                     >
                       Nhà Gái
                     </button>
@@ -919,9 +1115,10 @@ export function WeddingInvitationView({
                       onClick={() => setSide('BOTH')}
                       className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
                         side === 'BOTH'
-                          ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
+                          ? 'text-white'
                           : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
                       }`}
+                      style={side === 'BOTH' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
                     >
                       Cả Hai
                     </button>
@@ -936,14 +1133,15 @@ export function WeddingInvitationView({
                     rows={3}
                     value={wishMessage}
                     onChange={(e) => setWishMessage(e.target.value)}
-                    className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6D46]`}
+                    className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmittingRsvp}
-                  className="w-full h-11 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-xs"
+                  className="w-full h-11 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 shadow-xs"
+                  style={{ backgroundColor: 'var(--inv-accent)' }}
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isSubmittingRsvp ? 'Đang gửi...' : 'Gửi Lời Chúc & Xác Nhận Tham Dự'}</span>
@@ -974,7 +1172,10 @@ export function WeddingInvitationView({
                           <span className="flex items-center gap-1.5">
                             <span>{item.guestName}</span>
                             {isNewlyAdded && (
-                              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono bg-[#8C6D46]/20 text-[#8C6D46]">
+                              <span
+                                className="px-1.5 py-0.2 rounded-full text-[9px] font-mono"
+                                style={{ backgroundColor: `${themeColor}25`, color: 'var(--inv-accent)' }}
+                              >
                                 Vừa gửi
                               </span>
                             )}
@@ -1002,10 +1203,10 @@ export function WeddingInvitationView({
           <div>
             <Link
               href="/thiep-cuoi"
-              className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-600 hover:text-[#8C6D46] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-600 hover:text-stone-900 transition-colors"
             >
               <span>Thiệp cưới được thiết kế trên</span>
-              <span className="font-semibold text-[#8C6D46] underline decoration-[#8C6D46]/40 underline-offset-4 hover:decoration-[#8C6D46]">
+              <span className="font-semibold underline underline-offset-4" style={{ color: 'var(--inv-accent)' }}>
                 PlusMoments
               </span>
             </Link>
@@ -1014,7 +1215,7 @@ export function WeddingInvitationView({
             <button
               type="button"
               onClick={() => setIsPinModalOpen(true)}
-              className="text-[11px] tracking-wide text-[#78716C] hover:text-[#8C6D46] transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline underline-offset-2 py-1"
+              className="text-[11px] tracking-wide text-[#78716C] hover:text-stone-900 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline underline-offset-2 py-1"
             >
               <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
             </button>
@@ -1024,15 +1225,18 @@ export function WeddingInvitationView({
 
       {/* 2. CURATED SERVICE PACKAGES SHOWCASE AT BOTTOM OF INVITATION PAGE */}
       {servicePackages && servicePackages.length > 0 && (
-        <section className="border-t border-[#E5DFD5] bg-[#F6F2EB]/70 pt-10 pb-28 px-4 sm:px-6 mt-6">
+        <section className={`border-t ${colors.divider} ${colors.styleType === 'noir' ? 'bg-[#151311]' : 'bg-[#F6F2EB]/70'} pt-10 pb-28 px-4 sm:px-6 mt-6`}>
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8C6D46] font-semibold block mb-1">
+            <span
+              className="text-[10px] uppercase tracking-[0.22em] font-semibold block mb-1"
+              style={{ color: 'var(--inv-accent)' }}
+            >
               ✦ DÀNH CHO KHÁCH MỜI SẮP CƯỚI ✦
             </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1C1917] tracking-tight leading-snug">
+            <h3 className={`font-serif text-2xl sm:text-3xl font-normal ${colors.title} tracking-tight leading-snug`}>
               Các Gói Chụp Ảnh & Phim Cưới Trọn Gói
             </h3>
-            <p className="text-xs sm:text-sm text-stone-600 mt-2 font-normal max-w-md mx-auto leading-relaxed">
+            <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-2 font-normal max-w-md mx-auto leading-relaxed`}>
               Lưu giữ khoảnh khắc trọng đại của hai bạn cùng đội ngũ nghệ sĩ hình ảnh PlusMoments.
             </p>
 
@@ -1041,7 +1245,7 @@ export function WeddingInvitationView({
               {servicePackages.map((pkg) => (
                 <div
                   key={pkg.id}
-                  className="rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
+                  className={`rounded-2xl border ${colors.cardBorder} ${colors.cardBg} p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group`}
                 >
                   <div className="space-y-3">
                     {/* Package Cover Image aspect-[16/10] */}
@@ -1053,7 +1257,10 @@ export function WeddingInvitationView({
                           className="w-full h-full object-cover object-[50%_20%] group-hover:scale-105 transition-transform duration-500"
                         />
                         {pkg.badgeText && (
-                          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-[#8C6D46] text-white text-[9px] font-bold tracking-wider uppercase shadow-xs">
+                          <span
+                            className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-white text-[9px] font-bold tracking-wider uppercase shadow-xs"
+                            style={{ backgroundColor: 'var(--inv-accent)' }}
+                          >
                             {pkg.badgeText}
                           </span>
                         )}
@@ -1061,11 +1268,11 @@ export function WeddingInvitationView({
                     )}
 
                     <div>
-                      <h4 className="font-serif text-lg font-medium text-[#1C1917] leading-snug">
+                      <h4 className={`font-serif text-lg font-medium ${colors.title} leading-snug`}>
                         {pkg.name}
                       </h4>
                       {pkg.subtitle && (
-                        <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-1">
+                        <p className={`text-[11px] ${colors.bodyMuted} mt-0.5 line-clamp-1`}>
                           {pkg.subtitle}
                         </p>
                       )}
@@ -1073,7 +1280,7 @@ export function WeddingInvitationView({
 
                     {/* Price Tag */}
                     <div className="pt-1 flex items-baseline gap-1.5">
-                      <span className="text-base font-serif font-bold text-[#8C6D46]">
+                      <span className="text-base font-serif font-bold" style={{ color: 'var(--inv-accent)' }}>
                         {pkg.price ? pkg.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ báo giá'}
                       </span>
                       {pkg.unit && (
@@ -1085,10 +1292,10 @@ export function WeddingInvitationView({
 
                     {/* Highlights (2-3 items) */}
                     {pkg.highlightPoints && pkg.highlightPoints.length > 0 && (
-                      <ul className="space-y-1 pt-1 text-[11px] text-stone-600 border-t border-stone-100">
+                      <ul className={`space-y-1 pt-1 text-[11px] ${colors.body} border-t ${colors.divider}`}>
                         {pkg.highlightPoints.slice(0, 3).map((pt, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-[#8C6D46] font-bold">•</span>
+                            <span className="font-bold" style={{ color: 'var(--inv-accent)' }}>•</span>
                             <span className="line-clamp-1">{pt}</span>
                           </li>
                         ))}
@@ -1097,10 +1304,11 @@ export function WeddingInvitationView({
                   </div>
 
                   {/* Actions */}
-                  <div className="pt-4 mt-3 border-t border-stone-100">
+                  <div className={`pt-4 mt-3 border-t ${colors.divider}`}>
                     <Link
                       href="/bang-gia"
-                      className="w-full py-2.5 px-3 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                      className="w-full py-2.5 px-3 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90 shadow-2xs"
+                      style={{ backgroundColor: 'var(--inv-accent)' }}
                     >
                       <span>Xem Chi Tiết Bảng Giá</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1111,17 +1319,20 @@ export function WeddingInvitationView({
             </div>
 
             {/* Secondary CTA: Tự tạo thiệp cưới miễn phí */}
-            <div className="mt-8 pt-6 border-t border-[#E5DFD5]/60 flex flex-wrap items-center justify-center gap-4">
+            <div className={`mt-8 pt-6 border-t ${colors.divider} flex flex-wrap items-center justify-center gap-4`}>
               <Link
                 href="/thiep-cuoi/tao-moi"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#8C6D46] text-[#8C6D46] hover:bg-[#8C6D46] hover:text-white text-xs font-medium uppercase tracking-wider transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-xs font-medium uppercase tracking-wider transition-all"
+                style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--inv-accent)' }} />
                 <span>Tự Tạo Thiệp Cưới Miễn Phí</span>
               </Link>
             </div>
           </div>
         </section>
+      )}
+        </>
       )}
 
       {/* Quick PIN Modal for Couple */}

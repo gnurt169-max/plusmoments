@@ -320,24 +320,24 @@ export default function EditWeddingInvitationPage() {
     }
   };
 
-  // Real-time preview data object
+  // Real-time preview data object (strictly no fake fallbacks)
   const livePreviewData = {
     slug,
     templateId,
     themeColor,
     musicPreset,
-    groomName: groomName || 'Tên Chú Rể',
-    brideName: brideName || 'Tên Cô Dâu',
+    groomName,
+    brideName,
     groomParents,
     brideParents,
     groomImage,
     brideImage,
     groomBio,
     brideBio,
-    ceremonyDate: ceremonyDate || new Date().toISOString(),
-    ceremonyTimeText: ceremonyTimeText || '11:00 — Chủ Nhật, 20.12.2026',
-    venueName: venueName || 'White Palace',
-    venueAddress: venueAddress || '194 Hoàng Văn Thụ, TP.HCM',
+    ceremonyDate,
+    ceremonyTimeText,
+    venueName,
+    venueAddress,
     googleMapsUrl,
     storyTitle,
     storyText,
@@ -345,6 +345,7 @@ export default function EditWeddingInvitationPage() {
     galleryImages,
     bankQrImage,
     bankInfoText,
+    isPublished,
   };
 
   // Screen 1: Loading
@@ -1128,7 +1129,7 @@ export default function EditWeddingInvitationPage() {
               <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-30" />
 
               {/* Screen Viewport with Scroll */}
-              <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-white relative no-scrollbar">
+              <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-transparent relative no-scrollbar">
                 <WeddingInvitationView
                   key={previewKey}
                   data={livePreviewData as any}

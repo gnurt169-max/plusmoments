@@ -81,7 +81,7 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46', isDa
       <div className={`flex items-center justify-center gap-2 mb-2 ${
         isDark ? 'text-stone-400' : 'text-stone-500'
       } text-xs font-mono uppercase tracking-widest`}>
-        <CalendarIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+        <CalendarIcon className="w-3.5 h-3.5" style={{ color: themeColor }} />
         <span>Tháng {month + 1}, {year}</span>
       </div>
 
@@ -125,7 +125,7 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46', isDa
                   <path
                     d="M 50 28 C 50 12, 28 12, 22 24 C 14 38, 30 62, 50 82 C 70 62, 86 38, 78 24 C 72 12, 50 12, 50 28 Z"
                     fill="none"
-                    stroke="#C5A059"
+                    stroke={themeColor || '#C5A059'}
                     strokeWidth="4.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -156,10 +156,13 @@ export function SaveTheDateCalendar({ ceremonyDate, themeColor = '#8C6D46', isDa
       </div>
 
       {/* Caption under calendar */}
-      <div className={`mt-5 pt-4 border-t ${
-        isDark ? 'border-white/10' : 'border-stone-100'
-      } flex items-center justify-center gap-1.5 text-xs text-[#8C6D46] font-serif italic`}>
-        <Heart className="w-3 h-3 fill-[#8C6D46] text-[#8C6D46]" />
+      <div
+        className={`mt-5 pt-4 border-t ${
+          isDark ? 'border-white/10' : 'border-stone-100'
+        } flex items-center justify-center gap-1.5 text-xs font-serif italic`}
+        style={{ color: themeColor }}
+      >
+        <Heart className="w-3 h-3" style={{ fill: themeColor, color: themeColor }} />
         <span>Ngày chúng mình về chung một nhà</span>
       </div>
     </div>

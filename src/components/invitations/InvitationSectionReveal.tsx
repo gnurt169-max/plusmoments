@@ -50,9 +50,12 @@ export function InvitationSectionReveal({
       {showGoldDivider && (
         <div className="w-full flex justify-center mb-6">
           <div
-            className={`h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent transition-all duration-1000 ease-out transform ${
+            className={`h-[1px] transition-all duration-1000 ease-out transform ${
               isVisible ? 'w-24 opacity-80 scale-x-100' : 'w-0 opacity-0 scale-x-0'
             }`}
+            style={{
+              background: 'linear-gradient(90deg, transparent, var(--inv-accent, #C5A059), transparent)',
+            }}
           />
         </div>
       )}

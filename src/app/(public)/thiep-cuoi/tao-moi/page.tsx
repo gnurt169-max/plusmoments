@@ -44,49 +44,30 @@ export default function CreateWeddingInvitationPage() {
   );
   const [musicPreset, setMusicPreset] = useState<string>('romantic-piano');
 
-  // Step 2: Couple & Wedding Info
-  const [groomName, setGroomName] = useState<string>('Minh Trung');
-  const [brideName, setBrideName] = useState<string>('Thanh Thảo');
-  const [groomParents, setGroomParents] = useState<string>('Ông: Lê Văn Minh\nBà: Nguyễn Thị Hoa');
-  const [brideParents, setBrideParents] = useState<string>('Ông: Trần Văn Thành\nBà: Phạm Thị Mai');
+  // Step 2: Couple & Wedding Info (Zero mock data - strictly blank initial state)
+  const [groomName, setGroomName] = useState<string>('');
+  const [brideName, setBrideName] = useState<string>('');
+  const [groomParents, setGroomParents] = useState<string>('');
+  const [brideParents, setBrideParents] = useState<string>('');
   const [groomImage, setGroomImage] = useState<string>('');
   const [brideImage, setBrideImage] = useState<string>('');
-  const [groomBio, setGroomBio] = useState<string>('Trưởng nam • Chàng trai ấm áp luôn giữ trọn lời hứa');
-  const [brideBio, setBrideBio] = useState<string>('Út nữ • Cô gái dịu dàng mang nụ cười tỏa nắng');
-  const [ceremonyDate, setCeremonyDate] = useState<string>('2026-12-20T11:00');
-  const [ceremonyTimeText, setCeremonyTimeText] = useState<string>('11:00 — Chủ Nhật, 20.12.2026');
-  const [venueName, setVenueName] = useState<string>('Trung Tâm Hội Nghị White Palace Hoàng Văn Thụ');
-  const [venueAddress, setVenueAddress] = useState<string>('194 Hoàng Văn Thụ, Phường 9, Quận Phú Nhuận, TP. Hồ Chí Minh');
-  const [googleMapsUrl, setGoogleMapsUrl] = useState<string>('https://www.google.com/maps/search/?api=1&query=White+Palace+194+Ho%C3%A0ng+V%C4%83n+Th%E1%BB%A5+Ph%C3%BA+Nhu%E1%BA%ADn');
-  const [storyTitle, setStoryTitle] = useState<string>('Hành Trình Yêu Thương');
-  const [storyText, setStoryText] = useState<string>(
-    'Từ ánh nhìn đầu tiên vào một chiều thu Hà Nội cho đến lời hẹn ước trăm năm giữa ngàn thông Đà Lạt. Hạnh phúc trọn vẹn nhất là khi chúng mình được nắm tay nhau bước vào lễ đường.'
-  );
+  const [groomBio, setGroomBio] = useState<string>('');
+  const [brideBio, setBrideBio] = useState<string>('');
+  const [ceremonyDate, setCeremonyDate] = useState<string>('');
+  const [ceremonyTimeText, setCeremonyTimeText] = useState<string>('');
+  const [venueName, setVenueName] = useState<string>('');
+  const [venueAddress, setVenueAddress] = useState<string>('');
+  const [googleMapsUrl, setGoogleMapsUrl] = useState<string>('');
+  const [storyTitle, setStoryTitle] = useState<string>('');
+  const [storyText, setStoryText] = useState<string>('');
 
   // Step 3: Images & Gallery
-  const [coverImage, setCoverImage] = useState<string>('/uploads/albums/pre-wedding/phim-truong-da-lat-01.webp');
-  const [galleryImages, setGalleryImages] = useState<InvitationGalleryImage[]>([
-    {
-      id: 'demo-1',
-      url: '/uploads/albums/pre-wedding/phim-truong-da-lat-01.webp',
-      width: 1200,
-      height: 800,
-      orientation: 'landscape',
-      caption: 'Khoảnh khắc hoàng hôn ngập nắng',
-    },
-    {
-      id: 'demo-2',
-      url: '/uploads/albums/pre-wedding/phong-su-cuoi-hcm-01.webp',
-      width: 900,
-      height: 1200,
-      orientation: 'portrait',
-      caption: 'Nụ cười rạng rỡ của nàng dâu',
-    },
-  ]);
+  const [coverImage, setCoverImage] = useState<string>('');
+  const [galleryImages, setGalleryImages] = useState<InvitationGalleryImage[]>([]);
 
   // Step 4: Banking & Gift QR
   const [bankQrImage, setBankQrImage] = useState<string>('');
-  const [bankInfoText, setBankInfoText] = useState<string>('Techcombank: 1903456789012\nChủ TK: LE MINH TRUNG\nNội dung: Mung cuoi Minh Trung & Thanh Thao');
+  const [bankInfoText, setBankInfoText] = useState<string>('');
 
   // Custom Slug & PIN
   const [customSlug, setCustomSlug] = useState<string>('');
@@ -260,13 +241,13 @@ export default function CreateWeddingInvitationPage() {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  // Construct Live Preview Data Object
+  // Construct Live Preview Data Object (Strictly no fake fallbacks)
   const livePreviewData = {
     slug: customSlug || 'preview-wedding',
     templateId,
     themeColor,
-    groomName: groomName || 'Chú Rể',
-    brideName: brideName || 'Cô Dâu',
+    groomName,
+    brideName,
     groomParents,
     brideParents,
     groomImage,
@@ -275,8 +256,8 @@ export default function CreateWeddingInvitationPage() {
     brideBio,
     ceremonyDate,
     ceremonyTimeText,
-    venueName: venueName || 'Địa điểm tổ chức hôn lễ',
-    venueAddress: venueAddress || 'Địa chỉ nhà hàng',
+    venueName,
+    venueAddress,
     googleMapsUrl,
     storyTitle,
     storyText,
@@ -285,17 +266,7 @@ export default function CreateWeddingInvitationPage() {
     musicPreset,
     bankQrImage,
     bankInfoText,
-    rsvps: [
-      {
-        id: 'mock-1',
-        guestName: 'Nguyễn Văn An',
-        attendance: 'ATTENDING',
-        guestCount: 2,
-        side: 'GROOM',
-        wishMessage: 'Chúc hai em trăm năm hạnh phúc, sớm đón quý tử!',
-        createdAt: new Date().toISOString(),
-      },
-    ],
+    rsvps: [],
   };
 
   return (
@@ -312,7 +283,7 @@ export default function CreateWeddingInvitationPage() {
               Thiệp Cưới Đã Xuất Bản Thành Công!
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 mb-6 leading-relaxed">
-              Thiệp cưới điện tử của hai bạn đã sẵn sàng để gửi đến người thân và bạn bè. 
+              Thiệp cưới điện tử của hai bạn đã sẵn sàng để gửi đến người thân và bạn bè.
               Vui lòng lưu lại <strong>Mã PIN 6 số</strong> để chỉnh sửa thiệp sau này.
             </p>
 
@@ -425,11 +396,10 @@ export default function CreateWeddingInvitationPage() {
               key={s.step}
               type="button"
               onClick={() => setCurrentStep(s.step)}
-              className={`text-xs font-medium tracking-wide py-1.5 border-b-2 transition-colors ${
-                currentStep === s.step
-                  ? 'border-[#8C6D46] text-[#8C6D46] font-semibold'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}
+              className={`text-xs font-medium tracking-wide py-1.5 border-b-2 transition-colors ${currentStep === s.step
+                ? 'border-[#8C6D46] text-[#8C6D46] font-semibold'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+                }`}
             >
               {s.label}
             </button>
@@ -461,11 +431,10 @@ export default function CreateWeddingInvitationPage() {
                     <div
                       key={tpl.id}
                       onClick={() => handleTemplateSelect(tpl.id)}
-                      className={`cursor-pointer p-4 rounded-2xl border-2 transition-all ${
-                        templateId === tpl.id
-                          ? 'border-[#8C6D46] bg-[#8C6D46]/5 shadow-xs'
-                          : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
-                      }`}
+                      className={`cursor-pointer p-4 rounded-2xl border-2 transition-all ${templateId === tpl.id
+                        ? 'border-[#8C6D46] bg-[#8C6D46]/5 shadow-xs'
+                        : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-serif font-bold text-stone-900">
@@ -493,11 +462,10 @@ export default function CreateWeddingInvitationPage() {
                         key={c.hex}
                         type="button"
                         onClick={() => setThemeColor(c.hex)}
-                        className={`w-9 h-9 rounded-full border-2 transition-transform ${
-                          themeColor === c.hex
-                            ? 'scale-110 border-stone-900 shadow-sm'
-                            : 'border-transparent hover:scale-105'
-                        }`}
+                        className={`w-9 h-9 rounded-full border-2 transition-transform ${themeColor === c.hex
+                          ? 'scale-110 border-stone-900 shadow-sm'
+                          : 'border-transparent hover:scale-105'
+                          }`}
                         style={{ backgroundColor: c.hex }}
                         title={c.label}
                       />
@@ -1148,7 +1116,7 @@ export default function CreateWeddingInvitationPage() {
               <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-30" />
 
               {/* Screen Viewport with Scroll */}
-              <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-white relative no-scrollbar">
+              <div className="w-full h-full rounded-[36px] overflow-y-auto overflow-x-hidden bg-transparent relative no-scrollbar">
                 <WeddingInvitationView
                   key={previewKey}
                   data={livePreviewData}
