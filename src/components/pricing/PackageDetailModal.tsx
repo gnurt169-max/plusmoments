@@ -378,64 +378,64 @@ export function PackageDetailModal({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
           {/* CỘT TRÁI: KHUNG XEM ẢNH/VIDEO TRỌN VẸN (KHÔNG BỊ CẮT) + TỐI ƯU TỐC ĐỘ */}
           <div className="lg:col-span-6 space-y-4">
-            <div className={`relative group rounded-2xl overflow-hidden border shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px] transition-colors ${
-              activeMedia?.type === 'video' ? 'bg-[#1C1917] border-stone-800' : 'bg-[#F5F2EB] border-amber-900/10'
-            }`}>
-              {activeMedia?.type === 'video' ? (
-                <div className="w-full h-full p-2 sm:p-3 flex items-center justify-center">
-                  <div className={`w-full ${activeMedia.video.aspectRatio === '9:16' ? 'max-w-[280px] sm:max-w-[320px]' : 'max-w-full'}`}>
-                    <GoogleDriveVideoPlayer
-                      video={activeMedia.video}
-                      autoMountOnScroll={false}
-                      coverImage={packageData.coverImage}
-                    />
-                  </div>
-                </div>
-              ) : currentActiveImage ? (
-                <>
-                  <button
-                    type="button"
-                    aria-label={`Xem ảnh phóng to toàn màn hình gói ${packageData.name}`}
-                    className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent"
-                    onClick={() => {
-                      if (activeMedia?.type === 'image') {
-                        setActiveImageIndex(activeMedia.indexInImages);
-                      }
-                      setIsLightboxOpen(true);
-                    }}
-                  >
-                    <img
-                      src={currentActiveImage}
-                      alt={packageData.name}
-                      className="max-w-full max-h-full object-contain drop-shadow-sm select-none transition-transform duration-200 group-hover:scale-[1.01]"
-                      loading="eager"
-                    />
-                  </button>
+            {activeMedia?.type === 'video' ? (
+              <div className="w-full">
+                <GoogleDriveVideoPlayer
+                  video={activeMedia.video}
+                  autoMountOnScroll={false}
+                  autoPlay={true}
+                  coverImage={packageData.coverImage}
+                  className="w-full shadow-md"
+                />
+              </div>
+            ) : (
+              <div className="relative group rounded-2xl overflow-hidden bg-[#F5F2EB] border border-amber-900/10 shadow-xs flex items-center justify-center min-h-[360px] sm:min-h-[440px] max-h-[500px]">
+                {currentActiveImage ? (
+                  <>
+                    <button
+                      type="button"
+                      aria-label={`Xem ảnh phóng to toàn màn hình gói ${packageData.name}`}
+                      className="relative w-full h-[360px] sm:h-[440px] flex items-center justify-center p-3 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] focus-visible:ring-offset-2 rounded-xl border-none bg-transparent"
+                      onClick={() => {
+                        if (activeMedia?.type === 'image') {
+                          setActiveImageIndex(activeMedia.indexInImages);
+                        }
+                        setIsLightboxOpen(true);
+                      }}
+                    >
+                      <img
+                        src={currentActiveImage}
+                        alt={packageData.name}
+                        className="max-w-full max-h-full object-contain drop-shadow-sm select-none transition-transform duration-200 group-hover:scale-[1.01]"
+                        loading="eager"
+                      />
+                    </button>
 
-                  {/* Nút phóng to toàn màn hình với z-index cao & pointer-events-auto */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (activeMedia?.type === 'image') {
-                        setActiveImageIndex(activeMedia.indexInImages);
-                      }
-                      setIsLightboxOpen(true);
-                    }}
-                    className="absolute bottom-3 right-3 z-20 px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 shadow-md cursor-pointer pointer-events-auto select-none"
-                    title="Xem trọn vẹn toàn màn hình"
-                    aria-label="Xem trọn vẹn toàn màn hình"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5 text-amber-200" />
-                    <span>Xem Trọn Vẹn</span>
-                  </button>
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
-                  <Sparkles className="w-8 h-8 text-stone-300" />
-                </div>
-              )}
-            </div>
+                    {/* Nút phóng to toàn màn hình với z-index cao & pointer-events-auto */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (activeMedia?.type === 'image') {
+                          setActiveImageIndex(activeMedia.indexInImages);
+                        }
+                        setIsLightboxOpen(true);
+                      }}
+                      className="absolute bottom-3 right-3 z-20 px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 shadow-md cursor-pointer pointer-events-auto select-none"
+                      title="Xem trọn vẹn toàn màn hình"
+                      aria-label="Xem trọn vẹn toàn màn hình"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 text-amber-200" />
+                      <span>Xem Trọn Vẹn</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">
+                    <Sparkles className="w-8 h-8 text-stone-300" />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Thumbnail Row - Instant Switching giữa Video và Ảnh */}
             {mediaItems.length > 1 && (

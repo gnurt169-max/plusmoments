@@ -43,12 +43,27 @@ export function extractGoogleDriveFileId(rawUrl: string): string | null {
 }
 
 /**
- * Tạo URL nhúng chuẩn phát video từ Google Drive File ID
+ * Tạo URL nhúng chuẩn phát video từ Google Drive File ID với tham số ưu tiên HD và tối giản giao diện
  */
-export function getGoogleDriveEmbedUrl(rawUrlOrId: string): string | null {
+export function getGoogleDriveEmbedUrl(
+  rawUrlOrId: string,
+  options?: { autoPlay?: boolean; hd?: boolean }
+): string | null {
   const fileId = extractGoogleDriveFileId(rawUrlOrId);
   if (!fileId) return null;
-  return `https://drive.google.com/file/d/${fileId}/preview`;
+
+  const params = new URLSearchParams();
+  if (options?.hd !== false) {
+    params.set('vq', 'hd1080');
+    params.set('hd', '1');
+  }
+  params.set('rm', 'minimal');
+  if (options?.autoPlay) {
+    params.set('autoplay', '1');
+  }
+
+  const query = params.toString();
+  return `https://drive.google.com/file/d/${fileId}/preview${query ? `?${query}` : ''}`;
 }
 
 interface GoogleDriveVideoPlayerProps {
@@ -56,6 +71,7 @@ interface GoogleDriveVideoPlayerProps {
   coverImage?: string;
   className?: string;
   autoMountOnScroll?: boolean;
+  autoPlay?: boolean;
 }
 
 /**
@@ -66,16 +82,21 @@ export function GoogleDriveVideoPlayer({
   coverImage,
   className = '',
   autoMountOnScroll = true,
+  autoPlay = false,
 }: GoogleDriveVideoPlayerProps) {
-  const [isVisible, setIsVisible] = useState(!autoMountOnScroll);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isVisible, setIsVisible] = useState(!autoMountOnScroll || autoPlay);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fileId = useMemo(() => extractGoogleDriveFileId(video.driveUrl), [video.driveUrl]);
-  const embedUrl = useMemo(() => (fileId ? `https://drive.google.com/file/d/${fileId}/preview` : null), [fileId]);
+  const shouldAutoPlay = autoPlay || isPlaying;
+  const embedUrl = useMemo(
+    () => (fileId ? getGoogleDriveEmbedUrl(fileId, { autoPlay: shouldAutoPlay, hd: true }) : null),
+    [fileId, shouldAutoPlay]
+  );
 
   const isPortrait = video.aspectRatio === '9:16';
-  const aspectClass = isPortrait ? 'aspect-[9/16] max-w-[360px] mx-auto' : 'aspect-video w-full';
+  const aspectClass = isPortrait ? 'aspect-[9/16] max-w-[340px] mx-auto' : 'aspect-video w-full';
 
   useEffect(() => {
     if (!autoMountOnScroll || isVisible) return;
@@ -121,21 +142,41 @@ export function GoogleDriveVideoPlayer({
     );
   }
 
-  const shouldRenderIframe = isVisible || isPlaying;
+  const shouldRenderIframe = isVisible || isPlaying || autoPlay;
 
   return (
     <div
       ref={containerRef}
-      className={`relative rounded-2xl overflow-hidden border border-[#E5DFD5] shadow-md bg-[#1C1917] transition-all ${aspectClass} ${className}`}
+      className={`relative rounded-2xl overflow-hidden border border-stone-800/80 shadow-md bg-black transition-all ${aspectClass} ${className}`}
     >
+      {/* Luxury Editorial Watermark & Drive Pop-out Blocker */}
+      <div
+        className="absolute top-2.5 right-2.5 z-20 pointer-events-auto select-none min-w-[138px] h-9 sm:h-10 px-3.5 rounded-full bg-[#1C1917]/95 border border-[#C5A059]/40 backdrop-blur-md flex items-center justify-center gap-2 shadow-md cursor-default"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+        title="PlusMoments Wedding Film"
+        aria-label="PlusMoments Wedding Film"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-[#E5C585] shadow-[0_0_8px_#E5C585] shrink-0 animate-pulse" />
+        <span className="text-[10px] tracking-[0.22em] uppercase text-[#E5C585] font-medium font-mono whitespace-nowrap">
+          PLUSMOMENTS FILM
+        </span>
+      </div>
+
       {shouldRenderIframe ? (
         <iframe
           src={embedUrl}
           title={video.title || 'Video Google Drive - PlusMoments Film'}
-          allow="autoplay; fullscreen; picture-in-picture"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
           loading="lazy"
-          className="w-full h-full border-0 rounded-2xl bg-black"
+          className="w-full h-full border-0 rounded-2xl bg-black block"
         />
       ) : (
         <div
