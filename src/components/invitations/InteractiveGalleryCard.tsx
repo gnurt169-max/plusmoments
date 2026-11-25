@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Maximize2 } from 'lucide-react';
 import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import { InvitationGalleryImage } from '@/lib/invitations/templates';
 
 interface InteractiveGalleryCardProps {
   image: InvitationGalleryImage;
   coupleTitle: string;
+  onOpenLightbox?: () => void;
 }
 
 interface FloatingHeart {
@@ -16,11 +17,12 @@ interface FloatingHeart {
   y: number;
 }
 
-export function InteractiveGalleryCard({ image, coupleTitle }: InteractiveGalleryCardProps) {
+export function InteractiveGalleryCard({ image, coupleTitle, onOpenLightbox }: InteractiveGalleryCardProps) {
   const [likesCount, setLikesCount] = useState<number>(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
   const lastTapRef = useRef<number>(0);
+  const singleTapTimerRef = useRef<any>(null);
 
   const isPortrait = image.orientation === 'portrait';
 
@@ -47,15 +49,33 @@ export function InteractiveGalleryCard({ image, coupleTitle }: InteractiveGaller
     }, 900);
   };
 
-  // Handle Double Tap on Image
+  // Distinct Single Tap (Open Lightbox) vs Double Tap (Heart Burst) with 240ms debounce
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
+    const DOUBLE_TAP_DELAY = 240;
+
     if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // It's a DOUBLE TAP! Cancel single tap lightbox open
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
+      }
       const rect = e.currentTarget.getBoundingClientRect();
       triggerHeartBurst(e.clientX, e.clientY, rect);
+      lastTapRef.current = 0;
+    } else {
+      // Potential SINGLE TAP: wait 240ms to see if second tap arrives
+      lastTapRef.current = now;
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+      }
+      singleTapTimerRef.current = setTimeout(() => {
+        if (onOpenLightbox) {
+          onOpenLightbox();
+        }
+        singleTapTimerRef.current = null;
+      }, DOUBLE_TAP_DELAY);
     }
-    lastTapRef.current = now;
   };
 
   return (
@@ -85,23 +105,41 @@ export function InteractiveGalleryCard({ image, coupleTitle }: InteractiveGaller
           </div>
         ))}
 
-        {/* Mini Heart Button at top right */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-            triggerHeartBurst(undefined, undefined, rect);
-          }}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xs flex items-center justify-center text-white transition-all transform active:scale-75"
-          title="Thả tim cho bức ảnh này"
-        >
-          <Heart
-            className={`w-4 h-4 transition-colors ${
-              isLiked ? 'text-rose-400 fill-rose-400' : 'text-white'
-            }`}
-          />
-        </button>
+        {/* Action Buttons Top Bar */}
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+          {/* Zoom/Expand button */}
+          {onOpenLightbox && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenLightbox();
+              }}
+              className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xs flex items-center justify-center text-white transition-all transform active:scale-75 cursor-pointer"
+              title="Phóng to ảnh toàn màn hình"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Mini Heart Button at top right */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+              triggerHeartBurst(undefined, undefined, rect);
+            }}
+            className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xs flex items-center justify-center text-white transition-all transform active:scale-75 cursor-pointer"
+            title="Thả tim cho bức ảnh này"
+          >
+            <Heart
+              className={`w-4 h-4 transition-colors ${
+                isLiked ? 'text-rose-400 fill-rose-400' : 'text-white'
+              }`}
+            />
+          </button>
+        </div>
 
         {/* Likes Count pill */}
         {likesCount > 0 && (

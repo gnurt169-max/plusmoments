@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Clock,
@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ArrowRight,
   X,
+  Maximize2,
 } from 'lucide-react';
 import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
 import { INVITATION_TEMPLATES, InvitationGalleryImage } from '@/lib/invitations/templates';
@@ -25,6 +26,8 @@ import { SpinningVinylPlayer } from './SpinningVinylPlayer';
 import { CelebrationConfetti } from './CelebrationConfetti';
 import { InteractiveGalleryCard } from './InteractiveGalleryCard';
 import { CustomerPinModal } from './CustomerPinModal';
+import { FullscreenImageLightbox, LightboxImageItem } from './FullscreenImageLightbox';
+import { weddingAudioSynth } from '@/lib/invitations/wedding-audio-synth';
 
 function formatDisplayDateVN(dateInput: string | Date | undefined | null): string {
   if (!dateInput) return '';
@@ -137,6 +140,66 @@ export function WeddingInvitationView({
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
 
+  // Fullscreen Lightbox states
+  const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+  const [lightboxInitialIndex, setLightboxInitialIndex] = useState<number>(0);
+
+  // Directional Slide-in for Groom (from Right) and Bride (from Left)
+  const [portraitsInView, setPortraitsInView] = useState<boolean>(false);
+  const portraitsRef = useRef<HTMLDivElement | null>(null);
+
+  // Observe Portraits Section for 60fps GPU slide-in animation
+  useEffect(() => {
+    const el = portraitsRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPortraitsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Update Audio Synthesizer preset when musicPreset prop changes
+  useEffect(() => {
+    if (data.musicPreset) {
+      weddingAudioSynth.setPreset(data.musicPreset);
+    }
+  }, [data.musicPreset]);
+
+  // Audio Play/Pause Synchronizer
+  const handleToggleMusic = useCallback(() => {
+    weddingAudioSynth.init();
+    const playing = weddingAudioSynth.toggle();
+    setIsMusicPlaying(playing);
+  }, []);
+
+  // Unlock audio on first user touch anywhere if not yet playing
+  useEffect(() => {
+    if (isPreview) return;
+
+    const unlockAudio = () => {
+      weddingAudioSynth.init();
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+
+    window.addEventListener('click', unlockAudio, { passive: true });
+    window.addEventListener('touchstart', unlockAudio, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, [isPreview]);
+
   // RSVP Form States
   const [guestName, setGuestName] = useState('');
   const [attendance, setAttendance] = useState<'ATTENDING' | 'DECLINED'>('ATTENDING');
@@ -233,6 +296,50 @@ export function WeddingInvitationView({
 
   const galleryItems = Array.isArray(data.galleryImages) ? data.galleryImages : [];
 
+  // Build unified Lightbox image list across all invitation photos: [coverImage, groomImage, brideImage, ...galleryImages]
+  const allLightboxImages: LightboxImageItem[] = useMemo(() => {
+    const list: LightboxImageItem[] = [];
+    if (data.coverImage) {
+      list.push({
+        url: data.coverImage,
+        title: `${data.groomName} & ${data.brideName}`,
+        caption: 'Ảnh Bìa Thiệp Cưới',
+        tag: 'Cover',
+      });
+    }
+    if (data.groomImage) {
+      list.push({
+        url: data.groomImage,
+        title: `Chú Rể — ${data.groomName || ''}`.trim(),
+        caption: data.groomBio ? `"${data.groomBio}"` : 'The Groom',
+        tag: 'The Groom',
+      });
+    }
+    if (data.brideImage) {
+      list.push({
+        url: data.brideImage,
+        title: `Cô Dâu — ${data.brideName || ''}`.trim(),
+        caption: data.brideBio ? `"${data.brideBio}"` : 'The Bride',
+        tag: 'The Bride',
+      });
+    }
+    galleryItems.forEach((img, idx) => {
+      list.push({
+        url: img.url,
+        title: `${data.groomName} & ${data.brideName}`,
+        caption: img.caption || `Khoảnh khắc cưới #${idx + 1}`,
+        tag: `Khoảnh khắc ${idx + 1}`,
+      });
+    });
+    return list;
+  }, [data.coverImage, data.groomImage, data.brideImage, data.groomName, data.brideName, data.groomBio, data.brideBio, galleryItems]);
+
+  const openLightboxAtUrl = useCallback((targetUrl: string) => {
+    const foundIdx = allLightboxImages.findIndex((img) => img.url === targetUrl);
+    setLightboxInitialIndex(foundIdx >= 0 ? foundIdx : 0);
+    setIsLightboxOpen(true);
+  }, [allLightboxImages]);
+
   // Content presence flags (Strict Zero-Mock Data Policy)
   const hasCoupleNames = Boolean(data.groomName?.trim() || data.brideName?.trim());
   const hasCeremonyTime = Boolean(data.ceremonyTimeText?.trim() || (data.ceremonyDate && String(data.ceremonyDate).trim()));
@@ -270,30 +377,14 @@ export function WeddingInvitationView({
   const handleOpenEnvelope = () => {
     if (isOpeningFlap) return;
     setIsOpeningFlap(true);
-    setIsMusicPlaying(true);
 
-    // Play subtle luxury ambient chime on user gesture
+    // Start background wedding music immediately on envelope opening gesture
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
-        const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5 elegant chord
-        notes.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.0001, ctx.currentTime + idx * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + idx * 0.08 + 0.04);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.08 + 0.9);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + idx * 0.08);
-          osc.stop(ctx.currentTime + idx * 0.08 + 0.95);
-        });
-      }
+      weddingAudioSynth.init();
+      weddingAudioSynth.play();
+      setIsMusicPlaying(true);
     } catch {
-      // Audio context error gracefully ignored
+      // Audio synth catch
     }
 
     // Stage 3 (650ms): Fade and zoom out envelope overlay into main wedding invitation
@@ -621,7 +712,7 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       <SpinningVinylPlayer
         isPlaying={isMusicPlaying}
-        onToggle={() => setIsMusicPlaying(!isMusicPlaying)}
+        onToggle={handleToggleMusic}
       />
 
       {/* ------------------------------------------------------------- */}
@@ -629,7 +720,11 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       <section className="relative w-full h-[90vh] sm:h-screen min-h-[580px] max-h-[960px] overflow-hidden">
         {data.coverImage ? (
-          <div className="w-full h-full animate-[kenBurns_14s_ease-in-out_infinite_alternate] will-change-transform">
+          <div
+            onClick={() => openLightboxAtUrl(data.coverImage!)}
+            className="w-full h-full animate-[kenBurns_14s_ease-in-out_infinite_alternate] will-change-transform cursor-pointer"
+            title="Chạm để xem ảnh bìa toàn màn hình"
+          >
             <ProgressiveImage
               src={data.coverImage}
               alt={`${data.groomName} & ${data.brideName}`}
@@ -741,115 +836,141 @@ export function WeddingInvitationView({
 
         {/* ============================================================= */}
         {/* 3.0 GROOM -> BRIDE PORTRAIT INTRODUCTION SECTION              */}
-        {/* Sequence: THE GROOM first -> THE BRIDE second                 */}
+        {/* Sequence: THE GROOM (from Right) & THE BRIDE (from Left)      */}
         {/* ============================================================= */}
         {hasGroomBrideIntro && (() => {
           const effectiveGroomImg = data.groomImage || null;
           const effectiveBrideImg = data.brideImage || null;
 
           return (
-            <InvitationSectionReveal delay={180} showGoldDivider>
-              <div className="my-10 text-center">
-                <span
-                  className="text-[11px] font-mono tracking-[0.25em] uppercase font-semibold block mb-2"
-                  style={{ color: 'var(--inv-accent)' }}
+            <div ref={portraitsRef} className="my-10 text-center overflow-x-hidden">
+              <span
+                className="text-[11px] font-mono tracking-[0.25em] uppercase font-semibold block mb-2"
+                style={{ color: 'var(--inv-accent)' }}
+              >
+                ✦ HAI NHÂN VẬT CHÍNH ✦
+              </span>
+              <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
+                Chú Rể & Cô Dâu
+              </h3>
+
+              {/* 2-Column Responsive Layout with Opposite Directional Slide-in */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
+                {/* 1. THE GROOM: Slide in from RIGHT (translate-x-16 -> translate-x-0) */}
+                <div
+                  className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'
+                  }`}
                 >
-                  ✦ HAI NHÂN VẬT CHÍNH ✦
-                </span>
-                <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
-                  Chú Rể & Cô Dâu
-                </h3>
-
-                {/* 2-Column Responsive Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
-                  {/* 1. THE GROOM */}
-                  <div className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4`}>
-                    {effectiveGroomImg ? (
+                  {effectiveGroomImg ? (
+                    <div
+                      onClick={() => openLightboxAtUrl(effectiveGroomImg)}
+                      className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/groomImg`}
+                      style={{ borderColor: 'var(--inv-accent)' }}
+                    >
+                      <ProgressiveImage
+                        src={effectiveGroomImg}
+                        alt={`Chú Rể ${data.groomName || ''}`}
+                        className="w-full h-full"
+                        imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/groomImg:scale-105"
+                        sizes="(max-width: 768px) 90vw, 360px"
+                      />
                       <div
-                        className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border`}
-                        style={{ borderColor: 'var(--inv-accent)' }}
-                      >
-                        <ProgressiveImage
-                          src={effectiveGroomImg}
-                          alt={`Chú Rể ${data.groomName || ''}`}
-                          className="w-full h-full"
-                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 hover:scale-105"
-                          sizes="(max-width: 768px) 90vw, 360px"
-                        />
-                        <div
-                          className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
-                          style={{ color: 'var(--inv-accent)' }}
-                        >
-                          The Groom
-                        </div>
-                      </div>
-                    ) : null}
-
-                    <div className="pt-1">
-                      <div
-                        className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                        className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
                         style={{ color: 'var(--inv-accent)' }}
                       >
-                        Chú Rể
+                        The Groom
                       </div>
-                      {data.groomName && (
-                        <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                          {data.groomName}
-                        </h4>
-                      )}
-                      {data.groomBio ? (
-                        <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
-                          &ldquo;{data.groomBio}&rdquo;
-                        </p>
-                      ) : null}
+
+                      {/* Expand indicator button on bottom right */}
+                      <button
+                        type="button"
+                        className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
+                        title="Xem ảnh phóng to"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
+                  ) : null}
+
+                  <div className="pt-1">
+                    <div
+                      className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                      style={{ color: 'var(--inv-accent)' }}
+                    >
+                      Chú Rể
+                    </div>
+                    {data.groomName && (
+                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                        {data.groomName}
+                      </h4>
+                    )}
+                    {data.groomBio ? (
+                      <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                        &ldquo;{data.groomBio}&rdquo;
+                      </p>
+                    ) : null}
                   </div>
+                </div>
 
-                  {/* 2. THE BRIDE */}
-                  <div className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 md:mt-10`}>
-                    {effectiveBrideImg ? (
+                {/* 2. THE BRIDE: Slide in from LEFT (-translate-x-16 -> translate-x-0) with 150ms delay */}
+                <div
+                  className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 md:mt-10 transition-all duration-1000 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'
+                  }`}
+                >
+                  {effectiveBrideImg ? (
+                    <div
+                      onClick={() => openLightboxAtUrl(effectiveBrideImg)}
+                      className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/brideImg`}
+                      style={{ borderColor: 'var(--inv-accent)' }}
+                    >
+                      <ProgressiveImage
+                        src={effectiveBrideImg}
+                        alt={`Cô Dâu ${data.brideName || ''}`}
+                        className="w-full h-full"
+                        imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/brideImg:scale-105"
+                        sizes="(max-width: 768px) 90vw, 360px"
+                      />
                       <div
-                        className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border`}
-                        style={{ borderColor: 'var(--inv-accent)' }}
-                      >
-                        <ProgressiveImage
-                          src={effectiveBrideImg}
-                          alt={`Cô Dâu ${data.brideName || ''}`}
-                          className="w-full h-full"
-                          imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 hover:scale-105"
-                          sizes="(max-width: 768px) 90vw, 360px"
-                        />
-                        <div
-                          className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
-                          style={{ color: 'var(--inv-accent)' }}
-                        >
-                          The Bride
-                        </div>
-                      </div>
-                    ) : null}
-
-                    <div className="pt-1">
-                      <div
-                        className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                        className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
                         style={{ color: 'var(--inv-accent)' }}
                       >
-                        Cô Dâu
+                        The Bride
                       </div>
-                      {data.brideName && (
-                        <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                          {data.brideName}
-                        </h4>
-                      )}
-                      {data.brideBio ? (
-                        <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
-                          &ldquo;{data.brideBio}&rdquo;
-                        </p>
-                      ) : null}
+
+                      {/* Expand indicator button on bottom right */}
+                      <button
+                        type="button"
+                        className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
+                        title="Xem ảnh phóng to"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
+                  ) : null}
+
+                  <div className="pt-1">
+                    <div
+                      className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                      style={{ color: 'var(--inv-accent)' }}
+                    >
+                      Cô Dâu
+                    </div>
+                    {data.brideName && (
+                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                        {data.brideName}
+                      </h4>
+                    )}
+                    {data.brideBio ? (
+                      <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                        &ldquo;{data.brideBio}&rdquo;
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>
-            </InvitationSectionReveal>
+            </div>
           );
         })()}
 
@@ -951,6 +1072,7 @@ export function WeddingInvitationView({
                 <InteractiveGalleryCard
                   image={img}
                   coupleTitle={`${data.groomName} & ${data.brideName}`}
+                  onOpenLightbox={() => openLightboxAtUrl(img.url)}
                 />
               </InvitationSectionReveal>
             ))}
@@ -1353,6 +1475,15 @@ export function WeddingInvitationView({
       )}
         </>
       )}
+
+      {/* Fullscreen Lightbox for All Invitation Images */}
+      <FullscreenImageLightbox
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        images={allLightboxImages}
+        initialIndex={lightboxInitialIndex}
+        themeColor={themeColor}
+      />
 
       {/* Quick PIN Modal for Couple */}
       <CustomerPinModal
