@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { parseVietnamWeddingDate } from '@/lib/utils';
+import { buildVietQrUrl } from '@/lib/invitations/templates';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,6 +89,7 @@ export async function PATCH(
     const allowedFields = [
       'templateId',
       'themeColor',
+      'fontFamily',
       'groomName',
       'brideName',
       'groomParents',
@@ -107,6 +109,11 @@ export async function PATCH(
       'musicPreset',
       'bankQrImage',
       'bankInfoText',
+      'bankId',
+      'bankAccount',
+      'bankOwner',
+      'giftAmount',
+      'giftMessage',
       'isPublished',
     ];
 
@@ -114,6 +121,30 @@ export async function PATCH(
       if (updateData[field] !== undefined) {
         cleanUpdate[field] = updateData[field];
       }
+    }
+
+    if (body.newPasscode || (body.editPasscode && /^\d{6}$/.test(String(body.editPasscode).trim()))) {
+      const code = String(body.newPasscode || body.editPasscode).trim();
+      if (/^\d{6}$/.test(code)) {
+        cleanUpdate.editPasscode = code;
+      }
+    }
+
+    // Auto-generate VietQR if bankId & bankAccount are present
+    const effectiveBankId = cleanUpdate.bankId || existing.bankId;
+    const effectiveBankAccount = cleanUpdate.bankAccount || existing.bankAccount;
+    const effectiveBankOwner = cleanUpdate.bankOwner !== undefined ? cleanUpdate.bankOwner : existing.bankOwner;
+    const effectiveGiftAmount = cleanUpdate.giftAmount !== undefined ? cleanUpdate.giftAmount : existing.giftAmount;
+    const effectiveGiftMessage = cleanUpdate.giftMessage !== undefined ? cleanUpdate.giftMessage : existing.giftMessage;
+
+    if (!cleanUpdate.bankQrImage && effectiveBankId && effectiveBankAccount) {
+      cleanUpdate.bankQrImage = buildVietQrUrl({
+        bankId: effectiveBankId,
+        bankAccount: effectiveBankAccount,
+        bankOwner: effectiveBankOwner,
+        giftAmount: effectiveGiftAmount,
+        giftMessage: effectiveGiftMessage,
+      });
     }
 
     // Auto-fallback venueAddress if empty or only venueName was updated

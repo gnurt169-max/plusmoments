@@ -17,7 +17,13 @@ import {
   Maximize2,
 } from 'lucide-react';
 import { ProgressiveImage } from '@/components/ui/ProgressiveImage';
-import { INVITATION_TEMPLATES, InvitationGalleryImage } from '@/lib/invitations/templates';
+import {
+  INVITATION_TEMPLATES,
+  INVITATION_FONTS,
+  VIETQR_BANKS,
+  buildVietQrUrl,
+  InvitationGalleryImage,
+} from '@/lib/invitations/templates';
 import { AmbientParticles } from './AmbientParticles';
 import { InvitationSectionReveal } from './InvitationSectionReveal';
 import { SaveTheDateCalendar } from './SaveTheDateCalendar';
@@ -71,8 +77,14 @@ export interface InvitationViewData {
   coverImage: string;
   galleryImages: InvitationGalleryImage[];
   musicPreset?: string;
+  fontFamily?: string | null;
   bankQrImage?: string | null;
   bankInfoText?: string | null;
+  bankId?: string | null;
+  bankAccount?: string | null;
+  bankOwner?: string | null;
+  giftAmount?: number | null;
+  giftMessage?: string | null;
   rsvps?: Array<{
     id: string;
     guestName: string;
@@ -104,6 +116,7 @@ interface WeddingInvitationViewProps {
   servicePackages?: CuratedServicePackage[];
   showEnvelopePreview?: boolean;
   onEnvelopeClose?: () => void;
+  forceSlideInTrigger?: number;
 }
 
 export function WeddingInvitationView({
@@ -112,6 +125,7 @@ export function WeddingInvitationView({
   servicePackages = [],
   showEnvelopePreview = false,
   onEnvelopeClose,
+  forceSlideInTrigger,
 }: WeddingInvitationViewProps) {
   // Envelope opening states
   // When isPreview is true, envelope is open/hidden by default so invitation content is immediately visible
@@ -166,6 +180,20 @@ export function WeddingInvitationView({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Force replay slide-in animation when test button in Live Preview is clicked
+  useEffect(() => {
+    if (forceSlideInTrigger) {
+      setPortraitsInView(false);
+      const timer = setTimeout(() => {
+        setPortraitsInView(true);
+        if (portraitsRef.current) {
+          portraitsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [forceSlideInTrigger]);
 
   // Update Audio Synthesizer preset when musicPreset prop changes
   useEffect(() => {
@@ -340,6 +368,27 @@ export function WeddingInvitationView({
     setIsLightboxOpen(true);
   }, [allLightboxImages]);
 
+  // Dynamic VietQR & Font Resolution
+  const effectiveBankQr = useMemo(() => {
+    if (data.bankQrImage && data.bankQrImage.trim()) {
+      return data.bankQrImage.trim();
+    }
+    if (data.bankId && data.bankAccount) {
+      return buildVietQrUrl({
+        bankId: data.bankId,
+        bankAccount: data.bankAccount,
+        bankOwner: data.bankOwner,
+        giftAmount: data.giftAmount,
+        giftMessage: data.giftMessage,
+      });
+    }
+    return null;
+  }, [data.bankQrImage, data.bankId, data.bankAccount, data.bankOwner, data.giftAmount, data.giftMessage]);
+
+  const fontOption = useMemo(() => {
+    return INVITATION_FONTS.find((f) => f.id === data.fontFamily) || INVITATION_FONTS[0];
+  }, [data.fontFamily]);
+
   // Content presence flags (Strict Zero-Mock Data Policy)
   const hasCoupleNames = Boolean(data.groomName?.trim() || data.brideName?.trim());
   const hasCeremonyTime = Boolean(data.ceremonyTimeText?.trim() || (data.ceremonyDate && String(data.ceremonyDate).trim()));
@@ -354,7 +403,7 @@ export function WeddingInvitationView({
   );
   const hasStory = Boolean(data.storyText?.trim());
   const hasVenue = Boolean(data.venueName?.trim() || data.venueAddress?.trim());
-  const hasBanking = Boolean(data.bankQrImage?.trim() || data.bankInfoText?.trim());
+  const hasBanking = Boolean(effectiveBankQr || data.bankInfoText?.trim() || (data.bankId && data.bankAccount));
   const hasGallery = galleryItems.length > 0;
 
   const hasAnyContent = Boolean(
@@ -457,11 +506,12 @@ export function WeddingInvitationView({
 
   return (
     <div
-      className={`relative ${
-        isPreview && !isOpenEnvelope ? 'h-full overflow-hidden' : 'min-h-screen'
-      } ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
+      className={`relative invitation-root ${isPreview && !isOpenEnvelope ? 'h-full overflow-hidden' : 'min-h-screen'
+        } ${colors.bg} ${colors.text} font-sans selection:bg-[#8C6D46] selection:text-white pb-24`}
       style={{
         '--inv-accent': themeColor,
+        '--inv-font-serif': fontOption.fontFamily,
+        fontFamily: fontOption.fontFamily,
         backgroundColor: colors.bgHex,
       } as React.CSSProperties}
     >
@@ -483,13 +533,11 @@ export function WeddingInvitationView({
       {/* ------------------------------------------------------------- */}
       {!isOpenEnvelope && (
         <div
-          className={`${
-            isPreview
-              ? 'absolute inset-0 z-50 overflow-hidden'
-              : 'fixed inset-0 z-50'
-          } flex items-center justify-center p-4 bg-[#141210]/85 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            isFadingEnvelope ? 'opacity-0 scale-[1.06] pointer-events-none' : 'opacity-100 scale-100'
-          }`}
+          className={`${isPreview
+            ? 'absolute inset-0 z-50 overflow-hidden'
+            : 'fixed inset-0 z-50'
+            } flex items-center justify-center p-4 bg-[#141210]/85 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${isFadingEnvelope ? 'opacity-0 scale-[1.06] pointer-events-none' : 'opacity-100 scale-100'
+            }`}
           style={{ perspective: '1400px' }}
         >
           {/* Close preview button for editor/builder */}
@@ -520,9 +568,8 @@ export function WeddingInvitationView({
 
           <div
             onClick={handleOpenEnvelope}
-            className={`w-[90vw] ${
-              isPreview ? 'max-w-[320px]' : 'max-w-[380px]'
-            } aspect-[3/4.2] cursor-pointer select-none relative group will-change-transform`}
+            className={`w-[90vw] ${isPreview ? 'max-w-[320px]' : 'max-w-[380px]'
+              } aspect-[3/4.2] cursor-pointer select-none relative group will-change-transform`}
           >
             {/* 3D Envelope Body (Haute Couture Fine Art Paper with Internal Golden Frame) */}
             <div
@@ -541,9 +588,8 @@ export function WeddingInvitationView({
 
               {/* 3D Triangular Flap (Kept strictly to top 34% height so it NEVER covers names) */}
               <div
-                className={`absolute top-0 left-0 right-0 h-[34%] origin-top transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none ${
-                  isOpeningFlap ? 'z-0' : 'z-30'
-                }`}
+                className={`absolute top-0 left-0 right-0 h-[34%] origin-top transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none ${isOpeningFlap ? 'z-0' : 'z-30'
+                  }`}
                 style={{
                   transform: isOpeningFlap ? 'rotateX(180deg)' : 'rotateX(0deg)',
                   transformStyle: 'preserve-3d',
@@ -576,11 +622,10 @@ export function WeddingInvitationView({
               <div className="relative w-full pt-10 sm:pt-11 flex justify-center z-40">
                 {/* 3D Wax Seal with Bride & Groom Monogram Initials */}
                 <div
-                  className={`w-16 h-16 rounded-full flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 transform ${
-                    isOpeningFlap
-                      ? 'scale-125 opacity-0'
-                      : 'scale-100 opacity-100 hover:scale-105 active:scale-95'
-                  }`}
+                  className={`w-16 h-16 rounded-full flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 transform ${isOpeningFlap
+                    ? 'scale-125 opacity-0'
+                    : 'scale-100 opacity-100 hover:scale-105 active:scale-95'
+                    }`}
                   style={{
                     background: 'radial-gradient(circle at 35% 35%, #F4D38A 0%, #C5A059 45%, #8C6D32 85%, #6B5224 100%)',
                     boxShadow: '0 10px 26px rgba(140, 109, 50, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.3)',
@@ -618,9 +663,8 @@ export function WeddingInvitationView({
                 {/* Couple Names: Groom & Bride balanced with dynamic accent '&' */}
                 {hasCoupleNames && (
                   <h2
-                    className={`font-serif text-2xl sm:text-[26px] font-normal leading-snug tracking-tight ${
-                      isDarkTemplate ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
-                    } mb-2`}
+                    className={`font-serif text-2xl sm:text-[26px] font-normal leading-snug tracking-tight ${isDarkTemplate ? 'text-[#FAF8F5]' : 'text-[#1C1917]'
+                      } mb-2`}
                   >
                     <span>{data.groomName}</span>
                     {data.groomName && data.brideName && (
@@ -633,9 +677,8 @@ export function WeddingInvitationView({
                 {/* Date text */}
                 {hasCeremonyTime && (
                   <div
-                    className={`text-xs ${
-                      isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
-                    } font-serif tracking-widest uppercase mt-2`}
+                    className={`text-xs ${isDarkTemplate ? 'text-[#D6D0C4]' : 'text-[#57534E]'
+                      } font-serif tracking-widest uppercase mt-2`}
                   >
                     {data.ceremonyTimeText || formatDisplayDateVN(data.ceremonyDate)}
                   </div>
@@ -707,772 +750,804 @@ export function WeddingInvitationView({
       ) : (
         <>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 1.1 SPINNING VINYL DISC MUSIC PLAYER (Floating Bottom Right)  */}
-      {/* ------------------------------------------------------------- */}
-      <SpinningVinylPlayer
-        isPlaying={isMusicPlaying}
-        onToggle={handleToggleMusic}
-      />
+          {/* ------------------------------------------------------------- */}
+          {/* 1.1 SPINNING VINYL DISC MUSIC PLAYER (Floating Bottom Right)  */}
+          {/* ------------------------------------------------------------- */}
+          <SpinningVinylPlayer
+            isPlaying={isMusicPlaying}
+            onToggle={handleToggleMusic}
+          />
 
-      {/* ------------------------------------------------------------- */}
-      {/* 2. KEN BURNS HERO & MASKED TEXT REVEAL                        */}
-      {/* ------------------------------------------------------------- */}
-      <section className="relative w-full h-[90vh] sm:h-screen min-h-[580px] max-h-[960px] overflow-hidden">
-        {data.coverImage ? (
-          <div
-            onClick={() => openLightboxAtUrl(data.coverImage!)}
-            className="w-full h-full animate-[kenBurns_14s_ease-in-out_infinite_alternate] will-change-transform cursor-pointer"
-            title="Chạm để xem ảnh bìa toàn màn hình"
-          >
-            <ProgressiveImage
-              src={data.coverImage}
-              alt={`${data.groomName} & ${data.brideName}`}
-              priority={true}
-              className="w-full h-full"
-              imageClassName="w-full h-full object-cover"
-            />
-          </div>
-        ) : (
-          <div
-            className="w-full h-full flex flex-col items-center justify-center p-6 text-center"
-            style={{ backgroundColor: colors.styleType === 'noir' ? '#181614' : undefined }}
-          >
-            <Sparkles className="w-8 h-8 mb-3 opacity-60" style={{ color: 'var(--inv-accent)' }} />
-            <span className="text-xs uppercase font-mono tracking-widest opacity-60">
-              {templateConfig.name} • Save The Date
-            </span>
-          </div>
-        )}
-
-        {/* Ambient Dark Gradient Overlay with High-Contrast Mobile Shielding */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 flex flex-col items-center justify-end text-center p-6 pb-16 text-white">
-          {/* Masked Subtitle */}
-          <div className="overflow-hidden mb-2">
-            <span
-              className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]"
-              style={{ color: 'var(--inv-accent)' }}
-            >
-              Save The Date
-            </span>
-          </div>
-
-          {/* Masked Couple Title */}
-          {hasCoupleNames && (
-            <div className="overflow-hidden mb-3">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.75)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
-                {data.groomName}{' '}
-                {data.groomName && data.brideName && (
-                  <span className="font-light italic" style={{ color: 'var(--inv-accent)' }}>&</span>
-                )}{' '}
-                {data.brideName}
-              </h1>
-            </div>
-          )}
-
-          {/* Masked Ceremony Date */}
-          {hasCeremonyTime && (
-            <div className="overflow-hidden mb-6">
-              <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
-                {data.ceremonyTimeText || formatDisplayDateVN(data.ceremonyDate)}
-              </p>
-            </div>
-          )}
-
-          <ChevronDown className="w-6 h-6 text-white/80 animate-bounce" />
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------- */}
-      {/* 3. WEDDING INVITATION DETAILS & FAMILY                        */}
-      {/* ------------------------------------------------------------- */}
-      <section className="max-w-2xl mx-auto px-6 py-16 text-center">
-        <InvitationSectionReveal showGoldDivider>
-          <div
-            className="text-[11px] font-mono tracking-[0.2em] uppercase font-semibold mb-3"
-            style={{ color: 'var(--inv-accent)' }}
-          >
-            Trân Trọng Kính Mời
-          </div>
-
-          <h2 className={`text-2xl sm:text-3xl font-serif font-semibold ${colors.title} mb-6`}>
-            Lễ Thành Hôn
-          </h2>
-        </InvitationSectionReveal>
-
-        {/* Parents Names with Reveal */}
-        {hasParents && (
-          <InvitationSectionReveal delay={150}>
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 py-6 border-y ${colors.divider} text-xs sm:text-sm leading-relaxed`}>
-              {data.groomParents?.trim() && (
-                <div>
-                  <div
-                    className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
-                    style={{ color: 'var(--inv-accent)' }}
-                  >
-                    Nhà Trai
-                  </div>
-                  <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
-                    {data.groomParents}
-                  </div>
-                </div>
-              )}
-              {data.brideParents?.trim() && (
-                <div>
-                  <div
-                    className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
-                    style={{ color: 'var(--inv-accent)' }}
-                  >
-                    Nhà Gái
-                  </div>
-                  <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
-                    {data.brideParents}
-                  </div>
-                </div>
-              )}
-            </div>
-          </InvitationSectionReveal>
-        )}
-
-        {/* ============================================================= */}
-        {/* 3.0 GROOM -> BRIDE PORTRAIT INTRODUCTION SECTION              */}
-        {/* Sequence: THE GROOM (from Right) & THE BRIDE (from Left)      */}
-        {/* ============================================================= */}
-        {hasGroomBrideIntro && (() => {
-          const effectiveGroomImg = data.groomImage || null;
-          const effectiveBrideImg = data.brideImage || null;
-
-          return (
-            <div ref={portraitsRef} className="my-10 text-center overflow-x-hidden">
-              <span
-                className="text-[11px] font-mono tracking-[0.25em] uppercase font-semibold block mb-2"
-                style={{ color: 'var(--inv-accent)' }}
+          {/* ------------------------------------------------------------- */}
+          {/* 2. KEN BURNS HERO & MASKED TEXT REVEAL                        */}
+          {/* ------------------------------------------------------------- */}
+          <section className="relative w-full h-[90vh] sm:h-screen min-h-[580px] max-h-[960px] overflow-hidden">
+            {data.coverImage ? (
+              <div
+                onClick={() => openLightboxAtUrl(data.coverImage!)}
+                className="w-full h-full animate-[kenBurns_14s_ease-in-out_infinite_alternate] will-change-transform cursor-pointer"
+                title="Chạm để xem ảnh bìa toàn màn hình"
               >
-                ✦ HAI NHÂN VẬT CHÍNH ✦
-              </span>
-              <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
-                Chú Rể & Cô Dâu
-              </h3>
-
-              {/* 2-Column Responsive Layout with Opposite Directional Slide-in */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
-                {/* 1. THE GROOM: Slide in from RIGHT (translate-x-16 -> translate-x-0) */}
-                <div
-                  className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'
-                  }`}
-                >
-                  {effectiveGroomImg ? (
-                    <div
-                      onClick={() => openLightboxAtUrl(effectiveGroomImg)}
-                      className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/groomImg`}
-                      style={{ borderColor: 'var(--inv-accent)' }}
-                    >
-                      <ProgressiveImage
-                        src={effectiveGroomImg}
-                        alt={`Chú Rể ${data.groomName || ''}`}
-                        className="w-full h-full"
-                        imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/groomImg:scale-105"
-                        sizes="(max-width: 768px) 90vw, 360px"
-                      />
-                      <div
-                        className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
-                        style={{ color: 'var(--inv-accent)' }}
-                      >
-                        The Groom
-                      </div>
-
-                      {/* Expand indicator button on bottom right */}
-                      <button
-                        type="button"
-                        className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
-                        title="Xem ảnh phóng to"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : null}
-
-                  <div className="pt-1">
-                    <div
-                      className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
-                      style={{ color: 'var(--inv-accent)' }}
-                    >
-                      Chú Rể
-                    </div>
-                    {data.groomName && (
-                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                        {data.groomName}
-                      </h4>
-                    )}
-                    {data.groomBio ? (
-                      <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
-                        &ldquo;{data.groomBio}&rdquo;
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-
-                {/* 2. THE BRIDE: Slide in from LEFT (-translate-x-16 -> translate-x-0) with 150ms delay */}
-                <div
-                  className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 md:mt-10 transition-all duration-1000 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'
-                  }`}
-                >
-                  {effectiveBrideImg ? (
-                    <div
-                      onClick={() => openLightboxAtUrl(effectiveBrideImg)}
-                      className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/brideImg`}
-                      style={{ borderColor: 'var(--inv-accent)' }}
-                    >
-                      <ProgressiveImage
-                        src={effectiveBrideImg}
-                        alt={`Cô Dâu ${data.brideName || ''}`}
-                        className="w-full h-full"
-                        imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/brideImg:scale-105"
-                        sizes="(max-width: 768px) 90vw, 360px"
-                      />
-                      <div
-                        className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
-                        style={{ color: 'var(--inv-accent)' }}
-                      >
-                        The Bride
-                      </div>
-
-                      {/* Expand indicator button on bottom right */}
-                      <button
-                        type="button"
-                        className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
-                        title="Xem ảnh phóng to"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : null}
-
-                  <div className="pt-1">
-                    <div
-                      className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
-                      style={{ color: 'var(--inv-accent)' }}
-                    >
-                      Cô Dâu
-                    </div>
-                    {data.brideName && (
-                      <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
-                        {data.brideName}
-                      </h4>
-                    )}
-                    {data.brideBio ? (
-                      <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
-                        &ldquo;{data.brideBio}&rdquo;
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Story Text */}
-        {hasStory && (
-          <InvitationSectionReveal delay={200} showGoldDivider>
-            <div className="my-10 px-4">
-              {data.storyTitle && (
-                <h3 className={`font-serif text-xl font-medium italic mb-3 ${colors.title}`}>
-                  &ldquo;{data.storyTitle}&rdquo;
-                </h3>
-              )}
-              <p className={`text-sm sm:text-[15px] ${colors.body} font-normal leading-relaxed whitespace-pre-line`}>
-                {data.storyText}
-              </p>
-            </div>
-          </InvitationSectionReveal>
-        )}
-
-        {/* 3.1 SVG HAND-DRAWN HEART CALENDAR & COUNTDOWN */}
-        {Boolean(data.ceremonyDate && String(data.ceremonyDate).trim()) && (
-          <>
-            <InvitationSectionReveal delay={250}>
-              <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} isDark={isDarkTemplate} />
-            </InvitationSectionReveal>
-
-            <InvitationSectionReveal delay={300}>
-              <AnimatedCountdown ceremonyDate={data.ceremonyDate} isDark={isDarkTemplate} />
-            </InvitationSectionReveal>
-          </>
-        )}
-
-        {/* Venue Information & Google Maps Button */}
-        {hasVenue && (
-          <InvitationSectionReveal delay={350}>
-            <div className={`my-10 p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} ${colors.cardBorder} text-center shadow-xs`}>
-              {data.ceremonyTimeText && (
-                <>
-                  <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
-                  <div className={`font-serif text-lg font-semibold ${colors.title}`}>
-                    {data.ceremonyTimeText}
-                  </div>
-                </>
-              )}
-
-              <div className={`mt-4 pt-4 border-t ${colors.divider}`}>
-                <MapPin className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
-                {data.venueName && (
-                  <div className={`font-serif text-lg font-bold ${colors.title}`}>
-                    {data.venueName}
-                  </div>
-                )}
-                {data.venueAddress && (
-                  <div className={`text-sm sm:text-[15px] ${colors.body} mt-1.5 max-w-md mx-auto leading-relaxed`}>
-                    {data.venueAddress}
-                  </div>
-                )}
-
-                {data.googleMapsUrl && (
-                  <a
-                    href={data.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full text-white text-xs font-medium tracking-wide uppercase transition-transform hover:scale-105 shadow-xs"
-                    style={{ backgroundColor: 'var(--inv-accent)' }}
-                  >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>Chỉ Đường Google Maps</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          </InvitationSectionReveal>
-        )}
-      </section>
-
-      {/* ------------------------------------------------------------- */}
-      {/* 4. WEDDING PHOTO GALLERY WITH DOUBLE-TAP HEART BURST           */}
-      {/* ------------------------------------------------------------- */}
-      {galleryItems.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-          <InvitationSectionReveal showGoldDivider>
-            <div className="text-center mb-8">
-              <span className={`text-[11px] font-mono tracking-[0.2em] uppercase font-semibold ${colors.label}`}>
-                Khoảnh Khắc Hạnh Phúc
-              </span>
-              <h3 className={`text-2xl font-serif font-semibold ${colors.title} mt-1`}>
-                Bộ Ảnh Cưới Của Chúng Mình
-              </h3>
-              <p className={`text-xs ${colors.bodyMuted} mt-1 font-light`}>
-                Chạm đúp vào ảnh để thả tim chúc phúc
-              </p>
-            </div>
-          </InvitationSectionReveal>
-
-          <div className="space-y-4 sm:space-y-6">
-            {galleryItems.map((img, idx) => (
-              <InvitationSectionReveal key={img.id || idx} delay={idx * 100}>
-                <InteractiveGalleryCard
-                  image={img}
-                  coupleTitle={`${data.groomName} & ${data.brideName}`}
-                  onOpenLightbox={() => openLightboxAtUrl(img.url)}
+                <ProgressiveImage
+                  src={data.coverImage}
+                  alt={`${data.groomName} & ${data.brideName}`}
+                  priority={true}
+                  className="w-full h-full"
+                  imageClassName="w-full h-full object-cover"
                 />
-              </InvitationSectionReveal>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ------------------------------------------------------------- */}
-      {/* 5. WEDDING GIFT QR & BANK INFO                                */}
-      {/* ------------------------------------------------------------- */}
-      {hasBanking && (
-        <section className="max-w-xl mx-auto px-6 py-12 text-center">
-          <InvitationSectionReveal showGoldDivider>
-            <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-xs`}>
-              <QrCode className="w-7 h-7 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
-              <h4 className={`font-serif text-xl font-semibold ${colors.title}`}>
-                Hộp Mừng Cưới
-              </h4>
-              <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1 max-w-sm mx-auto leading-relaxed`}>
-                Sự hiện diện và lời chúc phúc của quý khách là món quà quý giá nhất dành cho chúng mình.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => setShowQrModal(true)}
-                className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full border text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-90"
-                style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
-              >
-                <QrCode className="w-4 h-4" />
-                <span>Gửi Mừng Cưới Chúc Phúc</span>
-              </button>
-            </div>
-          </InvitationSectionReveal>
-        </section>
-      )}
-
-      {/* Modal QR Code */}
-      {showQrModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs"
-          onClick={() => setShowQrModal(false)}
-        >
-          <div
-            className={`w-full max-w-sm ${colors.cardBg} ${colors.cardRadius} p-6 text-center shadow-2xl border ${colors.cardBorder}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h4 className={`font-serif text-lg font-semibold ${colors.title} mb-4`}>
-              Mã QR Mừng Cưới
-            </h4>
-
-            {data.bankQrImage && (
-              <div className="w-56 h-56 mx-auto rounded-2xl overflow-hidden border border-stone-200 mb-4 bg-white p-2 shadow-inner">
-                <img
-                  src={data.bankQrImage}
-                  alt="Mã QR Mừng Cưới"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            )}
-
-            {data.bankInfoText && (
-              <div className={`text-xs ${isDarkTemplate ? 'bg-[#25221F] text-stone-200 border-white/10' : 'bg-stone-50 text-stone-800 border-stone-200'} border p-3.5 rounded-2xl mb-4 font-mono leading-relaxed whitespace-pre-line`}>
-                {data.bankInfoText}
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowQrModal(false)}
-              className={`w-full h-10 rounded-xl ${isDarkTemplate ? 'bg-[#25221F] text-stone-300 hover:bg-[#2e2a27]' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'} text-xs font-medium transition-colors`}
-            >
-              Đóng Cửa Sổ
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ------------------------------------------------------------- */}
-      {/* 6. RSVP & GUESTBOOK WISHES                                    */}
-      {/* ------------------------------------------------------------- */}
-      <section className="max-w-xl mx-auto px-6 py-12">
-        <InvitationSectionReveal showGoldDivider>
-          <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-sm`}>
-            <div className="text-center mb-6">
-              <Heart className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--inv-accent)', fill: `${themeColor}25` }} />
-              <h3 className={`font-serif text-2xl font-semibold ${colors.title}`}>
-                Xác Nhận Tham Dự & Lời Chúc
-              </h3>
-              <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1`}>
-                Để gia đình chuẩn bị chu đáo nhất, xin vui lòng gửi phản hồi trước ngày cưới.
-              </p>
-            </div>
-
-            {rsvpSuccessMsg ? (
-              <div className={`p-5 rounded-2xl ${isDarkTemplate ? 'bg-emerald-950/40 border-emerald-800 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-800'} border text-center animate-in fade-in zoom-in-95 duration-300`}>
-                <CheckCircle2 className={`w-7 h-7 ${isDarkTemplate ? 'text-emerald-400' : 'text-emerald-600'} mx-auto mb-2`} />
-                <div className="text-sm font-medium leading-relaxed">
-                  {rsvpSuccessMsg}
-                </div>
               </div>
             ) : (
-              <form onSubmit={handleRsvpSubmit} className="space-y-4">
-                <div>
-                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
-                    Họ tên của bạn / gia đình <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2`}
-                    style={{ outlineColor: 'var(--inv-accent)' }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
-                      Tham dự hôn lễ?
-                    </label>
-                    <select
-                      value={attendance}
-                      onChange={(e: any) => setAttendance(e.target.value)}
-                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
-                    >
-                      <option value="ATTENDING">Sẽ tham dự</option>
-                      <option value="DECLINED">Rất tiếc không thể đến</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
-                      Số người tham dự
-                    </label>
-                    <select
-                      value={guestCount}
-                      disabled={attendance === 'DECLINED'}
-                      onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none disabled:opacity-50`}
-                    >
-                      <option value={1}>1 người</option>
-                      <option value={2}>2 người</option>
-                      <option value={3}>3 người</option>
-                      <option value={4}>4 người (Gia đình)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
-                    Khách mời của ai?
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSide('GROOM')}
-                      className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
-                        side === 'GROOM'
-                          ? 'text-white'
-                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
-                      }`}
-                      style={side === 'GROOM' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
-                    >
-                      Nhà Trai
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSide('BRIDE')}
-                      className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
-                        side === 'BRIDE'
-                          ? 'text-white'
-                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
-                      }`}
-                      style={side === 'BRIDE' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
-                    >
-                      Nhà Gái
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSide('BOTH')}
-                      className={`h-9 rounded-lg text-xs font-medium border transition-colors ${
-                        side === 'BOTH'
-                          ? 'text-white'
-                          : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
-                      }`}
-                      style={side === 'BOTH' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
-                    >
-                      Cả Hai
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
-                    Lời chúc gửi đến Cô Dâu & Chú Rể
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={wishMessage}
-                    onChange={(e) => setWishMessage(e.target.value)}
-                    className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmittingRsvp}
-                  className="w-full h-11 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 shadow-xs"
-                  style={{ backgroundColor: 'var(--inv-accent)' }}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isSubmittingRsvp ? 'Đang gửi...' : 'Gửi Lời Chúc & Xác Nhận Tham Dự'}</span>
-                </button>
-              </form>
-            )}
-
-            {/* Guestbook List with New Wish Highlight */}
-            {rsvpsList.length > 0 && (
-              <div className={`mt-8 pt-6 border-t ${colors.divider}`}>
-                <div className={`text-xs font-semibold ${colors.title} uppercase tracking-wider mb-3 flex items-center justify-between`}>
-                  <span>Sổ Lưu Bút Trực Tuyến</span>
-                  <span className="text-[10px] text-stone-400 font-mono">({rsvpsList.length} lời chúc)</span>
-                </div>
-                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                  {rsvpsList.map((item) => {
-                    const isNewlyAdded = item.id === newlyAddedRsvpId;
-                    return (
-                      <div
-                        key={item.id}
-                        className={`p-3.5 rounded-2xl border text-xs transition-all ${
-                          isNewlyAdded
-                            ? isDarkTemplate ? 'bg-amber-950/40 border-amber-700 shadow-xs' : 'bg-amber-50/80 border-amber-300 shadow-xs'
-                            : isDarkTemplate ? 'bg-[#25221F] border-white/10' : 'bg-stone-50 border-stone-200/80'
-                        }`}
-                      >
-                        <div className={`flex items-center justify-between font-semibold ${colors.title}`}>
-                          <span className="flex items-center gap-1.5">
-                            <span>{item.guestName}</span>
-                            {isNewlyAdded && (
-                              <span
-                                className="px-1.5 py-0.2 rounded-full text-[9px] font-mono"
-                                style={{ backgroundColor: `${themeColor}25`, color: 'var(--inv-accent)' }}
-                              >
-                                Vừa gửi
-                              </span>
-                            )}
-                          </span>
-                          <span className="text-[10px] text-stone-400 font-normal">
-                            {item.attendance === 'ATTENDING' ? 'Sẽ tham dự' : 'Gửi lời chúc'}
-                          </span>
-                        </div>
-                        {item.wishMessage && (
-                          <p className={`mt-1.5 ${colors.body} italic leading-relaxed`}>
-                            &ldquo;{item.wishMessage}&rdquo;
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+              <div
+                className="w-full h-full flex flex-col items-center justify-center p-6 text-center"
+                style={{ backgroundColor: colors.styleType === 'noir' ? '#181614' : undefined }}
+              >
+                <Sparkles className="w-8 h-8 mb-3 opacity-60" style={{ color: 'var(--inv-accent)' }} />
+                <span className="text-xs uppercase font-mono tracking-widest opacity-60">
+                  {templateConfig.name} • Save The Date
+                </span>
               </div>
             )}
-          </div>
-        </InvitationSectionReveal>
 
-        {/* 1. REPOSITIONED INVITATION FOOTER CREDITS (Tight mt-6 mb-4 right under RSVP Card) */}
-        <div className="mt-6 mb-4 text-center space-y-2 px-2">
-          <div>
-            <Link
-              href="/thiep-cuoi"
-              className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-600 hover:text-stone-900 transition-colors"
-            >
-              <span>Thiệp cưới được thiết kế trên</span>
-              <span className="font-semibold underline underline-offset-4" style={{ color: 'var(--inv-accent)' }}>
-                PlusMoments
-              </span>
-            </Link>
-          </div>
-          <div>
-            <button
-              type="button"
-              onClick={() => setIsPinModalOpen(true)}
-              className="text-[11px] tracking-wide text-[#78716C] hover:text-stone-900 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline underline-offset-2 py-1"
-            >
-              <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. CURATED SERVICE PACKAGES SHOWCASE AT BOTTOM OF INVITATION PAGE */}
-      {servicePackages && servicePackages.length > 0 && (
-        <section className={`border-t ${colors.divider} ${colors.styleType === 'noir' ? 'bg-[#151311]' : 'bg-[#F6F2EB]/70'} pt-10 pb-28 px-4 sm:px-6 mt-6`}>
-          <div className="max-w-4xl mx-auto text-center">
-            <span
-              className="text-[10px] uppercase tracking-[0.22em] font-semibold block mb-1"
-              style={{ color: 'var(--inv-accent)' }}
-            >
-              ✦ DÀNH CHO KHÁCH MỜI SẮP CƯỚI ✦
-            </span>
-            <h3 className={`font-serif text-2xl sm:text-3xl font-normal ${colors.title} tracking-tight leading-snug`}>
-              Các Gói Chụp Ảnh & Phim Cưới Trọn Gói
-            </h3>
-            <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-2 font-normal max-w-md mx-auto leading-relaxed`}>
-              Lưu giữ khoảnh khắc trọng đại của hai bạn cùng đội ngũ nghệ sĩ hình ảnh PlusMoments.
-            </p>
-
-            {/* Curated Packages Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left mt-8">
-              {servicePackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`rounded-2xl border ${colors.cardBorder} ${colors.cardBg} p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group`}
+            {/* Ambient Dark Gradient Overlay with High-Contrast Mobile Shielding */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 flex flex-col items-center justify-end text-center p-6 pb-16 text-white">
+              {/* Masked Subtitle */}
+              <div className="overflow-hidden mb-2">
+                <span
+                  className="inline-block text-xs sm:text-sm font-mono tracking-[0.28em] uppercase font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_0.9s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                  style={{ color: 'var(--inv-accent)' }}
                 >
-                  <div className="space-y-3">
-                    {/* Package Cover Image aspect-[16/10] */}
-                    {pkg.coverImage && (
-                      <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-stone-100 bg-stone-100">
-                        <img
-                          src={pkg.coverImage}
-                          alt={pkg.name}
-                          className="w-full h-full object-cover object-[50%_20%] group-hover:scale-105 transition-transform duration-500"
-                        />
-                        {pkg.badgeText && (
-                          <span
-                            className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-white text-[9px] font-bold tracking-wider uppercase shadow-xs"
-                            style={{ backgroundColor: 'var(--inv-accent)' }}
+                  Save The Date
+                </span>
+              </div>
+
+              {/* Masked Couple Title */}
+              {hasCoupleNames && (
+                <div className="overflow-hidden mb-3">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.75)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
+                    {data.groomName}{' '}
+                    {data.groomName && data.brideName && (
+                      <span className="font-light italic" style={{ color: 'var(--inv-accent)' }}>&</span>
+                    )}{' '}
+                    {data.brideName}
+                  </h1>
+                </div>
+              )}
+
+              {/* Masked Ceremony Date */}
+              {hasCeremonyTime && (
+                <div className="overflow-hidden mb-6">
+                  <p className="text-sm sm:text-base text-stone-100 font-serif tracking-widest uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-[maskReveal_1s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
+                    {data.ceremonyTimeText || formatDisplayDateVN(data.ceremonyDate)}
+                  </p>
+                </div>
+              )}
+
+              <ChevronDown className="w-6 h-6 text-white/80 animate-bounce" />
+            </div>
+          </section>
+
+          {/* ------------------------------------------------------------- */}
+          {/* 3. WEDDING INVITATION DETAILS & FAMILY                        */}
+          {/* ------------------------------------------------------------- */}
+          <section className="max-w-2xl mx-auto px-6 py-16 text-center">
+            <InvitationSectionReveal showGoldDivider>
+              <div
+                className="text-[11px] font-mono tracking-[0.2em] uppercase font-semibold mb-3"
+                style={{ color: 'var(--inv-accent)' }}
+              >
+                Trân Trọng Kính Mời
+              </div>
+
+              <h2 className={`text-2xl sm:text-3xl font-serif font-semibold ${colors.title} mb-6`}>
+                Lễ Thành Hôn
+              </h2>
+            </InvitationSectionReveal>
+
+            {/* Parents Names with Reveal */}
+            {hasParents && (
+              <InvitationSectionReveal delay={150}>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 py-6 border-y ${colors.divider} text-xs sm:text-sm leading-relaxed`}>
+                  {data.groomParents?.trim() && (
+                    <div>
+                      <div
+                        className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
+                        style={{ color: 'var(--inv-accent)' }}
+                      >
+                        Nhà Trai
+                      </div>
+                      <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
+                        {data.groomParents}
+                      </div>
+                    </div>
+                  )}
+                  {data.brideParents?.trim() && (
+                    <div>
+                      <div
+                        className="font-serif font-bold text-xs uppercase tracking-wider mb-1"
+                        style={{ color: 'var(--inv-accent)' }}
+                      >
+                        Nhà Gái
+                      </div>
+                      <div className={`${colors.body} text-sm sm:text-[15px] font-medium leading-relaxed whitespace-pre-line`}>
+                        {data.brideParents}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </InvitationSectionReveal>
+            )}
+
+            {/* ============================================================= */}
+            {/* 3.0 GROOM -> BRIDE PORTRAIT INTRODUCTION SECTION              */}
+            {/* Sequence: THE GROOM (from Right) & THE BRIDE (from Left)      */}
+            {/* ============================================================= */}
+            {hasGroomBrideIntro && (() => {
+              const effectiveGroomImg = data.groomImage || null;
+              const effectiveBrideImg = data.brideImage || null;
+
+              return (
+                <div ref={portraitsRef} className="my-10 text-center overflow-x-hidden">
+                  <span
+                    className="text-[11px] font-mono tracking-[0.25em] uppercase font-semibold block mb-2"
+                    style={{ color: 'var(--inv-accent)' }}
+                  >
+                    ✦ HAI NHÂN VẬT CHÍNH ✦
+                  </span>
+                  <h3 className={`font-serif text-2xl sm:text-3xl font-medium tracking-tight ${colors.title} mb-8`}>
+                    Chú Rể & Cô Dâu
+                  </h3>
+
+                  {/* 2-Column Responsive Layout with Opposite Directional Slide-in */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start text-left">
+                    {/* 1. THE GROOM: Slide in from RIGHT (translate-x-16 -> translate-x-0) */}
+                    <div
+                      className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'
+                        }`}
+                    >
+                      {effectiveGroomImg ? (
+                        <div
+                          onClick={() => openLightboxAtUrl(effectiveGroomImg)}
+                          className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/groomImg`}
+                          style={{ borderColor: 'var(--inv-accent)' }}
+                        >
+                          <ProgressiveImage
+                            src={effectiveGroomImg}
+                            alt={`Chú Rể ${data.groomName || ''}`}
+                            className="w-full h-full"
+                            imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/groomImg:scale-105"
+                            sizes="(max-width: 768px) 90vw, 360px"
+                          />
+                          <div
+                            className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
+                            style={{ color: 'var(--inv-accent)' }}
                           >
-                            {pkg.badgeText}
-                          </span>
+                            The Groom
+                          </div>
+
+                          {/* Expand indicator button on bottom right */}
+                          <button
+                            type="button"
+                            className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
+                            title="Xem ảnh phóng to"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : null}
+
+                      <div className="pt-1">
+                        <div
+                          className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                          style={{ color: 'var(--inv-accent)' }}
+                        >
+                          Chú Rể
+                        </div>
+                        {data.groomName && (
+                          <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                            {data.groomName}
+                          </h4>
                         )}
+                        {data.groomBio ? (
+                          <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                            &ldquo;{data.groomBio}&rdquo;
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {/* 2. THE BRIDE: Slide in from LEFT (-translate-x-16 -> translate-x-0) with 150ms delay */}
+                    <div
+                      className={`${colors.cardRadius} p-5 sm:p-6 ${colors.cardBg} ${colors.cardBorder} space-y-4 md:mt-10 transition-all duration-1000 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${portraitsInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'
+                        }`}
+                    >
+                      {effectiveBrideImg ? (
+                        <div
+                          onClick={() => openLightboxAtUrl(effectiveBrideImg)}
+                          className={`relative w-full aspect-[3/4] ${colors.cardRadius} overflow-hidden shadow-md border cursor-pointer group/brideImg`}
+                          style={{ borderColor: 'var(--inv-accent)' }}
+                        >
+                          <ProgressiveImage
+                            src={effectiveBrideImg}
+                            alt={`Cô Dâu ${data.brideName || ''}`}
+                            className="w-full h-full"
+                            imageClassName="w-full h-full object-cover object-[50%_18%] transition-transform duration-700 group-hover/brideImg:scale-105"
+                            sizes="(max-width: 768px) 90vw, 360px"
+                          />
+                          <div
+                            className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#1C1917]/85 backdrop-blur-xs text-[10px] uppercase font-mono tracking-widest border border-white/20"
+                            style={{ color: 'var(--inv-accent)' }}
+                          >
+                            The Bride
+                          </div>
+
+                          {/* Expand indicator button on bottom right */}
+                          <button
+                            type="button"
+                            className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-xs text-white flex items-center justify-center transition-transform active:scale-90"
+                            title="Xem ảnh phóng to"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : null}
+
+                      <div className="pt-1">
+                        <div
+                          className="text-[11px] font-mono uppercase tracking-[0.22em] font-semibold mb-1"
+                          style={{ color: 'var(--inv-accent)' }}
+                        >
+                          Cô Dâu
+                        </div>
+                        {data.brideName && (
+                          <h4 className={`font-serif text-2xl font-normal leading-snug tracking-tight ${colors.title}`}>
+                            {data.brideName}
+                          </h4>
+                        )}
+                        {data.brideBio ? (
+                          <p className={`text-xs sm:text-[13px] ${colors.body} mt-2.5 leading-relaxed font-normal italic`}>
+                            &ldquo;{data.brideBio}&rdquo;
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Story Text */}
+            {hasStory && (
+              <InvitationSectionReveal delay={200} showGoldDivider>
+                <div className="my-10 px-4">
+                  {data.storyTitle && (
+                    <h3 className={`font-serif text-xl font-medium italic mb-3 ${colors.title}`}>
+                      &ldquo;{data.storyTitle}&rdquo;
+                    </h3>
+                  )}
+                  <p className={`text-sm sm:text-[15px] ${colors.body} font-normal leading-relaxed whitespace-pre-line`}>
+                    {data.storyText}
+                  </p>
+                </div>
+              </InvitationSectionReveal>
+            )}
+
+            {/* 3.1 SVG HAND-DRAWN HEART CALENDAR & COUNTDOWN */}
+            {Boolean(data.ceremonyDate && String(data.ceremonyDate).trim()) && (
+              <>
+                <InvitationSectionReveal delay={250}>
+                  <SaveTheDateCalendar ceremonyDate={data.ceremonyDate} themeColor={themeColor} isDark={isDarkTemplate} />
+                </InvitationSectionReveal>
+
+                <InvitationSectionReveal delay={300}>
+                  <AnimatedCountdown ceremonyDate={data.ceremonyDate} isDark={isDarkTemplate} />
+                </InvitationSectionReveal>
+              </>
+            )}
+
+            {/* Venue Information & Google Maps Button */}
+            {hasVenue && (
+              <InvitationSectionReveal delay={350}>
+                <div className={`my-10 p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} ${colors.cardBorder} text-center shadow-xs`}>
+                  {data.ceremonyTimeText && (
+                    <>
+                      <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
+                      <div className={`font-serif text-lg font-semibold ${colors.title}`}>
+                        {data.ceremonyTimeText}
+                      </div>
+                    </>
+                  )}
+
+                  <div className={`mt-4 pt-4 border-t ${colors.divider}`}>
+                    <MapPin className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
+                    {data.venueName && (
+                      <div className={`font-serif text-lg font-bold ${colors.title}`}>
+                        {data.venueName}
+                      </div>
+                    )}
+                    {data.venueAddress && (
+                      <div className={`text-sm sm:text-[15px] ${colors.body} mt-1.5 max-w-md mx-auto leading-relaxed`}>
+                        {data.venueAddress}
                       </div>
                     )}
 
-                    <div>
-                      <h4 className={`font-serif text-lg font-medium ${colors.title} leading-snug`}>
-                        {pkg.name}
-                      </h4>
-                      {pkg.subtitle && (
-                        <p className={`text-[11px] ${colors.bodyMuted} mt-0.5 line-clamp-1`}>
-                          {pkg.subtitle}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Price Tag */}
-                    <div className="pt-1 flex items-baseline gap-1.5">
-                      <span className="text-base font-serif font-bold" style={{ color: 'var(--inv-accent)' }}>
-                        {pkg.price ? pkg.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ báo giá'}
-                      </span>
-                      {pkg.unit && (
-                        <span className="text-[10px] text-stone-400 font-normal">
-                          / {pkg.unit}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Highlights (2-3 items) */}
-                    {pkg.highlightPoints && pkg.highlightPoints.length > 0 && (
-                      <ul className={`space-y-1 pt-1 text-[11px] ${colors.body} border-t ${colors.divider}`}>
-                        {pkg.highlightPoints.slice(0, 3).map((pt, idx) => (
-                          <li key={idx} className="flex items-start gap-1.5">
-                            <span className="font-bold" style={{ color: 'var(--inv-accent)' }}>•</span>
-                            <span className="line-clamp-1">{pt}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    {data.googleMapsUrl && (
+                      <a
+                        href={data.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full text-white text-xs font-medium tracking-wide uppercase transition-transform hover:scale-105 shadow-xs"
+                        style={{ backgroundColor: 'var(--inv-accent)' }}
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>Chỉ Đường Google Maps</span>
+                      </a>
                     )}
                   </div>
+                </div>
+              </InvitationSectionReveal>
+            )}
+          </section>
 
-                  {/* Actions */}
-                  <div className={`pt-4 mt-3 border-t ${colors.divider}`}>
-                    <Link
-                      href="/bang-gia"
-                      className="w-full py-2.5 px-3 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90 shadow-2xs"
+          {/* ------------------------------------------------------------- */}
+          {/* 4. WEDDING PHOTO GALLERY WITH DOUBLE-TAP HEART BURST           */}
+          {/* ------------------------------------------------------------- */}
+          {galleryItems.length > 0 && (
+            <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+              <InvitationSectionReveal showGoldDivider>
+                <div className="text-center mb-8">
+                  <span className={`text-[11px] font-mono tracking-[0.2em] uppercase font-semibold ${colors.label}`}>
+                    Khoảnh Khắc Hạnh Phúc
+                  </span>
+                  <h3 className={`text-2xl font-serif font-semibold ${colors.title} mt-1`}>
+                    Bộ Ảnh Cưới Của Chúng Mình
+                  </h3>
+                  <p className={`text-xs ${colors.bodyMuted} mt-1 font-light`}>
+                    Chạm đúp vào ảnh để thả tim chúc phúc
+                  </p>
+                </div>
+              </InvitationSectionReveal>
+
+              <div className="space-y-4 sm:space-y-6">
+                {galleryItems.map((img, idx) => (
+                  <InvitationSectionReveal key={img.id || idx} delay={idx * 100}>
+                    <InteractiveGalleryCard
+                      image={img}
+                      coupleTitle={`${data.groomName} & ${data.brideName}`}
+                      onOpenLightbox={() => openLightboxAtUrl(img.url)}
+                    />
+                  </InvitationSectionReveal>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ------------------------------------------------------------- */}
+          {/* 5. WEDDING GIFT QR & BANK INFO                                */}
+          {/* ------------------------------------------------------------- */}
+          {hasBanking && (
+            <section className="max-w-xl mx-auto px-6 py-12 text-center">
+              <InvitationSectionReveal showGoldDivider>
+                <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-xs`}>
+                  <QrCode className="w-7 h-7 mx-auto mb-2" style={{ color: 'var(--inv-accent)' }} />
+                  <h4 className={`font-serif text-xl font-semibold ${colors.title}`}>
+                    Hộp Mừng Cưới
+                  </h4>
+                  <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1 max-w-sm mx-auto leading-relaxed`}>
+                    Sự hiện diện và lời chúc phúc của quý khách là món quà quý giá nhất dành cho chúng mình.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowQrModal(true)}
+                    className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full border text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-90"
+                    style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>Gửi Mừng Cưới Chúc Phúc</span>
+                  </button>
+                </div>
+              </InvitationSectionReveal>
+            </section>
+          )}
+
+          {/* Modal QR Code */}
+          {showQrModal && (
+            <div
+              className={`${isPreview ? 'absolute inset-0 z-50' : 'fixed inset-0 z-50'} flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs`}
+              onClick={() => setShowQrModal(false)}
+            >
+              <div
+                className={`w-full max-w-sm ${colors.cardBg} ${colors.cardRadius} p-6 text-center shadow-2xl border ${colors.cardBorder} max-h-[92vh] overflow-y-auto`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h4 className={`font-serif text-lg font-semibold ${colors.title} mb-3`}>
+                  Mã QR Mừng Cưới
+                </h4>
+
+                {effectiveBankQr && (
+                  <div className="w-56 h-56 mx-auto rounded-2xl overflow-hidden border border-stone-200 mb-4 bg-white p-2 shadow-inner">
+                    <img
+                      src={effectiveBankQr}
+                      alt="Mã QR Mừng Cưới"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* Structured Bank Details if bankId / bankAccount are configured */}
+                {(data.bankId || data.bankAccount || data.bankOwner) && (
+                  <div className={`text-xs ${isDarkTemplate ? 'bg-[#25221F] text-stone-200 border-white/10' : 'bg-stone-50 text-stone-800 border-stone-200'} border p-3 rounded-xl mb-3 space-y-1.5 text-left`}>
+                    {data.bankId && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-stone-500">Ngân hàng:</span>
+                        <span className="font-semibold">{VIETQR_BANKS.find(b => b.id === data.bankId)?.shortName || data.bankId}</span>
+                      </div>
+                    )}
+                    {data.bankAccount && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-stone-500">Số tài khoản:</span>
+                        <span className="font-mono font-bold tracking-wider">{data.bankAccount}</span>
+                      </div>
+                    )}
+                    {data.bankOwner && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-stone-500">Chủ tài khoản:</span>
+                        <span className="font-medium uppercase">{data.bankOwner}</span>
+                      </div>
+                    )}
+                    {data.giftAmount && Number(data.giftAmount) > 0 && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-stone-500">Số tiền gợi ý:</span>
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                          {Number(data.giftAmount).toLocaleString('vi-VN')} đ
+                        </span>
+                      </div>
+                    )}
+                    {data.giftMessage && (
+                      <div className="pt-1 border-t border-stone-200/50 text-[11px]">
+                        <span className="text-stone-500 block mb-0.5">Lời chúc chuyển khoản:</span>
+                        <span className="italic">{data.giftMessage}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {data.bankInfoText && (
+                  <div className={`text-xs ${isDarkTemplate ? 'bg-[#25221F] text-stone-200 border-white/10' : 'bg-stone-50 text-stone-800 border-stone-200'} border p-3.5 rounded-2xl mb-4 font-mono leading-relaxed whitespace-pre-line`}>
+                    {data.bankInfoText}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowQrModal(false)}
+                  className={`w-full h-10 rounded-xl ${isDarkTemplate ? 'bg-[#25221F] text-stone-300 hover:bg-[#2e2a27]' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'} text-xs font-medium transition-colors cursor-pointer`}
+                >
+                  Đóng Cửa Sổ
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------- */}
+          {/* 6. RSVP & GUESTBOOK WISHES                                    */}
+          {/* ------------------------------------------------------------- */}
+          <section className="max-w-xl mx-auto px-6 py-12">
+            <InvitationSectionReveal showGoldDivider>
+              <div className={`p-6 sm:p-8 ${colors.cardRadius} ${colors.cardBg} border ${colors.cardBorder} shadow-sm`}>
+                <div className="text-center mb-6">
+                  <Heart className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--inv-accent)', fill: `${themeColor}25` }} />
+                  <h3 className={`font-serif text-2xl font-semibold ${colors.title}`}>
+                    Xác Nhận Tham Dự & Lời Chúc
+                  </h3>
+                  <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-1`}>
+                    Để gia đình chuẩn bị chu đáo nhất, xin vui lòng gửi phản hồi trước ngày cưới.
+                  </p>
+                </div>
+
+                {rsvpSuccessMsg ? (
+                  <div className={`p-5 rounded-2xl ${isDarkTemplate ? 'bg-emerald-950/40 border-emerald-800 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-800'} border text-center animate-in fade-in zoom-in-95 duration-300`}>
+                    <CheckCircle2 className={`w-7 h-7 ${isDarkTemplate ? 'text-emerald-400' : 'text-emerald-600'} mx-auto mb-2`} />
+                    <div className="text-sm font-medium leading-relaxed">
+                      {rsvpSuccessMsg}
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleRsvpSubmit} className="space-y-4">
+                    <div>
+                      <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
+                        Họ tên của bạn / gia đình <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        className={`w-full h-11 px-3.5 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none focus:ring-2`}
+                        style={{ outlineColor: 'var(--inv-accent)' }}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
+                          Tham dự hôn lễ?
+                        </label>
+                        <select
+                          value={attendance}
+                          onChange={(e: any) => setAttendance(e.target.value)}
+                          className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
+                        >
+                          <option value="ATTENDING">Sẽ tham dự</option>
+                          <option value="DECLINED">Rất tiếc không thể đến</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
+                          Số người tham dự
+                        </label>
+                        <select
+                          value={guestCount}
+                          disabled={attendance === 'DECLINED'}
+                          onChange={(e) => setGuestCount(Number(e.target.value))}
+                          className={`w-full h-11 px-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none disabled:opacity-50`}
+                        >
+                          <option value={1}>1 người</option>
+                          <option value={2}>2 người</option>
+                          <option value={3}>3 người</option>
+                          <option value={4}>4 người (Gia đình)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
+                        Khách mời của ai?
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSide('GROOM')}
+                          className={`h-9 rounded-lg text-xs font-medium border transition-colors ${side === 'GROOM'
+                            ? 'text-white'
+                            : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
+                            }`}
+                          style={side === 'GROOM' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
+                        >
+                          Nhà Trai
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSide('BRIDE')}
+                          className={`h-9 rounded-lg text-xs font-medium border transition-colors ${side === 'BRIDE'
+                            ? 'text-white'
+                            : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
+                            }`}
+                          style={side === 'BRIDE' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
+                        >
+                          Nhà Gái
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSide('BOTH')}
+                          className={`h-9 rounded-lg text-xs font-medium border transition-colors ${side === 'BOTH'
+                            ? 'text-white'
+                            : `${colors.inputBorder} ${isDarkTemplate ? 'text-stone-300 hover:bg-white/5' : 'text-stone-700 hover:bg-stone-50'}`
+                            }`}
+                          style={side === 'BOTH' ? { backgroundColor: 'var(--inv-accent)', borderColor: 'var(--inv-accent)' } : undefined}
+                        >
+                          Cả Hai
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs font-semibold ${isDarkTemplate ? 'text-stone-300' : 'text-stone-700'} mb-1`}>
+                        Lời chúc gửi đến Cô Dâu & Chú Rể
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={wishMessage}
+                        onChange={(e) => setWishMessage(e.target.value)}
+                        className={`w-full p-3 rounded-xl border ${colors.inputBorder} ${colors.inputBg} ${colors.inputText} text-sm focus:outline-none`}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingRsvp}
+                      className="w-full h-11 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 shadow-xs"
                       style={{ backgroundColor: 'var(--inv-accent)' }}
                     >
-                      <span>Xem Chi Tiết Bảng Giá</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{isSubmittingRsvp ? 'Đang gửi...' : 'Gửi Lời Chúc & Xác Nhận Tham Dự'}</span>
+                    </button>
+                  </form>
+                )}
 
-            {/* Secondary CTA: Tự tạo thiệp cưới miễn phí */}
-            <div className={`mt-8 pt-6 border-t ${colors.divider} flex flex-wrap items-center justify-center gap-4`}>
-              <Link
-                href="/thiep-cuoi/tao-moi"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-xs font-medium uppercase tracking-wider transition-all"
-                style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
-              >
-                <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--inv-accent)' }} />
-                <span>Tự Tạo Thiệp Cưới Miễn Phí</span>
-              </Link>
+                {/* Guestbook List with New Wish Highlight */}
+                {rsvpsList.length > 0 && (
+                  <div className={`mt-8 pt-6 border-t ${colors.divider}`}>
+                    <div className={`text-xs font-semibold ${colors.title} uppercase tracking-wider mb-3 flex items-center justify-between`}>
+                      <span>Sổ Lưu Bút Trực Tuyến</span>
+                      <span className="text-[10px] text-stone-400 font-mono">({rsvpsList.length} lời chúc)</span>
+                    </div>
+                    <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                      {rsvpsList.map((item) => {
+                        const isNewlyAdded = item.id === newlyAddedRsvpId;
+                        return (
+                          <div
+                            key={item.id}
+                            className={`p-3.5 rounded-2xl border text-xs transition-all ${isNewlyAdded
+                              ? isDarkTemplate ? 'bg-amber-950/40 border-amber-700 shadow-xs' : 'bg-amber-50/80 border-amber-300 shadow-xs'
+                              : isDarkTemplate ? 'bg-[#25221F] border-white/10' : 'bg-stone-50 border-stone-200/80'
+                              }`}
+                          >
+                            <div className={`flex items-center justify-between font-semibold ${colors.title}`}>
+                              <span className="flex items-center gap-1.5">
+                                <span>{item.guestName}</span>
+                                {isNewlyAdded && (
+                                  <span
+                                    className="px-1.5 py-0.2 rounded-full text-[9px] font-mono"
+                                    style={{ backgroundColor: `${themeColor}25`, color: 'var(--inv-accent)' }}
+                                  >
+                                    Vừa gửi
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-[10px] text-stone-400 font-normal">
+                                {item.attendance === 'ATTENDING' ? 'Sẽ tham dự' : 'Gửi lời chúc'}
+                              </span>
+                            </div>
+                            {item.wishMessage && (
+                              <p className={`mt-1.5 ${colors.body} italic leading-relaxed`}>
+                                &ldquo;{item.wishMessage}&rdquo;
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </InvitationSectionReveal>
+
+            {/* 1. REPOSITIONED INVITATION FOOTER CREDITS (Tight mt-6 mb-4 right under RSVP Card) */}
+            <div className="mt-6 mb-4 text-center space-y-2 px-2">
+              <div>
+                <Link
+                  href="/thiep-cuoi"
+                  className="inline-flex items-center gap-1.5 text-xs font-serif tracking-wide text-stone-600 hover:text-stone-900 transition-colors"
+                >
+                  <span>Thiệp cưới được thiết kế trên</span>
+                  <span className="font-semibold underline underline-offset-4" style={{ color: 'var(--inv-accent)' }}>
+                    PlusMoments
+                  </span>
+                </Link>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsPinModalOpen(true)}
+                  className="text-[11px] tracking-wide text-[#78716C] hover:text-stone-900 transition-colors cursor-pointer inline-flex items-center gap-1 font-medium hover:underline underline-offset-2 py-1"
+                >
+                  <span>Dành cho Cô Dâu & Chú Rể • Chỉnh sửa thiệp</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+
+          {/* 2. CURATED SERVICE PACKAGES SHOWCASE AT BOTTOM OF INVITATION PAGE */}
+          {servicePackages && servicePackages.length > 0 && (
+            <section className={`border-t ${colors.divider} ${colors.styleType === 'noir' ? 'bg-[#151311]' : 'bg-[#F6F2EB]/70'} pt-10 pb-28 px-4 sm:px-6 mt-6`}>
+              <div className="max-w-4xl mx-auto text-center">
+                <span
+                  className="text-[10px] uppercase tracking-[0.22em] font-semibold block mb-1"
+                  style={{ color: 'var(--inv-accent)' }}
+                >
+                  ✦ DÀNH CHO KHÁCH MỜI SẮP CƯỚI ✦
+                </span>
+                <h3 className={`font-serif text-2xl sm:text-3xl font-normal ${colors.title} tracking-tight leading-snug`}>
+                  Các Gói Chụp Ảnh & Phim Cưới Trọn Gói
+                </h3>
+                <p className={`text-xs sm:text-sm ${colors.bodyMuted} mt-2 font-normal max-w-md mx-auto leading-relaxed`}>
+                  Lưu giữ khoảnh khắc trọng đại của hai bạn cùng đội ngũ nghệ sĩ hình ảnh PlusMoments.
+                </p>
+
+                {/* Curated Packages Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left mt-8">
+                  {servicePackages.map((pkg) => (
+                    <div
+                      key={pkg.id}
+                      className={`rounded-2xl border ${colors.cardBorder} ${colors.cardBg} p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group`}
+                    >
+                      <div className="space-y-3">
+                        {/* Package Cover Image aspect-[16/10] */}
+                        {pkg.coverImage && (
+                          <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-stone-100 bg-stone-100">
+                            <img
+                              src={pkg.coverImage}
+                              alt={pkg.name}
+                              className="w-full h-full object-cover object-[50%_20%] group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {pkg.badgeText && (
+                              <span
+                                className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-white text-[9px] font-bold tracking-wider uppercase shadow-xs"
+                                style={{ backgroundColor: 'var(--inv-accent)' }}
+                              >
+                                {pkg.badgeText}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <div>
+                          <h4 className={`font-serif text-lg font-medium ${colors.title} leading-snug`}>
+                            {pkg.name}
+                          </h4>
+                          {pkg.subtitle && (
+                            <p className={`text-[11px] ${colors.bodyMuted} mt-0.5 line-clamp-1`}>
+                              {pkg.subtitle}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Price Tag */}
+                        <div className="pt-1 flex items-baseline gap-1.5">
+                          <span className="text-base font-serif font-bold" style={{ color: 'var(--inv-accent)' }}>
+                            {pkg.price ? pkg.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ báo giá'}
+                          </span>
+                          {pkg.unit && (
+                            <span className="text-[10px] text-stone-400 font-normal">
+                              / {pkg.unit}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Highlights (2-3 items) */}
+                        {pkg.highlightPoints && pkg.highlightPoints.length > 0 && (
+                          <ul className={`space-y-1 pt-1 text-[11px] ${colors.body} border-t ${colors.divider}`}>
+                            {pkg.highlightPoints.slice(0, 3).map((pt, idx) => (
+                              <li key={idx} className="flex items-start gap-1.5">
+                                <span className="font-bold" style={{ color: 'var(--inv-accent)' }}>•</span>
+                                <span className="line-clamp-1">{pt}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className={`pt-4 mt-3 border-t ${colors.divider}`}>
+                        <Link
+                          href="/bang-gia"
+                          className="w-full py-2.5 px-3 rounded-xl text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90 shadow-2xs"
+                          style={{ backgroundColor: 'var(--inv-accent)' }}
+                        >
+                          <span>Xem Chi Tiết Bảng Giá</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Secondary CTA: Tự tạo thiệp cưới miễn phí */}
+                <div className={`mt-8 pt-6 border-t ${colors.divider} flex flex-wrap items-center justify-center gap-4`}>
+                  <Link
+                    href="/thiep-cuoi/tao-moi"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-xs font-medium uppercase tracking-wider transition-all"
+                    style={{ borderColor: 'var(--inv-accent)', color: 'var(--inv-accent)' }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--inv-accent)' }} />
+                    <span>Tự Tạo Thiệp Cưới Miễn Phí</span>
+                  </Link>
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
 
@@ -1492,8 +1567,17 @@ export function WeddingInvitationView({
         defaultSlug={data.slug}
       />
 
+      {/* Google Fonts Preconnect & Stylesheet for 4 Invitation Typographies */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Dancing+Script:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      />
+
       {/* Global Embedded Keyframes for Ken Burns, Shimmer, and Mask Reveal */}
       <style jsx global>{`
+        .invitation-root .font-serif {
+          font-family: var(--inv-font-serif, 'Cormorant Garamond', Georgia, serif) !important;
+        }
         @keyframes kenBurns {
           0% {
             transform: scale(1);

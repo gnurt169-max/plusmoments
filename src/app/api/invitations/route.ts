@@ -4,6 +4,7 @@ import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { parseVietnamWeddingDate } from '@/lib/utils';
+import { generateRandomSlug, buildVietQrUrl } from '@/lib/invitations/templates';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,9 +85,15 @@ export async function POST(request: Request) {
       galleryImages,
       templateId = 'timeless-ivory',
       themeColor = '#8C6D46',
+      fontFamily = 'cormorant',
       musicPreset = 'romantic-piano',
       bankQrImage,
       bankInfoText,
+      bankId,
+      bankAccount,
+      bankOwner,
+      giftAmount,
+      giftMessage,
       customSlug,
       editPasscode: requestedPasscode,
     } = body;
@@ -115,25 +122,47 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate safe unique slug
-    let baseSlug = customSlug?.trim()
-      ? slugify(customSlug)
-      : `${slugify(groomName)}-${slugify(brideName)}`;
-
-    if (!baseSlug) {
-      baseSlug = `wedding-${Date.now().toString(36)}`;
+    // Slug Management: Random default or validated custom slug with collision check
+    let finalSlug = '';
+    if (customSlug && String(customSlug).trim()) {
+      const cleanCustom = slugify(String(customSlug).trim());
+      if (cleanCustom.length < 2) {
+        return NextResponse.json(
+          { success: false, error: 'Đường dẫn riêng phải có ít nhất 2 ký tự hợp lệ' },
+          { status: 400 }
+        );
+      }
+      const existing = await prisma.weddingInvitation.findUnique({
+        where: { slug: cleanCustom },
+        select: { id: true },
+      });
+      if (existing) {
+        return NextResponse.json(
+          { success: false, error: 'Đường dẫn này đã tồn tại trên hệ thống, vui lòng chọn tên đường dẫn khác.' },
+          { status: 409 }
+        );
+      }
+      finalSlug = cleanCustom;
+    } else {
+      let candidate = generateRandomSlug();
+      let attempts = 0;
+      while (await prisma.weddingInvitation.findUnique({ where: { slug: candidate } })) {
+        candidate = generateRandomSlug();
+        attempts++;
+        if (attempts > 10) break;
+      }
+      finalSlug = candidate;
     }
 
-    let finalSlug = baseSlug;
-    let counter = 1;
-    while (await prisma.weddingInvitation.findUnique({ where: { slug: finalSlug } })) {
-      const suffix = Math.random().toString(36).substring(2, 6);
-      finalSlug = `${baseSlug}-${suffix}`;
-      counter++;
-      if (counter > 5) break;
+    // PIN Validation: Must be strictly 6 digits
+    const rawPasscode = requestedPasscode ? String(requestedPasscode).trim() : generatePasscode();
+    if (!/^\d{6}$/.test(rawPasscode)) {
+      return NextResponse.json(
+        { success: false, error: 'Mã PIN chỉnh sửa phải gồm đúng 6 chữ số' },
+        { status: 400 }
+      );
     }
-
-    const editPasscode = requestedPasscode?.trim() || generatePasscode();
+    const editPasscode = rawPasscode;
 
     // Organize invitation media folder: rename from draftSlug (or drafts) to finalSlug
     const draftSlug = body.draftSlug ? String(body.draftSlug).trim() : null;
@@ -141,7 +170,19 @@ export async function POST(request: Request) {
     let finalCoverImage = coverImage;
     let finalGroomImage = groomImage?.trim() || null;
     let finalBrideImage = brideImage?.trim() || null;
-    let finalBankQrImage = bankQrImage || null;
+    let finalBankQrImage = bankQrImage?.trim() || null;
+
+    // Auto-generate VietQR if bankId & bankAccount are provided and no custom QR image
+    if (!finalBankQrImage && bankId?.trim() && bankAccount?.trim()) {
+      finalBankQrImage = buildVietQrUrl({
+        bankId: bankId.trim(),
+        bankAccount: bankAccount.trim(),
+        bankOwner: bankOwner?.trim(),
+        giftAmount: giftAmount ? Number(giftAmount) : null,
+        giftMessage: giftMessage?.trim(),
+      });
+    }
+
     let finalGalleryImages = Array.isArray(galleryImages) ? galleryImages : [];
 
     const dirsToCheck = [draftSlug, 'drafts'].filter(Boolean) as string[];
@@ -213,8 +254,14 @@ export async function POST(request: Request) {
         coverImage: finalCoverImage,
         galleryImages: finalGalleryImages,
         musicPreset,
+        fontFamily: fontFamily || 'cormorant',
         bankQrImage: finalBankQrImage,
         bankInfoText: bankInfoText?.trim() || null,
+        bankId: bankId?.trim() || null,
+        bankAccount: bankAccount?.trim() || null,
+        bankOwner: bankOwner?.trim() || null,
+        giftAmount: giftAmount ? Number(giftAmount) : null,
+        giftMessage: giftMessage?.trim() || null,
         editPasscode,
         isPublished: true,
       },

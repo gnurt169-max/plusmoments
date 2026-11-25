@@ -4,6 +4,7 @@ import path from 'path';
 import { prisma } from '@/lib/prisma';
 import { getAdminSession } from '@/lib/auth';
 import { parseVietnamWeddingDate } from '@/lib/utils';
+import { buildVietQrUrl } from '@/lib/invitations/templates';
 
 export const dynamic = 'force-dynamic';
 
@@ -128,6 +129,9 @@ export async function PATCH(
     if (typeof body.themeColor === 'string') {
       updateData.themeColor = body.themeColor.trim();
     }
+    if (typeof body.fontFamily === 'string') {
+      updateData.fontFamily = body.fontFamily.trim();
+    }
     if (typeof body.musicPreset === 'string') {
       updateData.musicPreset = body.musicPreset.trim();
     }
@@ -137,8 +141,45 @@ export async function PATCH(
     if (typeof body.bankInfoText === 'string') {
       updateData.bankInfoText = body.bankInfoText.trim() || null;
     }
+    if (typeof body.bankId === 'string') {
+      updateData.bankId = body.bankId.trim() || null;
+    }
+    if (typeof body.bankAccount === 'string') {
+      updateData.bankAccount = body.bankAccount.trim() || null;
+    }
+    if (typeof body.bankOwner === 'string') {
+      updateData.bankOwner = body.bankOwner.trim() || null;
+    }
+    if (body.giftAmount !== undefined) {
+      updateData.giftAmount = body.giftAmount ? Number(body.giftAmount) : null;
+    }
+    if (typeof body.giftMessage === 'string') {
+      updateData.giftMessage = body.giftMessage.trim() || null;
+    }
     if (typeof body.editPasscode === 'string') {
-      updateData.editPasscode = body.editPasscode.trim();
+      const code = body.editPasscode.trim();
+      if (/^\d{6}$/.test(code)) {
+        updateData.editPasscode = code;
+      }
+    }
+
+    // Auto-generate VietQR if bankId & bankAccount are provided and bankQrImage is not set
+    if (!updateData.bankQrImage && (updateData.bankId || updateData.bankAccount)) {
+      const existing = await prisma.weddingInvitation.findUnique({
+        where: { id: params.id },
+        select: { bankId: true, bankAccount: true, bankOwner: true, giftAmount: true, giftMessage: true },
+      });
+      const effectiveBankId = updateData.bankId || existing?.bankId;
+      const effectiveBankAccount = updateData.bankAccount || existing?.bankAccount;
+      if (effectiveBankId && effectiveBankAccount) {
+        updateData.bankQrImage = buildVietQrUrl({
+          bankId: effectiveBankId,
+          bankAccount: effectiveBankAccount,
+          bankOwner: updateData.bankOwner !== undefined ? updateData.bankOwner : existing?.bankOwner,
+          giftAmount: updateData.giftAmount !== undefined ? updateData.giftAmount : existing?.giftAmount,
+          giftMessage: updateData.giftMessage !== undefined ? updateData.giftMessage : existing?.giftMessage,
+        });
+      }
     }
 
     const updated = await prisma.weddingInvitation.update({

@@ -25,14 +25,23 @@ import {
   Loader2,
   Save,
   Check,
+  Play,
+  Square,
+  Type,
+  Lock,
+  RefreshCw,
 } from 'lucide-react';
 import {
   INVITATION_TEMPLATES,
+  INVITATION_FONTS,
   MUSIC_PRESETS,
+  VIETQR_BANKS,
+  buildVietQrUrl,
   InvitationGalleryImage,
 } from '@/lib/invitations/templates';
 import { WeddingInvitationView } from '@/components/invitations/WeddingInvitationView';
 import { VenueAutocompleteInput } from '@/components/invitations/VenueAutocompleteInput';
+import { weddingAudioSynth } from '@/lib/invitations/wedding-audio-synth';
 import { formatVietnamDateTimeLocal } from '@/lib/utils';
 
 export default function EditWeddingInvitationPage() {
@@ -54,12 +63,16 @@ export default function EditWeddingInvitationPage() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
+  const [forceSlideInTrigger, setForceSlideInTrigger] = useState<number>(0);
   const [showMobilePreview, setShowMobilePreview] = useState<boolean>(false);
   const [showEnvelopePreview, setShowEnvelopePreview] = useState<boolean>(false);
+  const [isPlayingAudioPreview, setIsPlayingAudioPreview] = useState<boolean>(false);
+  const [isDraggingAlbum, setIsDraggingAlbum] = useState<boolean>(false);
 
   // Invitation Form Data States
   const [templateId, setTemplateId] = useState<string>('timeless-ivory');
   const [themeColor, setThemeColor] = useState<string>('#8C6D46');
+  const [fontFamily, setFontFamily] = useState<string>('cormorant');
   const [musicPreset, setMusicPreset] = useState<string>('romantic-piano');
   const [groomName, setGroomName] = useState<string>('');
   const [brideName, setBrideName] = useState<string>('');
@@ -78,8 +91,16 @@ export default function EditWeddingInvitationPage() {
   const [storyText, setStoryText] = useState<string>('');
   const [coverImage, setCoverImage] = useState<string>('');
   const [galleryImages, setGalleryImages] = useState<InvitationGalleryImage[]>([]);
+
+  // VietQR & Banking
+  const [bankId, setBankId] = useState<string>('VCB');
+  const [bankAccount, setBankAccount] = useState<string>('');
+  const [bankOwner, setBankOwner] = useState<string>('');
+  const [giftAmount, setGiftAmount] = useState<string>('');
+  const [giftMessage, setGiftMessage] = useState<string>('Mung cuoi hai ban');
   const [bankQrImage, setBankQrImage] = useState<string>('');
   const [bankInfoText, setBankInfoText] = useState<string>('');
+  const [useCustomQr, setUseCustomQr] = useState<boolean>(false);
   const [isPublished, setIsPublished] = useState<boolean>(true);
 
   // 1. Check SessionStorage for PIN on mount
@@ -111,6 +132,7 @@ export default function EditWeddingInvitationPage() {
         const inv = data.invitation;
         setTemplateId(inv.templateId || 'timeless-ivory');
         setThemeColor(inv.themeColor || '#8C6D46');
+        setFontFamily(inv.fontFamily || 'cormorant');
         setMusicPreset(inv.musicPreset || 'romantic-piano');
         setGroomName(inv.groomName || '');
         setBrideName(inv.brideName || '');
@@ -133,8 +155,16 @@ export default function EditWeddingInvitationPage() {
         setStoryText(inv.storyText || '');
         setCoverImage(inv.coverImage || '');
         setGalleryImages(Array.isArray(inv.galleryImages) ? inv.galleryImages : []);
+        setBankId(inv.bankId || 'VCB');
+        setBankAccount(inv.bankAccount || '');
+        setBankOwner(inv.bankOwner || '');
+        setGiftAmount(inv.giftAmount ? String(inv.giftAmount) : '');
+        setGiftMessage(inv.giftMessage || 'Mung cuoi hai ban');
         setBankQrImage(inv.bankQrImage || '');
         setBankInfoText(inv.bankInfoText || '');
+        if (inv.bankQrImage && !inv.bankAccount) {
+          setUseCustomQr(true);
+        }
         setIsPublished(inv.isPublished !== false);
 
         setPin(pinToVerify);
@@ -187,9 +217,33 @@ export default function EditWeddingInvitationPage() {
     }
   };
 
+  // Step Switcher with audio auto-pause
+  const handleStepChange = (newStep: number) => {
+    if (isPlayingAudioPreview) {
+      weddingAudioSynth.pause();
+      setIsPlayingAudioPreview(false);
+    }
+    setCurrentStep(newStep);
+  };
+
+  // Music Preview Trigger
+  const handleToggleAudioPreview = () => {
+    weddingAudioSynth.setPreset(musicPreset);
+    const playing = weddingAudioSynth.toggle();
+    setIsPlayingAudioPreview(playing);
+  };
+
+  const handleMusicChange = (preset: string) => {
+    setMusicPreset(preset);
+    if (isPlayingAudioPreview) {
+      weddingAudioSynth.pause();
+      weddingAudioSynth.setPreset(preset);
+      weddingAudioSynth.play();
+    }
+  };
+
   // Upload Multiple Gallery Images into structured folder /uploads/invitations/[slug]/
-  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const uploadFiles = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
 
     try {
@@ -212,7 +266,42 @@ export default function EditWeddingInvitationPage() {
       alert('Lỗi: ' + err.message);
     } finally {
       setIsUploading(false);
-      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      await uploadFiles(e.target.files);
+      e.target.value = '';
+    }
+  };
+
+  // Drag-and-drop handlers for Step 3 Album
+  const handleAlbumDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingAlbum(true);
+  };
+
+  const handleAlbumDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingAlbum(true);
+  };
+
+  const handleAlbumDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingAlbum(false);
+  };
+
+  const handleAlbumDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingAlbum(false);
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      await uploadFiles(files);
     }
   };
 
@@ -253,7 +342,7 @@ export default function EditWeddingInvitationPage() {
   const handleSaveChanges = async () => {
     if (!groomName.trim() || !brideName.trim()) {
       alert('Vui lòng nhập đầy đủ tên Cô Dâu và Chú Rể');
-      setCurrentStep(2);
+      handleStepChange(2);
       return;
     }
 
@@ -263,7 +352,7 @@ export default function EditWeddingInvitationPage() {
 
     if (!coverImage) {
       alert('Vui lòng chọn hoặc tải lên ảnh bìa thiệp cưới');
-      setCurrentStep(3);
+      handleStepChange(3);
       return;
     }
 
@@ -275,6 +364,7 @@ export default function EditWeddingInvitationPage() {
         passcode: pin,
         templateId,
         themeColor,
+        fontFamily,
         musicPreset,
         groomName,
         brideName,
@@ -293,8 +383,13 @@ export default function EditWeddingInvitationPage() {
         storyText,
         coverImage,
         galleryImages,
-        bankQrImage,
-        bankInfoText,
+        bankId: bankId.trim(),
+        bankAccount: bankAccount.trim(),
+        bankOwner: bankOwner.trim(),
+        giftAmount: giftAmount ? Number(giftAmount) : null,
+        giftMessage: giftMessage.trim(),
+        bankQrImage: useCustomQr ? bankQrImage : null,
+        bankInfoText: bankInfoText.trim() || null,
         isPublished,
       };
 
@@ -324,6 +419,7 @@ export default function EditWeddingInvitationPage() {
     slug,
     templateId,
     themeColor,
+    fontFamily,
     musicPreset,
     groomName,
     brideName,
@@ -342,9 +438,15 @@ export default function EditWeddingInvitationPage() {
     storyText,
     coverImage,
     galleryImages,
-    bankQrImage,
+    bankId,
+    bankAccount,
+    bankOwner,
+    giftAmount: giftAmount ? Number(giftAmount) : null,
+    giftMessage,
+    bankQrImage: useCustomQr ? bankQrImage : (bankId && bankAccount ? buildVietQrUrl({ bankId, bankAccount, bankOwner, giftAmount, giftMessage }) : bankQrImage),
     bankInfoText,
     isPublished,
+    rsvps: [],
   };
 
   // Screen 1: Loading
@@ -511,8 +613,8 @@ export default function EditWeddingInvitationPage() {
             <div className="grid grid-cols-4 gap-1 p-1 bg-stone-200/70 rounded-2xl text-xs font-medium">
               <button
                 type="button"
-                onClick={() => setCurrentStep(1)}
-                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 1
+                onClick={() => handleStepChange(1)}
+                className={`py-2 px-3 rounded-xl transition-all cursor-pointer ${currentStep === 1
                   ? 'bg-white text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 hover:text-stone-900'
                   }`}
@@ -521,8 +623,8 @@ export default function EditWeddingInvitationPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep(2)}
-                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 2
+                onClick={() => handleStepChange(2)}
+                className={`py-2 px-3 rounded-xl transition-all cursor-pointer ${currentStep === 2
                   ? 'bg-white text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 hover:text-stone-900'
                   }`}
@@ -531,8 +633,8 @@ export default function EditWeddingInvitationPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep(3)}
-                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 3
+                onClick={() => handleStepChange(3)}
+                className={`py-2 px-3 rounded-xl transition-all cursor-pointer ${currentStep === 3
                   ? 'bg-white text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 hover:text-stone-900'
                   }`}
@@ -541,8 +643,8 @@ export default function EditWeddingInvitationPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep(4)}
-                className={`py-2 px-3 rounded-xl transition-all ${currentStep === 4
+                onClick={() => handleStepChange(4)}
+                className={`py-2 px-3 rounded-xl transition-all cursor-pointer ${currentStep === 4
                   ? 'bg-white text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 hover:text-stone-900'
                   }`}
@@ -594,18 +696,88 @@ export default function EditWeddingInvitationPage() {
                   ))}
                 </div>
 
-                {/* Music Presets */}
+                {/* Font Typography Picker */}
                 <div className="pt-4 border-t border-stone-100">
-                  <label className="block text-xs font-medium text-stone-700 mb-2">
-                    Nhạc Nền Tự Động Phát Khi Mở Thiệp
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-medium text-stone-700 flex items-center gap-1.5">
+                      <Type className="w-3.5 h-3.5 text-[#8C6D46]" />
+                      <span>Font Chữ Chủ Đạo Cho Thiệp Cưới</span>
+                    </label>
+                    <span className="text-[10px] text-stone-400 font-mono">Đồng bộ tiêu đề & nội dung</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {INVITATION_FONTS.map((font) => (
+                      <div
+                        key={font.id}
+                        onClick={() => setFontFamily(font.id)}
+                        className={`cursor-pointer p-3.5 rounded-xl border-2 transition-all ${
+                          fontFamily === font.id
+                            ? 'border-[#8C6D46] bg-[#8C6D46]/5 shadow-xs'
+                            : 'border-stone-200 hover:border-stone-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span
+                            className="text-sm font-semibold text-stone-900"
+                            style={{ fontFamily: font.fontFamily }}
+                          >
+                            {font.name}
+                          </span>
+                          {fontFamily === font.id && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#8C6D46]" />
+                          )}
+                        </div>
+                        <div className="text-[10px] text-stone-500 mb-1.5">
+                          {font.styleName}
+                        </div>
+                        <div
+                          className="text-xs text-[#8C6D46] font-medium tracking-wide truncate"
+                          style={{ fontFamily: font.fontFamily }}
+                        >
+                          Save The Date • 2026
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Music Presets & Audio Preview */}
+                <div className="pt-4 border-t border-stone-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-medium text-stone-700 flex items-center gap-1.5">
+                      <Music className="w-3.5 h-3.5 text-[#8C6D46]" />
+                      <span>Nhạc Nền Tự Động Phát Khi Mở Thiệp</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleToggleAudioPreview}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                        isPlayingAudioPreview
+                          ? 'bg-amber-600 text-white shadow-xs animate-pulse'
+                          : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200'
+                      }`}
+                    >
+                      {isPlayingAudioPreview ? (
+                        <>
+                          <Square className="w-3 h-3 fill-current" />
+                          <span>Dừng nghe</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-3 h-3 fill-current text-[#8C6D46]" />
+                          <span>Nghe thử nhạc</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     {MUSIC_PRESETS.map((m) => (
                       <button
                         key={m.id}
                         type="button"
-                        onClick={() => setMusicPreset(m.id)}
-                        className={`p-3 rounded-xl border text-left transition-all ${musicPreset === m.id
+                        onClick={() => handleMusicChange(m.id)}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${musicPreset === m.id
                           ? 'border-[#8C6D46] bg-amber-500/10 text-[#8C6D46] font-semibold'
                           : 'border-stone-200 text-stone-700 hover:bg-stone-50'
                           }`}
@@ -954,9 +1126,46 @@ export default function EditWeddingInvitationPage() {
                     </label>
                   </div>
 
+                  {/* Drag and Drop Zone */}
+                  <div
+                    onDragEnter={handleAlbumDragEnter}
+                    onDragOver={handleAlbumDragOver}
+                    onDragLeave={handleAlbumDragLeave}
+                    onDrop={handleAlbumDrop}
+                    className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center ${
+                      isDraggingAlbum
+                        ? 'border-[#8C6D46] bg-[#8C6D46]/10 scale-[1.01] shadow-md ring-2 ring-[#8C6D46]/20'
+                        : 'border-stone-300 bg-white/80 hover:border-stone-400'
+                    }`}
+                  >
+                    <Camera className="w-8 h-8 text-[#8C6D46] mx-auto mb-2" />
+                    <div className="text-xs font-semibold text-stone-800">
+                      {isDraggingAlbum ? 'Thả ảnh vào đây để thêm vào album ngay!' : 'Kéo thả hoặc bấm để tải ảnh kỷ niệm lên'}
+                    </div>
+                    <div className="text-[11px] text-stone-500 mt-1 mb-3">
+                      Hỗ trợ kéo thả cùng lúc nhiều ảnh JPG, PNG, WebP (Tự động nén WebP 85%)
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.multiple = true;
+                        input.accept = 'image/*';
+                        input.onchange = (e: any) => handleGalleryUpload(e);
+                        input.click();
+                      }}
+                      className="h-9 px-4 rounded-xl bg-[#8C6D46] hover:bg-[#725735] text-white text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-2xs"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{isUploading ? 'Đang xử lý...' : 'Chọn file từ máy tính'}</span>
+                    </button>
+                  </div>
+
                   {galleryImages.length === 0 ? (
                     <div className="p-8 text-center text-stone-400 border-2 border-dashed border-stone-200 rounded-2xl">
-                      Chưa có ảnh gallery nào. Bấm "+ Thêm Ảnh Mới" để tải ảnh cưới của hai bạn lên.
+                      Chưa có ảnh gallery nào. Kéo thả hoặc bấm nút để tải ảnh cưới của hai bạn lên.
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -974,7 +1183,7 @@ export default function EditWeddingInvitationPage() {
                             <button
                               type="button"
                               onClick={() => handleRemoveGalleryImage(idx)}
-                              className="p-2 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                              className="p-2 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors cursor-pointer"
                               title="Xóa ảnh này khỏi thiệp"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -994,33 +1203,152 @@ export default function EditWeddingInvitationPage() {
                 <div>
                   <h3 className="font-serif text-lg text-stone-900">Hộp Mừng Cưới & Chúc Phúc</h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Tùy chọn tải mã QR ngân hàng để bạn bè ở xa gửi lời chúc và quà mừng
+                    Cấu hình mã VietQR động tự động điền số tiền và lời chúc khi khách mừng cưới
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-3">
+                <div className="p-4 sm:p-5 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-stone-800">Ảnh Mã QR Tài Khoản</span>
-                    <label className="px-3 py-1.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors">
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>{isUploading ? 'Đang tải...' : 'Tải Ảnh Mã QR'}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleQrUpload}
-                        disabled={isUploading}
-                      />
-                    </label>
+                    <span className="font-semibold text-stone-800 text-sm flex items-center gap-1.5">
+                      <QrCode className="w-4 h-4 text-[#8C6D46]" />
+                      <span>Hộp Mừng Cưới (VietQR Tự Điền Số Tiền & Lời Chúc)</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setUseCustomQr(!useCustomQr)}
+                      className="text-[11px] text-[#8C6D46] hover:underline cursor-pointer"
+                    >
+                      {useCustomQr ? '← Dùng VietQR Tự Động' : 'Tải Ảnh QR Thủ Công →'}
+                    </button>
                   </div>
 
-                  {bankQrImage && (
-                    <div className="w-32 h-32 rounded-xl border border-stone-200 overflow-hidden bg-white p-1 relative">
-                      <img
-                        src={bankQrImage}
-                        alt="QR Mừng cưới"
-                        className="w-full h-full object-contain"
-                      />
+                  {!useCustomQr ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        {/* Ngân hàng */}
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                            Ngân Hàng Nhận Mừng Cưới *
+                          </label>
+                          <select
+                            value={bankId}
+                            onChange={(e) => setBankId(e.target.value)}
+                            className="w-full h-10 px-3 rounded-xl border border-stone-300 text-xs text-stone-800 focus:ring-2 focus:ring-[#8C6D46] focus:outline-none bg-white"
+                          >
+                            {VIETQR_BANKS.map((b) => (
+                              <option key={b.id} value={b.id}>
+                                {b.shortName} — {b.name.split('—')[1]?.trim() || b.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Số tài khoản */}
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                            Số Tài Khoản Ngân Hàng *
+                          </label>
+                          <input
+                            type="text"
+                            value={bankAccount}
+                            onChange={(e) => setBankAccount(e.target.value)}
+                            placeholder="Nhập số tài khoản"
+                            className="w-full h-10 px-3 rounded-xl border border-stone-300 text-xs font-mono font-semibold focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
+                          />
+                        </div>
+
+                        {/* Chủ tài khoản */}
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                            Tên Chủ Tài Khoản (Không dấu)
+                          </label>
+                          <input
+                            type="text"
+                            value={bankOwner}
+                            onChange={(e) => setBankOwner(e.target.value.toUpperCase())}
+                            placeholder="VD: NGUYEN VAN A"
+                            className="w-full h-10 px-3 rounded-xl border border-stone-300 text-xs font-medium uppercase focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
+                          />
+                        </div>
+
+                        {/* Số tiền gợi ý */}
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                            Số Tiền Mừng Cưới Gợi Ý (VNĐ, Tùy chọn)
+                          </label>
+                          <input
+                            type="number"
+                            value={giftAmount}
+                            onChange={(e) => setGiftAmount(e.target.value)}
+                            placeholder="VD: 500000"
+                            className="w-full h-10 px-3 rounded-xl border border-stone-300 text-xs font-mono focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Lời chúc mặc định */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                          Lời Nhắn Chuyển Khoản Mặc Định
+                        </label>
+                        <input
+                          type="text"
+                          value={giftMessage}
+                          onChange={(e) => setGiftMessage(e.target.value)}
+                          placeholder="VD: Mung cuoi hai ban"
+                          className="w-full h-10 px-3 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-[#8C6D46] focus:outline-none"
+                        />
+                      </div>
+
+                      {/* VietQR Live Preview Banner */}
+                      {bankAccount.trim() && (
+                        <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row items-center gap-3.5">
+                          <div className="w-24 h-24 bg-white p-1 rounded-xl border border-amber-200 shadow-xs shrink-0 flex items-center justify-center">
+                            <img
+                              src={buildVietQrUrl({ bankId, bankAccount, bankOwner, giftAmount, giftMessage })}
+                              alt="VietQR Preview"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div className="text-left space-y-1 text-xs text-stone-700">
+                            <div className="font-semibold text-stone-900 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              <span>Mã VietQR Tự Động Hợp Lệ</span>
+                            </div>
+                            <p className="text-[11px] text-stone-600 leading-relaxed">
+                              Khi quét mã này, app ngân hàng của khách sẽ tự động điền đúng Số tài khoản, Số tiền {giftAmount ? `${Number(giftAmount).toLocaleString('vi-VN')} đ` : ''} và Lời chúc.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Manual QR Code Upload */
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-stone-800">Ảnh Mã QR Tài Khoản</span>
+                        <label className="px-3 py-1.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors">
+                          <QrCode className="w-3.5 h-3.5" />
+                          <span>{isUploading ? 'Đang tải...' : 'Tải Ảnh Mã QR'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleQrUpload}
+                            disabled={isUploading}
+                          />
+                        </label>
+                      </div>
+
+                      {bankQrImage && (
+                        <div className="w-32 h-32 rounded-xl border border-stone-200 overflow-hidden bg-white p-1 relative">
+                          <img
+                            src={bankQrImage}
+                            alt="QR Mừng cưới"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1033,6 +1361,7 @@ export default function EditWeddingInvitationPage() {
                     rows={3}
                     value={bankInfoText}
                     onChange={(e) => setBankInfoText(e.target.value)}
+                    placeholder="VD: STK 1903... Techcombank - Nguyen Van A"
                     className="w-full p-3 rounded-xl border border-stone-300 text-stone-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#8C6D46]"
                   />
                 </div>
@@ -1058,8 +1387,8 @@ export default function EditWeddingInvitationPage() {
                 {currentStep > 1 && (
                   <button
                     type="button"
-                    onClick={() => setCurrentStep((prev) => prev - 1)}
-                    className="h-11 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-medium flex items-center gap-1 transition-colors"
+                    onClick={() => handleStepChange(currentStep - 1)}
+                    className="h-11 px-4 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Quay lại</span>
@@ -1068,8 +1397,8 @@ export default function EditWeddingInvitationPage() {
                 {currentStep < 4 && (
                   <button
                     type="button"
-                    onClick={() => setCurrentStep((prev) => prev + 1)}
-                    className="h-11 px-5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white text-xs font-medium flex items-center gap-1 transition-colors"
+                    onClick={() => handleStepChange(currentStep + 1)}
+                    className="h-11 px-5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Tiếp theo</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1105,18 +1434,30 @@ export default function EditWeddingInvitationPage() {
                 <Smartphone className="w-3.5 h-3.5 text-[#8C6D46]" />
                 <span>Xem Trước Điện Thoại Trực Tiếp</span>
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowEnvelopePreview(true);
-                  setPreviewKey((prev) => prev + 1);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6D46] text-[11px] font-medium transition-colors cursor-pointer"
-                title="Khởi động lại hiệu ứng mở phong bì 3D"
-              >
-                <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-                <span>Mở lại phong bì</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEnvelopePreview(true);
+                    setPreviewKey((prev) => prev + 1);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6D46] text-[11px] font-medium transition-colors cursor-pointer"
+                  title="Khởi động lại hiệu ứng mở phong bì 3D"
+                >
+                  <span>✉️ Thử mở phong bì</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForceSlideInTrigger((prev) => prev + 1);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-medium transition-colors cursor-pointer"
+                  title="Kích hoạt lại animation trượt Chú Rể và Cô Dâu"
+                >
+                  <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+                  <span>✨ Thử hiệu ứng cuộn</span>
+                </button>
+              </div>
             </div>
 
             {/* Smartphone Mockup Frame */}
@@ -1132,6 +1473,7 @@ export default function EditWeddingInvitationPage() {
                   isPreview={true}
                   showEnvelopePreview={showEnvelopePreview}
                   onEnvelopeClose={() => setShowEnvelopePreview(false)}
+                  forceSlideInTrigger={forceSlideInTrigger}
                 />
               </div>
             </div>
@@ -1151,10 +1493,18 @@ export default function EditWeddingInvitationPage() {
                   setShowEnvelopePreview(true);
                   setPreviewKey((prev) => prev + 1);
                 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 text-[11px]"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 text-[11px] cursor-pointer"
               >
-                <Sparkles className="w-3 h-3" />
-                <span>Thử mở phong bì</span>
+                <span>✉️ Thử mở phong bì</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setForceSlideInTrigger((prev) => prev + 1);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-800 text-stone-200 text-[11px] cursor-pointer"
+              >
+                <span>✨ Thử hiệu ứng cuộn</span>
               </button>
             </div>
             <button
@@ -1172,6 +1522,7 @@ export default function EditWeddingInvitationPage() {
               isPreview={true}
               showEnvelopePreview={showEnvelopePreview}
               onEnvelopeClose={() => setShowEnvelopePreview(false)}
+              forceSlideInTrigger={forceSlideInTrigger}
             />
           </div>
         </div>

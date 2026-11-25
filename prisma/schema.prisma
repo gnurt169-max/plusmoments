@@ -684,8 +684,14 @@ model WeddingInvitation {
   coverImage       String
   galleryImages    Json             // Mảng object: [{ id, url, width, height, orientation: 'portrait' | 'landscape', caption? }]
   musicPreset      String           @default("romantic-piano") // romantic-piano | acoustic-love | cinematic-orchestral | gentle-strings
+  fontFamily       String?          @default("cormorant")
   bankQrImage      String?
   bankInfoText     String?
+  bankId           String?          // Mã ngân hàng VietQR (VCB, TCB, MB, ACB, ...)
+  bankAccount      String?          // Số tài khoản ngân hàng
+  bankOwner        String?          // Tên chủ tài khoản
+  giftAmount       Int?             // Số tiền mừng cưới mặc định (VNĐ)
+  giftMessage      String?          // Lời chúc chuyển khoản mặc định
   editPasscode     String           // Mã PIN 6 số để cặp đôi quay lại chỉnh sửa thiệp
   isPublished      Boolean          @default(true)
   viewCount        Int              @default(0)
