@@ -36,9 +36,11 @@ import {
   Pause,
   RotateCcw,
   FileText,
+  LayoutGrid,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
+import { AlbumCollageStudioModal } from '@/components/admin/AlbumCollageStudioModal';
 
 interface AiChunkCluster {
   id: string;
@@ -159,6 +161,7 @@ export default function AdminMediaPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isCollageModalOpen, setIsCollageModalOpen] = useState(false);
 
   // Folder Navigation State (null = Root level)
   const [currentFolder, setCurrentFolder] = useState<FolderItem | null>(null);
@@ -1745,6 +1748,16 @@ export default function AdminMediaPage() {
             <RefreshCw
               className={`w-4 h-4 ${loading || folderLoading ? 'animate-spin text-luxury-600' : ''}`}
             />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsCollageModalOpen(true)}
+            className="px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs"
+            title="Mở Studio Ghép Ảnh Tạp Chí 16:9"
+          >
+            <LayoutGrid className="w-4 h-4 text-amber-600" />
+            <span>Ghép Ảnh 16:9</span>
           </button>
 
           <button
@@ -4022,6 +4035,12 @@ export default function AdminMediaPage() {
           </div>
         </div>
       </Modal>
+
+      {/* 16:9 EDITORIAL COLLAGE STUDIO MODAL */}
+      <AlbumCollageStudioModal
+        isOpen={isCollageModalOpen}
+        onClose={() => setIsCollageModalOpen(false)}
+      />
     </div>
   );
 }

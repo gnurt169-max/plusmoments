@@ -14,9 +14,11 @@ import {
   Bot,
   Share2,
   Film,
+  LayoutGrid,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { FacebookPostGeneratorModal, FacebookPostData } from '@/components/admin/FacebookPostGeneratorModal';
+import { AlbumCollageStudioModal } from '@/components/admin/AlbumCollageStudioModal';
 import { DriveMediaPicker } from '@/components/admin/DriveMediaPicker';
 import { SingleImagePicker, MultiImagePicker } from '@/components/admin/ImageFieldPicker';
 import { TaxonomySelect } from '@/components/admin/TaxonomySelect';
@@ -76,6 +78,15 @@ export default function AdminAlbumsPage() {
   // Facebook Fanpage Post Generator State
   const [isFacebookModalOpen, setIsFacebookModalOpen] = useState(false);
   const [facebookModalData, setFacebookModalData] = useState<FacebookPostData | null>(null);
+
+  // 16:9 Editorial Collage Studio State
+  const [isCollageModalOpen, setIsCollageModalOpen] = useState(false);
+  const [collageInitialAlbumId, setCollageInitialAlbumId] = useState<string | null>(null);
+
+  const handleOpenCollageStudio = (albumId?: string) => {
+    setCollageInitialAlbumId(albumId || null);
+    setIsCollageModalOpen(true);
+  };
 
   // Google Drive Media Picker State
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
@@ -704,14 +715,26 @@ export default function AdminAlbumsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="px-5 py-2.5 bg-luxury-600 hover:bg-luxury-700 active:scale-95 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 transition-all shadow-md cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Thêm Album Mới</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => handleOpenCollageStudio()}
+            className="px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 rounded-xl text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+            title="Mở Studio Ghép Ảnh Tạp Chí 16:9"
+          >
+            <LayoutGrid className="w-4 h-4 text-amber-600" />
+            <span>Ghép Ảnh 16:9</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="px-5 py-2.5 bg-luxury-600 hover:bg-luxury-700 active:scale-95 text-white rounded-xl text-xs uppercase tracking-wider font-medium flex items-center gap-2 transition-all shadow-md cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Thêm Album Mới</span>
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -844,6 +867,14 @@ export default function AdminAlbumsPage() {
                               title="Tạo bài đăng Fanpage Facebook"
                             >
                               <Share2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenCollageStudio(album.id)}
+                              className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                              title="Ghép ảnh tạp chí 16:9 theo album này"
+                            >
+                              <LayoutGrid className="w-4 h-4" />
                             </button>
                             {canEditOrDelete && (
                               <>
@@ -1497,6 +1528,13 @@ export default function AdminAlbumsPage() {
           data={facebookModalData}
         />
       )}
+
+      {/* 16:9 EDITORIAL COLLAGE STUDIO MODAL */}
+      <AlbumCollageStudioModal
+        isOpen={isCollageModalOpen}
+        onClose={() => setIsCollageModalOpen(false)}
+        initialAlbumId={collageInitialAlbumId}
+      />
     </div>
   );
 }
