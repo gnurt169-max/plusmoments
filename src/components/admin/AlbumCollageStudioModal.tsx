@@ -79,7 +79,7 @@ interface AlbumOption {
   coupleNames?: string;
   location?: string;
   coverImage: string;
-  media?: Array<{ id: string; url: string }>;
+  media?: Array<{ id: string; url: string; originalUrl?: string }>;
 }
 
 interface MediaFileOption {
@@ -87,6 +87,7 @@ interface MediaFileOption {
   url: string;
   filename: string;
   name?: string;
+  originalUrl?: string;
   folderId?: string | null;
 }
 
@@ -385,6 +386,28 @@ export function AlbumCollageStudioModal({
     7: { zoom: 1.0, offsetX: 0, offsetY: 0, flipX: false },
   });
 
+  // 60FPS REFS: Isolate state from React re-renders during active drag / wheel
+  const slotTransformsRef = useRef<Record<number, SlotTransform>>(slotTransforms);
+  const customParamsRef = useRef<Record<CollageLayoutType, CustomLayoutParams>>(customParams);
+
+  useEffect(() => {
+    slotTransformsRef.current = slotTransforms;
+  }, [slotTransforms]);
+
+  useEffect(() => {
+    customParamsRef.current = customParams;
+  }, [customParams]);
+
+  // Blurred Background Offscreen Cache to eliminate heavy CPU Gaussian blur during 60FPS drag
+  const blurredBgCacheRef = useRef<{
+    key: string;
+    canvas: HTMLCanvasElement;
+  } | null>(null);
+
+  // Animation frame ref for drag & wheel
+  const rafIdRef = useRef<number | null>(null);
+  const wheelDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
   // Interactive Drag-to-Pan / Resize State
   const [dragMode, setDragMode] = useState<'pan' | 'resize-split' | null>(null);
   const dragStartRef = useRef<{
@@ -449,7 +472,8 @@ export function AlbumCollageStudioModal({
               if (found.coverImage) albumImages.push(found.coverImage);
               if (Array.isArray(found.media)) {
                 found.media.forEach((m: any) => {
-                  if (m?.url && !albumImages.includes(m.url)) albumImages.push(m.url);
+                  const rawUrl = m?.originalUrl || m?.url;
+                  if (rawUrl && !albumImages.includes(rawUrl)) albumImages.push(rawUrl);
                 });
               }
               setSelectedUrls(albumImages.slice(0, 8));
@@ -463,7 +487,8 @@ export function AlbumCollageStudioModal({
             if (first.coverImage) albumImages.push(first.coverImage);
             if (Array.isArray(first.media)) {
               first.media.forEach((m: any) => {
-                if (m?.url && !albumImages.includes(m.url)) albumImages.push(m.url);
+                const rawUrl = m?.originalUrl || m?.url;
+                if (rawUrl && !albumImages.includes(rawUrl)) albumImages.push(rawUrl);
               });
             }
             setSelectedUrls(albumImages.slice(0, 8));
@@ -518,7 +543,8 @@ export function AlbumCollageStudioModal({
     if (currentAlbum.coverImage) list.push(currentAlbum.coverImage);
     if (Array.isArray(currentAlbum.media)) {
       currentAlbum.media.forEach((m) => {
-        if (m?.url && !list.includes(m.url)) list.push(m.url);
+        const rawUrl = m?.originalUrl || m?.url;
+        if (rawUrl && !list.includes(rawUrl)) list.push(rawUrl);
       });
     }
     return list;
@@ -543,7 +569,8 @@ export function AlbumCollageStudioModal({
     if (found.coverImage) albumImages.push(found.coverImage);
     if (Array.isArray(found.media)) {
       found.media.forEach((m) => {
-        if (m?.url && !albumImages.includes(m.url)) albumImages.push(m.url);
+        const rawUrl = m?.originalUrl || m?.url;
+        if (rawUrl && !albumImages.includes(rawUrl)) albumImages.push(rawUrl);
       });
     }
     setSelectedUrls(albumImages.slice(0, 8));
@@ -595,14 +622,16 @@ export function AlbumCollageStudioModal({
 
   // Reset frame layout ratios to template defaults
   const handleResetFrameLayout = () => {
+    const defaultParams = { ...DEFAULT_LAYOUT_PARAMS[layout] };
+    customParamsRef.current[layout] = defaultParams;
     setCustomParams((prev) => ({
       ...prev,
-      [layout]: { ...DEFAULT_LAYOUT_PARAMS[layout] },
+      [layout]: defaultParams,
     }));
     showToast('↺ Đã đặt lại tỷ lệ khung ảnh chuẩn cho mẫu này');
   };
 
-  // Helper to load image as HTMLImageElement with CORS
+  // Helper to load image as HTMLImageElement with CORS & High-Res original
   const loadImage = useCallback((url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       if (imageCacheRef.current.has(url)) {
@@ -615,13 +644,21 @@ export function AlbumCollageStudioModal({
 
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.onload = () => {
+      img.decoding = 'async';
+      img.onload = async () => {
+        try {
+          await img.decode();
+        } catch {}
         imageCacheRef.current.set(url, img);
         resolve(img);
       };
       img.onerror = () => {
         const retryImg = new Image();
-        retryImg.onload = () => {
+        retryImg.decoding = 'async';
+        retryImg.onload = async () => {
+          try {
+            await retryImg.decode();
+          } catch {}
           imageCacheRef.current.set(url, retryImg);
           resolve(retryImg);
         };
@@ -632,7 +669,7 @@ export function AlbumCollageStudioModal({
     });
   }, []);
 
-  // Helper to draw an image inside a box with zoom, pan offset, and flip
+  // Helper to draw an image inside a box with zoom, pan offset, flip, and ISOLATED filter
   const drawFittedImage = useCallback(
     (
       ctx: CanvasRenderingContext2D,
@@ -679,6 +716,11 @@ export function AlbumCollageStudioModal({
       cropY = Math.max(0, Math.min(imgH - cropH, cropY));
 
       ctx.save();
+      // CRITICAL: Always ensure imageSmoothing is active & filter is explicitly none
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.filter = 'none';
+
       ctx.beginPath();
       ctx.rect(dx, dy, dw, dh);
       ctx.clip();
@@ -692,6 +734,7 @@ export function AlbumCollageStudioModal({
       }
 
       ctx.restore();
+      ctx.filter = 'none';
     },
     []
   );
@@ -708,6 +751,7 @@ export function AlbumCollageStudioModal({
       currentTheme: CollageTheme
     ) => {
       ctx.save();
+      ctx.filter = 'none';
       const text = (brandText || 'PLUSMOMENTS.VN').toUpperCase();
       const fontSize = 11 * scale;
       ctx.font = `700 ${fontSize}px "Montserrat", sans-serif`;
@@ -778,9 +822,60 @@ export function AlbumCollageStudioModal({
     []
   );
 
-  // Core 16:9 Canvas Rendering Function
-  const renderCollage = useCallback(
-    async (targetCanvas: HTMLCanvasElement, exportResolution: CollageResolution = resolution) => {
+  // Helper to obtain or generate an Offscreen Blurred Canvas (eliminates repeated CPU blur)
+  const getBlurredBgCanvas = useCallback(
+    (
+      bgImg: HTMLImageElement,
+      targetW: number,
+      targetH: number,
+      blurRadius: number,
+      tintColor: string,
+      cacheKey: string
+    ): HTMLCanvasElement => {
+      if (
+        blurredBgCacheRef.current &&
+        blurredBgCacheRef.current.key === cacheKey &&
+        blurredBgCacheRef.current.canvas.width === targetW &&
+        blurredBgCacheRef.current.canvas.height === targetH
+      ) {
+        return blurredBgCacheRef.current.canvas;
+      }
+
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = targetW;
+      offCanvas.height = targetH;
+      const offCtx = offCanvas.getContext('2d');
+      if (!offCtx) return offCanvas;
+
+      offCtx.imageSmoothingEnabled = true;
+      offCtx.imageSmoothingQuality = 'high';
+
+      // 1. Draw blurred image
+      offCtx.save();
+      offCtx.filter = `blur(${blurRadius}px)`;
+      const bleed = 40 * (targetW / 1920);
+      offCtx.drawImage(bgImg, -bleed, -bleed, targetW + bleed * 2, targetH + bleed * 2);
+      offCtx.restore();
+      offCtx.filter = 'none';
+
+      // 2. Draw tint overlay
+      offCtx.fillStyle = tintColor;
+      offCtx.fillRect(0, 0, targetW, targetH);
+
+      blurredBgCacheRef.current = { key: cacheKey, canvas: offCanvas };
+      return offCanvas;
+    },
+    []
+  );
+
+  // Core Synchronous/Asynchronous Canvas Rendering Engine
+  const renderCollageCore = useCallback(
+    (
+      targetCanvas: HTMLCanvasElement,
+      exportResolution: CollageResolution,
+      transforms: Record<number, SlotTransform>,
+      paramsMap: Record<CollageLayoutType, CustomLayoutParams>
+    ) => {
       const ctx = targetCanvas.getContext('2d');
       if (!ctx) return;
 
@@ -788,8 +883,15 @@ export function AlbumCollageStudioModal({
       const height = exportResolution === '4k' ? 2160 : 1080;
       const scale = exportResolution === '4k' ? 2 : 1;
 
-      targetCanvas.width = width;
-      targetCanvas.height = height;
+      if (targetCanvas.width !== width || targetCanvas.height !== height) {
+        targetCanvas.width = width;
+        targetCanvas.height = height;
+      }
+
+      // CRITICAL: Ensure high-quality image smoothing & reset filter to none
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.filter = 'none';
 
       // Theme colors
       const themeBgColors = {
@@ -836,30 +938,26 @@ export function AlbumCollageStudioModal({
       const borderPx =
         borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 8 * scale : 16 * scale;
 
-      // Make sure we have at least 1 image to draw
       const effectiveUrls =
         selectedUrls.length > 0
           ? selectedUrls
           : ['/images/placeholder-wedding.jpg'];
 
-      // Preload all needed images
-      const loadedImages: (HTMLImageElement | null)[] = await Promise.all(
-        effectiveUrls.map(async (u) => {
-          try {
-            return await loadImage(u);
-          } catch {
-            return null;
-          }
-        })
-      );
+      // Gather loaded images synchronously from imageCacheRef
+      const validImages: HTMLImageElement[] = [];
+      for (const u of effectiveUrls) {
+        const cached = imageCacheRef.current.get(u);
+        if (cached && cached.complete && cached.naturalWidth > 0) {
+          validImages.push(cached);
+        }
+      }
 
-      const validImages = loadedImages.filter(Boolean) as HTMLImageElement[];
       if (validImages.length === 0) {
         ctx.fillStyle = '#666';
         ctx.font = `${24 * scale}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(
-          'Chưa có ảnh nào được tải. Vui lòng chọn ảnh từ Bộ Sưu Tập hoặc Media.',
+          'Đang tải hình ảnh chất lượng cao...',
           width / 2,
           height / 2
         );
@@ -870,7 +968,7 @@ export function AlbumCollageStudioModal({
         return validImages[slotIdx % validImages.length];
       };
 
-      const currentParams = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+      const currentParams = paramsMap[layout] || DEFAULT_LAYOUT_PARAMS[layout];
       const layoutBoxes = getLayoutSlots(width, height, layout, currentParams, borderWidth);
 
       // ========================================================================
@@ -879,35 +977,39 @@ export function AlbumCollageStudioModal({
       if (layout === 'editorial-spread') {
         const halfW = width * currentParams.splitRatio;
 
-        // --- LEFT HALF: BLURRED COVER BACKGROUND + 2 INSET STAGGERED PHOTOS ---
+        // --- LEFT HALF: DRAW BLURRED BACKGROUND VIA OFFSCREEN CACHE ---
+        const bgImg = getImageForSlot(0);
+        const cacheKey = `editorial-spread_${bgImg.src}_${theme}_${Math.round(halfW)}x${height}`;
+        const blurCanvas = getBlurredBgCanvas(
+          bgImg,
+          Math.round(halfW),
+          height,
+          18 * scale,
+          theme === 'noir' ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.22)',
+          cacheKey
+        );
+
         ctx.save();
         ctx.beginPath();
         ctx.rect(0, 0, halfW, height);
         ctx.clip();
-
-        // Blurred Background
-        const bgImg = getImageForSlot(0);
-        ctx.save();
-        ctx.filter = `blur(${18 * scale}px)`;
-        const bleed = 40 * scale;
-        ctx.drawImage(bgImg, -bleed, -bleed, halfW + bleed * 2, height + bleed * 2);
-        ctx.filter = 'none';
-        ctx.fillStyle = theme === 'noir' ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.22)';
-        ctx.fillRect(0, 0, halfW, height);
+        ctx.drawImage(blurCanvas, 0, 0);
         ctx.restore();
+        ctx.filter = 'none';
 
         // Draw Inset Photo A (Slot 0)
         const boxA = layoutBoxes.find((b) => b.slot === 0);
         if (boxA) {
           const frameA = 8 * scale;
           ctx.save();
+          ctx.filter = 'none';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
           ctx.shadowBlur = 30 * scale;
           ctx.shadowOffsetY = 15 * scale;
           ctx.fillStyle = '#FFFFFF';
           ctx.fillRect(boxA.x - frameA, boxA.y - frameA, boxA.w + frameA * 2, boxA.h + frameA * 2);
           ctx.restore();
-          drawFittedImage(ctx, getImageForSlot(0), boxA.x, boxA.y, boxA.w, boxA.h, slotTransforms[0]);
+          drawFittedImage(ctx, getImageForSlot(0), boxA.x, boxA.y, boxA.w, boxA.h, transforms[0]);
         }
 
         // Draw Inset Photo B (Slot 1)
@@ -915,18 +1017,20 @@ export function AlbumCollageStudioModal({
         if (boxB) {
           const frameB = 8 * scale;
           ctx.save();
+          ctx.filter = 'none';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.38)';
           ctx.shadowBlur = 35 * scale;
           ctx.shadowOffsetY = 18 * scale;
           ctx.fillStyle = '#FFFFFF';
           ctx.fillRect(boxB.x - frameB, boxB.y - frameB, boxB.w + frameB * 2, boxB.h + frameB * 2);
           ctx.restore();
-          drawFittedImage(ctx, getImageForSlot(1), boxB.x, boxB.y, boxB.w, boxB.h, slotTransforms[1]);
+          drawFittedImage(ctx, getImageForSlot(1), boxB.x, boxB.y, boxB.w, boxB.h, transforms[1]);
         }
 
         // Left Half Typography Overlays
         if (showTitle && titleText) {
           ctx.save();
+          ctx.filter = 'none';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
           ctx.shadowBlur = 12 * scale;
           ctx.fillStyle = '#FFFFFF';
@@ -945,6 +1049,7 @@ export function AlbumCollageStudioModal({
 
         if (showQuote && quoteText) {
           ctx.save();
+          ctx.filter = 'none';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
           ctx.shadowBlur = 10 * scale;
           ctx.fillStyle = '#F8F6F0';
@@ -954,21 +1059,23 @@ export function AlbumCollageStudioModal({
           ctx.restore();
         }
 
-        ctx.restore(); // end left half clipping
-
         // --- RIGHT HALF: 2x2 GRID (Slots 2, 3, 4, 5) ---
         layoutBoxes
           .filter((b) => b.slot >= 2)
           .forEach((box) => {
             if (borderPx > 0) {
+              ctx.save();
+              ctx.filter = 'none';
               ctx.fillStyle = '#FFFFFF';
               ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+              ctx.restore();
             }
-            drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+            drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
           });
 
         // Bottom Typography Banner on Right Half
         ctx.save();
+        ctx.filter = 'none';
         const bannerCenterY = height - 35 * scale;
         const rightCenterX = halfW + (width - halfW) / 2;
         ctx.textAlign = 'center';
@@ -1002,16 +1109,20 @@ export function AlbumCollageStudioModal({
       else if (layout === 'cinematic-trio') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
         // Bottom cinematic watermark bar on hero left
         const heroBox = layoutBoxes[0];
         if (heroBox && (showTitle || coupleCaption)) {
           ctx.save();
+          ctx.filter = 'none';
           const barH = 54 * scale;
           const barY = heroBox.y + heroBox.h - barH;
           ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
@@ -1037,14 +1148,17 @@ export function AlbumCollageStudioModal({
       else if (layout === 'gallery-grid-6') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
-        // Bottom Signature Banner
         ctx.save();
+        ctx.filter = 'none';
         const bannerY = height - 44 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = textColor.title;
@@ -1064,16 +1178,19 @@ export function AlbumCollageStudioModal({
       else if (layout === 'hero-filmstrip-5') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
-        // Floating Title on Hero Top
         const heroBox = layoutBoxes[0];
         if (heroBox && showTitle) {
           ctx.save();
+          ctx.filter = 'none';
           ctx.fillStyle = '#FFFFFF';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
           ctx.shadowBlur = 10 * scale;
@@ -1090,8 +1207,8 @@ export function AlbumCollageStudioModal({
           ctx.restore();
         }
 
-        // Bottom Signature Banner
         ctx.save();
+        ctx.filter = 'none';
         const bannerY = height - 24 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = textColor.title;
@@ -1107,14 +1224,17 @@ export function AlbumCollageStudioModal({
       else if (layout === 'asymmetric-lookbook-4') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
-        // Bottom Signature Banner
         ctx.save();
+        ctx.filter = 'none';
         const bannerY = height - 26 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = textColor.title;
@@ -1134,18 +1254,20 @@ export function AlbumCollageStudioModal({
       else if (layout === 'romantic-duo-2') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
-        // Center Column Romantic Typography
         ctx.save();
+        ctx.filter = 'none';
         const centerX = width / 2;
         ctx.textAlign = 'center';
 
-        // Chapter / Subtitle
         if (showSubtitle && subtitleText) {
           ctx.font = `600 ${11 * scale}px "Montserrat", sans-serif`;
           ctx.fillStyle = textColor.subtitle;
@@ -1153,7 +1275,6 @@ export function AlbumCollageStudioModal({
           ctx.fillText(subtitleText.toUpperCase(), centerX, 280 * scale);
         }
 
-        // Diamond Icon
         ctx.fillStyle = textColor.subtitle;
         ctx.beginPath();
         const dSize = 6 * scale;
@@ -1163,26 +1284,22 @@ export function AlbumCollageStudioModal({
         ctx.lineTo(centerX - dSize, 330 * scale);
         ctx.fill();
 
-        // Dancing Script Big Title
         if (showTitle && titleText) {
           ctx.font = `italic 600 ${44 * scale}px "Dancing Script", cursive, Georgia, serif`;
           ctx.fillStyle = textColor.title;
           ctx.fillText(titleText, centerX, 410 * scale);
         }
 
-        // Romantic Quote
         if (showQuote && quoteText) {
           ctx.font = `italic 400 ${17 * scale}px "Playfair Display", Georgia, serif`;
           ctx.fillStyle = textColor.quote;
           ctx.fillText(`“${quoteText}”`, centerX, 510 * scale);
         }
 
-        // Couple & Year
         ctx.font = `600 ${12 * scale}px "Montserrat", sans-serif`;
         ctx.fillStyle = textColor.title;
         ctx.letterSpacing = `${4 * scale}px`;
         ctx.fillText(coupleCaption, centerX, 610 * scale);
-
         ctx.restore();
       }
 
@@ -1192,14 +1309,17 @@ export function AlbumCollageStudioModal({
       else if (layout === 'mosaic-story-8') {
         layoutBoxes.forEach((box) => {
           if (borderPx > 0) {
+            ctx.save();
+            ctx.filter = 'none';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            ctx.restore();
           }
-          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, transforms[box.slot]);
         });
 
-        // Bottom Signature Banner
         ctx.save();
+        ctx.filter = 'none';
         const bannerY = height - 26 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = textColor.title;
@@ -1217,20 +1337,24 @@ export function AlbumCollageStudioModal({
       // 8. POLAROID MEMORIES 4 (4 Photos)
       // ========================================================================
       else if (layout === 'polaroid-memories-4') {
-        // Blurred Background
+        // Draw Blurred Background via Offscreen Cache
         const bgImg = getImageForSlot(0);
-        ctx.save();
-        ctx.filter = `blur(${22 * scale}px)`;
-        const bleed = 40 * scale;
-        ctx.drawImage(bgImg, -bleed, -bleed, width + bleed * 2, height + bleed * 2);
+        const cacheKey = `polaroid_${bgImg.src}_${theme}_${width}x${height}`;
+        const blurCanvas = getBlurredBgCanvas(
+          bgImg,
+          width,
+          height,
+          22 * scale,
+          theme === 'noir' ? 'rgba(0, 0, 0, 0.55)' : 'rgba(0, 0, 0, 0.28)',
+          cacheKey
+        );
+        ctx.drawImage(blurCanvas, 0, 0);
         ctx.filter = 'none';
-        ctx.fillStyle = theme === 'noir' ? 'rgba(0, 0, 0, 0.55)' : 'rgba(0, 0, 0, 0.28)';
-        ctx.fillRect(0, 0, width, height);
-        ctx.restore();
 
         // Top Typography
         if (showTitle && titleText) {
           ctx.save();
+          ctx.filter = 'none';
           ctx.fillStyle = '#FFFFFF';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
           ctx.shadowBlur = 10 * scale;
@@ -1254,11 +1378,13 @@ export function AlbumCollageStudioModal({
           const rot = box.rotation || 0;
 
           ctx.save();
+          ctx.filter = 'none';
           ctx.translate(cx, cy);
           ctx.rotate((rot * Math.PI) / 180);
 
           // Card Shadow + White Paper Body
           ctx.save();
+          ctx.filter = 'none';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
           ctx.shadowBlur = 24 * scale;
           ctx.shadowOffsetY = 12 * scale;
@@ -1274,19 +1400,24 @@ export function AlbumCollageStudioModal({
           const photoX = -box.w / 2 + innerPad;
           const photoY = -box.h / 2 + innerPad;
 
-          drawFittedImage(ctx, slotImg, photoX, photoY, photoW, photoH, slotTransforms[box.slot]);
+          drawFittedImage(ctx, slotImg, photoX, photoY, photoW, photoH, transforms[box.slot]);
 
           // Bottom handwritten label on card
+          ctx.save();
+          ctx.filter = 'none';
           ctx.font = `italic 600 ${14 * scale}px "Dancing Script", cursive, serif`;
           ctx.fillStyle = '#6E6259';
           ctx.textAlign = 'center';
           ctx.fillText(`Moment #${box.slot + 1} • Forever`, 0, box.h / 2 - 20 * scale * currentParams.insetScale);
+          ctx.restore();
 
           ctx.restore();
+          ctx.filter = 'none';
         });
 
         // Bottom Signature Banner
         ctx.save();
+        ctx.filter = 'none';
         const bannerY = height - 28 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
@@ -1306,11 +1437,9 @@ export function AlbumCollageStudioModal({
       }
     },
     [
-      resolution,
       layout,
       theme,
       borderWidth,
-      customParams,
       showTitle,
       titleText,
       showSubtitle,
@@ -1319,15 +1448,57 @@ export function AlbumCollageStudioModal({
       quoteText,
       coupleCaption,
       selectedUrls,
-      slotTransforms,
       autoBrandWatermark,
       watermarkPosition,
       watermarkText,
       drawFittedImage,
       drawBrandWatermark,
-      loadImage,
+      getBlurredBgCanvas,
     ]
   );
+
+  // High-level render function that ensures all images are preloaded before drawing
+  const renderCollage = useCallback(
+    async (targetCanvas: HTMLCanvasElement, exportResolution: CollageResolution = resolution) => {
+      const effectiveUrls =
+        selectedUrls.length > 0
+          ? selectedUrls
+          : ['/images/placeholder-wedding.jpg'];
+
+      // Preload images into cache
+      await Promise.all(
+        effectiveUrls.map(async (u) => {
+          try {
+            await loadImage(u);
+          } catch {}
+        })
+      );
+
+      renderCollageCore(
+        targetCanvas,
+        exportResolution,
+        slotTransformsRef.current,
+        customParamsRef.current
+      );
+    },
+    [selectedUrls, resolution, loadImage, renderCollageCore]
+  );
+
+  // Fast synchronous 60FPS render loop during user dragging/zooming
+  const scheduleFastRender = useCallback(() => {
+    if (rafIdRef.current !== null) return;
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      if (canvasRef.current) {
+        renderCollageCore(
+          canvasRef.current,
+          '1080p',
+          slotTransformsRef.current,
+          customParamsRef.current
+        );
+      }
+    });
+  }, [renderCollageCore]);
 
   // Redraw canvas whenever settings change
   useEffect(() => {
@@ -1337,12 +1508,12 @@ export function AlbumCollageStudioModal({
       if (canvasRef.current) {
         renderCollage(canvasRef.current, '1080p').finally(() => setIsRendering(false));
       }
-    }, 60);
+    }, 40);
     return () => clearTimeout(timer);
   }, [isOpen, renderCollage]);
 
   // ========================================================================
-  // INTERACTIVE CANVAS POINTER EVENTS: DRAG-TO-PAN, WHEEL ZOOM, FRAME RESIZE
+  // INTERACTIVE CANVAS POINTER EVENTS: 60FPS DRAG-TO-PAN, WHEEL ZOOM & RESIZE
   // ========================================================================
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!previewContainerRef.current) return;
@@ -1352,7 +1523,7 @@ export function AlbumCollageStudioModal({
     const baseX = normX * 1920;
     const baseY = normY * 1080;
 
-    const currentP = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+    const currentP = customParamsRef.current[layout] || DEFAULT_LAYOUT_PARAMS[layout];
 
     // Check if clicking near vertical split line (for split layouts)
     if (
@@ -1400,7 +1571,7 @@ export function AlbumCollageStudioModal({
     if (clickedSlot >= 0) {
       setActiveSlotIndex(clickedSlot);
       setDragMode('pan');
-      const curTrans = slotTransforms[clickedSlot] || { zoom: 1.0, offsetX: 0, offsetY: 0, flipX: false };
+      const curTrans = slotTransformsRef.current[clickedSlot] || { zoom: 1.0, offsetX: 0, offsetY: 0, flipX: false };
       dragStartRef.current = {
         startX: e.clientX,
         startY: e.clientY,
@@ -1435,14 +1606,14 @@ export function AlbumCollageStudioModal({
       );
 
       const targetSlot = dragStartRef.current.slotIndex;
-      setSlotTransforms((prev) => ({
-        ...prev,
-        [targetSlot]: {
-          ...prev[targetSlot],
-          offsetX: newOffsetX,
-          offsetY: newOffsetY,
-        },
-      }));
+      // Update ref directly for 0ms React re-render overhead
+      slotTransformsRef.current[targetSlot] = {
+        ...slotTransformsRef.current[targetSlot],
+        offsetX: newOffsetX,
+        offsetY: newOffsetY,
+      };
+
+      scheduleFastRender();
     } else if (dragMode === 'resize-split') {
       if (layout === 'hero-filmstrip-5') {
         const deltaY = e.clientY - dragStartRef.current.startY;
@@ -1451,10 +1622,10 @@ export function AlbumCollageStudioModal({
           0.38,
           Math.min(0.72, Number((dragStartRef.current.initSplitRatio + deltaRatio).toFixed(2)))
         );
-        setCustomParams((prev) => ({
-          ...prev,
-          [layout]: { ...prev[layout], splitRatio: newRatio },
-        }));
+        customParamsRef.current[layout] = {
+          ...customParamsRef.current[layout],
+          splitRatio: newRatio,
+        };
       } else {
         const deltaX = e.clientX - dragStartRef.current.startX;
         const deltaRatio = deltaX / rect.width;
@@ -1462,11 +1633,12 @@ export function AlbumCollageStudioModal({
           0.28,
           Math.min(0.70, Number((dragStartRef.current.initSplitRatio + deltaRatio).toFixed(2)))
         );
-        setCustomParams((prev) => ({
-          ...prev,
-          [layout]: { ...prev[layout], splitRatio: newRatio },
-        }));
+        customParamsRef.current[layout] = {
+          ...customParamsRef.current[layout],
+          splitRatio: newRatio,
+        };
       }
+      scheduleFastRender();
     }
   };
 
@@ -1474,6 +1646,10 @@ export function AlbumCollageStudioModal({
     if (dragMode) {
       setDragMode(null);
       (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+
+      // Sync back to React state ONCE when dragging finishes to update sliders
+      setSlotTransforms({ ...slotTransformsRef.current });
+      setCustomParams({ ...customParamsRef.current });
     }
   };
 
@@ -1486,21 +1662,27 @@ export function AlbumCollageStudioModal({
     const baseX = normX * 1920;
     const baseY = normY * 1080;
 
-    const currentP = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+    const currentP = customParamsRef.current[layout] || DEFAULT_LAYOUT_PARAMS[layout];
     let targetSlot = findSlotAt(baseX, baseY, layout, currentP, borderWidth);
     if (targetSlot < 0) targetSlot = activeSlotIndex;
 
-    const curZoom = slotTransforms[targetSlot]?.zoom || 1.0;
+    const curZoom = slotTransformsRef.current[targetSlot]?.zoom || 1.0;
     const deltaZoom = -e.deltaY * 0.0015;
     const newZoom = Math.max(1.0, Math.min(3.0, Number((curZoom + deltaZoom).toFixed(2))));
 
-    setSlotTransforms((prev) => ({
-      ...prev,
-      [targetSlot]: {
-        ...prev[targetSlot],
-        zoom: newZoom,
-      },
-    }));
+    // Update ref directly
+    slotTransformsRef.current[targetSlot] = {
+      ...slotTransformsRef.current[targetSlot],
+      zoom: newZoom,
+    };
+
+    scheduleFastRender();
+
+    // Debounce syncing back to React state to update the slider smoothly
+    if (wheelDebounceRef.current) clearTimeout(wheelDebounceRef.current);
+    wheelDebounceRef.current = setTimeout(() => {
+      setSlotTransforms({ ...slotTransformsRef.current });
+    }, 150);
   };
 
   // Download High-Res File
@@ -1627,11 +1809,11 @@ export function AlbumCollageStudioModal({
                 </span>
                 <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
                   <Sparkles className="w-2.5 h-2.5" />
-                  Kéo Ảnh & Lăn Chuột Zoom Trực Tiếp
+                  Kéo Ảnh & Lăn Chuột 60FPS
                 </span>
               </div>
               <p className="text-[11px] text-stone-500 font-mono">
-                Xuất file Full HD 1080p & 4K Ultra HD • Tự động gắn watermark plusmoments.vn trên 8 mẫu bố cục
+                Xuất file Full HD 1080p & 4K Ultra HD • Cô lập bộ lọc mờ & tự động gắn watermark plusmoments.vn
               </p>
             </div>
           </div>
@@ -1757,19 +1939,20 @@ export function AlbumCollageStudioModal({
               </div>
             </div>
 
-            {/* 16:9 Frame Container with Interactive Drag & Wheel Zoom */}
+            {/* 16:9 Frame Container with 60FPS Drag & Wheel Zoom */}
             <div
               ref={previewContainerRef}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
               onWheel={handleWheel}
               className={`w-full max-w-4xl aspect-[16/9] bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#282421] relative flex items-center justify-center touch-none select-none ${
                 dragMode === 'pan'
                   ? 'cursor-grabbing'
                   : dragMode === 'resize-split'
                   ? 'cursor-col-resize'
-                  : 'cursor-grab'
+                  : 'cursor-grab active:cursor-grabbing'
               }`}
             >
               <canvas
@@ -2061,19 +2244,20 @@ export function AlbumCollageStudioModal({
               {sourceTab === 'media' && (
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                   {filteredMedia.slice(0, 40).map((item, i) => {
-                    const isSelected = selectedUrls.includes(item.url);
-                    const selectedIndex = selectedUrls.indexOf(item.url);
+                    const itemUrl = item.originalUrl || item.url;
+                    const isSelected = selectedUrls.includes(itemUrl);
+                    const selectedIndex = selectedUrls.indexOf(itemUrl);
                     return (
                       <div
                         key={i}
-                        onClick={() => handleToggleImage(item.url)}
+                        onClick={() => handleToggleImage(itemUrl)}
                         className={`group relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
                           isSelected
                             ? 'border-[#8C6D46] ring-2 ring-[#E5C585] shadow-xs'
                             : 'border-stone-200 hover:border-stone-400 bg-stone-100 opacity-80 hover:opacity-100'
                         }`}
                       >
-                        <img src={item.url} alt="" className="w-full h-full object-cover" />
+                        <img src={itemUrl} alt="" className="w-full h-full object-cover" />
                         {isSelected && (
                           <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#8C6D46] text-white flex items-center justify-center font-bold text-[10px] shadow-sm font-mono">
                             {selectedIndex + 1}
@@ -2223,13 +2407,16 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => {
-                      setSlotTransforms((prev) => ({
-                        ...prev,
+                      const updated = {
+                        ...slotTransformsRef.current,
                         [activeSlotIndex]: {
-                          ...prev[activeSlotIndex],
-                          flipX: !prev[activeSlotIndex]?.flipX,
+                          ...slotTransformsRef.current[activeSlotIndex],
+                          flipX: !slotTransformsRef.current[activeSlotIndex]?.flipX,
                         },
-                      }));
+                      };
+                      slotTransformsRef.current = updated;
+                      setSlotTransforms(updated);
+                      scheduleFastRender();
                     }}
                     className={`h-7 px-2.5 rounded-lg border text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
                       slotTransforms[activeSlotIndex]?.flipX
@@ -2259,10 +2446,13 @@ export function AlbumCollageStudioModal({
                     value={slotTransforms[activeSlotIndex]?.offsetX || 0}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-                      setSlotTransforms((prev) => ({
-                        ...prev,
-                        [activeSlotIndex]: { ...prev[activeSlotIndex], offsetX: val },
-                      }));
+                      const updated = {
+                        ...slotTransformsRef.current,
+                        [activeSlotIndex]: { ...slotTransformsRef.current[activeSlotIndex], offsetX: val },
+                      };
+                      slotTransformsRef.current = updated;
+                      setSlotTransforms(updated);
+                      scheduleFastRender();
                     }}
                     className="w-full accent-[#8C6D46] cursor-pointer"
                   />
@@ -2281,10 +2471,13 @@ export function AlbumCollageStudioModal({
                     value={slotTransforms[activeSlotIndex]?.offsetY || 0}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-                      setSlotTransforms((prev) => ({
-                        ...prev,
-                        [activeSlotIndex]: { ...prev[activeSlotIndex], offsetY: val },
-                      }));
+                      const updated = {
+                        ...slotTransformsRef.current,
+                        [activeSlotIndex]: { ...slotTransformsRef.current[activeSlotIndex], offsetY: val },
+                      };
+                      slotTransformsRef.current = updated;
+                      setSlotTransforms(updated);
+                      scheduleFastRender();
                     }}
                     className="w-full accent-[#8C6D46] cursor-pointer"
                   />
@@ -2303,10 +2496,13 @@ export function AlbumCollageStudioModal({
                     value={slotTransforms[activeSlotIndex]?.zoom || 1.0}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-                      setSlotTransforms((prev) => ({
-                        ...prev,
-                        [activeSlotIndex]: { ...prev[activeSlotIndex], zoom: val },
-                      }));
+                      const updated = {
+                        ...slotTransformsRef.current,
+                        [activeSlotIndex]: { ...slotTransformsRef.current[activeSlotIndex], zoom: val },
+                      };
+                      slotTransformsRef.current = updated;
+                      setSlotTransforms(updated);
+                      scheduleFastRender();
                     }}
                     className="w-full accent-[#8C6D46] cursor-pointer"
                   />
@@ -2328,10 +2524,13 @@ export function AlbumCollageStudioModal({
                     value={Math.round((customParams[layout]?.splitRatio || 0.5) * 100)}
                     onChange={(e) => {
                       const val = Number(e.target.value) / 100;
-                      setCustomParams((prev) => ({
-                        ...prev,
-                        [layout]: { ...prev[layout], splitRatio: val },
-                      }));
+                      const updated = {
+                        ...customParamsRef.current,
+                        [layout]: { ...customParamsRef.current[layout], splitRatio: val },
+                      };
+                      customParamsRef.current = updated;
+                      setCustomParams(updated);
+                      scheduleFastRender();
                     }}
                     className="w-full accent-[#8C6D46] cursor-pointer"
                   />
