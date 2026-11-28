@@ -424,6 +424,7 @@ model HomePageConfig {
   heroTitle            String   @default("Nơi Tình Yêu Trở Thành Tác Phẩm Nghệ Thuật")
   heroSubtitle         String   @db.Text @default("PlusMoments không đơn thuần chụp lại những tư thế, chúng tôi lưu giữ ánh nhìn say đắm, những cái ôm siết chặt và rung cảm thuần khiết nhất của hai bạn trong từng khung hình điện ảnh.")
   heroBannerImage      String   @default("")
+  heroFloatingImages   Json?    @default("[]")
   statsJson            String   @db.Text @default("[{\"label\":\"Cặp Đôi Hạnh Phúc\",\"value\":\"500+\"},{\"label\":\"Váy Cưới Cao Cấp\",\"value\":\"100%\"},{\"label\":\"Đánh Giá Tuyệt Đối\",\"value\":\"5.0 ★\"}]")
   philosophyTitle      String   @default("Nghệ Thuật Của Những Rung Cảm")
   philosophyText       String?  @db.Text @default("Chúng tôi không tìm kiếm sự hoàn hảo của những bức tượng sáp. Chúng tôi đi tìm giọt nước mắt hạnh phúc của người cha, ánh mắt rung rinh của chú rể và nụ cười rạng ngời của cô dâu trong khoảnh khắc thiêng liêng nhất cuộc đời.")

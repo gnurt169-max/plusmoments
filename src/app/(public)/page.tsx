@@ -179,6 +179,28 @@ export default async function HomePage() {
     new Set([heroBanner?.trim(), ...albumSlides].filter(Boolean))
   ).slice(0, 4) as string[];
 
+  // Trích xuất danh sách ảnh bồng bềnh rung rinh (Hero Floating Showcase) do Admin quản lý
+  let floatingImages: string[] = [];
+  const rawFloating = (homeConfig as any)?.heroFloatingImages;
+  if (Array.isArray(rawFloating)) {
+    floatingImages = rawFloating
+      .map((item) => (typeof item === 'string' ? item.trim() : (item as any)?.url || ''))
+      .filter((u): u is string => Boolean(u && u.trim()));
+  } else if (typeof rawFloating === 'string') {
+    try {
+      const parsed = JSON.parse(rawFloating);
+      if (Array.isArray(parsed)) {
+        floatingImages = parsed
+          .map((item) => (typeof item === 'string' ? item.trim() : (item as any)?.url || ''))
+          .filter((u): u is string => Boolean(u && u.trim()));
+      }
+    } catch {}
+  }
+  // Fallback sang các ảnh đẹp từ album nếu Admin chưa cấu hình
+  if (floatingImages.length === 0 && albumSlides.length > 0) {
+    floatingImages = albumSlides.slice(0, 6);
+  }
+
   const formattedPackages: PricingPackageData[] = packages.map((pkg) => {
     const coreHighlights = extractPackageHighlights(pkg);
     const fullInclusions = extractPackageInclusions(pkg);
@@ -263,6 +285,7 @@ export default async function HomePage() {
         heroSubtitle={heroSubtitle}
         slides={heroSlides}
         stats={statsList}
+        heroFloatingImages={floatingImages}
       />
 
       {/* =========================================================================

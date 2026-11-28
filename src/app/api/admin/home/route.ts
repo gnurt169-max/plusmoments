@@ -46,6 +46,7 @@ export async function PUT(request: Request) {
       'heroTitle',
       'heroSubtitle',
       'heroBannerImage',
+      'heroFloatingImages',
       'statsJson',
       'philosophyTitle',
       'philosophyText',

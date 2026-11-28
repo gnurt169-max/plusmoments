@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
@@ -18,7 +18,102 @@ export interface CinematicHeroBannerProps {
   heroSubtitle?: string;
   slides?: string[];
   stats?: HeroStatItem[];
+  heroFloatingImages?: string[];
 }
+
+interface FloatingSlotConfig {
+  desktop: string;
+  mobile: string;
+  baseRotation: number;
+  swayDuration: string;
+  swayDelay: string;
+  entranceDelay: string;
+  aspectRatio: string;
+}
+
+// 8 Distinct, artfully distributed peripheral positions around the central text
+const FLOATING_SLOTS: FloatingSlotConfig[] = [
+  // 1. Top-Left Corner
+  {
+    desktop: 'top-[9%] left-[2%] lg:left-[3.5%] w-28 sm:w-36 lg:w-44',
+    mobile: 'top-16 left-2 w-20',
+    baseRotation: -4.5,
+    swayDuration: '5.2s',
+    swayDelay: '0s',
+    entranceDelay: '0.1s',
+    aspectRatio: 'aspect-[3/4]',
+  },
+  // 2. Top-Right Corner
+  {
+    desktop: 'top-[9%] right-[2%] lg:right-[3.5%] w-28 sm:w-36 lg:w-44',
+    mobile: 'top-16 right-2 w-20',
+    baseRotation: 4.5,
+    swayDuration: '5.8s',
+    swayDelay: '0.35s',
+    entranceDelay: '0.35s',
+    aspectRatio: 'aspect-[3/4]',
+  },
+  // 3. Bottom-Left Corner
+  {
+    desktop: 'bottom-[12%] left-[2.5%] lg:left-[4%] w-32 sm:w-40 lg:w-48',
+    mobile: 'bottom-20 left-2 w-22',
+    baseRotation: 3.5,
+    swayDuration: '6.2s',
+    swayDelay: '0.7s',
+    entranceDelay: '0.6s',
+    aspectRatio: 'aspect-[4/5]',
+  },
+  // 4. Bottom-Right Corner
+  {
+    desktop: 'bottom-[12%] right-[2.5%] lg:right-[4%] w-32 sm:w-40 lg:w-48',
+    mobile: 'bottom-20 right-2 w-22',
+    baseRotation: -3.5,
+    swayDuration: '5.5s',
+    swayDelay: '1.0s',
+    entranceDelay: '0.85s',
+    aspectRatio: 'aspect-[4/5]',
+  },
+  // 5. Mid-Left Outer Flank (hidden on small mobile to keep center spacious)
+  {
+    desktop: 'top-[48%] -translate-y-1/2 left-[1%] lg:left-[1.8%] w-24 sm:w-32 lg:w-38',
+    mobile: 'hidden',
+    baseRotation: -2.0,
+    swayDuration: '4.9s',
+    swayDelay: '0.5s',
+    entranceDelay: '1.1s',
+    aspectRatio: 'aspect-[3/4]',
+  },
+  // 6. Mid-Right Outer Flank (hidden on small mobile)
+  {
+    desktop: 'top-[48%] -translate-y-1/2 right-[1%] lg:right-[1.8%] w-24 sm:w-32 lg:w-38',
+    mobile: 'hidden',
+    baseRotation: 2.5,
+    swayDuration: '6.4s',
+    swayDelay: '0.9s',
+    entranceDelay: '1.35s',
+    aspectRatio: 'aspect-[3/4]',
+  },
+  // 7. Top-Center Left Ceiling Accent (visible on xl screens)
+  {
+    desktop: 'top-[4.5%] left-[23%] lg:left-[26%] w-24 sm:w-28 lg:w-36 hidden xl:block',
+    mobile: 'hidden',
+    baseRotation: 2.8,
+    swayDuration: '5.6s',
+    swayDelay: '1.3s',
+    entranceDelay: '1.6s',
+    aspectRatio: 'aspect-[4/3]',
+  },
+  // 8. Top-Center Right Ceiling Accent (visible on xl screens)
+  {
+    desktop: 'top-[4.5%] right-[23%] lg:right-[26%] w-24 sm:w-28 lg:w-36 hidden xl:block',
+    mobile: 'hidden',
+    baseRotation: -2.8,
+    swayDuration: '6.0s',
+    swayDelay: '0.2s',
+    entranceDelay: '1.85s',
+    aspectRatio: 'aspect-[4/3]',
+  },
+];
 
 export function CinematicHeroBanner({
   heroBanner,
@@ -27,6 +122,7 @@ export function CinematicHeroBanner({
   heroSubtitle = 'PlusMoments không đơn thuần chụp lại những tư thế, chúng tôi lưu giữ ánh nhìn say đắm, những cái ôm siết chặt và rung cảm thuần khiết nhất của hai bạn trong từng khung hình điện ảnh.',
   slides = [],
   stats,
+  heroFloatingImages = [],
 }: CinematicHeroBannerProps) {
   // Normalize slide images: combine heroBanner with real album cover photos
   const effectiveSlides = (
@@ -45,6 +141,13 @@ export function CinematicHeroBanner({
 
     return () => clearInterval(timer);
   }, [effectiveSlides.length]);
+
+  // Floating showcase photos (limit up to 8 photos)
+  const effectiveFloatingPhotos = (
+    heroFloatingImages.length > 0 ? heroFloatingImages : effectiveSlides
+  )
+    .filter(Boolean)
+    .slice(0, 8);
 
   // Fallback stats list
   const statList: HeroStatItem[] =
@@ -102,7 +205,7 @@ export function CinematicHeroBanner({
                   alt="Studio ảnh cưới cao cấp PlusMoments"
                   fill
                   priority={idx === 0}
-                  quality={88}
+                  quality={85}
                   sizes="100vw"
                   className="object-cover object-[50%_20%] select-none pointer-events-none"
                 />
@@ -115,14 +218,67 @@ export function CinematicHeroBanner({
       {/* =========================================================================
           2. SMART LAYERED LIGHTING GRADIENT OVERLAYS (WCAG AAA TEXT CONTRAST)
       ========================================================================= */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/95 via-[#141210]/45 to-[#141210]/30 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/95 via-[#141210]/55 to-[#141210]/40 z-10 pointer-events-none" />
+
+      {/* Ambient Champagne Gold Glow in Center */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(197,160,89,0.12)_0%,_transparent_70%)] z-10 pointer-events-none" />
 
       {/* =========================================================================
-          3. CENTER CONTENT AREA: BADGE, GRAND TITLE, DESCRIPTIONS & CTAS
+          3. HERO FLOATING & GENTLE SWAY PHOTO SHOWCASE (Z-10, PERIPHERY CLOUD)
+      ========================================================================= */}
+      <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+        {effectiveFloatingPhotos.map((photoUrl, idx) => {
+          const slot = FLOATING_SLOTS[idx % FLOATING_SLOTS.length];
+          return (
+            <div
+              key={`float-photo-${idx}-${photoUrl}`}
+              className={`absolute pointer-events-auto ${slot.desktop} ${slot.mobile} ${slot.aspectRatio}`}
+              style={{
+                animation: `heroEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${slot.entranceDelay} forwards`,
+                opacity: 0,
+              }}
+            >
+              {/* Inner Swaying Container with Organic Oscillation */}
+              <div
+                className="w-full h-full group transition-transform duration-500 hover:scale-105 hover:z-30 cursor-pointer"
+                style={{
+                  animation: `heroGentleSway${idx % 8} ${slot.swayDuration} ease-in-out ${slot.swayDelay} infinite`,
+                  transformOrigin: 'center center',
+                }}
+              >
+                {/* Luxury Glassmorphic Champagne Bordered Photo Card */}
+                <div className="relative w-full h-full rounded-2xl p-1 sm:p-1.5 bg-white/10 backdrop-blur-md border border-[#C5A059]/40 hover:border-[#E5C585] shadow-2xl hover:shadow-[0_15px_35px_rgba(197,160,89,0.38)] transition-all duration-500 overflow-hidden">
+                  <div className="relative w-full h-full rounded-xl overflow-hidden bg-stone-900">
+                    <Image
+                      src={photoUrl}
+                      alt={`Khoảnh khắc cưới PlusMoments #${idx + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 90px, 200px"
+                      quality={85}
+                      className="object-cover object-[50%_20%] select-none transition-transform duration-700 group-hover:scale-108"
+                    />
+
+                    {/* Subtle warm shimmer gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/10 opacity-60 group-hover:opacity-20 transition-opacity" />
+
+                    {/* Deluxe corner indicator tag */}
+                    <div className="absolute bottom-1 right-1.5 px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-[#E5C585] text-[8px] font-mono font-semibold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                      #{idx + 1}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* =========================================================================
+          4. CENTER CONTENT AREA: BADGE, GRAND TITLE, DESCRIPTIONS & CTAS (Z-20)
       ========================================================================= */}
       <div className="relative z-20 max-w-4xl mx-auto px-5 text-center flex flex-col items-center my-auto">
         {/* 1. Tagline Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#C5A059]/40 bg-black/40 backdrop-blur-md mb-5 sm:mb-6 shadow-md">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#C5A059]/40 bg-black/50 backdrop-blur-md mb-5 sm:mb-6 shadow-md">
           <span className="text-[#E5C585] text-xs">✦</span>
           <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.22em] text-[#E5C585] uppercase font-semibold">
             {heroBadge}
@@ -131,13 +287,13 @@ export function CinematicHeroBanner({
 
         {/* 2. Grand Serif Title with Reserved Space */}
         <div className="min-h-[100px] sm:min-h-[140px] flex items-center justify-center mb-4 sm:mb-5">
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white tracking-wide leading-[1.2] drop-shadow-[0_4px_18px_rgba(0,0,0,0.65)]">
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white tracking-wide leading-[1.2] drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)]">
             {renderTitle()}
           </h1>
         </div>
 
         {/* 3. Emotional Subtitle */}
-        <p className="max-w-2xl text-stone-200/90 font-sans text-xs sm:text-[15px] font-light leading-relaxed mb-8 sm:mb-10 drop-shadow-sm px-2">
+        <p className="max-w-2xl text-stone-200 font-sans text-xs sm:text-[15px] font-light leading-relaxed mb-8 sm:mb-10 drop-shadow-md px-2">
           {heroSubtitle}
         </p>
 
@@ -164,7 +320,7 @@ export function CinematicHeroBanner({
         </div>
 
         {/* 5. Balanced 3-Column Glassmorphic Social Proof Bar */}
-        <div className="w-full max-w-xl mx-auto bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl py-3 sm:py-3.5 px-2 shadow-2xl">
+        <div className="w-full max-w-xl mx-auto bg-black/45 backdrop-blur-md border border-white/15 rounded-2xl py-3 sm:py-3.5 px-2 shadow-2xl">
           <div className="grid grid-cols-3 divide-x divide-white/15 text-center">
             <div className="px-2">
               <div className="font-serif text-xl sm:text-2xl text-white font-light tracking-wide">
@@ -195,7 +351,7 @@ export function CinematicHeroBanner({
       </div>
 
       {/* =========================================================================
-          4. SLIDE INDICATOR BARS (BOTTOM CHAMPAGNE GOLD) & SCROLL CUE
+          5. SLIDE INDICATOR BARS (BOTTOM CHAMPAGNE GOLD) & SCROLL CUE
       ========================================================================= */}
       <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-20 flex flex-col items-center gap-3 pointer-events-auto">
         {/* Slide Progress Indicators */}
@@ -228,7 +384,7 @@ export function CinematicHeroBanner({
         <ScrollCue label="CUỘN ĐỂ KHÁM PHÁ" variant="dark" targetId="explore-content" />
       </div>
 
-      {/* Global Embedded Keyframes for Ken Burns and Progress Bar */}
+      {/* Global Embedded Keyframes for Ken Burns, Staggered Reveal and Gentle Floating Sway */}
       <style jsx global>{`
         @keyframes kenBurnsSlow {
           0% {
@@ -244,6 +400,80 @@ export function CinematicHeroBanner({
           }
           100% {
             width: 100%;
+          }
+        }
+        @keyframes heroEntrance {
+          0% {
+            opacity: 0;
+            transform: translate3d(0, 26px, 0) scale(0.88);
+          }
+          100% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+          }
+        }
+        @keyframes heroGentleSway0 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(-4.5deg);
+          }
+          50% {
+            transform: translate3d(0, -10px, 0) rotate(-2deg);
+          }
+        }
+        @keyframes heroGentleSway1 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(4.5deg);
+          }
+          50% {
+            transform: translate3d(0, 9px, 0) rotate(2deg);
+          }
+        }
+        @keyframes heroGentleSway2 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(3.5deg);
+          }
+          50% {
+            transform: translate3d(0, -9px, 0) rotate(5.5deg);
+          }
+        }
+        @keyframes heroGentleSway3 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(-3.5deg);
+          }
+          50% {
+            transform: translate3d(0, 10px, 0) rotate(-5.5deg);
+          }
+        }
+        @keyframes heroGentleSway4 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(-2deg);
+          }
+          50% {
+            transform: translate3d(0, -8px, 0) rotate(0.5deg);
+          }
+        }
+        @keyframes heroGentleSway5 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(2.5deg);
+          }
+          50% {
+            transform: translate3d(0, 9px, 0) rotate(0deg);
+          }
+        }
+        @keyframes heroGentleSway6 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(2.8deg);
+          }
+          50% {
+            transform: translate3d(0, -7px, 0) rotate(1deg);
+          }
+        }
+        @keyframes heroGentleSway7 {
+          0%, 100% {
+            transform: translate3d(0, 0, 0) rotate(-2.8deg);
+          }
+          50% {
+            transform: translate3d(0, 8px, 0) rotate(-1deg);
           }
         }
       `}</style>
