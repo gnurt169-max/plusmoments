@@ -15,9 +15,7 @@ import {
   ChevronRight,
   Sliders,
   FlipHorizontal,
-  Folder,
   Search,
-  CheckCircle2,
   Maximize2,
   Trash2,
   Shuffle,
@@ -26,17 +24,44 @@ import {
   Type,
   Move,
   ZoomIn,
+  RotateCcw,
+  Sparkle,
 } from 'lucide-react';
 
-export type CollageLayoutType = 'editorial-spread' | 'cinematic-trio' | 'gallery-grid-6';
+export type CollageLayoutType =
+  | 'editorial-spread'
+  | 'cinematic-trio'
+  | 'gallery-grid-6'
+  | 'hero-filmstrip-5'
+  | 'asymmetric-lookbook-4'
+  | 'romantic-duo-2'
+  | 'mosaic-story-8'
+  | 'polaroid-memories-4';
+
 export type CollageResolution = '1080p' | '4k';
 export type CollageTheme = 'warm-ivory' | 'noir' | 'classic-white' | 'editorial-rose';
 
 export interface SlotTransform {
-  zoom: number;       // 1.0 to 2.5
+  zoom: number;       // 1.0 to 3.0
   offsetX: number;    // -50% to +50%
   offsetY: number;    // -50% to +50%
   flipX: boolean;     // horizontal flip
+}
+
+export interface CustomLayoutParams {
+  splitRatio: number; // 0.28 to 0.72
+  insetScale: number; // 0.75 to 1.35
+}
+
+export interface LayoutSlotBox {
+  slot: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotation?: number;  // degrees for Polaroid tilt
+  label: string;
+  isInset?: boolean;
 }
 
 export interface AlbumCollageStudioModalProps {
@@ -75,6 +100,230 @@ const PRESET_QUOTES = [
   'The beginning of everything, and the promise of forever.',
 ];
 
+export const LAYOUT_SLOT_COUNTS: Record<CollageLayoutType, number> = {
+  'editorial-spread': 6,
+  'cinematic-trio': 3,
+  'gallery-grid-6': 6,
+  'hero-filmstrip-5': 5,
+  'asymmetric-lookbook-4': 4,
+  'romantic-duo-2': 2,
+  'mosaic-story-8': 8,
+  'polaroid-memories-4': 4,
+};
+
+export const DEFAULT_LAYOUT_PARAMS: Record<CollageLayoutType, CustomLayoutParams> = {
+  'editorial-spread': { splitRatio: 0.50, insetScale: 1.0 },
+  'cinematic-trio': { splitRatio: 0.46, insetScale: 1.0 },
+  'gallery-grid-6': { splitRatio: 0.50, insetScale: 1.0 },
+  'hero-filmstrip-5': { splitRatio: 0.62, insetScale: 1.0 },
+  'asymmetric-lookbook-4': { splitRatio: 0.44, insetScale: 1.0 },
+  'romantic-duo-2': { splitRatio: 0.38, insetScale: 1.0 },
+  'mosaic-story-8': { splitRatio: 0.50, insetScale: 1.0 },
+  'polaroid-memories-4': { splitRatio: 0.50, insetScale: 1.0 },
+};
+
+/**
+ * Calculates absolute layout boxes in base coordinates (1920x1080)
+ */
+export function getLayoutSlots(
+  width: number,
+  height: number,
+  layout: CollageLayoutType,
+  params: CustomLayoutParams,
+  borderWidth: 'none' | 'thin' | 'magazine' = 'magazine'
+): LayoutSlotBox[] {
+  const scale = width / 1920;
+  const splitRatio = params.splitRatio;
+  const insetScale = params.insetScale || 1.0;
+
+  if (layout === 'editorial-spread') {
+    const halfW = width * splitRatio;
+    const insetAW = 400 * scale * insetScale;
+    const insetAH = 580 * scale * insetScale;
+    const insetAX = 60 * scale;
+    const insetAY = 380 * scale;
+
+    const insetBW = 410 * scale * insetScale;
+    const insetBH = 600 * scale * insetScale;
+    const insetBX = Math.max(insetAX + 180 * scale, halfW - insetBW - 30 * scale);
+    const insetBY = 130 * scale;
+
+    const padX = 40 * scale;
+    const padTop = 40 * scale;
+    const gap = 16 * scale;
+    const bannerH = 70 * scale;
+
+    const rightAreaW = (width - halfW) - padX * 2;
+    const rightAreaH = height - padTop - padX - bannerH;
+
+    const cellW = (rightAreaW - gap) / 2;
+    const cellH = (rightAreaH - gap) / 2;
+
+    return [
+      { slot: 0, x: insetAX, y: insetAY, w: insetAW, h: insetAH, label: 'Thẻ Nổi A', isInset: true },
+      { slot: 1, x: insetBX, y: insetBY, w: insetBW, h: insetBH, label: 'Thẻ Nổi B', isInset: true },
+      { slot: 2, x: halfW + padX, y: padTop, w: cellW, h: cellH, label: 'Lưới Trên-Trái' },
+      { slot: 3, x: halfW + padX + cellW + gap, y: padTop, w: cellW, h: cellH, label: 'Lưới Trên-Phải' },
+      { slot: 4, x: halfW + padX, y: padTop + cellH + gap, w: cellW, h: cellH, label: 'Lưới Dưới-Trái' },
+      { slot: 5, x: halfW + padX + cellW + gap, y: padTop + cellH + gap, w: cellW, h: cellH, label: 'Lưới Dưới-Phải' },
+    ];
+  }
+
+  if (layout === 'cinematic-trio') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 16 : 28) * scale;
+    const gap = 16 * scale;
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2;
+
+    const leftW = Math.round(usableW * splitRatio);
+    const rightW = usableW - leftW - gap;
+    const stackH = (usableH - gap) / 2;
+
+    return [
+      { slot: 0, x: pad, y: pad, w: leftW, h: usableH, label: 'Hero Dọc Lớn' },
+      { slot: 1, x: pad + leftW + gap, y: pad, w: rightW, h: stackH, label: 'Ảnh Phải Trên' },
+      { slot: 2, x: pad + leftW + gap, y: pad + stackH + gap, w: rightW, h: stackH, label: 'Ảnh Phải Dưới' },
+    ];
+  }
+
+  if (layout === 'gallery-grid-6') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 20 : 36) * scale;
+    const gap = 16 * scale;
+    const bannerReserve = 60 * scale;
+
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2 - bannerReserve;
+
+    const colW = (usableW - gap * 2) / 3;
+    const rowH = (usableH - gap) / 2;
+
+    return [
+      { slot: 0, x: pad + 0 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 1' },
+      { slot: 1, x: pad + 1 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 2' },
+      { slot: 2, x: pad + 2 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 3' },
+      { slot: 3, x: pad + 0 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 4' },
+      { slot: 4, x: pad + 1 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 5' },
+      { slot: 5, x: pad + 2 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 6' },
+    ];
+  }
+
+  if (layout === 'hero-filmstrip-5') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 16 : 28) * scale;
+    const gap = 14 * scale;
+    const bannerReserve = 48 * scale;
+
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2 - bannerReserve;
+
+    const heroH = Math.round(usableH * splitRatio);
+    const filmstripH = usableH - heroH - gap;
+    const stripColW = (usableW - gap * 3) / 4;
+
+    return [
+      { slot: 0, x: pad, y: pad, w: usableW, h: heroH, label: 'Hero Panorama' },
+      { slot: 1, x: pad + 0 * (stripColW + gap), y: pad + heroH + gap, w: stripColW, h: filmstripH, label: 'Dải Phim 1' },
+      { slot: 2, x: pad + 1 * (stripColW + gap), y: pad + heroH + gap, w: stripColW, h: filmstripH, label: 'Dải Phim 2' },
+      { slot: 3, x: pad + 2 * (stripColW + gap), y: pad + heroH + gap, w: stripColW, h: filmstripH, label: 'Dải Phim 3' },
+      { slot: 4, x: pad + 3 * (stripColW + gap), y: pad + heroH + gap, w: stripColW, h: filmstripH, label: 'Dải Phim 4' },
+    ];
+  }
+
+  if (layout === 'asymmetric-lookbook-4') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 16 : 28) * scale;
+    const gap = 16 * scale;
+    const bannerReserve = 50 * scale;
+
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2 - bannerReserve;
+
+    const leftW = Math.round(usableW * splitRatio);
+    const rightW = usableW - leftW - gap;
+
+    const topH = Math.round(usableH * 0.48);
+    const bottomH = usableH - topH - gap;
+    const subColW = (rightW - gap) / 2;
+
+    return [
+      { slot: 0, x: pad, y: pad, w: leftW, h: usableH, label: 'Hero Dọc Trái' },
+      { slot: 1, x: pad + leftW + gap, y: pad, w: rightW, h: topH, label: 'Ngang Phải Trên' },
+      { slot: 2, x: pad + leftW + gap, y: pad + topH + gap, w: subColW, h: bottomH, label: 'Dưới Trái' },
+      { slot: 3, x: pad + leftW + gap + subColW + gap, y: pad + topH + gap, w: subColW, h: bottomH, label: 'Dưới Phải' },
+    ];
+  }
+
+  if (layout === 'romantic-duo-2') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 24 : 40) * scale;
+    const bannerReserve = 40 * scale;
+
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2 - bannerReserve;
+    const photoW = Math.round(usableW * splitRatio);
+
+    return [
+      { slot: 0, x: pad, y: pad, w: photoW, h: usableH, label: 'Chân Dung Trái' },
+      { slot: 1, x: width - pad - photoW, y: pad, w: photoW, h: usableH, label: 'Chân Dung Phải' },
+    ];
+  }
+
+  if (layout === 'mosaic-story-8') {
+    const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 16 : 26) * scale;
+    const gap = 12 * scale;
+    const bannerReserve = 56 * scale;
+
+    const usableW = width - pad * 2;
+    const usableH = height - pad * 2 - bannerReserve;
+
+    const colW = (usableW - gap * 3) / 4;
+    const rowH = (usableH - gap) / 2;
+
+    return [
+      { slot: 0, x: pad + 0 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 1' },
+      { slot: 1, x: pad + 1 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 2' },
+      { slot: 2, x: pad + 2 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 3' },
+      { slot: 3, x: pad + 3 * (colW + gap), y: pad + 0 * (rowH + gap), w: colW, h: rowH, label: 'Ô 4' },
+      { slot: 4, x: pad + 0 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 5' },
+      { slot: 5, x: pad + 1 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 6' },
+      { slot: 6, x: pad + 2 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 7' },
+      { slot: 7, x: pad + 3 * (colW + gap), y: pad + 1 * (rowH + gap), w: colW, h: rowH, label: 'Ô 8' },
+    ];
+  }
+
+  if (layout === 'polaroid-memories-4') {
+    const cardW = 380 * scale * insetScale;
+    const cardH = 470 * scale * insetScale;
+
+    return [
+      { slot: 0, x: 120 * scale, y: 310 * scale, w: cardW, h: cardH, rotation: -4, label: 'Polaroid 1' },
+      { slot: 1, x: 540 * scale, y: 260 * scale, w: cardW, h: cardH, rotation: 3, label: 'Polaroid 2' },
+      { slot: 2, x: 980 * scale, y: 320 * scale, w: cardW, h: cardH, rotation: -3, label: 'Polaroid 3' },
+      { slot: 3, x: 1420 * scale, y: 270 * scale, w: cardW, h: cardH, rotation: 4, label: 'Polaroid 4' },
+    ];
+  }
+
+  return [];
+}
+
+/**
+ * Helper to hit-test a base coordinate (0..1920, 0..1080) to slot index
+ */
+export function findSlotAt(
+  x: number,
+  y: number,
+  layout: CollageLayoutType,
+  params: CustomLayoutParams,
+  borderWidth: 'none' | 'thin' | 'magazine'
+): number {
+  const boxes = getLayoutSlots(1920, 1080, layout, params, borderWidth);
+  // Check in reverse order so insets/top layers get chosen first
+  for (let i = boxes.length - 1; i >= 0; i--) {
+    const b = boxes[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+      return b.slot;
+    }
+  }
+  return -1;
+}
+
 export function AlbumCollageStudioModal({
   isOpen,
   onClose,
@@ -95,7 +344,7 @@ export function AlbumCollageStudioModal({
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [mediaSearch, setMediaSearch] = useState('');
 
-  // Selected Images for collage (ordered list)
+  // Selected Images for collage (ordered list up to 8 images)
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
   // Studio Settings
@@ -103,6 +352,11 @@ export function AlbumCollageStudioModal({
   const [resolution, setResolution] = useState<CollageResolution>('1080p');
   const [theme, setTheme] = useState<CollageTheme>('warm-ivory');
   const [borderWidth, setBorderWidth] = useState<'none' | 'thin' | 'magazine'>('magazine');
+
+  // Interactive Custom Dimensions Per Layout
+  const [customParams, setCustomParams] = useState<Record<CollageLayoutType, CustomLayoutParams>>(
+    DEFAULT_LAYOUT_PARAMS
+  );
 
   // Typography Settings
   const [showTitle, setShowTitle] = useState(true);
@@ -112,6 +366,11 @@ export function AlbumCollageStudioModal({
   const [showQuote, setShowQuote] = useState(true);
   const [quoteText, setQuoteText] = useState(PRESET_QUOTES[0]);
   const [coupleCaption, setCoupleCaption] = useState('MINH TRUNG & THANH THAO — 2026');
+
+  // Brand Watermark Settings ("plusmoments.vn" on ALL templates)
+  const [autoBrandWatermark, setAutoBrandWatermark] = useState<boolean>(true);
+  const [watermarkPosition, setWatermarkPosition] = useState<'bottom-right' | 'bottom-center' | 'bottom-left'>('bottom-right');
+  const [watermarkText, setWatermarkText] = useState<string>('plusmoments.vn');
 
   // Per-slot fine tuning (up to 8 slots)
   const [activeSlotIndex, setActiveSlotIndex] = useState<number>(0);
@@ -126,13 +385,32 @@ export function AlbumCollageStudioModal({
     7: { zoom: 1.0, offsetX: 0, offsetY: 0, flipX: false },
   });
 
+  // Interactive Drag-to-Pan / Resize State
+  const [dragMode, setDragMode] = useState<'pan' | 'resize-split' | null>(null);
+  const dragStartRef = useRef<{
+    startX: number;
+    startY: number;
+    initOffsetX: number;
+    initOffsetY: number;
+    initSplitRatio: number;
+    slotIndex: number;
+  }>({
+    startX: 0,
+    startY: 0,
+    initOffsetX: 0,
+    initOffsetY: 0,
+    initSplitRatio: 0.5,
+    slotIndex: 0,
+  });
+
   // Export & Action state
   const [isRendering, setIsRendering] = useState(false);
   const [isSavingMedia, setIsSavingMedia] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Canvas refs
+  // Canvas and Preview container refs
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const previewContainerRef = useRef<HTMLDivElement | null>(null);
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   const showToast = (msg: string) => {
@@ -163,7 +441,6 @@ export function AlbumCollageStudioModal({
         const data = await res.json();
         if (data.success && Array.isArray(data.albums)) {
           setAlbums(data.albums);
-          // If initialAlbumId passed, select it, else pick the first album
           if (initialAlbumId) {
             setSelectedAlbumId(initialAlbumId);
             const found = data.albums.find((a: AlbumOption) => a.id === initialAlbumId);
@@ -202,7 +479,6 @@ export function AlbumCollageStudioModal({
 
     loadAlbums();
 
-    // If initialImages explicitly passed, use them
     if (initialImages && initialImages.length > 0) {
       setSelectedUrls(initialImages.slice(0, 8));
     }
@@ -257,7 +533,7 @@ export function AlbumCollageStudioModal({
     );
   }, [mediaFiles, mediaSearch]);
 
-  // Handler when selecting an album from dropdown
+  // Handle album change
   const handleSelectAlbum = (albumId: string) => {
     setSelectedAlbumId(albumId);
     const found = albums.find((a) => a.id === albumId);
@@ -310,10 +586,20 @@ export function AlbumCollageStudioModal({
     setSelectedUrls((prev) => [...prev].sort(() => Math.random() - 0.5));
   };
 
-  // Select first 6 images of current album
-  const handleSelectFirst6 = () => {
+  // Select required images for current layout
+  const handleSelectEnoughImages = () => {
+    const countNeeded = LAYOUT_SLOT_COUNTS[layout];
     if (currentAlbumImages.length === 0) return;
-    setSelectedUrls(currentAlbumImages.slice(0, 6));
+    setSelectedUrls(currentAlbumImages.slice(0, countNeeded));
+  };
+
+  // Reset frame layout ratios to template defaults
+  const handleResetFrameLayout = () => {
+    setCustomParams((prev) => ({
+      ...prev,
+      [layout]: { ...DEFAULT_LAYOUT_PARAMS[layout] },
+    }));
+    showToast('↺ Đã đặt lại tỷ lệ khung ảnh chuẩn cho mẫu này');
   };
 
   // Helper to load image as HTMLImageElement with CORS
@@ -334,7 +620,6 @@ export function AlbumCollageStudioModal({
         resolve(img);
       };
       img.onerror = () => {
-        // Retry once without crossOrigin if local/relative
         const retryImg = new Image();
         retryImg.onload = () => {
           imageCacheRef.current.set(url, retryImg);
@@ -365,7 +650,7 @@ export function AlbumCollageStudioModal({
 
       const imgW = img.naturalWidth || img.width;
       const imgH = img.naturalHeight || img.height;
-      if (!imgW || !imgH) return;
+      if (!imgW || !imgH || dw <= 0 || dh <= 0) return;
 
       const imgAspect = imgW / imgH;
       const boxAspect = dw / dh;
@@ -374,18 +659,14 @@ export function AlbumCollageStudioModal({
       let baseH = imgH;
 
       if (imgAspect > boxAspect) {
-        // Image is wider than box
         baseW = imgH * boxAspect;
       } else {
-        // Image is taller than box
         baseH = imgW / boxAspect;
       }
 
-      // Apply zoom
       const cropW = baseW / zoom;
       const cropH = baseH / zoom;
 
-      // Calculate center pan
       const centerX = imgW / 2;
       const centerY = imgH / 2;
       const maxPanX = Math.max(0, (imgW - cropW) / 2);
@@ -394,7 +675,6 @@ export function AlbumCollageStudioModal({
       let cropX = centerX - cropW / 2 + (offsetX / 50) * maxPanX;
       let cropY = centerY - cropH / 2 + (offsetY / 50) * maxPanY;
 
-      // Clamp bounds
       cropX = Math.max(0, Math.min(imgW - cropW, cropX));
       cropY = Math.max(0, Math.min(imgH - cropH, cropY));
 
@@ -416,13 +696,94 @@ export function AlbumCollageStudioModal({
     []
   );
 
+  // Helper to draw Brand Watermark ("plusmoments.vn" on ALL templates)
+  const drawBrandWatermark = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      width: number,
+      height: number,
+      scale: number,
+      pos: 'bottom-right' | 'bottom-center' | 'bottom-left',
+      brandText: string,
+      currentTheme: CollageTheme
+    ) => {
+      ctx.save();
+      const text = (brandText || 'PLUSMOMENTS.VN').toUpperCase();
+      const fontSize = 11 * scale;
+      ctx.font = `700 ${fontSize}px "Montserrat", sans-serif`;
+      ctx.letterSpacing = `${3.5 * scale}px`;
+
+      let textColor = '#C5A059';
+      let lineCol = 'rgba(197, 160, 89, 0.45)';
+
+      if (currentTheme === 'warm-ivory' || currentTheme === 'classic-white') {
+        textColor = '#8C6D46';
+        lineCol = 'rgba(140, 109, 70, 0.4)';
+      } else if (currentTheme === 'noir') {
+        textColor = '#E5C585';
+        lineCol = 'rgba(229, 197, 133, 0.45)';
+      } else if (currentTheme === 'editorial-rose') {
+        textColor = '#A67362';
+        lineCol = 'rgba(166, 115, 98, 0.4)';
+      }
+
+      ctx.fillStyle = textColor;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+      ctx.shadowBlur = 4 * scale;
+
+      const pad = 36 * scale;
+      const bottomY = height - 20 * scale;
+      const lineLen = 30 * scale;
+
+      if (pos === 'bottom-right') {
+        ctx.textAlign = 'right';
+        ctx.fillText(text, width - pad, bottomY);
+        const textMetrics = ctx.measureText(text);
+        const textLeft = width - pad - textMetrics.width - 8 * scale;
+        ctx.strokeStyle = lineCol;
+        ctx.lineWidth = 1 * scale;
+        ctx.beginPath();
+        ctx.moveTo(textLeft - lineLen, bottomY - 3 * scale);
+        ctx.lineTo(textLeft, bottomY - 3 * scale);
+        ctx.stroke();
+      } else if (pos === 'bottom-left') {
+        ctx.textAlign = 'left';
+        ctx.fillText(text, pad, bottomY);
+        const textMetrics = ctx.measureText(text);
+        const textRight = pad + textMetrics.width + 8 * scale;
+        ctx.strokeStyle = lineCol;
+        ctx.lineWidth = 1 * scale;
+        ctx.beginPath();
+        ctx.moveTo(textRight, bottomY - 3 * scale);
+        ctx.lineTo(textRight + lineLen, bottomY - 3 * scale);
+        ctx.stroke();
+      } else {
+        ctx.textAlign = 'center';
+        ctx.fillText(text, width / 2, bottomY);
+        const textMetrics = ctx.measureText(text);
+        const halfText = textMetrics.width / 2;
+        ctx.strokeStyle = lineCol;
+        ctx.lineWidth = 1 * scale;
+        ctx.beginPath();
+        ctx.moveTo(width / 2 - halfText - 12 * scale - lineLen, bottomY - 3 * scale);
+        ctx.lineTo(width / 2 - halfText - 12 * scale, bottomY - 3 * scale);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(width / 2 + halfText + 12 * scale, bottomY - 3 * scale);
+        ctx.lineTo(width / 2 + halfText + 12 * scale + lineLen, bottomY - 3 * scale);
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    []
+  );
+
   // Core 16:9 Canvas Rendering Function
   const renderCollage = useCallback(
     async (targetCanvas: HTMLCanvasElement, exportResolution: CollageResolution = resolution) => {
       const ctx = targetCanvas.getContext('2d');
       if (!ctx) return;
 
-      // Determine dimensions: 1080p = 1920x1080, 4K = 3840x2160
       const width = exportResolution === '4k' ? 3840 : 1920;
       const height = exportResolution === '4k' ? 2160 : 1080;
       const scale = exportResolution === '4k' ? 2 : 1;
@@ -497,20 +858,26 @@ export function AlbumCollageStudioModal({
         ctx.fillStyle = '#666';
         ctx.font = `${24 * scale}px sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText('Chưa có ảnh nào được tải. Vui lòng chọn ảnh từ Bộ Sưu Tập hoặc Media.', width / 2, height / 2);
+        ctx.fillText(
+          'Chưa có ảnh nào được tải. Vui lòng chọn ảnh từ Bộ Sưu Tập hoặc Media.',
+          width / 2,
+          height / 2
+        );
         return;
       }
 
-      // Helper to safely get an image by slot index (with wrapping fallback)
       const getImageForSlot = (slotIdx: number): HTMLImageElement => {
         return validImages[slotIdx % validImages.length];
       };
 
-      // ------------------------------------------------------------------------
-      // LAYOUT 1: EDITORIAL SPREAD (Magazine Editorial - Reference Style)
-      // ------------------------------------------------------------------------
+      const currentParams = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+      const layoutBoxes = getLayoutSlots(width, height, layout, currentParams, borderWidth);
+
+      // ========================================================================
+      // 1. EDITORIAL SPREAD (6 Photos)
+      // ========================================================================
       if (layout === 'editorial-spread') {
-        const halfW = width / 2; // 960px or 1920px
+        const halfW = width * currentParams.splitRatio;
 
         // --- LEFT HALF: BLURRED COVER BACKGROUND + 2 INSET STAGGERED PHOTOS ---
         ctx.save();
@@ -518,73 +885,55 @@ export function AlbumCollageStudioModal({
         ctx.rect(0, 0, halfW, height);
         ctx.clip();
 
-        // 1. Blurred Background (Image #0)
+        // Blurred Background
         const bgImg = getImageForSlot(0);
         ctx.save();
         ctx.filter = `blur(${18 * scale}px)`;
-        // Draw slightly oversized to prevent transparent edges
         const bleed = 40 * scale;
         ctx.drawImage(bgImg, -bleed, -bleed, halfW + bleed * 2, height + bleed * 2);
         ctx.filter = 'none';
-
-        // Dark / Tint overlay on top of blur
         ctx.fillStyle = theme === 'noir' ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.22)';
         ctx.fillRect(0, 0, halfW, height);
         ctx.restore();
 
-        // 2. Inset Photo A (Slot #1) - Lower Left
-        const insetAW = 400 * scale;
-        const insetAH = 580 * scale;
-        const insetAX = 60 * scale;
-        const insetAY = 380 * scale;
-        const frameA = 8 * scale;
+        // Draw Inset Photo A (Slot 0)
+        const boxA = layoutBoxes.find((b) => b.slot === 0);
+        if (boxA) {
+          const frameA = 8 * scale;
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+          ctx.shadowBlur = 30 * scale;
+          ctx.shadowOffsetY = 15 * scale;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(boxA.x - frameA, boxA.y - frameA, boxA.w + frameA * 2, boxA.h + frameA * 2);
+          ctx.restore();
+          drawFittedImage(ctx, getImageForSlot(0), boxA.x, boxA.y, boxA.w, boxA.h, slotTransforms[0]);
+        }
 
-        // Shadow for Inset A
-        ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-        ctx.shadowBlur = 30 * scale;
-        ctx.shadowOffsetY = 15 * scale;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(insetAX - frameA, insetAY - frameA, insetAW + frameA * 2, insetAH + frameA * 2);
-        ctx.restore();
+        // Draw Inset Photo B (Slot 1)
+        const boxB = layoutBoxes.find((b) => b.slot === 1);
+        if (boxB) {
+          const frameB = 8 * scale;
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.38)';
+          ctx.shadowBlur = 35 * scale;
+          ctx.shadowOffsetY = 18 * scale;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(boxB.x - frameB, boxB.y - frameB, boxB.w + frameB * 2, boxB.h + frameB * 2);
+          ctx.restore();
+          drawFittedImage(ctx, getImageForSlot(1), boxB.x, boxB.y, boxB.w, boxB.h, slotTransforms[1]);
+        }
 
-        // Draw Inset Photo A
-        const imgA = getImageForSlot(1);
-        drawFittedImage(ctx, imgA, insetAX, insetAY, insetAW, insetAH, slotTransforms[1]);
-
-        // 3. Inset Photo B (Slot #2) - Upper Right of Left Half
-        const insetBW = 410 * scale;
-        const insetBH = 600 * scale;
-        const insetBX = 480 * scale;
-        const insetBY = 130 * scale;
-        const frameB = 8 * scale;
-
-        // Shadow for Inset B
-        ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.38)';
-        ctx.shadowBlur = 35 * scale;
-        ctx.shadowOffsetY = 18 * scale;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(insetBX - frameB, insetBY - frameB, insetBW + frameB * 2, insetBH + frameB * 2);
-        ctx.restore();
-
-        // Draw Inset Photo B
-        const imgB = getImageForSlot(2);
-        drawFittedImage(ctx, imgB, insetBX, insetBY, insetBW, insetBH, slotTransforms[2]);
-
-        // 4. Left Half Typography Overlays
+        // Left Half Typography Overlays
         if (showTitle && titleText) {
           ctx.save();
           ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
           ctx.shadowBlur = 12 * scale;
           ctx.fillStyle = '#FFFFFF';
-
-          // Calligraphy Title
-          ctx.font = `italic 600 ${52 * scale}px "Dancing Script", cursive, Georgia, serif`;
+          ctx.font = `italic 600 ${50 * scale}px "Dancing Script", cursive, Georgia, serif`;
           ctx.textAlign = 'left';
           ctx.fillText(titleText, 60 * scale, 120 * scale);
 
-          // Subtitle
           if (showSubtitle && subtitleText) {
             ctx.font = `600 ${11 * scale}px "Montserrat", sans-serif`;
             ctx.letterSpacing = `${3 * scale}px`;
@@ -594,7 +943,6 @@ export function AlbumCollageStudioModal({
           ctx.restore();
         }
 
-        // Quote at bottom of left half
         if (showQuote && quoteText) {
           ctx.save();
           ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
@@ -608,165 +956,96 @@ export function AlbumCollageStudioModal({
 
         ctx.restore(); // end left half clipping
 
-        // --- RIGHT HALF: 2x2 BALANCED EDITORIAL GRID (Slots #3, #4, #5, #6) ---
-        ctx.save();
-        const padX = 40 * scale;
-        const padTop = 40 * scale;
-        const gap = 16 * scale;
-        const bannerH = 70 * scale; // Bottom reserved space for couple caption
-
-        const rightAreaW = halfW - padX * 2;
-        const rightAreaH = height - padTop - padX - bannerH;
-
-        const cellW = (rightAreaW - gap) / 2;
-        const cellH = (rightAreaH - gap) / 2;
-
-        const gridPositions = [
-          { x: halfW + padX, y: padTop, slot: 3 },
-          { x: halfW + padX + cellW + gap, y: padTop, slot: 4 },
-          { x: halfW + padX, y: padTop + cellH + gap, slot: 5 },
-          { x: halfW + padX + cellW + gap, y: padTop + cellH + gap, slot: 6 },
-        ];
-
-        gridPositions.forEach((pos) => {
-          const slotImg = getImageForSlot(pos.slot);
-
-          // Subtle shadow / frame
-          if (borderPx > 0) {
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(pos.x - borderPx, pos.y - borderPx, cellW + borderPx * 2, cellH + borderPx * 2);
-          }
-
-          drawFittedImage(ctx, slotImg, pos.x, pos.y, cellW, cellH, slotTransforms[pos.slot]);
-        });
+        // --- RIGHT HALF: 2x2 GRID (Slots 2, 3, 4, 5) ---
+        layoutBoxes
+          .filter((b) => b.slot >= 2)
+          .forEach((box) => {
+            if (borderPx > 0) {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+            }
+            drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+          });
 
         // Bottom Typography Banner on Right Half
         ctx.save();
-        const bannerCenterY = height - bannerH / 2;
+        const bannerCenterY = height - 35 * scale;
+        const rightCenterX = halfW + (width - halfW) / 2;
         ctx.textAlign = 'center';
 
-        // Elegant decorative line divider
         ctx.strokeStyle = textColor.divider;
         ctx.lineWidth = 1 * scale;
         ctx.beginPath();
-        ctx.moveTo(halfW + padX + 60 * scale, bannerCenterY - 14 * scale);
-        ctx.lineTo(width - padX - 60 * scale, bannerCenterY - 14 * scale);
+        ctx.moveTo(halfW + 60 * scale, bannerCenterY - 14 * scale);
+        ctx.lineTo(width - 60 * scale, bannerCenterY - 14 * scale);
         ctx.stroke();
 
-        // Little diamond in center
         ctx.fillStyle = textColor.subtitle;
         ctx.beginPath();
-        const diamondX = halfW + halfW / 2;
-        const diamondY = bannerCenterY - 14 * scale;
         const dSize = 4 * scale;
-        ctx.moveTo(diamondX, diamondY - dSize);
-        ctx.lineTo(diamondX + dSize, diamondY);
-        ctx.lineTo(diamondX, diamondY + dSize);
-        ctx.lineTo(diamondX - dSize, diamondY);
+        ctx.moveTo(rightCenterX, bannerCenterY - 14 * scale - dSize);
+        ctx.lineTo(rightCenterX + dSize, bannerCenterY - 14 * scale);
+        ctx.lineTo(rightCenterX, bannerCenterY - 14 * scale + dSize);
+        ctx.lineTo(rightCenterX - dSize, bannerCenterY - 14 * scale);
         ctx.fill();
 
-        // Couple Caption / Studio Stamp
         ctx.font = `600 ${12 * scale}px "Montserrat", sans-serif`;
         ctx.fillStyle = textColor.title;
         ctx.letterSpacing = `${3 * scale}px`;
-        ctx.fillText(coupleCaption, diamondX, bannerCenterY + 12 * scale);
-
-        ctx.restore();
+        ctx.fillText(coupleCaption, rightCenterX, bannerCenterY + 8 * scale);
         ctx.restore();
       }
 
-      // ------------------------------------------------------------------------
-      // LAYOUT 2: CINEMATIC TRIO (1 Big Hero + 2 or 3 Stacked Side Photos)
-      // ------------------------------------------------------------------------
+      // ========================================================================
+      // 2. CINEMATIC TRIO (3 Photos)
+      // ========================================================================
       else if (layout === 'cinematic-trio') {
-        const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 16 : 28) * scale;
-        const gap = 16 * scale;
-        const usableW = width - pad * 2;
-        const usableH = height - pad * 2;
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+        });
 
-        const leftW = Math.round(usableW * 0.46);
-        const rightW = usableW - leftW - gap;
-
-        // Slot 0: Big Vertical Hero on Left
-        const heroImg = getImageForSlot(0);
-        drawFittedImage(ctx, heroImg, pad, pad, leftW, usableH, slotTransforms[0]);
-
-        // Right side: 2 stacked horizontal cards
-        const stackH = (usableH - gap) / 2;
-
-        const rightImg1 = getImageForSlot(1);
-        drawFittedImage(ctx, rightImg1, pad + leftW + gap, pad, rightW, stackH, slotTransforms[1]);
-
-        const rightImg2 = getImageForSlot(2);
-        drawFittedImage(
-          ctx,
-          rightImg2,
-          pad + leftW + gap,
-          pad + stackH + gap,
-          rightW,
-          stackH,
-          slotTransforms[2]
-        );
-
-        // Bottom cinematic watermark
-        if (showTitle || coupleCaption) {
+        // Bottom cinematic watermark bar on hero left
+        const heroBox = layoutBoxes[0];
+        if (heroBox && (showTitle || coupleCaption)) {
           ctx.save();
           const barH = 54 * scale;
-          const barY = height - pad - barH;
-          const barX = pad;
-          const barW = leftW;
-
+          const barY = heroBox.y + heroBox.h - barH;
           ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-          ctx.fillRect(barX, barY, barW, barH);
+          ctx.fillRect(heroBox.x, barY, heroBox.w, barH);
 
           ctx.textAlign = 'left';
           ctx.fillStyle = '#FFFFFF';
           ctx.font = `italic 600 ${22 * scale}px "Playfair Display", Georgia, serif`;
-          ctx.fillText(titleText, barX + 20 * scale, barY + 34 * scale);
+          ctx.fillText(titleText, heroBox.x + 20 * scale, barY + 34 * scale);
 
           ctx.textAlign = 'right';
           ctx.fillStyle = '#E5C585';
           ctx.font = `600 ${10 * scale}px "Montserrat", sans-serif`;
           ctx.letterSpacing = `${2 * scale}px`;
-          ctx.fillText(coupleCaption, barX + barW - 20 * scale, barY + 33 * scale);
+          ctx.fillText(coupleCaption, heroBox.x + heroBox.w - 20 * scale, barY + 33 * scale);
           ctx.restore();
         }
       }
 
-      // ------------------------------------------------------------------------
-      // LAYOUT 3: GALLERY GRID 6 (Balanced 3x2 Grid Across 16:9)
-      // ------------------------------------------------------------------------
+      // ========================================================================
+      // 3. GALLERY GRID 6 (6 Photos)
+      // ========================================================================
       else if (layout === 'gallery-grid-6') {
-        const pad = (borderWidth === 'none' ? 0 : borderWidth === 'thin' ? 20 : 36) * scale;
-        const gap = 16 * scale;
-        const bannerReserve = 60 * scale;
-
-        const usableW = width - pad * 2;
-        const usableH = height - pad * 2 - bannerReserve;
-
-        const colW = (usableW - gap * 2) / 3;
-        const rowH = (usableH - gap) / 2;
-
-        const grid6 = [
-          { c: 0, r: 0, slot: 0 },
-          { c: 1, r: 0, slot: 1 },
-          { c: 2, r: 0, slot: 2 },
-          { c: 0, r: 1, slot: 3 },
-          { c: 1, r: 1, slot: 4 },
-          { c: 2, r: 1, slot: 5 },
-        ];
-
-        grid6.forEach((item) => {
-          const x = pad + item.c * (colW + gap);
-          const y = pad + item.r * (rowH + gap);
-          const img = getImageForSlot(item.slot);
-
-          drawFittedImage(ctx, img, x, y, colW, rowH, slotTransforms[item.slot]);
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
         });
 
         // Bottom Signature Banner
         ctx.save();
-        const bannerY = height - pad - bannerReserve / 2;
+        const bannerY = height - 44 * scale;
         ctx.textAlign = 'center';
         ctx.fillStyle = textColor.title;
         ctx.font = `italic 600 ${20 * scale}px "Playfair Display", Georgia, serif`;
@@ -778,12 +1057,260 @@ export function AlbumCollageStudioModal({
         ctx.fillText(coupleCaption, width / 2, bannerY + 22 * scale);
         ctx.restore();
       }
+
+      // ========================================================================
+      // 4. HERO + FILMSTRIP 5 (5 Photos)
+      // ========================================================================
+      else if (layout === 'hero-filmstrip-5') {
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+        });
+
+        // Floating Title on Hero Top
+        const heroBox = layoutBoxes[0];
+        if (heroBox && showTitle) {
+          ctx.save();
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+          ctx.shadowBlur = 10 * scale;
+          ctx.font = `italic 600 ${36 * scale}px "Dancing Script", cursive, Georgia, serif`;
+          ctx.textAlign = 'left';
+          ctx.fillText(titleText, heroBox.x + 30 * scale, heroBox.y + 60 * scale);
+
+          if (showSubtitle && subtitleText) {
+            ctx.font = `600 ${10 * scale}px "Montserrat", sans-serif`;
+            ctx.fillStyle = '#E5C585';
+            ctx.letterSpacing = `${2.5 * scale}px`;
+            ctx.fillText(subtitleText.toUpperCase(), heroBox.x + 32 * scale, heroBox.y + 88 * scale);
+          }
+          ctx.restore();
+        }
+
+        // Bottom Signature Banner
+        ctx.save();
+        const bannerY = height - 24 * scale;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = textColor.title;
+        ctx.font = `600 ${10 * scale}px "Montserrat", sans-serif`;
+        ctx.letterSpacing = `${3 * scale}px`;
+        ctx.fillText(coupleCaption, width / 2, bannerY);
+        ctx.restore();
+      }
+
+      // ========================================================================
+      // 5. ASYMMETRIC LOOKBOOK 4 (4 Photos)
+      // ========================================================================
+      else if (layout === 'asymmetric-lookbook-4') {
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+        });
+
+        // Bottom Signature Banner
+        ctx.save();
+        const bannerY = height - 26 * scale;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = textColor.title;
+        ctx.font = `italic 600 ${18 * scale}px "Playfair Display", Georgia, serif`;
+        ctx.fillText(titleText, width / 2, bannerY);
+
+        ctx.font = `600 ${9.5 * scale}px "Montserrat", sans-serif`;
+        ctx.fillStyle = textColor.subtitle;
+        ctx.letterSpacing = `${2.5 * scale}px`;
+        ctx.fillText(coupleCaption, width / 2, bannerY + 16 * scale);
+        ctx.restore();
+      }
+
+      // ========================================================================
+      // 6. ROMANTIC DUO 2 (2 Photos)
+      // ========================================================================
+      else if (layout === 'romantic-duo-2') {
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+        });
+
+        // Center Column Romantic Typography
+        ctx.save();
+        const centerX = width / 2;
+        ctx.textAlign = 'center';
+
+        // Chapter / Subtitle
+        if (showSubtitle && subtitleText) {
+          ctx.font = `600 ${11 * scale}px "Montserrat", sans-serif`;
+          ctx.fillStyle = textColor.subtitle;
+          ctx.letterSpacing = `${3.5 * scale}px`;
+          ctx.fillText(subtitleText.toUpperCase(), centerX, 280 * scale);
+        }
+
+        // Diamond Icon
+        ctx.fillStyle = textColor.subtitle;
+        ctx.beginPath();
+        const dSize = 6 * scale;
+        ctx.moveTo(centerX, 330 * scale - dSize);
+        ctx.lineTo(centerX + dSize, 330 * scale);
+        ctx.lineTo(centerX, 330 * scale + dSize);
+        ctx.lineTo(centerX - dSize, 330 * scale);
+        ctx.fill();
+
+        // Dancing Script Big Title
+        if (showTitle && titleText) {
+          ctx.font = `italic 600 ${44 * scale}px "Dancing Script", cursive, Georgia, serif`;
+          ctx.fillStyle = textColor.title;
+          ctx.fillText(titleText, centerX, 410 * scale);
+        }
+
+        // Romantic Quote
+        if (showQuote && quoteText) {
+          ctx.font = `italic 400 ${17 * scale}px "Playfair Display", Georgia, serif`;
+          ctx.fillStyle = textColor.quote;
+          ctx.fillText(`“${quoteText}”`, centerX, 510 * scale);
+        }
+
+        // Couple & Year
+        ctx.font = `600 ${12 * scale}px "Montserrat", sans-serif`;
+        ctx.fillStyle = textColor.title;
+        ctx.letterSpacing = `${4 * scale}px`;
+        ctx.fillText(coupleCaption, centerX, 610 * scale);
+
+        ctx.restore();
+      }
+
+      // ========================================================================
+      // 7. MOSAIC STORY 8 (8 Photos)
+      // ========================================================================
+      else if (layout === 'mosaic-story-8') {
+        layoutBoxes.forEach((box) => {
+          if (borderPx > 0) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(box.x - borderPx, box.y - borderPx, box.w + borderPx * 2, box.h + borderPx * 2);
+          }
+          drawFittedImage(ctx, getImageForSlot(box.slot), box.x, box.y, box.w, box.h, slotTransforms[box.slot]);
+        });
+
+        // Bottom Signature Banner
+        ctx.save();
+        const bannerY = height - 26 * scale;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = textColor.title;
+        ctx.font = `italic 600 ${18 * scale}px "Playfair Display", Georgia, serif`;
+        ctx.fillText(titleText, width / 2, bannerY);
+
+        ctx.font = `600 ${9 * scale}px "Montserrat", sans-serif`;
+        ctx.fillStyle = textColor.subtitle;
+        ctx.letterSpacing = `${2.5 * scale}px`;
+        ctx.fillText(coupleCaption, width / 2, bannerY + 16 * scale);
+        ctx.restore();
+      }
+
+      // ========================================================================
+      // 8. POLAROID MEMORIES 4 (4 Photos)
+      // ========================================================================
+      else if (layout === 'polaroid-memories-4') {
+        // Blurred Background
+        const bgImg = getImageForSlot(0);
+        ctx.save();
+        ctx.filter = `blur(${22 * scale}px)`;
+        const bleed = 40 * scale;
+        ctx.drawImage(bgImg, -bleed, -bleed, width + bleed * 2, height + bleed * 2);
+        ctx.filter = 'none';
+        ctx.fillStyle = theme === 'noir' ? 'rgba(0, 0, 0, 0.55)' : 'rgba(0, 0, 0, 0.28)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+
+        // Top Typography
+        if (showTitle && titleText) {
+          ctx.save();
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+          ctx.shadowBlur = 10 * scale;
+          ctx.font = `italic 600 ${44 * scale}px "Dancing Script", cursive, Georgia, serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText(titleText, width / 2, 110 * scale);
+
+          if (showQuote && quoteText) {
+            ctx.font = `italic 400 ${15 * scale}px "Playfair Display", Georgia, serif`;
+            ctx.fillStyle = '#F4EDE4';
+            ctx.fillText(`“${quoteText}”`, width / 2, 160 * scale);
+          }
+          ctx.restore();
+        }
+
+        // Draw 4 Polaroid Cards
+        layoutBoxes.forEach((box) => {
+          const slotImg = getImageForSlot(box.slot);
+          const cx = box.x + box.w / 2;
+          const cy = box.y + box.h / 2;
+          const rot = box.rotation || 0;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate((rot * Math.PI) / 180);
+
+          // Card Shadow + White Paper Body
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+          ctx.shadowBlur = 24 * scale;
+          ctx.shadowOffsetY = 12 * scale;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(-box.w / 2, -box.h / 2, box.w, box.h);
+          ctx.restore();
+
+          // Inner photo area
+          const innerPad = 18 * scale * currentParams.insetScale;
+          const bottomSpace = 65 * scale * currentParams.insetScale;
+          const photoW = box.w - innerPad * 2;
+          const photoH = box.h - innerPad * 2 - bottomSpace;
+          const photoX = -box.w / 2 + innerPad;
+          const photoY = -box.h / 2 + innerPad;
+
+          drawFittedImage(ctx, slotImg, photoX, photoY, photoW, photoH, slotTransforms[box.slot]);
+
+          // Bottom handwritten label on card
+          ctx.font = `italic 600 ${14 * scale}px "Dancing Script", cursive, serif`;
+          ctx.fillStyle = '#6E6259';
+          ctx.textAlign = 'center';
+          ctx.fillText(`Moment #${box.slot + 1} • Forever`, 0, box.h / 2 - 20 * scale * currentParams.insetScale);
+
+          ctx.restore();
+        });
+
+        // Bottom Signature Banner
+        ctx.save();
+        const bannerY = height - 28 * scale;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 8 * scale;
+        ctx.font = `600 ${11 * scale}px "Montserrat", sans-serif`;
+        ctx.letterSpacing = `${3 * scale}px`;
+        ctx.fillText(coupleCaption, width / 2, bannerY);
+        ctx.restore();
+      }
+
+      // ========================================================================
+      // AUTO BRAND WATERMARK ("plusmoments.vn" ON ALL TEMPLATES)
+      // ========================================================================
+      if (autoBrandWatermark) {
+        drawBrandWatermark(ctx, width, height, scale, watermarkPosition, watermarkText, theme);
+      }
     },
     [
       resolution,
       layout,
       theme,
       borderWidth,
+      customParams,
       showTitle,
       titleText,
       showSubtitle,
@@ -793,7 +1320,11 @@ export function AlbumCollageStudioModal({
       coupleCaption,
       selectedUrls,
       slotTransforms,
+      autoBrandWatermark,
+      watermarkPosition,
+      watermarkText,
       drawFittedImage,
+      drawBrandWatermark,
       loadImage,
     ]
   );
@@ -806,15 +1337,176 @@ export function AlbumCollageStudioModal({
       if (canvasRef.current) {
         renderCollage(canvasRef.current, '1080p').finally(() => setIsRendering(false));
       }
-    }, 80);
+    }, 60);
     return () => clearTimeout(timer);
   }, [isOpen, renderCollage]);
+
+  // ========================================================================
+  // INTERACTIVE CANVAS POINTER EVENTS: DRAG-TO-PAN, WHEEL ZOOM, FRAME RESIZE
+  // ========================================================================
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!previewContainerRef.current) return;
+    const rect = previewContainerRef.current.getBoundingClientRect();
+    const normX = (e.clientX - rect.left) / rect.width;
+    const normY = (e.clientY - rect.top) / rect.height;
+    const baseX = normX * 1920;
+    const baseY = normY * 1080;
+
+    const currentP = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+
+    // Check if clicking near vertical split line (for split layouts)
+    if (
+      layout === 'editorial-spread' ||
+      layout === 'cinematic-trio' ||
+      layout === 'asymmetric-lookbook-4' ||
+      layout === 'romantic-duo-2'
+    ) {
+      const splitX = 1920 * currentP.splitRatio;
+      if (Math.abs(baseX - splitX) < 22) {
+        setDragMode('resize-split');
+        dragStartRef.current = {
+          startX: e.clientX,
+          startY: e.clientY,
+          initOffsetX: 0,
+          initOffsetY: 0,
+          initSplitRatio: currentP.splitRatio,
+          slotIndex: activeSlotIndex,
+        };
+        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+        return;
+      }
+    }
+
+    // Check if clicking near horizontal split line (for hero-filmstrip-5)
+    if (layout === 'hero-filmstrip-5') {
+      const splitY = 1080 * currentP.splitRatio;
+      if (Math.abs(baseY - splitY) < 22) {
+        setDragMode('resize-split');
+        dragStartRef.current = {
+          startX: e.clientX,
+          startY: e.clientY,
+          initOffsetX: 0,
+          initOffsetY: 0,
+          initSplitRatio: currentP.splitRatio,
+          slotIndex: activeSlotIndex,
+        };
+        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+        return;
+      }
+    }
+
+    // Find slot at click position
+    const clickedSlot = findSlotAt(baseX, baseY, layout, currentP, borderWidth);
+    if (clickedSlot >= 0) {
+      setActiveSlotIndex(clickedSlot);
+      setDragMode('pan');
+      const curTrans = slotTransforms[clickedSlot] || { zoom: 1.0, offsetX: 0, offsetY: 0, flipX: false };
+      dragStartRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        initOffsetX: curTrans.offsetX,
+        initOffsetY: curTrans.offsetY,
+        initSplitRatio: currentP.splitRatio,
+        slotIndex: clickedSlot,
+      };
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragMode || !previewContainerRef.current) return;
+    const rect = previewContainerRef.current.getBoundingClientRect();
+
+    if (dragMode === 'pan') {
+      const deltaX = e.clientX - dragStartRef.current.startX;
+      const deltaY = e.clientY - dragStartRef.current.startY;
+
+      // Sensitivity: ~150px mouse move equals ~50% offset change
+      const deltaPercentX = (deltaX / (rect.width * 0.25)) * 50;
+      const deltaPercentY = (deltaY / (rect.height * 0.25)) * 50;
+
+      const newOffsetX = Math.max(
+        -50,
+        Math.min(50, Math.round(dragStartRef.current.initOffsetX + deltaPercentX))
+      );
+      const newOffsetY = Math.max(
+        -50,
+        Math.min(50, Math.round(dragStartRef.current.initOffsetY + deltaPercentY))
+      );
+
+      const targetSlot = dragStartRef.current.slotIndex;
+      setSlotTransforms((prev) => ({
+        ...prev,
+        [targetSlot]: {
+          ...prev[targetSlot],
+          offsetX: newOffsetX,
+          offsetY: newOffsetY,
+        },
+      }));
+    } else if (dragMode === 'resize-split') {
+      if (layout === 'hero-filmstrip-5') {
+        const deltaY = e.clientY - dragStartRef.current.startY;
+        const deltaRatio = deltaY / rect.height;
+        const newRatio = Math.max(
+          0.38,
+          Math.min(0.72, Number((dragStartRef.current.initSplitRatio + deltaRatio).toFixed(2)))
+        );
+        setCustomParams((prev) => ({
+          ...prev,
+          [layout]: { ...prev[layout], splitRatio: newRatio },
+        }));
+      } else {
+        const deltaX = e.clientX - dragStartRef.current.startX;
+        const deltaRatio = deltaX / rect.width;
+        const newRatio = Math.max(
+          0.28,
+          Math.min(0.70, Number((dragStartRef.current.initSplitRatio + deltaRatio).toFixed(2)))
+        );
+        setCustomParams((prev) => ({
+          ...prev,
+          [layout]: { ...prev[layout], splitRatio: newRatio },
+        }));
+      }
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragMode) {
+      setDragMode(null);
+      (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!previewContainerRef.current) return;
+    const rect = previewContainerRef.current.getBoundingClientRect();
+    const normX = (e.clientX - rect.left) / rect.width;
+    const normY = (e.clientY - rect.top) / rect.height;
+    const baseX = normX * 1920;
+    const baseY = normY * 1080;
+
+    const currentP = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+    let targetSlot = findSlotAt(baseX, baseY, layout, currentP, borderWidth);
+    if (targetSlot < 0) targetSlot = activeSlotIndex;
+
+    const curZoom = slotTransforms[targetSlot]?.zoom || 1.0;
+    const deltaZoom = -e.deltaY * 0.0015;
+    const newZoom = Math.max(1.0, Math.min(3.0, Number((curZoom + deltaZoom).toFixed(2))));
+
+    setSlotTransforms((prev) => ({
+      ...prev,
+      [targetSlot]: {
+        ...prev[targetSlot],
+        zoom: newZoom,
+      },
+    }));
+  };
 
   // Download High-Res File
   const handleDownload = async () => {
     try {
       setIsRendering(true);
-      // Create high-res offscreen canvas
       const exportCanvas = document.createElement('canvas');
       await renderCollage(exportCanvas, resolution);
 
@@ -830,7 +1522,7 @@ export function AlbumCollageStudioModal({
           const cleanName = (currentAlbum?.slug || 'plusmoments')
             .replace(/[^a-zA-Z0-9_-]/g, '-')
             .toLowerCase();
-          a.download = `plusmoments-collage-16x9-${cleanName}-${resolution}.jpg`;
+          a.download = `plusmoments-collage-16x9-${layout}-${cleanName}-${resolution}.jpg`;
           a.href = url;
           document.body.appendChild(a);
           a.click();
@@ -866,7 +1558,7 @@ export function AlbumCollageStudioModal({
           const cleanSlug = (currentAlbum?.slug || 'collage-16x9')
             .replace(/[^a-zA-Z0-9_-]/g, '-')
             .toLowerCase();
-          const filename = `collage-16x9-${cleanSlug}-${Date.now()}.jpg`;
+          const filename = `collage-16x9-${layout}-${cleanSlug}-${Date.now()}.jpg`;
           const file = new File([blob], filename, { type: 'image/jpeg' });
 
           const formData = new FormData();
@@ -898,13 +1590,25 @@ export function AlbumCollageStudioModal({
     }
   };
 
+  // Computed boxes for preview overlay
+  const previewBoxes = useMemo(() => {
+    const curP = customParams[layout] || DEFAULT_LAYOUT_PARAMS[layout];
+    return getLayoutSlots(1920, 1080, layout, curP, borderWidth);
+  }, [layout, customParams, borderWidth]);
+
+  const activeBox = useMemo(() => {
+    return previewBoxes.find((b) => b.slot === activeSlotIndex) || null;
+  }, [previewBoxes, activeSlotIndex]);
+
+  const maxSlotsForLayout = LAYOUT_SLOT_COUNTS[layout];
+
   if (!isOpen) return null;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none"
     >
       <div className="w-[98vw] max-w-7xl h-[94vh] bg-[#FAF8F5] rounded-3xl border border-stone-200/80 shadow-2xl flex flex-col overflow-hidden text-stone-800">
         {/* HEADER BAR */}
@@ -916,14 +1620,18 @@ export function AlbumCollageStudioModal({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-serif text-base sm:text-lg font-medium text-stone-900 leading-tight">
-                  Studio Ghép Ảnh Tạp Chí 16:9 (Editorial Collage)
+                  Studio Ghép Ảnh Tạp Chí 16:9 (Editorial Collage Pro)
                 </h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-100 text-amber-900 border border-amber-200">
-                  16:9 RATIO
+                  16:9 STUDIO
+                </span>
+                <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  Kéo Ảnh & Lăn Chuột Zoom Trực Tiếp
                 </span>
               </div>
               <p className="text-[11px] text-stone-500 font-mono">
-                Xuất file Full HD 1080p & 4K Ultra HD • Tùy chỉnh căn chỉnh khung ảnh không bị cắt mặt
+                Xuất file Full HD 1080p & 4K Ultra HD • Tự động gắn watermark plusmoments.vn trên 8 mẫu bố cục
               </p>
             </div>
           </div>
@@ -973,7 +1681,11 @@ export function AlbumCollageStudioModal({
         {toastMessage && (
           <div className="px-6 py-2 bg-[#8C6D46] text-white text-xs font-medium flex items-center justify-between animate-fade-in shrink-0">
             <span>{toastMessage}</span>
-            <button type="button" onClick={() => setToastMessage(null)} className="text-white/80 hover:text-white">
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="text-white/80 hover:text-white"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -986,60 +1698,148 @@ export function AlbumCollageStudioModal({
           {/* ============================================================= */}
           <div className="p-4 sm:p-6 bg-[#181615] flex flex-col items-center justify-center overflow-y-auto relative no-scrollbar">
             {/* Top Toolbar Above Canvas */}
-            <div className="w-full max-w-4xl flex items-center justify-between text-xs text-stone-300 mb-2.5 font-mono px-1">
+            <div className="w-full max-w-4xl flex items-center justify-between text-xs text-stone-300 mb-2 font-mono px-1">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[11px] text-[#E5C585] tracking-wider uppercase font-semibold">
-                  {layout === 'editorial-spread'
-                    ? 'Tạp Chí Editorial (Spread 6 Ảnh)'
-                    : layout === 'cinematic-trio'
-                    ? 'Điện Ảnh Trio (3-4 Ảnh)'
-                    : 'Lưới Cân Đối 6 Ảnh (3x2)'}
+                  {layout === 'editorial-spread' && 'Tạp Chí Spread (6 Ảnh)'}
+                  {layout === 'cinematic-trio' && 'Điện Ảnh Trio (3 Ảnh)'}
+                  {layout === 'gallery-grid-6' && 'Lưới 6 Cân Đối (3x2)'}
+                  {layout === 'hero-filmstrip-5' && 'Hero + Dải Phim (5 Ảnh)'}
+                  {layout === 'asymmetric-lookbook-4' && 'Lookbook Bất Đối Xứng (4 Ảnh)'}
+                  {layout === 'romantic-duo-2' && 'Song Hành Lãng Mạn (2 Ảnh)'}
+                  {layout === 'mosaic-story-8' && 'Phóng Sự Đa Khung (8 Ảnh)'}
+                  {layout === 'polaroid-memories-4' && 'Kỷ Niệm Polaroid (4 Ảnh)'}
                 </span>
                 <span className="text-stone-500 text-[10px]">
                   • {selectedUrls.length} ảnh đã chọn
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-stone-400">Độ phân giải:</span>
-                <div className="flex items-center bg-[#282421] p-0.5 rounded-lg border border-stone-700 text-[10px]">
-                  <button
-                    type="button"
-                    onClick={() => setResolution('1080p')}
-                    className={`px-2 py-0.5 rounded font-semibold transition-colors ${
-                      resolution === '1080p'
-                        ? 'bg-[#8C6D46] text-white'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    1080p
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setResolution('4k')}
-                    className={`px-2 py-0.5 rounded font-semibold transition-colors ${
-                      resolution === '4k'
-                        ? 'bg-[#8C6D46] text-white'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    4K UHD
-                  </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetFrameLayout}
+                  className="px-2 py-0.5 rounded text-[10px] text-stone-300 hover:text-amber-300 bg-stone-800/80 border border-stone-700 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Đặt lại kích thước và tỷ lệ khung chuẩn"
+                >
+                  <RotateCcw className="w-2.5 h-2.5" />
+                  <span>↺ Đặt lại khung chuẩn</span>
+                </button>
+
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-stone-400">Độ phân giải:</span>
+                  <div className="flex items-center bg-[#282421] p-0.5 rounded-lg border border-stone-700 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setResolution('1080p')}
+                      className={`px-2 py-0.5 rounded font-semibold transition-colors ${
+                        resolution === '1080p'
+                          ? 'bg-[#8C6D46] text-white'
+                          : 'text-stone-400 hover:text-stone-200'
+                      }`}
+                    >
+                      1080p
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setResolution('4k')}
+                      className={`px-2 py-0.5 rounded font-semibold transition-colors ${
+                        resolution === '4k'
+                          ? 'bg-[#8C6D46] text-white'
+                          : 'text-stone-400 hover:text-stone-200'
+                      }`}
+                    >
+                      4K UHD
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 16:9 Frame Container */}
-            <div className="w-full max-w-4xl aspect-[16/9] bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#282421] relative flex items-center justify-center">
+            {/* 16:9 Frame Container with Interactive Drag & Wheel Zoom */}
+            <div
+              ref={previewContainerRef}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onWheel={handleWheel}
+              className={`w-full max-w-4xl aspect-[16/9] bg-stone-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#282421] relative flex items-center justify-center touch-none select-none ${
+                dragMode === 'pan'
+                  ? 'cursor-grabbing'
+                  : dragMode === 'resize-split'
+                  ? 'cursor-col-resize'
+                  : 'cursor-grab'
+              }`}
+            >
               <canvas
                 ref={canvasRef}
-                className="w-full h-full object-contain cursor-crosshair"
-                title="Bấm vào từng ô ảnh bên bảng điều khiển để tinh chỉnh góc nhìn và tỷ lệ zoom"
+                className="w-full h-full object-contain pointer-events-none"
               />
 
+              {/* OVERLAY: ACTIVE SLOT HIGHLIGHT BORDER & TOOLTIP */}
+              {activeBox && (
+                <div
+                  style={{
+                    left: `${(activeBox.x / 1920) * 100}%`,
+                    top: `${(activeBox.y / 1080) * 100}%`,
+                    width: `${(activeBox.w / 1920) * 100}%`,
+                    height: `${(activeBox.h / 1080) * 100}%`,
+                    transform: activeBox.rotation ? `rotate(${activeBox.rotation}deg)` : undefined,
+                  }}
+                  className="absolute pointer-events-none border-2 border-dashed border-[#E5C585] shadow-[0_0_16px_rgba(229,197,133,0.45)] rounded-md transition-all z-10 flex flex-col justify-between p-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="px-1.5 py-0.5 bg-black/80 text-[#E5C585] text-[9px] font-mono font-bold rounded shadow-xs">
+                      Ô #{activeSlotIndex + 1} • {activeBox.label}
+                    </span>
+                    <span className="px-1 py-0.5 bg-black/70 text-white text-[8px] font-mono rounded">
+                      {(slotTransforms[activeSlotIndex]?.zoom || 1.0).toFixed(1)}x
+                    </span>
+                  </div>
+
+                  <div className="self-center px-2 py-0.5 bg-black/75 text-[#F8F6F0] text-[9px] font-sans rounded-full backdrop-blur-xs flex items-center gap-1 opacity-90 shadow-xs">
+                    <Move className="w-2.5 h-2.5 text-[#E5C585]" />
+                    <span>Kéo để di chuyển • Lăn chuột để zoom</span>
+                  </div>
+                </div>
+              )}
+
+              {/* OVERLAY: INTERACTIVE SPLIT RESIZE HANDLE */}
+              {(layout === 'editorial-spread' ||
+                layout === 'cinematic-trio' ||
+                layout === 'asymmetric-lookbook-4' ||
+                layout === 'romantic-duo-2') && (
+                <div
+                  style={{
+                    left: `${(customParams[layout]?.splitRatio || 0.5) * 100}%`,
+                  }}
+                  className="absolute top-0 bottom-0 w-1 bg-amber-400/40 hover:bg-amber-400 transition-colors z-20 flex items-center justify-center pointer-events-auto cursor-col-resize group"
+                  title="Kéo sang trái / phải để điều chỉnh tỷ lệ chia khung"
+                >
+                  <div className="w-5 h-9 rounded-full bg-black/80 group-hover:bg-[#8C6D46] border border-amber-300 text-amber-200 flex items-center justify-center text-[10px] shadow-lg transition-transform group-hover:scale-110">
+                    ↔
+                  </div>
+                </div>
+              )}
+
+              {/* OVERLAY: HORIZONTAL SPLIT HANDLE FOR HERO-FILMSTRIP-5 */}
+              {layout === 'hero-filmstrip-5' && (
+                <div
+                  style={{
+                    top: `${(customParams[layout]?.splitRatio || 0.62) * 100}%`,
+                  }}
+                  className="absolute left-0 right-0 h-1 bg-amber-400/40 hover:bg-amber-400 transition-colors z-20 flex items-center justify-center pointer-events-auto cursor-row-resize group"
+                  title="Kéo lên / xuống để điều chỉnh chiều cao của Hero Panorama"
+                >
+                  <div className="h-5 w-9 rounded-full bg-black/80 group-hover:bg-[#8C6D46] border border-amber-300 text-amber-200 flex items-center justify-center text-[10px] shadow-lg transition-transform group-hover:scale-110">
+                    ↕
+                  </div>
+                </div>
+              )}
+
               {isRendering && (
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white gap-2 font-mono text-xs">
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center text-white gap-2 font-mono text-xs z-30">
                   <Loader2 className="w-4 h-4 animate-spin text-[#E5C585]" />
                   <span>Đang render bản mẫu 16:9...</span>
                 </div>
@@ -1048,9 +1848,9 @@ export function AlbumCollageStudioModal({
 
             {/* Quick Slot Selector Strip Below Canvas */}
             <div className="w-full max-w-4xl mt-3 flex items-center justify-between text-xs font-mono text-stone-400 px-1">
-              <span className="text-[11px]">Chọn ô ảnh để căn chỉnh góc nhìn:</span>
+              <span className="text-[11px] text-stone-300">Chọn ô ảnh cần căn chỉnh:</span>
               <div className="flex items-center gap-1.5 flex-wrap">
-                {Array.from({ length: layout === 'cinematic-trio' ? 3 : 6 }).map((_, i) => (
+                {Array.from({ length: maxSlotsForLayout }).map((_, i) => (
                   <button
                     key={i}
                     type="button"
@@ -1082,7 +1882,7 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => setSourceTab('album')}
-                    className={`px-3 py-1 rounded-md font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                       sourceTab === 'album'
                         ? 'bg-white text-stone-900 shadow-2xs'
                         : 'text-stone-600 hover:text-stone-900'
@@ -1093,7 +1893,7 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => setSourceTab('media')}
-                    className={`px-3 py-1 rounded-md font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                       sourceTab === 'media'
                         ? 'bg-white text-stone-900 shadow-2xs'
                         : 'text-stone-600 hover:text-stone-900'
@@ -1148,22 +1948,23 @@ export function AlbumCollageStudioModal({
                     <button
                       type="button"
                       onClick={handleShuffleImages}
-                      className="p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-200 transition-colors"
+                      className="p-1 text-stone-500 hover:text-stone-800 rounded hover:bg-stone-200 transition-colors cursor-pointer"
                       title="Xáo trộn ngẫu nhiên vị trí các ảnh"
                     >
                       <Shuffle className="w-3.5 h-3.5" />
                     </button>
                     <button
                       type="button"
-                      onClick={handleSelectFirst6}
-                      className="text-[10px] text-[#8C6D46] hover:underline px-1"
+                      onClick={handleSelectEnoughImages}
+                      className="text-[10px] text-[#8C6D46] hover:underline px-1 cursor-pointer font-medium"
+                      title={`Lấy đủ ${maxSlotsForLayout} ảnh cho mẫu này`}
                     >
-                      Lấy 6 ảnh đầu
+                      Lấy {maxSlotsForLayout} ảnh cho mẫu
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedUrls([])}
-                      className="text-[10px] text-red-600 hover:underline px-1"
+                      className="text-[10px] text-red-600 hover:underline px-1 cursor-pointer"
                     >
                       Xóa hết
                     </button>
@@ -1225,7 +2026,7 @@ export function AlbumCollageStudioModal({
             </div>
 
             {/* THUMBNAIL SELECTOR GRID */}
-            <div className="p-4 border-b border-stone-200 max-h-48 overflow-y-auto no-scrollbar">
+            <div className="p-4 border-b border-stone-200 max-h-44 overflow-y-auto no-scrollbar">
               <div className="text-[11px] font-medium text-stone-500 mb-2">
                 Bấm vào ảnh để bật/tắt chọn:
               </div>
@@ -1285,43 +2086,93 @@ export function AlbumCollageStudioModal({
               )}
             </div>
 
-            {/* SETTINGS: LAYOUT, THEME, BORDER */}
+            {/* SETTINGS: 8 LAYOUT TEMPLATES & THEME */}
             <div className="p-4 border-b border-stone-200 space-y-4">
-              <span className="font-semibold text-stone-900 uppercase tracking-wider text-[11px] block">
-                2. Mẫu Bố Cục & Tông Màu Tạp Chí
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-stone-900 uppercase tracking-wider text-[11px]">
+                  2. Mẫu Bố Cục Tạp Chí (8 Mẫu 16:9)
+                </span>
+                <span className="text-[10px] text-stone-500 font-mono">
+                  {maxSlotsForLayout} ảnh
+                </span>
+              </div>
 
-              {/* Layout choices */}
-              <div className="grid grid-cols-3 gap-2">
+              {/* 8 Layout Templates Grid */}
+              <div className="grid grid-cols-2 gap-2">
                 {[
                   {
                     id: 'editorial-spread',
                     title: 'Tạp Chí Spread',
-                    desc: 'Nửa mờ + 4 lưới',
+                    desc: 'Nửa mờ + 2 khung nổi + 4 lưới',
+                    count: 6,
                   },
                   {
                     id: 'cinematic-trio',
                     title: 'Điện Ảnh Trio',
-                    desc: '1 dọc + 2 ngang',
+                    desc: '1 hero dọc + 2 ngang xếp tầng',
+                    count: 3,
                   },
                   {
                     id: 'gallery-grid-6',
                     title: 'Lưới 6 Cân Đối',
-                    desc: '3 cột x 2 hàng',
+                    desc: '3 cột x 2 hàng chuẩn tạp chí',
+                    count: 6,
+                  },
+                  {
+                    id: 'hero-filmstrip-5',
+                    title: 'Hero + Dải Phim',
+                    desc: '1 panorama lớn + 4 ảnh phim',
+                    count: 5,
+                  },
+                  {
+                    id: 'asymmetric-lookbook-4',
+                    title: 'Lookbook Nghệ Thuật',
+                    desc: '4 khung tỷ lệ vàng đan xen',
+                    count: 4,
+                  },
+                  {
+                    id: 'romantic-duo-2',
+                    title: 'Song Hành Lãng Mạn',
+                    desc: '2 chân dung đối xứng + chữ giữa',
+                    count: 2,
+                  },
+                  {
+                    id: 'mosaic-story-8',
+                    title: 'Phóng Sự Đa Khung',
+                    desc: 'Lưới 8 khung tiệc cưới sôi động',
+                    count: 8,
+                  },
+                  {
+                    id: 'polaroid-memories-4',
+                    title: 'Kỷ Niệm Polaroid',
+                    desc: '4 ảnh Polaroid nghiêng nghệ thuật',
+                    count: 4,
                   },
                 ].map((item) => (
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setLayout(item.id as CollageLayoutType)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    onClick={() => {
+                      setLayout(item.id as CollageLayoutType);
+                      if (activeSlotIndex >= item.count) {
+                        setActiveSlotIndex(0);
+                      }
+                    }}
+                    className={`p-2 rounded-xl border text-left transition-all cursor-pointer relative ${
                       layout === item.id
-                        ? 'border-[#8C6D46] bg-amber-50/60 ring-2 ring-[#8C6D46]/20 shadow-2xs font-medium'
+                        ? 'border-[#8C6D46] bg-amber-50/70 ring-2 ring-[#8C6D46]/20 shadow-2xs font-medium'
                         : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700'
                     }`}
                   >
-                    <div className="font-semibold text-xs text-stone-900">{item.title}</div>
-                    <div className="text-[10px] text-stone-500 mt-0.5">{item.desc}</div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="font-semibold text-xs text-stone-900 leading-tight">
+                        {item.title}
+                      </div>
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-stone-100 text-stone-600">
+                        {item.count} ảnh
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-stone-500 line-clamp-1">{item.desc}</div>
                   </button>
                 ))}
               </div>
@@ -1361,39 +2212,40 @@ export function AlbumCollageStudioModal({
               </div>
             </div>
 
-            {/* SETTINGS: CELL FINE-TUNING (PAN, ZOOM, FLIP) */}
+            {/* SETTINGS: CELL FINE-TUNING & INTERACTIVE PAN/ZOOM */}
             <div className="p-4 border-b border-stone-200 space-y-3 bg-amber-50/40">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-stone-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                   <Sliders className="w-3.5 h-3.5 text-[#8C6D46]" />
                   <span>3. Căn Chỉnh Ô Đang Chọn (Ô #{activeSlotIndex + 1})</span>
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSlotTransforms((prev) => ({
-                      ...prev,
-                      [activeSlotIndex]: {
-                        ...prev[activeSlotIndex],
-                        flipX: !prev[activeSlotIndex]?.flipX,
-                      },
-                    }));
-                  }}
-                  className={`h-7 px-2.5 rounded-lg border text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                    slotTransforms[activeSlotIndex]?.flipX
-                      ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
-                      : 'bg-white border-stone-300 text-stone-700 hover:bg-stone-50'
-                  }`}
-                  title="Lật ảnh nằm ngang"
-                >
-                  <FlipHorizontal className="w-3 h-3" />
-                  <span>Lật Ngang</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSlotTransforms((prev) => ({
+                        ...prev,
+                        [activeSlotIndex]: {
+                          ...prev[activeSlotIndex],
+                          flipX: !prev[activeSlotIndex]?.flipX,
+                        },
+                      }));
+                    }}
+                    className={`h-7 px-2.5 rounded-lg border text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer ${
+                      slotTransforms[activeSlotIndex]?.flipX
+                        ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
+                        : 'bg-white border-stone-300 text-stone-700 hover:bg-stone-50'
+                    }`}
+                    title="Lật ảnh nằm ngang"
+                  >
+                    <FlipHorizontal className="w-3 h-3" />
+                    <span>Lật Ngang</span>
+                  </button>
+                </div>
               </div>
 
               {/* Sliders: Pan X, Pan Y, Zoom */}
               <div className="space-y-2 pt-1">
-                {/* Pan X Slider */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] text-stone-600 mb-0.5">
                     <span>Dịch chuyển Ngang (Trái ↔ Phải):</span>
@@ -1416,7 +2268,6 @@ export function AlbumCollageStudioModal({
                   />
                 </div>
 
-                {/* Pan Y Slider */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] text-stone-600 mb-0.5">
                     <span>Dịch chuyển Dọc (Lên ↕ Xuống):</span>
@@ -1439,7 +2290,6 @@ export function AlbumCollageStudioModal({
                   />
                 </div>
 
-                {/* Zoom Scale Slider */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] text-stone-600 mb-0.5">
                     <span>Độ Phóng To (Zoom):</span>
@@ -1448,7 +2298,7 @@ export function AlbumCollageStudioModal({
                   <input
                     type="range"
                     min="1.0"
-                    max="2.5"
+                    max="3.0"
                     step="0.05"
                     value={slotTransforms[activeSlotIndex]?.zoom || 1.0}
                     onChange={(e) => {
@@ -1461,13 +2311,106 @@ export function AlbumCollageStudioModal({
                     className="w-full accent-[#8C6D46] cursor-pointer"
                   />
                 </div>
+
+                {/* Split Ratio Slider */}
+                <div>
+                  <div className="flex items-center justify-between text-[11px] text-stone-600 mb-0.5">
+                    <span>Tỷ Lệ Chia Khung Ảnh (Split):</span>
+                    <span className="font-mono">
+                      {Math.round((customParams[layout]?.splitRatio || 0.5) * 100)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="28"
+                    max="72"
+                    step="1"
+                    value={Math.round((customParams[layout]?.splitRatio || 0.5) * 100)}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) / 100;
+                      setCustomParams((prev) => ({
+                        ...prev,
+                        [layout]: { ...prev[layout], splitRatio: val },
+                      }));
+                    }}
+                    className="w-full accent-[#8C6D46] cursor-pointer"
+                  />
+                </div>
               </div>
+            </div>
+
+            {/* SETTINGS: BRAND WATERMARK PLUSMOMENTS.VN */}
+            <div className="p-4 border-b border-stone-200 space-y-3 bg-stone-50/50">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-stone-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#8C6D46]" />
+                  <span>4. Nhận Diện Thương Hiệu Watermark</span>
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoBrandWatermark}
+                    onChange={(e) => setAutoBrandWatermark(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-8 h-4 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#8C6D46]"></div>
+                  <span className="ml-1.5 text-[10px] font-medium text-stone-600">
+                    {autoBrandWatermark ? 'Bật' : 'Tắt'}
+                  </span>
+                </label>
+              </div>
+
+              {autoBrandWatermark && (
+                <div className="space-y-2 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      Vị Trí Watermark:
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { id: 'bottom-right', label: 'Góc Phải' },
+                        { id: 'bottom-center', label: 'Chân Giữa' },
+                        { id: 'bottom-left', label: 'Góc Trái' },
+                      ].map((pos) => (
+                        <button
+                          key={pos.id}
+                          type="button"
+                          onClick={() => setWatermarkPosition(pos.id as any)}
+                          className={`py-1 px-2 rounded-lg text-[10px] font-medium border text-center transition-colors cursor-pointer ${
+                            watermarkPosition === pos.id
+                              ? 'bg-[#8C6D46] text-white border-[#8C6D46]'
+                              : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
+                          }`}
+                        >
+                          {pos.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
+                      Nội Dung Nhận Diện:
+                    </label>
+                    <input
+                      type="text"
+                      value={watermarkText}
+                      onChange={(e) => setWatermarkText(e.target.value)}
+                      placeholder="plusmoments.vn"
+                      className="w-full h-8 px-2.5 rounded-lg border border-stone-300 text-xs font-mono uppercase focus:outline-none focus:ring-1 focus:ring-[#8C6D46]"
+                    />
+                    <p className="text-[10px] text-stone-400 mt-1">
+                      Tự động vẽ chữ hoa mảnh kèm đường gạch chỉ tinh tế sang trọng trên toàn bộ 8 mẫu xuất ra.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* SETTINGS: TYPOGRAPHY & QUOTE OVERLAYS */}
             <div className="p-4 space-y-3">
               <span className="font-semibold text-stone-900 uppercase tracking-wider text-[11px] block">
-                4. Chữ Nghệ Thuật & Lời Trích Dẫn
+                5. Chữ Nghệ Thuật & Lời Trích Dẫn
               </span>
 
               {/* Title input */}
@@ -1477,7 +2420,7 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => setShowTitle(!showTitle)}
-                    className="text-[10px] text-[#8C6D46] hover:underline"
+                    className="text-[10px] text-[#8C6D46] hover:underline cursor-pointer"
                   >
                     {showTitle ? 'Ẩn tiêu đề' : 'Hiện tiêu đề'}
                   </button>
@@ -1499,7 +2442,7 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => setShowSubtitle(!showSubtitle)}
-                    className="text-[10px] text-[#8C6D46] hover:underline"
+                    className="text-[10px] text-[#8C6D46] hover:underline cursor-pointer"
                   >
                     {showSubtitle ? 'Ẩn phụ đề' : 'Hiện phụ đề'}
                   </button>
@@ -1521,7 +2464,7 @@ export function AlbumCollageStudioModal({
                   <button
                     type="button"
                     onClick={() => setShowQuote(!showQuote)}
-                    className="text-[10px] text-[#8C6D46] hover:underline"
+                    className="text-[10px] text-[#8C6D46] hover:underline cursor-pointer"
                   >
                     {showQuote ? 'Ẩn quote' : 'Hiện quote'}
                   </button>
